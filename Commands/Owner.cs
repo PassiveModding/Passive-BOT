@@ -64,5 +64,203 @@ namespace PassiveBOT.Commands
             await ReplyAsync("Bot Username updated").ConfigureAwait(false);
 
         }
+
+        [Command("kickcunt"), Summary("kick '@badperson' 'for not being cool'"), Remarks("Kicks the specified user (requires Kick Permissions)")]
+        [RequireContext(ContextType.Guild)]
+        public async Task Kickuser(SocketGuildUser user, [Remainder, Optional] string reason)
+        {
+            if (user.GuildPermissions.ManageRoles == true)
+            {
+                await ReplyAsync($"**ERROR: **you cannot kick a a user with manage roles permission");
+                return;
+            }
+            else if (reason == null)
+            {
+                await ReplyAsync("**ERROR: **Please specify a reason for Kicking the user");
+                return;
+            }
+            else
+            {
+                await ReplyAsync($"{user.Mention} you have been kicked for `{reason}`:bangbang: ");
+                var dm = await user.CreateDMChannelAsync();
+                await dm.SendMessageAsync($"{user.Mention} you have been kicked from {Context.Guild} for `{reason}`");
+                await user.KickAsync();
+
+                var warnpath = Path.Combine(AppContext.BaseDirectory, $"moderation/kick/{Context.Guild.Id}.txt");
+                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/kick/")))
+                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/kick/"));
+
+                File.AppendAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt", $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
+            }
+        }
+
+        [Command("warncunt"), Summary("warn '@naughtykiddo' 'for being a noob'"), Remarks("warns the specified user")]
+        [RequireContext(ContextType.Guild)]
+        public async Task NewWarnuser(SocketGuildUser user, [Remainder, Optional] string reason)
+        {
+            if (user.GuildPermissions.ManageRoles == true)
+            {
+                await ReplyAsync($"**ERROR: **you cannot warn a a user with manage roles permission");
+                return;
+            }
+            else if (reason == null)
+            {
+                await ReplyAsync("**ERROR: **Please Specify a reason for warning the user");
+                return;
+            }
+            else
+            {
+                await ReplyAsync($"{user.Mention} you have been warned for `{reason}`");
+                var dm = await user.CreateDMChannelAsync();
+                await dm.SendMessageAsync($"{user.Mention} you have been warned for `{reason}` in {Context.Guild}");
+
+
+                var warnpath = Path.Combine(AppContext.BaseDirectory, $"moderation/warn/{Context.Guild.Id}.txt");
+                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/warn/")))
+                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/warn/"));
+
+                File.AppendAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt", $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
+
+            }
+
+        }
+
+        [Command("bancunt"), Summary("ban 'badfag' 'for sucking'"), Remarks("bans the specified user (requires Ban Permissions)")]
+        [RequireContext(ContextType.Guild)]
+        public async Task Banuser(SocketGuildUser user, [Remainder, Optional] string reason)
+        {
+
+            if (user.GuildPermissions.ManageRoles == true)
+            {
+                await ReplyAsync($"**ERROR: **you cannot ban a user with manage roles permission");
+                return;
+            }
+            else if (reason == null)
+            {
+                await ReplyAsync("**ERROR: ** Please specify a reason for banning the user!");
+                return;
+            }
+            else
+            {
+                await ReplyAsync($"{user.Mention} you have been banned for `{reason}`:bangbang: ");
+                var dm = await user.CreateDMChannelAsync();
+                await dm.SendMessageAsync($"{user.Mention} you have been banned from {Context.Guild} for `{reason}`");
+                await Context.Guild.AddBanAsync(user);
+
+                var warnpath = Path.Combine(AppContext.BaseDirectory, $"moderation/ban/{Context.Guild.Id}.txt");
+                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/ban/")))
+                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/ban/"));
+
+
+                File.AppendAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt", $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
+
+            }
+        }
+        [Command("kicks"), Summary("kicks"), Remarks("Users kicked by passivebot")]
+        public async Task Kicks()
+        {
+            var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
+            await ReplyAsync("```\n" + kicks + "\n```");
+        }
+
+        [Command("warns"), Summary("warns"), Remarks("Users warned by passivebot")]
+        public async Task Warns()
+        {
+            var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
+            await ReplyAsync("```\n" + warns + "\n```");
+        }
+
+        [Command("bans"), Summary("bans"), Remarks("Users banned by passivebot")]
+        public async Task Bans()
+        {
+            var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
+            await ReplyAsync("```\n" + bans + "\n```");
+        }
+
+        [Command("mutecunt"), Summary("mute '@loudboy'"), Remarks("Mutes the specified player")]
+        public async Task Mute(string user, [Remainder, Optional] string reason)
+        {
+
+            if (Utilities.GetMutedRole((SocketGuild)Context.Guild) == null)
+            {
+                await ReplyAsync("This server does not contain the role 'Muted' type `.mutehelp` for more info");
+            }
+            else if (reason == null)
+            {
+                await ReplyAsync("**ERROR: **Please specify a reason type `.mutehelp` for more info");
+            }
+            else if (Context.Message.MentionedUserIds.Count != 0 && Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault()) != null)
+            {
+                IGuildUser target = await Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault());
+                IRole muted = Utilities.GetMutedRole((SocketGuild)Context.Guild);
+                if (target.RoleIds.Contains(muted.Id))
+                {
+                    await ReplyAsync("**ERROR: ** The user is already muted");
+                }
+                else
+                {
+                    await target.AddRoleAsync(muted);
+                    await ReplyAsync(target.Username + " is muted.");
+                }
+            }
+            else if (await Utilities.GetUser(Context.Guild, user) != null)
+            {
+                IGuildUser target = await Utilities.GetUser(Context.Guild, user);
+                IRole muted = Utilities.GetMutedRole((SocketGuild)Context.Guild);
+                if (target.RoleIds.Contains(muted.Id))
+                {
+                    await ReplyAsync("**ERROR: ** The user is already muted");
+                }
+                else
+                {
+                    await target.AddRoleAsync(muted);
+                    await ReplyAsync(target.Username + " is muted.");
+                }
+            }
+            else
+            {
+                await ReplyAsync("Who the fuck is " + user + "?");
+            }
+        }
+
+        [Command("unmutecunt"), Summary("unmute 'quiteboy'"), Remarks("unmutes the specified user")]
+        public async Task Unmute(string user)
+        {
+
+            if (Utilities.GetMutedRole((SocketGuild)Context.Guild) == null)
+                await ReplyAsync("This server does not contain the role 'Muted' type `.mutehelp` for more info");
+            else if (Context.Message.MentionedUserIds.Count != 0 && Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault()) != null)
+            {
+                IGuildUser target = await Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault());
+                IRole muted = Utilities.GetMutedRole((SocketGuild)Context.Guild);
+                if (target.RoleIds.Contains(muted.Id))
+                {
+                    await target.RemoveRoleAsync(muted);
+                    await ReplyAsync(target.Username + " is unmuted.");
+                }
+                else
+                {
+                    await ReplyAsync("**ERROR: ** The user wasn't muted in the first place");
+                }
+            }
+            else if (await Utilities.GetUser(Context.Guild, user) != null)
+            {
+                IGuildUser target = await Utilities.GetUser(Context.Guild, user);
+                IRole muted = Utilities.GetMutedRole((SocketGuild)Context.Guild);
+                if (target.RoleIds.Contains(muted.Id))
+                {
+                    await target.RemoveRoleAsync(muted);
+                    await ReplyAsync(target.Username + " is unmuted");
+                }
+                else
+                {
+                    await ReplyAsync("**ERROR: ** The user wasn't muted in the first place");
+                }
+            }
+            else
+            {
+                await ReplyAsync("Who the fuck is " + user + "?");
+            }
+        }
     }
 }

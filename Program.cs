@@ -41,7 +41,7 @@ namespace PassiveBOT
              "██║     ██║  ██║███████║███████║██║ ╚████╔╝ ███████╗██████╔╝╚██████╔╝   ██║   \n" +
              "╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝╚═════╝  ╚═════╝    ╚═╝   \n" +
              "/--------------------------------------------------------------------------\\ \n" +
-             "| Designed by PassiveModding PassiveNation.com/ ||    Status: Connected   | \n" +
+             "| Designed by PassiveModding - PassiveNation.com  ||   Status: Connected   | \n" +
              "\\--------------------------------------------------------------------------/ \n");
 
             var map = new DependencyMap();

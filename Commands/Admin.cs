@@ -186,6 +186,11 @@ namespace PassiveBOT.Commands
             }
             else
             {
+                await ReplyAsync($"{user.Mention} you have been kicked for `{reason}`:bangbang: ");
+                var dm = await user.CreateDMChannelAsync();
+                await dm.SendMessageAsync($"{user.Mention} you have been kicked from {Context.Guild} for `{reason}`");
+                await user.KickAsync();
+
                 var warnpath = Path.Combine(AppContext.BaseDirectory, $"moderation/kick/{Context.Guild.Id}.txt");
                 if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/kick/")))
                     Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/kick/"));
