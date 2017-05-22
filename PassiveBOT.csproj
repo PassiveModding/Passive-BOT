@@ -209,6 +209,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Config.cs" />
+    <Compile Include="Services\linkcfg.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -25,7 +25,7 @@ namespace PassiveBOT.Commands
                 var builder = new EmbedBuilder()
                 {
                     Color = new Discord.Color(114, 137, 218),
-                    Title = $"I am PassiveBOT Created By PassiveModding <http://passivenation.com/forumdisplay.php?fid=20>, Here are my commands:"
+                    Title = $"I am PassiveBOT Created By {Linkcfg.owner} <{Linkcfg.siteurl}>, Here are my commands:"
                 };
 
                 foreach (var module in _service.Modules)
@@ -103,9 +103,20 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("helpme"), Alias("faq"), Summary("helpme"), Remarks("Used for the FAQ link for PassiveBOT")]
+        [Command("faq"), Alias("helpme"), Summary("helpme"), Remarks("Used for the FAQ link for PassiveBOT")]
         public async Task Helpme()
-        =>await ReplyAsync("For the FAQ section, please check out the FAQ page on our site: http://passivenation.com/showthread.php?tid=41 \nalso please feel free to ask additional questions here");
+        =>await ReplyAsync($"For the FAQ section, please check out the FAQ page on our site: {Linkcfg.faq} \nalso please feel free to ask additional questions here");
+
+
+        [Command("donate"), Summary("donate"), Alias("support"), Remarks("Donation Links for PassiveModding")]
+        public async Task Donate()
+        {
+            await ReplyAsync(
+             $"If you want to donate to PassiveModding and support this project here are his donation links:" +
+             $"\n<https://www.paypal.me/PassiveModding/5usd>" +
+             $"\n<https://goo.gl/vTtLg6>"
+            );
+        }
 
         /*
         [Command("nottest")]

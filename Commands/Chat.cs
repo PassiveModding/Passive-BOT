@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using PassiveBOT.Services;
 
 namespace PassiveBOT.Commands
 {
@@ -72,16 +73,6 @@ namespace PassiveBOT.Commands
                 await Task.Delay(260);
                 await message.AddReactionAsync($"{emojiii}");
             }
-        }
-
-        [Command("donate"), Summary("donate"), Alias("support"), Remarks("Donation Links for PassiveModding")]
-        public async Task Donate()
-        {
-            await ReplyAsync(
-             $"If you want to donate to PassiveModding and support this project here are his donation links:" +
-             $"\n<https://www.paypal.me/PassiveModding/5usd>" +
-             $"\n<https://goo.gl/vTtLg6>"
-            );
         }
 
         [Command("dm"), Summary("dm 'hey babe'"), Remarks("Direct Messages the user")]

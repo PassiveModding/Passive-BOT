@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using PassiveBOT.Services;
 
 namespace PassiveBOT.Commands
 {
@@ -54,7 +55,7 @@ namespace PassiveBOT.Commands
             });
             builder.AddField(x => {
                 x.Name = "PassiveBOT";
-                x.Value = "http://passivenation.com/forumdisplay.php?fid=20";
+                x.Value = $"{Linkcfg.siteurl}";
                 //x.IsInline = true;
             });
 
@@ -71,7 +72,7 @@ namespace PassiveBOT.Commands
             };
             embed.AddField(x => {
                 x.Name = "Author:";
-                x.Value = $"PassiveModding";
+                x.Value = $"{Linkcfg.owner}";
                 x.IsInline = false;
             });
             embed.AddField(x => {
@@ -86,7 +87,7 @@ namespace PassiveBOT.Commands
             });
             embed.AddField(x => {
                 x.Name = "PassiveBOT";
-                x.Value = "http://passivenation.com/forumdisplay.php?fid=20";
+                x.Value = $"{Linkcfg.siteurl}";
                 x.IsInline = false;
             });
 
@@ -222,7 +223,7 @@ namespace PassiveBOT.Commands
             });
             embed.AddField(x => {
                 x.Name = "PassiveBOT";
-                x.Value = "http://passivenation.com/forumdisplay.php?fid=20";
+                x.Value = $"{Linkcfg.siteurl}";
                 x.IsInline = false;
             });           
 
@@ -239,7 +240,7 @@ namespace PassiveBOT.Commands
                 Title = $"Roles for {Context.Guild.Name}",
                 Description = string.Join("\n", rol),
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
-                Url = "http://passivenation.com/forumdisplay.php?fid=20"
+                Url = $"{Linkcfg.siteurl}"
             };
 
             await ReplyAsync("", false, embed.Build());

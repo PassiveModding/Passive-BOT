@@ -64,9 +64,9 @@ namespace PassiveBOT
                 else if (rnd == 1)
                     await client.SetGameAsync($"{Config.Load().Prefix}help / Servers: {(client as DiscordSocketClient).Guilds.Count}");
                 else if (rnd == 2)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / HEAP: {GetHeapSize()}MB");
+                    await client.SetGameAsync($"{Config.Load().Prefix}help / Heap: {GetHeapSize()}MB");
                 else if (rnd == 3)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / PassiveNation.com");
+                    await client.SetGameAsync($"{Config.Load().Prefix}help / {Linkcfg.gamesite}");
                 else if (rnd == 4)
                     await client.SetGameAsync($"{Config.Load().Prefix}help / <3");
                 else
@@ -82,7 +82,7 @@ namespace PassiveBOT
         {
             var application = await client.GetApplicationInfoAsync();
             await Log(new LogMessage(LogSeverity.Info, "Program",
-                $"Invite URL: <https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot>"));
+                $"Invite URL: < https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot >"));
         }
 
         public static Task Log(LogMessage msg)
