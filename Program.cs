@@ -20,8 +20,7 @@ namespace PassiveBOT
 
         public async Task Start()
         {
-            Console.WriteLine($"===   PassiveBOT  ===");
-            Console.Title = $"PassiveBOT";
+            Console.Title = $"PassiveBOT v{Linkcfg.version}";
 
             Config.CheckExistence();
 
@@ -51,14 +50,14 @@ namespace PassiveBOT
             handler = new CommandHandler();
             await handler.Install(map);
 
-
+            Console.WriteLine();
             client.Log += Log;
             client.Ready += Client_Ready;
 
             await Task.Delay(3000);
             while (true)
             {
-                var rnd = new Random().Next(0, 4);
+                var rnd = new Random().Next(0, 5);
                 if (rnd == 0)
                     await client.SetGameAsync($"{Config.Load().Prefix}help / Users: {(client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}");
                 else if (rnd == 1)
@@ -68,9 +67,8 @@ namespace PassiveBOT
                 else if (rnd == 3)
                     await client.SetGameAsync($"{Config.Load().Prefix}help / {Linkcfg.gamesite}");
                 else if (rnd == 4)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / <3");
-                else
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / Users: {(client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}");
+                    await client.SetGameAsync($"{Config.Load().Prefix}help / v{Linkcfg.version}");
+
                 await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | Automated"));
                 await Task.Delay(3600000);
                 

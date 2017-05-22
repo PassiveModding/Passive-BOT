@@ -12,5 +12,6 @@ namespace PassiveBOT.Services
         public static string siteurl = "http://passivenation.com/forumdisplay.php?fid=20";
         public static string faq = "";
         public static string owner = "PassiveModding";
+        public static string version = "3.12";
     }
 }

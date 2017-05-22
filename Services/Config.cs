@@ -49,7 +49,10 @@ namespace PassiveBOT.Services
 
                 cfg.Save();
             }
-            Console.WriteLine("Configuration successfully loaded!");
+            Console.WriteLine(
+                "\n|==================================|\n" +
+                "|Configuration successfully loaded!|" +
+                "\n|==================================|\n");
         }
         public static string token = @"After you input your token, a config will be generated at 'cfg\\config.json'.";
         public static string prefix = @"Please enter a prefix for the bot eg. '.' or '+' (do not include the '' outside of the prefix)";
