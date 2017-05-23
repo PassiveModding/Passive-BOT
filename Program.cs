@@ -6,12 +6,15 @@ using Discord.Commands;
 using PassiveBOT;
 using PassiveBOT.Services;
 using System.Linq;
+using Discord.Addons.InteractiveCommands;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog.Extensions.Logging;
 
 namespace PassiveBOT
 {
     public class Program
     {
-        // Convert our sync main to an async main.
         public static void Main(string[] args) =>
          new Program().Start().GetAwaiter().GetResult();
 
@@ -46,7 +49,6 @@ namespace PassiveBOT
 
             var map = new DependencyMap();
             map.Add(client);
-
             handler = new CommandHandler();
             await handler.Install(map);
 
@@ -59,19 +61,36 @@ namespace PassiveBOT
             {
                 var rnd = new Random().Next(0, 5);
                 if (rnd == 0)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / Users: {(client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}");
+                {
+                    var g0 = $"{Config.Load().Prefix}help / Users: {(client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}";
+                    await client.SetGameAsync($"{g0}");
+                    await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | {g0}"));
+                }
                 else if (rnd == 1)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / Servers: {(client as DiscordSocketClient).Guilds.Count}");
+                {
+                    var g1 = $"{Config.Load().Prefix}help / Servers: {(client as DiscordSocketClient).Guilds.Count}";
+                    await client.SetGameAsync($"{g1}");
+                    await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | {g1}"));
+                }
                 else if (rnd == 2)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / Heap: {GetHeapSize()}MB");
+                {
+                    var g2 = $"{Config.Load().Prefix}help / Heap: {GetHeapSize()}MB";
+                    await client.SetGameAsync($"{g2}");
+                    await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | {g2}"));
+                }
                 else if (rnd == 3)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / {Linkcfg.gamesite}");
+                {
+                    var g3 = $"{Config.Load().Prefix}help / {Linkcfg.gamesite}";
+                    await client.SetGameAsync($"{g3}");
+                    await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | {g3}"));
+                }
                 else if (rnd == 4)
-                    await client.SetGameAsync($"{Config.Load().Prefix}help / v{Linkcfg.version}");
-
-                await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | Automated"));
+                {
+                    var g4 = $"{Config.Load().Prefix}help / v{Linkcfg.version}";
+                    await client.SetGameAsync($"{g4}");
+                    await Log(new LogMessage(LogSeverity.Info, "SetGame", $"SetGame         | Server: All Guilds      | {g4}"));
+                }
                 await Task.Delay(3600000);
-                
             }
         }
         private static string GetHeapSize() => Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString();
@@ -79,8 +98,7 @@ namespace PassiveBOT
         private async Task Client_Ready()
         {
             var application = await client.GetApplicationInfoAsync();
-            await Log(new LogMessage(LogSeverity.Info, "Program",
-                $"Invite URL: < https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot >"));
+            await Log(new LogMessage(LogSeverity.Info, "Program", $"Invite URL: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot"));
         }
 
         public static Task Log(LogMessage msg)

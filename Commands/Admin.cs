@@ -49,6 +49,19 @@ namespace PassiveBOT.Commands
                 await quick.DeleteAsync();
             }
         }
+        [Command("qcoff"), Alias("qc off"), Summary("qcoff '@role'"), Remarks("turns quickcolour role off")]
+        public async Task Qoff([Optional] IRole role)
+        {
+            if (role == null)
+            {
+                await ReplyAsync("**ERROR: **Please Specify a role and an interval eg. `.qc @LSD 60`");
+            }
+            else
+            {
+                var quick = await ReplyAsync(".colour 0 " + role);
+                await quick.DeleteAsync();
+            }
+        }
         private static ConcurrentDictionary<ulong, Timer> _rotatingRoleColors = new ConcurrentDictionary<ulong, Timer>();
         [Command("Colour"), Summary("colour '60' '@role' 'FFFFFF FFFFF1'"), Remarks("Changes the Colour of a role")]
         public async Task Colour(int timeout, IRole role, params string[] hexes)

@@ -19,7 +19,6 @@ namespace PassiveBOT
             _invokeLimit = times;
             _noLimitInDMs = noLimitInDMs;
 
-            //TODO: C# 7 candidate switch expression
             switch (measure)
             {
                 case Measure.Days:

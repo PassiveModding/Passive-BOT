@@ -72,7 +72,22 @@ namespace PassiveBOT.Commands
             };
 
             await ReplyAsync($"", false, builder.Build());
+        }
+        [Command("nsfwvid"), Summary("nsfwvid"), Remarks("Porhub + Bots = win?")]
+        public async Task Nsfwvid()
+        {
+            int result;
+            Random rnd = new Random();
+            result = rnd.Next(0, Strings2.sfw.Length);
 
+            var builder = new EmbedBuilder()
+            {
+                Title = Strings.nsfwvid[result],
+                Url = Strings.nsfwvid[result],
+                Description = $"Video Database Size: {Strings.nsfwvid.Length}\n Video Number: {result}"
+            };
+
+            await ReplyAsync($"", false, builder.Build());
         }
     }
 }

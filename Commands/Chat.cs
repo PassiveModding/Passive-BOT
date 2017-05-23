@@ -39,42 +39,6 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
-        [Command("react"), Summary("react :ok_hand: :wink:"), Remarks("reacts the given emoji(s)")]
-        public async Task React([Remainder]string emoji)
-        {
-            var message = Context.Message;
-            new string(emoji.ToCharArray().Distinct().ToArray());
-
-            string[] split = emoji.Split(' ');
-
-            var e = new string(emoji.ToCharArray().Distinct().ToArray());
-            string[] emoj = e.Split(' ');
-
-            foreach (string emojiii in emoj)
-            {
-                await Task.Delay(260);
-                await message.AddReactionAsync($"{emojiii}");
-            }
-        }
-
-        [Command("reactID"), Summary("react 313287245429866506 :ok_hand: _wink:"), Remarks("reacts the given emoji(s) to a message (from ID)")]
-        public async Task ReactID(ulong id, [Remainder]string emoji)
-        {
-            var message = await Context.Channel.GetMessageAsync(id) as IUserMessage;
-
-            new string(emoji.ToCharArray().Distinct().ToArray());
-            string[] split = emoji.Split(' ');
-
-            var e = new string(emoji.ToCharArray().Distinct().ToArray());
-            string[] emoj = e.Split(' ');
-
-            foreach (string emojiii in emoj)
-            {
-                await Task.Delay(260);
-                await message.AddReactionAsync($"{emojiii}");
-            }
-        }
-
         [Command("dm"), Summary("dm 'hey babe'"), Remarks("Direct Messages the user")]
         public async Task Dmuser([Remainder] string message)
         {

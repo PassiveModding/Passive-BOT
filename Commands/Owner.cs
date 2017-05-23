@@ -15,34 +15,15 @@ namespace PassiveBOT.Commands
     [RequireOwner]
     public class Owner : ModuleBase
     {
+        public DiscordSocketClient client;
+
         [Command("die"), Summary("die"), Remarks("Kills the bot (owner only)")]
         public async Task Die()
         {
-            await ReplyAsync("Bye Bye :heart:");
-            Environment.Exit(1);
-        }
-        [Command("ServerList"), Summary("serverlist"), Remarks("Gets all the servers the bot is connected to."), Alias("sl")]
-        public async Task ServerListAsync()
-        {
-            var client = Context.Client as DiscordSocketClient;
-            var embed = new EmbedBuilder();
-            foreach (SocketGuild guild in client.Guilds)
-            {
-                embed.AddField(x =>
-                {
-                    x.Name = $"{guild.Name} || {guild.Id} || Guild Members: {guild.MemberCount}";
-                    x.Value = $"-------------";
-                    x.IsInline = true;
-                });
-            }
-            embed.Title = "=== Server List ===";
-            embed.Color = new Discord.Color(255, 210, 50);
-            embed.Footer = new EmbedFooterBuilder()
-            {
-                Text = $"Total Guilds: {client.Guilds.Count.ToString()}"
-            };
-            await ReplyAsync("", embed: embed);
 
+            await ReplyAsync("Bye Bye :heart:");
+            await client.StopAsync();
+            Environment.Exit(1);
         }
 
         [Command("Broadcast"), Summary("broadcast 'message'"), Remarks("Sends a message to ALL severs that the bot is connected to."), Alias("Yell", "Shout")]
@@ -62,10 +43,11 @@ namespace PassiveBOT.Commands
             var client = Context.Client as DiscordSocketClient;
             await Context.Client.CurrentUser.ModifyAsync(x => x.Username = value).ConfigureAwait(false);
             await ReplyAsync("Bot Username updated").ConfigureAwait(false);
-
         }
 
-        [Command("kickcunt"), Summary("kick '@badperson' 'for not being cool'"), Remarks("Kicks the specified user (requires Kick Permissions)")]
+        //basically gives owner of the bot access to all permissions the bot has, kinda cheaty so its not included
+        /*
+        [Command("kick-"), Summary("kick '@badperson' 'for not being cool'"), Remarks("Kicks the specified user (requires Kick Permissions)")]
         [RequireContext(ContextType.Guild)]
         public async Task Kickuser(SocketGuildUser user, [Remainder, Optional] string reason)
         {
@@ -93,8 +75,7 @@ namespace PassiveBOT.Commands
                 File.AppendAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt", $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
             }
         }
-
-        [Command("warncunt"), Summary("warn '@naughtykiddo' 'for being a noob'"), Remarks("warns the specified user")]
+        [Command("warn-"), Summary("warn '@naughtykiddo' 'for being a noob'"), Remarks("warns the specified user")]
         [RequireContext(ContextType.Guild)]
         public async Task NewWarnuser(SocketGuildUser user, [Remainder, Optional] string reason)
         {
@@ -124,8 +105,7 @@ namespace PassiveBOT.Commands
             }
 
         }
-
-        [Command("bancunt"), Summary("ban 'badfag' 'for sucking'"), Remarks("bans the specified user (requires Ban Permissions)")]
+        [Command("ban-"), Summary("ban 'badfag' 'for sucking'"), Remarks("bans the specified user (requires Ban Permissions)")]
         [RequireContext(ContextType.Guild)]
         public async Task Banuser(SocketGuildUser user, [Remainder, Optional] string reason)
         {
@@ -156,28 +136,25 @@ namespace PassiveBOT.Commands
 
             }
         }
-        [Command("kicks"), Summary("kicks"), Remarks("Users kicked by passivebot")]
+        [Command("kicks-"), Summary("kicks"), Remarks("Users kicked by passivebot")]
         public async Task Kicks()
         {
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
         }
-
-        [Command("warns"), Summary("warns"), Remarks("Users warned by passivebot")]
+        [Command("warns-"), Summary("warns"), Remarks("Users warned by passivebot")]
         public async Task Warns()
         {
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + warns + "\n```");
         }
-
-        [Command("bans"), Summary("bans"), Remarks("Users banned by passivebot")]
+        [Command("bans-"), Summary("bans"), Remarks("Users banned by passivebot")]
         public async Task Bans()
         {
             var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + bans + "\n```");
         }
-
-        [Command("mutecunt"), Summary("mute '@loudboy'"), Remarks("Mutes the specified player")]
+        [Command("mute-"), Summary("mute '@loudboy'"), Remarks("Mutes the specified player")]
         public async Task Mute(string user, [Remainder, Optional] string reason)
         {
 
@@ -222,8 +199,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Who the fuck is " + user + "?");
             }
         }
-
-        [Command("unmutecunt"), Summary("unmute 'quiteboy'"), Remarks("unmutes the specified user")]
+        [Command("unmute-"), Summary("unmute 'quiteboy'"), Remarks("unmutes the specified user")]
         public async Task Unmute(string user)
         {
 
@@ -261,6 +237,6 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync("Who the fuck is " + user + "?");
             }
-        }
+            }*/
     }
 }

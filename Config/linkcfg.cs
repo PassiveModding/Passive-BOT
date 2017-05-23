@@ -10,8 +10,8 @@ namespace PassiveBOT.Services
     {
         public static string gamesite = "PassiveNation.com";
         public static string siteurl = "http://passivenation.com/forumdisplay.php?fid=20";
-        public static string faq = "";
+        public static string faq = "http://passivenation.com/showthread.php?tid=42";
         public static string owner = "PassiveModding";
-        public static string version = "3.12";
+        public static string version = "3.13";
     }
 }

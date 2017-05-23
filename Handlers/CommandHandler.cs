@@ -48,7 +48,7 @@ namespace PassiveBOT
             var result = await commands.ExecuteAsync(context, argPos, Map);
 
             var Context = new CommandContext(client, message);
-#region shorten
+            #region shorten
             string str = Context.Message.ToString();
             if (str.Length > 15)
                 str = str.Substring(0, 15);
@@ -108,7 +108,7 @@ namespace PassiveBOT
             }
             else
             {
-                await Program.Log(new LogMessage(LogSeverity.Info, "Command", 
+                await Program.Log(new LogMessage(LogSeverity.Info, "Command",
                     $"{str} | Server: {gui} | User: {use}"));
             }
         }

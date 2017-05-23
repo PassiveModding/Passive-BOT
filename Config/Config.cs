@@ -33,12 +33,25 @@ namespace PassiveBOT.Services
 
         public static void CheckExistence()
         {
+            Console.WriteLine("Run (Y for run, N for setup Config)");
+            Console.Write("Y or N: ");
+            var res = Console.ReadLine();
+            if (res == "N")
+                File.Delete("cfg/config.json");
+            if (res == "n")
+                File.Delete("cfg/config.json");
+
+
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "cfg")))
+            {
+
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "cfg"));
+            }
 
             if (!File.Exists(ConfigPath))
             {
                 var cfg = new Config();
+
                 Console.WriteLine(prefix);
                 Console.Write("Prefix: ");
                 cfg.Prefix = Console.ReadLine();
