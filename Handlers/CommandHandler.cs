@@ -40,9 +40,9 @@ namespace PassiveBOT
             if (message == null) return;
             int argPos = 0;
             var context = new CommandContext(client, message);
-            var result = await commands.ExecuteAsync(context, argPos, Map);
-
+            
             if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
+            var result = await commands.ExecuteAsync(context, argPos, Map);
 
             #region shorten
             string str = context.Message.ToString();

@@ -38,7 +38,8 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("**ERROR: ** Minimum interval must be 60 eg. `.qc @LSD 60`");
             else
             {
-                var quick = await ReplyAsync(".colour " + timeout + " " + role + " 9400D3 4B0082 0000FF 00FF00 FFFF00 FF7F00 FF0000");
+                var quick = await ReplyAsync(".colour " + timeout + " " + role.Mention + " 9400D3 4B0082 0000FF 00FF00 FFFF00 FF7F00 FF0000");
+                await Task.Delay(200);
                 await quick.DeleteAsync();
             }
         }
@@ -49,7 +50,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("**ERROR: **Please Specify a role and an interval eg. `.qc @LSD 60`");
             else
             {
-                var quick = await ReplyAsync(".colour 0 " + role);
+                var quick = await ReplyAsync(".colour 0 " + role.Mention);
                 await quick.DeleteAsync();
             }
         }
