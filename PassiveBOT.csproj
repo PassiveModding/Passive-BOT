@@ -90,6 +90,9 @@
     <Reference Include="Serilog.Extensions.Logging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.Extensions.Logging.1.4.0\lib\net46\Serilog.Extensions.Logging.dll</HintPath>
     </Reference>
+    <Reference Include="Serilog.Sinks.ColoredConsole, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.ColoredConsole.2.1.0-dev-00713\lib\net45\Serilog.Sinks.ColoredConsole.dll</HintPath>
+    </Reference>
     <Reference Include="Serilog.Sinks.Literate, Version=2.1.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.Sinks.Literate.2.1.0\lib\net45\Serilog.Sinks.Literate.dll</HintPath>
     </Reference>
@@ -209,6 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Random.cs" />
+    <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Parts\Strings3.cs" />
     <Compile Include="Preconditions\ChannelLimit.cs" />
     <Compile Include="Preconditions\RatelimitAttribute.cs" />

@@ -103,13 +103,11 @@ namespace PassiveBOT
             #endregion shorten
             if (!result.IsSuccess)
             {
-                await Program.Log(new LogMessage(LogSeverity.Info, "Error",
-                   $"{str} | Server: {gui} | {result.ErrorReason}"));
+                await Handlers.LogHandler.LogErrorAsync($"{str} | Server: {gui}", $"{result.ErrorReason}");
             }
             else
             {
-                await Program.Log(new LogMessage(LogSeverity.Info, "Command",
-                    $"{str} | Server: {gui} | User: {use}"));
+                await Handlers.LogHandler.LogAsync($"{str} | Server: {gui} | User: {use}");
             }
         }
 

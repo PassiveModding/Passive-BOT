@@ -15,6 +15,7 @@ namespace PassiveBOT.Services
 
         public string Prefix { get; set; } = "";
         public string Token { get; set; } = "";
+        public string Debug { get; set; } = "";
 
         public void Save(string dir = "cfg/config.json")
         {
@@ -33,7 +34,7 @@ namespace PassiveBOT.Services
 
         public static void CheckExistence()
         {
-            Console.WriteLine("Run (Y for run, N for setup Config)");
+            Handlers.LogHandler.LogAsync("Run (Y for run, N for setup Config)");
             Console.Write("Y or N: ");
             var res = Console.ReadLine();
             if (res == "N")
@@ -52,23 +53,34 @@ namespace PassiveBOT.Services
             {
                 var cfg = new Config();
 
-                Console.WriteLine(prefix);
+                Handlers.LogHandler.LogAsync(prefix);
                 Console.Write("Prefix: ");
                 cfg.Prefix = Console.ReadLine();
 
-                Console.WriteLine(token);
+                Handlers.LogHandler.LogAsync("Would you like to log debug?");
+                Console.Write("Y or N: ");
+                cfg.Debug = Console.ReadLine();
+tokeninput:
+                Handlers.LogHandler.LogAsync(token);
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
+                if (cfg.Token.Length == 59)
+                    Handlers.LogHandler.LogAsync($"Token Accepted!");
+                else
+                {
+                    Handlers.LogHandler.LogErrorAsync($"Incorrect input", $"Inavlid Token!");
+                    goto tokeninput;
+                }
 
                 cfg.Save();
             }
-            Console.WriteLine(
-                "\n|==================================|\n" +
-                "|Configuration successfully loaded!|" +
-                "\n|==================================|\n");
+            Handlers.LogHandler.LogAsync($"Configuration Loaded!");
+            Handlers.LogHandler.LogAsync($"Prefix: {Config.Load().Prefix}");
+            Handlers.LogHandler.LogAsync($"Debug: {Config.Load().Debug}");
+            Handlers.LogHandler.LogAsync($"Token Length: {Config.Load().Token.Length} (should be 59)");
         }
-        public static string token = @"After you input your token, a config will be generated at 'cfg\\config.json'.";
-        public static string prefix = @"Please enter a prefix for the bot eg. '.' or '+' (do not include the '' outside of the prefix)";
+        public static string token = @"After you input your token, a config will be generated at 'cfg\\config.json'";
+        public static string prefix = @"Please enter a prefix for the bot eg. '+' (do not include the '' outside of the prefix)";
         public static string ConfigPath = Path.Combine(AppContext.BaseDirectory, "cfg/config.json");
     }
 }
