@@ -7,7 +7,7 @@ using Discord;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using PassiveBOT.Services;
+using PassiveBOT.Configuration;
 
 namespace PassiveBOT
 {
@@ -40,16 +40,16 @@ namespace PassiveBOT
             if (message == null) return;
             int argPos = 0;
             var context = new CommandContext(client, message);
-
+            var result = await commands.ExecuteAsync(context, argPos, Map);
 
             if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
 
-
-            var result = await commands.ExecuteAsync(context, argPos, Map);
-
-            var Context = new CommandContext(client, message);
             #region shorten
-            string str = Context.Message.ToString();
+            string str = context.Message.ToString();
+            string gui = "";
+            string cha = context.Channel.ToString();
+            string use = context.User.Username.ToString();
+
             if (str.Length > 15)
                 str = str.Substring(0, 15);
             else if (str.Length < 15)
@@ -57,18 +57,8 @@ namespace PassiveBOT
                 str = str + "               .";
                 str = str.Substring(0, 15);
             }
-            string gui = "";
             if (context.Channel is IPrivateChannel)
-            {
-                gui = "Direct Message";
-                if (gui.Length > 15)
-                    gui = gui.Substring(0, 15);
-                else if (gui.Length < 15)
-                {
-                    gui = gui + "               .";
-                    gui = gui.Substring(0, 15);
-                }
-            }
+                gui = "Direct Message ";
             else
             {
                 gui = context.Guild.ToString();
@@ -80,9 +70,6 @@ namespace PassiveBOT
                     gui = gui.Substring(0, 15);
                 }
             }
-
-
-            string cha = context.Channel.ToString();
             if (cha.Length > 15)
                 cha = cha.Substring(0, 15);
             else if (cha.Length < 15)
@@ -90,8 +77,6 @@ namespace PassiveBOT
                 cha = cha + "               .";
                 cha = cha.Substring(0, 15);
             }
-
-            string use = context.User.Username.ToString();
             if (use.Length > 15)
                 use = use.Substring(0, 15);
             else if (use.Length < 15)
@@ -122,15 +107,7 @@ namespace PassiveBOT
             var lines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
             List<string> result = lines.ToList();
 
-            if (context.User.IsBot)
-            {
-                return;
-            }
-            else if (context.Channel is IPrivateChannel)
-            {
-
-            }
-            else if (result.Contains(context.Guild.Id.ToString())) { }
+            if (context.User.IsBot || context.Channel is IPrivateChannel || result.Contains(context.Guild.Id.ToString())) { }
             else
             {
                 Random rand = new Random();
@@ -138,24 +115,15 @@ namespace PassiveBOT
                 if (val >= 90)
                 {
                     if (message.HasStringPrefix("( ͡° ͜ʖ ͡°)", ref argPos))
-                    {
                         await context.Channel.SendMessageAsync("(:eye: ͜ʖ :eye:)");
-                    }
                     else if (message.HasStringPrefix("lol", ref argPos))
-                    {
                         await context.Channel.SendMessageAsync("lol");
-                        return;
-                    }
                     else if (message.HasStringPrefix("lel", ref argPos))
-                    {
                         await context.Channel.SendMessageAsync("lel");
-                        return;
-                    }
                     else if (message.HasStringPrefix(":3", ref argPos))
-                    {
                         await context.Channel.SendMessageAsync("meow");
-                        return;
-                    }
+                    else if (message.HasStringPrefix("._.", ref argPos))
+                        await context.Channel.SendMessageAsync("._.");
                     else if (message.HasStringPrefix("┬─┬ノ(ಠ_ಠノ)", ref argPos) || message.HasStringPrefix("┬─┬ ノ( ゜-゜ノ)", ref argPos))
                     {
                         var embed = new EmbedBuilder()
@@ -174,15 +142,7 @@ namespace PassiveBOT
                         await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ FLIP ALL THE TABLES! ", false, embed.Build());
                         return;
                     }
-                    else if (message.HasStringPrefix("._.", ref argPos))
-                    {
-                        await context.Channel.SendMessageAsync("._.");
-                        return;
-                    }
-                    else
-                    {
-                        return;
-                    }
+
                 }
 
 

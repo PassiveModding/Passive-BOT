@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using ImageSharp;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -43,6 +44,49 @@ namespace PassiveBOT.Commands
             var client = Context.Client as DiscordSocketClient;
             await Context.Client.CurrentUser.ModifyAsync(x => x.Username = value).ConfigureAwait(false);
             await ReplyAsync("Bot Username updated").ConfigureAwait(false);
+        }
+
+        [Command("nopre"), Summary("nopre"), Remarks("toggles prefixless commands in the current server")]
+        public async Task Nopre()
+        {
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/"));
+
+
+            var lines = File.ReadAllLines(AppContext.BaseDirectory + $"moderation/prefix/nopre.txt");
+            List<string> result = lines.ToList();
+            if (result.Contains(Context.Guild.Id.ToString()))
+            {
+                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}");
+                var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
+                File.WriteAllLines($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}", newLines);
+                await ReplyAsync($"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
+
+            }
+            else
+            {
+                File.AppendAllText($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}", $"{Context.Guild.Id}" + Environment.NewLine);
+                await ReplyAsync($"{Context.Guild} has been added to the noprefix list (secret commands and prefixless commands are now disabled)");
+            }
+        }
+
+        [Command("kicks-"), Summary("kicks"), Remarks("Users kicked by passivebot")]
+        public async Task Kicks()
+        {
+            var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
+            await ReplyAsync("```\n" + kicks + "\n```");
+        }
+        [Command("warns-"), Summary("warns"), Remarks("Users warned by passivebot")]
+        public async Task Warns()
+        {
+            var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
+            await ReplyAsync("```\n" + warns + "\n```");
+        }
+        [Command("bans-"), Summary("bans"), Remarks("Users banned by passivebot")]
+        public async Task Bans()
+        {
+            var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
+            await ReplyAsync("```\n" + bans + "\n```");
         }
 
         //basically gives owner of the bot access to all permissions the bot has, kinda cheaty so its not included
@@ -136,24 +180,7 @@ namespace PassiveBOT.Commands
 
             }
         }
-        [Command("kicks-"), Summary("kicks"), Remarks("Users kicked by passivebot")]
-        public async Task Kicks()
-        {
-            var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
-            await ReplyAsync("```\n" + kicks + "\n```");
-        }
-        [Command("warns-"), Summary("warns"), Remarks("Users warned by passivebot")]
-        public async Task Warns()
-        {
-            var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
-            await ReplyAsync("```\n" + warns + "\n```");
-        }
-        [Command("bans-"), Summary("bans"), Remarks("Users banned by passivebot")]
-        public async Task Bans()
-        {
-            var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
-            await ReplyAsync("```\n" + bans + "\n```");
-        }
+        
         [Command("mute-"), Summary("mute '@loudboy'"), Remarks("Mutes the specified player")]
         public async Task Mute(string user, [Remainder, Optional] string reason)
         {

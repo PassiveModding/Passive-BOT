@@ -3,13 +3,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Discord.Commands;
-using PassiveBOT;
-using PassiveBOT.Services;
+using PassiveBOT.Configuration;
 using System.Linq;
-using Discord.Addons.InteractiveCommands;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Serilog.Extensions.Logging;
+
 
 namespace PassiveBOT
 {
@@ -37,20 +33,14 @@ namespace PassiveBOT
 
 
             var ll = LogSeverity.Info;
+            setup:
             Config.CheckExistence();
-            if (Config.Load().Debug == "y")
+            if (Config.Load().Debug == "y" || Config.Load().Debug == "Y")
                 ll = LogSeverity.Debug;
-            else if (Config.Load().Debug == "Y")
-                ll = LogSeverity.Debug;
-            else if (Config.Load().Debug == "n")
-                ll = LogSeverity.Info;
-            else if (Config.Load().Debug == "N")
+            else if (Config.Load().Debug == "n" || Config.Load().Debug == "N")
                 ll = LogSeverity.Info;
             else
-            {
-                ll = LogSeverity.Info;
                 await Handlers.LogHandler.LogErrorAsync($"Error Loading Debug Config, Set to default", $"Info");
-            }
 
             client = new DiscordSocketClient(new DiscordSocketConfig()
             {
@@ -58,24 +48,28 @@ namespace PassiveBOT
                 LogLevel = ll
             });
 
-            await client.LoginAsync(TokenType.Bot, Config.Load().Token);
-            await client.StartAsync();
-
-
+            try
+            {
+                await client.LoginAsync(TokenType.Bot, Config.Load().Token);
+                await client.StartAsync();
+            }
+            catch
+            {
+                await Handlers.LogHandler.LogErrorAsync($"Token was rejected by Discord", $"Invalid Token");
+                await Handlers.LogHandler.LogAsync($"Directing to Setup");
+                goto setup; //I know I shouldn't use GOTO but meh
+            }
 
             var map = new DependencyMap();
             map.Add(client);
             handler = new CommandHandler();
             await handler.Install(map);
 
-            Console.WriteLine();
             client.Ready += Client_Ready;
             if (ll == LogSeverity.Debug)
                 client.Log += LogClient;
             else
                 client.Log += LogCinfo;
-
-
 
             await Task.Delay(3000);
             while (true)

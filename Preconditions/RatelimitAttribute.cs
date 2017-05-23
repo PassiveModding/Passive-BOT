@@ -6,6 +6,7 @@ using Discord;
 
 namespace PassiveBOT
 {
+    //from Discord.Addons (slightly edited)
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class RatelimitAttribute : PreconditionAttribute
     {
@@ -53,7 +54,7 @@ namespace PassiveBOT
 
             var now = DateTime.UtcNow;
             var timeout = (_invokeTracker.TryGetValue(context.User.Id, out
-             var t) && ((now - t.FirstInvoke) < _invokeLimitPeriod)) ? t : new CommandTimeout(now);
+                var t) && ((now - t.FirstInvoke) < _invokeLimitPeriod)) ? t : new CommandTimeout(now);
 
             timeout.TimesInvoked++;
 
@@ -63,9 +64,7 @@ namespace PassiveBOT
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
             else
-            {
                 return Task.FromResult(PreconditionResult.FromError("Timeout"));
-            }
         }
 
         private class CommandTimeout
@@ -89,15 +88,10 @@ namespace PassiveBOT
 
     public enum Measure
     {
-
         Days,
-
         Hours,
-
         Minutes,
-
         Seconds,
- 
         Milliseconds
     }
 }

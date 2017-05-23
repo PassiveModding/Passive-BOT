@@ -39,7 +39,7 @@ namespace PassiveBOT.Handlers
                 .WriteTo.ColoredConsole()
                 .CreateLogger();
 
-            var msg = message.Substring(21, message.Length - 21);
+            var msg = message.Substring(21, message.Length - 21); //removes unnecessary data added at the start of debug logging
             Log.Debug($"      {msg}");
             return Task.CompletedTask;
         }

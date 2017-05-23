@@ -29,7 +29,6 @@ namespace PassiveBOT.Commands
             {
                 ImageUrl = Strings2.meme[result],
                 Description = $"Meme Database Size: {Strings2.meme.Length}\n Image Number: {result}"
-
             };
         
             await ReplyAsync($"", false, builder.Build());
@@ -144,13 +143,9 @@ namespace PassiveBOT.Commands
             Random rnd = new Random();
             result = rnd.Next(0, Strings2.autism.Length);
             if (user == null)
-            {
                 title = $"You suffer from an extreme case of autism";
-            }
             else
-            {
                 title = $"{user.Username} suffers from extreme cases of autism";
-            }
             var embed = new EmbedBuilder
             {
                 Title = title,

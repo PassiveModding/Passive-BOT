@@ -18,14 +18,9 @@ namespace PassiveBOT
             List<string> result = lines.ToList();
             var id = context.Guild.Id.ToString();
             if (result.Contains(id))
-            {
                 return Task.FromResult(PreconditionResult.FromError("Command is disabled on this server"));
-            }
             else
-            {
                 return Task.FromResult(PreconditionResult.FromSuccess());
-            }
         }
-
     }
 }

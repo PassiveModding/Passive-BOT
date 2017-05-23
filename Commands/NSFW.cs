@@ -16,16 +16,13 @@ namespace PassiveBOT.Commands
                 JToken obj;
                 var rnd = new Random().Next(0, 10229);
                 using (var http = new HttpClient())
-                {
                     obj = JArray.Parse(await http.GetStringAsync($"http://api.oboobs.ru/boobs/{rnd}"))[0];
-                }
                 var builder = new EmbedBuilder()
                 {
                     ImageUrl = $"http://media.oboobs.ru/{obj["preview"].ToString()}",
                     Description = $"Tits Database Size: 10229\n Image Number: {rnd}"
                 };
                 await ReplyAsync($"", false, builder.Build());
-
         }
         [Command("Ass"), Summary("ass"), Remarks("Sexy Ass!")]
         public async Task BumsAsync()
@@ -33,9 +30,7 @@ namespace PassiveBOT.Commands
                 JToken obj;
                 var rnd = new Random().Next(0, 4222);
                 using (var http = new HttpClient())
-                {
                     obj = JArray.Parse(await http.GetStringAsync($"http://api.obutts.ru/butts/{rnd}"))[0];
-                }
                 var builder = new EmbedBuilder()
                 {
                     ImageUrl = $"http://media.obutts.ru/{obj["preview"].ToString()}",
@@ -55,7 +50,6 @@ namespace PassiveBOT.Commands
                 ImageUrl = Strings.nsfw[result],
                 Description = $"NSFW Database Size: {Strings.nsfw.Length}\n Image Number: {result}"
             };
-
             await ReplyAsync($"", false, builder.Build());
         }
         [Command("sfw"), Summary("sfw"), Remarks("Porn meets MS Paint")]
@@ -70,7 +64,6 @@ namespace PassiveBOT.Commands
                 ImageUrl = Strings2.sfw[result],
                 Description = $"SFW Database Size: {Strings2.sfw.Length}\n Image Number: {result}"
             };
-
             await ReplyAsync($"", false, builder.Build());
         }
         [Command("nsfwvid"), Summary("nsfwvid"), Remarks("Porhub + Bots = win?")]
@@ -79,14 +72,12 @@ namespace PassiveBOT.Commands
             int result;
             Random rnd = new Random();
             result = rnd.Next(0, Strings2.sfw.Length);
-
             var builder = new EmbedBuilder()
             {
                 Title = Strings.nsfwvid[result],
                 Url = Strings.nsfwvid[result],
                 Description = $"Video Database Size: {Strings.nsfwvid.Length}\n Video Number: {result}"
             };
-
             await ReplyAsync($"", false, builder.Build());
         }
     }

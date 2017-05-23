@@ -21,7 +21,6 @@ namespace PassiveBOT.Commands
         {
             var application = await Context.Client.GetApplicationInfoAsync();
             await ReplyAsync($"A user with `MANAGE_SERVER` can invite me to your server here: <https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591>");
-
         }
     }
 
@@ -32,17 +31,11 @@ namespace PassiveBOT.Commands
         public async Task Quickcolour([Optional] IRole role, [Optional] int timeout)
         {
             if (role == null)
-            {
                 await ReplyAsync("**ERROR: **Please Specify a role and an interval eg. `.qc @LSD 60`");
-            }
             else if (timeout == 0)
-            {
                 await ReplyAsync("**ERROR: ** Please specify a role an interval eg. `.qc @LSD 60`");
-            }
             else if (timeout >= 1 && timeout < 60)
-            {
                 await ReplyAsync("**ERROR: ** Minimum interval must be 60 eg. `.qc @LSD 60`");
-            }
             else
             {
                 var quick = await ReplyAsync(".colour " + timeout + " " + role + " 9400D3 4B0082 0000FF 00FF00 FFFF00 FF7F00 FF0000");
@@ -53,9 +46,7 @@ namespace PassiveBOT.Commands
         public async Task Qoff([Optional] IRole role)
         {
             if (role == null)
-            {
                 await ReplyAsync("**ERROR: **Please Specify a role and an interval eg. `.qc @LSD 60`");
-            }
             else
             {
                 var quick = await ReplyAsync(".colour 0 " + role);
@@ -165,7 +156,6 @@ namespace PassiveBOT.Commands
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/"));
 
-
             var lines = File.ReadAllLines(AppContext.BaseDirectory + $"moderation/prefix/nopre.txt");
             List<string> result = lines.ToList();
             if (result.Contains(Context.Guild.Id.ToString()))
@@ -174,7 +164,6 @@ namespace PassiveBOT.Commands
                 var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
                 File.WriteAllLines($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}", newLines);
                 await ReplyAsync($"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
-
             }
             else
             {
@@ -188,15 +177,9 @@ namespace PassiveBOT.Commands
         public async Task Kickuser(SocketGuildUser user, [Remainder, Optional] string reason)
         {
             if (user.GuildPermissions.ManageRoles == true)
-            {
                 await ReplyAsync($"**ERROR: **you cannot kick a a user with manage roles permission");
-                return;
-            }
             else if (reason == null)
-            {
                 await ReplyAsync("**ERROR: **Please specify a reason for Kicking the user");
-                return;
-            }
             else
             {
                 await ReplyAsync($"{user.Mention} you have been kicked for `{reason}`:bangbang: ");
@@ -217,21 +200,14 @@ namespace PassiveBOT.Commands
         public async Task NewWarnuser(SocketGuildUser user, [Remainder, Optional] string reason)
         {
             if (user.GuildPermissions.ManageRoles == true)
-            {
                 await ReplyAsync($"**ERROR: **you cannot warn a a user with manage roles permission");
-                return;
-            }
             else if (reason == null)
-            {
                 await ReplyAsync("**ERROR: **Please Specify a reason for warning the user");
-                return;
-            }
             else
             {
                 await ReplyAsync($"{user.Mention} you have been warned for `{reason}`");
                 var dm = await user.CreateDMChannelAsync();
                 await dm.SendMessageAsync($"{user.Mention} you have been warned for `{reason}` in {Context.Guild}");
-
 
                 var warnpath = Path.Combine(AppContext.BaseDirectory, $"moderation/warn/{Context.Guild.Id}.txt");
                 if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/warn/")))
@@ -247,17 +223,10 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild), RequireUserPermission(GuildPermission.BanMembers)]
         public async Task Banuser(SocketGuildUser user, [Remainder, Optional] string reason)
         {
-
             if (user.GuildPermissions.ManageRoles == true)
-            {
                 await ReplyAsync($"**ERROR: **you cannot ban a user with manage roles permission");
-                return;
-            }
             else if (reason == null)
-            {
                 await ReplyAsync("**ERROR: ** Please specify a reason for banning the user!");
-                return;
-            }
             else
             {
                 await ReplyAsync($"{user.Mention} you have been banned for `{reason}`:bangbang: ");
@@ -269,9 +238,7 @@ namespace PassiveBOT.Commands
                 if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/ban/")))
                     Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/ban/"));
 
-
                 File.AppendAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt", $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
-
             }
         }
 
@@ -279,17 +246,11 @@ namespace PassiveBOT.Commands
         public async Task Mute(string user, [Remainder, Optional] string reason)
         {
             if (Utilities.ManageRole((SocketGuild)Context.Guild) == null)
-            {
                 await ReplyAsync("you must have the `Manage Roles` Permission to use this command");
-            }
             else if (Utilities.GetMutedRole((SocketGuild)Context.Guild) == null)
-            {
                 await ReplyAsync("This server does not contain the role 'Muted' type `.mutehelp` for more info");
-            }
             else if (reason == null)
-            {
                 await ReplyAsync("**ERROR: **Please specify a reason type `.mutehelp` for more info");
-            }
             else if (Context.Message.MentionedUserIds.Count != 0 && Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault()) != null)
             {
                 IGuildUser target = await Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault());
@@ -319,12 +280,10 @@ namespace PassiveBOT.Commands
                 }
             }
             else
-            {
                 await ReplyAsync("Who the fuck is " + user + "?");
-            }
         }
 
-        [Command("unmute"), Summary("unmute 'quiteboy'"), Remarks("unmutes the specified user")]
+        [Command("unmute"), Summary("unmute '@quietboy'"), Remarks("unmutes the specified user")]
         public async Task Unmute(string user)
         {
             if (Utilities.ManageRole((SocketGuild)Context.Guild) == null)
@@ -341,9 +300,7 @@ namespace PassiveBOT.Commands
                     await ReplyAsync(target.Username + " is unmuted.");
                 }
                 else
-                {
                     await ReplyAsync("**ERROR: ** The user wasn't muted in the first place");
-                }
             }
             else if (await Utilities.GetUser(Context.Guild, user) != null)
             {
@@ -355,9 +312,7 @@ namespace PassiveBOT.Commands
                     await ReplyAsync(target.Username + " is unmuted");
                 }
                 else
-                {
                     await ReplyAsync("**ERROR: ** The user wasn't muted in the first place");
-                }
             }
             else
             {

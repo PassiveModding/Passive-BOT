@@ -3,8 +3,7 @@ using Discord.Commands;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using PassiveBOT.Services;
+using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
 {

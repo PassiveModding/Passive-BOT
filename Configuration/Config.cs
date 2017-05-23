@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace PassiveBOT.Services
+namespace PassiveBOT.Configuration
 {
     public class Config
     {
@@ -42,10 +42,8 @@ namespace PassiveBOT.Services
             if (res == "n")
                 File.Delete("cfg/config.json");
 
-
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "cfg")))
             {
-
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "cfg"));
             }
 

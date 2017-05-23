@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using PassiveBOT.Services;
+using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
 {
@@ -17,9 +17,10 @@ namespace PassiveBOT.Commands
         public async Task UserInformation([Remainder, Optional] IUser user)
         {
             if (user == null)
-            {
                 user = Context.User;
-            }
+            string status = user.Status.ToString();
+            if (status == null)
+                status = "Null";
 
             var builder = new EmbedBuilder()
             {
@@ -36,27 +37,22 @@ namespace PassiveBOT.Commands
             builder.AddField(x => {
                 x.Name = "Is Bot";
                 x.Value = user.IsBot;
-                //x.IsInline = true;
             });
             builder.AddField(x => {
                 x.Name = "User ID";
                 x.Value = user.Id;
-                //x.IsInline = true;
             });
             builder.AddField(x => {
                 x.Name = "Username";
                 x.Value = user.Username;
-                //x.IsInline = true;
             });
             builder.AddField(x => {
                 x.Name = "Status";
-                x.Value = user.Status;
-                //x.IsInline = true;
+                x.Value = status;
             });
             builder.AddField(x => {
                 x.Name = "PassiveBOT";
                 x.Value = $"{Linkcfg.siteurl}";
-                //x.IsInline = true;
             });
 
             await ReplyAsync("", false, builder.Build());
@@ -102,7 +98,7 @@ namespace PassiveBOT.Commands
             var msg = Context.Message;
             var grp = role;
             if (grp == null)
-                throw new ArgumentException("You must supply a role.");
+                await ReplyAsync("You must supply a role.");
             var grl = grp as SocketRole;
             var gls = gld as SocketGuild;
 
@@ -196,7 +192,7 @@ namespace PassiveBOT.Commands
             await chn.SendMessageAsync("", false, embed);
         }
 
-        [Command("GuildCount"), Alias("GC"), Summary("guildcount"), Remarks("User Count for the current server")]
+        [Command("UserCount"), Alias("UC"), Summary("usercount"), Remarks("User Count for the current server")]
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
@@ -209,22 +205,18 @@ namespace PassiveBOT.Commands
             embed.AddField(x => {
                 x.Name = $"User Count:";
                 x.Value = $"{(Context.Guild as SocketGuild).MemberCount}";
-                x.IsInline = false;
             });
             embed.AddField(x => {
                 x.Name = $"Channel Count: (Text + Voice)";
                 x.Value = $"{(Context.Guild as SocketGuild).Channels.Count}";
-                x.IsInline = false;
             });
             embed.AddField(x => {
                 x.Name = $"Role Count:";
                 x.Value = $"{(Context.Guild as SocketGuild).Roles.Count}";
-                x.IsInline = false;
             });
             embed.AddField(x => {
                 x.Name = "PassiveBOT";
                 x.Value = $"{Linkcfg.siteurl}";
-                x.IsInline = false;
             });           
 
             await ReplyAsync("", false, embed.Build());
