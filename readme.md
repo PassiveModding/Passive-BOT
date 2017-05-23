@@ -1,7 +1,7 @@
 ## PassiveBOT
 
 PassiveBOT is a bot for Discord.  
-Built on Discord.NET 1.0 (C#)  
+Built on Discord.NET 1.0 (C#) - 1.00rc  
 It features 50+ commands from moderation to rainbow roles to memes and more  
 
 ## Links
