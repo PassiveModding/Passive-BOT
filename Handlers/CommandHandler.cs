@@ -40,11 +40,9 @@ namespace PassiveBOT
             if (message == null) return;
             int argPos = 0;
             var context = new CommandContext(client, message);
-
-
+            
             if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
-
-
+            
             var result = await commands.ExecuteAsync(context, argPos, Map);
 
             var Context = new CommandContext(client, message);
@@ -122,15 +120,10 @@ namespace PassiveBOT
             var lines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
             List<string> result = lines.ToList();
 
-            if (context.User.IsBot)
+            if (context.User.IsBot || context.Channel is IPrivateChannel || result.Contains(context.Guild.Id.ToString()))
             {
                 return;
             }
-            else if (context.Channel is IPrivateChannel)
-            {
-
-            }
-            else if (result.Contains(context.Guild.Id.ToString())) { }
             else
             {
                 Random rand = new Random();

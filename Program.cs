@@ -38,13 +38,9 @@ namespace PassiveBOT
 
             var ll = LogSeverity.Info;
             Config.CheckExistence();
-            if (Config.Load().Debug == "y")
+            if (Config.Load().Debug == "y" || Config.Load().Debug == "Y")
                 ll = LogSeverity.Debug;
-            else if (Config.Load().Debug == "Y")
-                ll = LogSeverity.Debug;
-            else if (Config.Load().Debug == "n")
-                ll = LogSeverity.Info;
-            else if (Config.Load().Debug == "N")
+            else if (Config.Load().Debug == "n" || Config.Load().Debug == "N")
                 ll = LogSeverity.Info;
             else
             {
@@ -60,9 +56,7 @@ namespace PassiveBOT
 
             await client.LoginAsync(TokenType.Bot, Config.Load().Token);
             await client.StartAsync();
-
-
-
+            
             var map = new DependencyMap();
             map.Add(client);
             handler = new CommandHandler();
@@ -74,9 +68,7 @@ namespace PassiveBOT
                 client.Log += LogClient;
             else
                 client.Log += LogCinfo;
-
-
-
+            
             await Task.Delay(3000);
             while (true)
             {
