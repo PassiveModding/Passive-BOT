@@ -212,6 +212,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Random.cs" />
+    <Compile Include="Commands\Test.cs" />
+    <Compile Include="Handlers\EmbedHandler.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Parts\Strings3.cs" />
     <Compile Include="Preconditions\ChannelLimit.cs" />

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Commands
 {
@@ -16,6 +17,7 @@ namespace PassiveBOT.Commands
         [Command("user"), Summary("user '@user'"), Alias("whois"), Remarks("Returns info about the current user, or the given user")]
         public async Task UserInformation([Remainder, Optional] IUser user)
         {
+
             if (user == null)
                 user = Context.User;
             string status = user.Status.ToString();
@@ -23,69 +25,43 @@ namespace PassiveBOT.Commands
                 status = "Null";
 
             var builder = new EmbedBuilder()
+            .WithTitle($"WhoIS: {user}")
+            .AddInlineField("Sign Up Date", user.CreatedAt.Date)
+            .AddInlineField("User ID", user.Id)
+            .AddInlineField("Username", user.Username)
+            .AddInlineField("Discriminatior", user.Discriminator)
+            .AddInlineField("Status", status)
+            .WithFooter(x =>
             {
-                Color = new Discord.Color(255, 64, 197),
-                Title = $"{user.Username}",
-                Description = $"User Info for {user.Username} by PassiveBOT",
-                ThumbnailUrl = user.GetAvatarUrl()
-            };
-            builder.AddField(x => {
-                x.Name = "Account Creation Date";
-                x.Value = user.CreatedAt.Date;
-                x.IsInline = true;
-            });
-            builder.AddField(x => {
-                x.Name = "Is Bot";
-                x.Value = user.IsBot;
-            });
-            builder.AddField(x => {
-                x.Name = "User ID";
-                x.Value = user.Id;
-            });
-            builder.AddField(x => {
-                x.Name = "Username";
-                x.Value = user.Username;
-            });
-            builder.AddField(x => {
-                x.Name = "Status";
-                x.Value = status;
-            });
-            builder.AddField(x => {
-                x.Name = "PassiveBOT";
-                x.Value = $"{Linkcfg.siteurl}";
+                x.WithText("PassiveBOT");
+                x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
             });
 
-            await ReplyAsync("", false, builder.Build());
+            await ReplyAsync("", false, builder);
         }
 
         [Command("info"), Summary("info"), Remarks("Display's the bots information and statistics.")]
         public async Task Info()
         {
             var embed = new EmbedBuilder()
-            {
-                Color = new Discord.Color(255, 64, 197),
-                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
-            };
-            embed.AddField(x => {
-                x.Name = "Author:";
-                x.Value = $"{Linkcfg.owner}";
-                x.IsInline = false;
-            });
-            embed.AddField(x => {
-                x.Name = "Statistics:";
-                x.Value = $"Uptime: {GetUptime()}\nHeap Size: {GetHeapSize()}MB";
-                x.IsInline = false;
-            });
-            embed.AddField(x => {
-                x.Name = "Guilds/Channels/Users:";
-                x.Value = $"{(Context.Client as DiscordSocketClient).Guilds.Count} / {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)} / {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}";
-                x.IsInline = false;
-            });
-            embed.AddField(x => {
-                x.Name = "PassiveBOT";
-                x.Value = $"{Linkcfg.siteurl}";
-                x.IsInline = false;
-            });
+                .WithAuthor(x =>
+                {
+                    x.Name = "PassiveBOT";
+                    x.Url = "https://goo.gl/s3BZTw";
+                })
+                .AddInlineField("Author", Linkcfg.owner)
+                .AddInlineField("Uptime", GetUptime())
+                .AddInlineField("Heap", $"{GetHeapSize()}MB")
+                .AddInlineField("Servers", (Context.Client as DiscordSocketClient).Guilds.Count)
+                .AddInlineField("Channels", (Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count))
+                .AddInlineField("Users", (Context.Client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount))
+                .AddField("Links", "[Forums](https://goo.gl/s3BZTw) \n[Invite](https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591)\n[Main Server](https://discord.gg/ZKXqt2a) \n[Testing Server](https://discord.gg/bmXfBQM)")
+                .WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
+
 
             await ReplyAsync("", false, embed.Build());
         }
@@ -101,41 +77,6 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("You must supply a role.");
             var grl = grp as SocketRole;
             var gls = gld as SocketGuild;
-
-            var embed = new EmbedBuilder()
-            {
-                Title = "Role"
-            };
-            embed.AddField(x => {
-                x.IsInline = true;
-                x.Name = "Name";
-                x.Value = grl.Name;
-            });
-
-            embed.AddField(x => {
-                x.IsInline = true;
-                x.Name = "ID";
-                x.Value = grl.Id.ToString();
-            });
-
-            embed.AddField(x => {
-                x.IsInline = true;
-                x.Name = "Color";
-                x.Value = grl.Color.RawValue.ToString("X6");
-            });
-
-            embed.AddField(x => {
-                x.IsInline = true;
-                x.Name = "Displayed Seperately?";
-                x.Value = grl.IsHoisted ? "Yes" : "No";
-            });
-
-            embed.AddField(x => {
-                x.IsInline = true;
-                x.Name = "Mentionable?";
-                x.Value = grl.IsMentionable ? "Yes" : "No";
-            });
-
             var perms = new List<string>(23);
             if (grl.Permissions.Administrator)
                 perms.Add("Administrator");
@@ -183,10 +124,19 @@ namespace PassiveBOT.Commands
                 perms.Add("Can speak");
             if (grl.Permissions.UseVAD)
                 perms.Add("Can use voice activation");
-            embed.AddField(x => {
-                x.IsInline = false;
-                x.Name = "Permissions";
-                x.Value = string.Join("\n", perms);
+
+            var embed = new EmbedBuilder()
+            .WithTitle($"Info For: {role}")
+            .AddInlineField("Name", grl.Name)
+            .AddInlineField("ID", grl.Id.ToString())
+            .AddInlineField("Color", grl.Color.RawValue.ToString("X6"))
+            .AddInlineField("Displayed Seperately?", grl.IsHoisted ? "Yes" : "No")
+            .AddInlineField("Mentionable?", grl.IsMentionable ? "Yes" : "No")
+            .AddInlineField("Permissions", string.Join("\n", perms))
+            .WithFooter(x =>
+            {
+                x.WithText("PassiveBOT");
+                x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
             });
 
             await chn.SendMessageAsync("", false, embed);
@@ -196,30 +146,27 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            var embed = new EmbedBuilder()
-            {
-                Color = new Discord.Color(255, 64, 197),
-                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
-                Title = Context.Guild.Name
-            };
-            embed.AddField(x => {
-                x.Name = $"User Count:";
-                x.Value = $"{(Context.Guild as SocketGuild).MemberCount}";
-            });
-            embed.AddField(x => {
-                x.Name = $"Channel Count: (Text + Voice)";
-                x.Value = $"{(Context.Guild as SocketGuild).Channels.Count}";
-            });
-            embed.AddField(x => {
-                x.Name = $"Role Count:";
-                x.Value = $"{(Context.Guild as SocketGuild).Roles.Count}";
-            });
-            embed.AddField(x => {
-                x.Name = "PassiveBOT";
-                x.Value = $"{Linkcfg.siteurl}";
-            });           
+            var botlist = (Context.Guild as SocketGuild).Users.Count(x => x.IsBot);
+            var mem = (Context.Guild as SocketGuild).MemberCount;
+            var guildusers = mem - botlist;
+            var Channels = (Context.Guild as SocketGuild).TextChannels;
 
-            await ReplyAsync("", false, embed.Build());
+            var embed = new EmbedBuilder()
+                .WithTitle(Context.Guild.Name)
+                .AddInlineField(":busts_in_silhouette: Total Members", mem)
+                .AddInlineField(":robot: Total Bots", botlist)
+                .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
+                .AddInlineField(":newspaper2: Total Channels", (Context.Guild as SocketGuild).Channels.Count)
+                .AddInlineField(":microphone: Text/Voice Channels", $"{(Context.Guild as SocketGuild).TextChannels.Count}/{(Context.Guild as SocketGuild).VoiceChannels.Count}")
+                .AddInlineField(":spy: Role Count", (Context.Guild as SocketGuild).Roles.Count)
+                .AddField("Links", "[Forums](https://goo.gl/s3BZTw) \n[Invite](https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591)\n[Main Server](https://discord.gg/ZKXqt2a) \n[Testing Server](https://discord.gg/bmXfBQM)")
+                .WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
+
+            await ReplyAsync("", false, embed);
         }
 
         [Command("RoleList"), Summary("rolelist"), Remarks("Displays roles for the current server"), Alias("RL")]
@@ -228,14 +175,15 @@ namespace PassiveBOT.Commands
             var rol = Context.Guild.Roles;
 
             var embed = new EmbedBuilder()
-            {
-                Title = $"Roles for {Context.Guild.Name}",
-                Description = string.Join("\n", rol),
-                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl(),
-                Url = $"{Linkcfg.siteurl}"
-            };
+                .WithTitle($"Roles for {Context.Guild.Name}")
+                .WithDescription(string.Join("\n", rol))
+                .WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
 
-            await ReplyAsync("", false, embed.Build());
+            await ReplyAsync("", false, embed);
         }
 
         [Command("RoleMembers"), Summary("rolemembers '@role' 'nick or username'"), Remarks("Displays a list of members with the given role"), Alias("RM")]
@@ -261,10 +209,13 @@ namespace PassiveBOT.Commands
                 }
             }
             var embed = new EmbedBuilder()
-            {
-                Title = $"Here is a list of Members with the role {role}",
-                Description = string.Join(" \n", members)
-            };
+                .WithTitle($"Here is a list of Members with the role {role}")
+                .WithDescription(string.Join(" \n", members))
+                .WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
 
             await ReplyAsync("", false, embed.Build());
         }

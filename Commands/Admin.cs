@@ -88,9 +88,7 @@ namespace PassiveBOT.Commands
              .ToArray();
 
             if (!hexColors.Any())
-            {
                 return;
-            }
 
             var images = hexColors.Select(color => {
                 var img = new ImageSharp.Image(50, 50);
@@ -133,14 +131,9 @@ namespace PassiveBOT.Commands
         public async Task Clear([Optional] int count)
         {
             if (count < 1)
-            {
                 await ReplyAsync("**ERROR: **Please Specify the amount of messages you want to clear");
-                return;
-            }
             else if (count > 100)
-            {
                 await ReplyAsync("**Error: **I can only clear 100 Messages at a time!");
-            }
             else
             {
                 await Context.Message.DeleteAsync().ConfigureAwait(false);
