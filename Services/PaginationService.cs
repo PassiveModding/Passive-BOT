@@ -30,7 +30,7 @@ namespace PassiveBOT.Services
 
         public async Task<IUserMessage> SendPaginatedMessageAsync(IMessageChannel channel, PaginatedMessage paginated)
         {
-            await LogHandler.LogAsync($"Sending to {channel}");
+            await Handlers.LogHandler.LogAsync($"Paginator       | Message Sent            | Channel: {channel}");
 
             var message = await channel.SendMessageAsync("", embed: paginated.GetEmbed());
 
@@ -42,6 +42,7 @@ namespace PassiveBOT.Services
 
             _messages.Add(message.Id, paginated);
             await LogHandler.LogAsync("Listening to Pages Message");
+            await Handlers.LogHandler.LogAsync($"Paginator       | Message Listening       | Channel: {channel}");
 
             return message;
         }
@@ -51,12 +52,13 @@ namespace PassiveBOT.Services
             var message = await messageParam.GetOrDownloadAsync();
             if (message == null)
             {
-                await LogHandler.LogAsync($"Dumped message (not in cache) with id {reaction.MessageId}");
+                await Handlers.LogHandler.LogAsync($"Paginator       | Message Dumped          | User: {reaction.MessageId}");
                 return;
             }
             if (!reaction.User.IsSpecified)
             {
-                await LogHandler.LogAsync($"Dumped message (invalid user) with id {message.Id}");
+                await Handlers.LogHandler.LogAsync($"Paginator       | Reaction Invalid        | User: {message.Id}");
+
                 return;
             }
             if (_messages.TryGetValue(message.Id, out PaginatedMessage page))
@@ -64,12 +66,12 @@ namespace PassiveBOT.Services
                 if (reaction.UserId == _client.CurrentUser.Id) return;
                 if (page.User != null && reaction.UserId != page.User.Id)
                 {
-                    await LogHandler.LogAsync($"ignoring reaction from user {reaction.UserId}");
+                    await Handlers.LogHandler.LogAsync($"Paginator       | Reaction Ignored        | User: {reaction.UserId}");
                     var _ = message.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
                     return;
                 }
                 await message.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
-                await LogHandler.LogAsync($"handling reaction");
+                await Handlers.LogHandler.LogAsync($"Paginator       | Reaction Handled        | Message: {reaction.MessageId}");
                 switch (reaction.Emote.Name)
                 {
                     case FIRST:

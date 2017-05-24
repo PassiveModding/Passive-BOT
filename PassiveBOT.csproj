@@ -229,7 +229,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Config.cs" />
-    <Compile Include="Configuration\linkcfg.cs" />
+    <Compile Include="Configuration\CFGload.cs" />
     <Compile Include="Services\PaginationExtensions.cs" />
     <Compile Include="Services\PaginationService.cs" />
   </ItemGroup>

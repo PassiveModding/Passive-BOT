@@ -43,6 +43,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("help"), Summary("help 'meme'"), Remarks("all help commands")]
+        [Ratelimit(1, 15, Measure.Seconds)]
         public async Task Help2Async()
         {
             var pages = new List<string>{};
@@ -69,7 +70,7 @@ namespace PassiveBOT.Commands
 
         [Command("faq"), Alias("helpme"), Summary("helpme"), Remarks("Used for the FAQ link for PassiveBOT")]
         public async Task Helpme()
-        => await ReplyAsync($"For the FAQ section, please check out the FAQ page on our site: {Linkcfg.faq} \nalso please feel free to ask additional questions here");
+        => await ReplyAsync($"For the FAQ section, please check out the FAQ page on our site: {Load.faq} \nalso please feel free to ask additional questions here");
 
 
         [Command("donate"), Summary("donate"), Alias("support"), Remarks("Donation Links for PassiveModding")]

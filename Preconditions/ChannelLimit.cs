@@ -9,11 +9,7 @@ namespace PassiveBOT
     {
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
         {
-            if (context.Channel.Name == "nsfw")
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            else if (context.Channel.Name.StartsWith("nsfw-"))
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            else if (context.Channel is Discord.IDMChannel)
+            if (context.Channel.Name == "nsfw" || context.Channel.Name.StartsWith("nsfw-") || context.Channel is Discord.IDMChannel)
                 return Task.FromResult(PreconditionResult.FromSuccess());
             else
                 return Task.FromResult(PreconditionResult.FromError("Command does not function in channels without the title #nsfw"));

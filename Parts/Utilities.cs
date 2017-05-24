@@ -22,10 +22,7 @@ namespace PassiveBOT
 
         public static IRole GetMutedRole(SocketGuild Guild)
         {
-            foreach (SocketRole Role in Guild.Roles)
-                if (Role.Name == "Muted")
-                    return Role;
-            return null;
+            return Guild.Roles.FirstOrDefault(role => role.Name == "Muted");
         }
 
         private static async Task<IGuildUser> GetUserByName(IGuild Guild, String Name)

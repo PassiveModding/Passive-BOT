@@ -49,7 +49,7 @@ namespace PassiveBOT.Commands
                     x.Name = "PassiveBOT";
                     x.Url = "https://goo.gl/s3BZTw";
                 })
-                .AddInlineField("Author", Linkcfg.owner)
+                .AddInlineField("Author", Load.owner)
                 .AddInlineField("Uptime", GetUptime())
                 .AddInlineField("Heap", $"{GetHeapSize()}MB")
                 .AddInlineField("Servers", (Context.Client as DiscordSocketClient).Guilds.Count)
