@@ -80,5 +80,19 @@ namespace PassiveBOT.Commands
             };
             await ReplyAsync($"", false, builder.Build());
         }
+        [Command("pussy"), Summary("pussy"), Remarks(";)")]
+        public async Task Pussy()
+        {
+            int result;
+            Random rnd = new Random();
+            result = rnd.Next(0, Strings.pussy.Length);
+
+            var builder = new EmbedBuilder()
+            {
+                ImageUrl = Strings.pussy[result],
+                Description = $"Pussy Database Size: {Strings.pussy.Length}\n Image Number: {result}"
+            };
+            await ReplyAsync($"", false, builder.Build());
+        }
     }
 }

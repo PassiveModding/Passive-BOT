@@ -7,7 +7,7 @@ namespace PassiveBOT
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class NSFWchat : PreconditionAttribute
     {
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IDependencyMap map)
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
         {
             if (context.Channel.Name == "nsfw")
                 return Task.FromResult(PreconditionResult.FromSuccess());

@@ -8,41 +8,41 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using PassiveBOT.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PassiveBOT
 {
     public class CommandHandler
     {
-        private CommandService commands;
-        private DiscordSocketClient client;
-        public IDependencyMap Map;
+        private CommandService _commands;
+        private DiscordSocketClient _client;
+        public IServiceProvider _provider;
 
 
         public async Task ConfigureAsync()
         {
-            await commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        public async Task Install(IDependencyMap _map)
+        public CommandHandler(IServiceProvider provider)
         {
-            client = _map.Get<DiscordSocketClient>();
-            commands = new CommandService();
+            _provider = provider;
+            _client = _provider.GetService<DiscordSocketClient>();
+            _commands = new CommandService();
 
-            await commands.AddModulesAsync(Assembly.GetEntryAssembly());
-
-            client.MessageReceived += HandleCommand;
-            client.MessageReceived += Auto;
+            _client.MessageReceived += DoCommand;
+            _client.MessageReceived += Auto;
         }
 
-        public async Task HandleCommand(SocketMessage parameterMessage)
+        public async Task DoCommand(SocketMessage parameterMessage)
         {
             var message = parameterMessage as SocketUserMessage;
             if (message == null) return;
             int argPos = 0;
-            var context = new CommandContext(client, message);
+            var context = new CommandContext(_client, message);
             
-            if (!(message.HasMentionPrefix(client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
-            var result = await commands.ExecuteAsync(context, argPos, Map);
+            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
+            var result = await _commands.ExecuteAsync(context, argPos, _provider);
 
             #region shorten
             string str = context.Message.ToString();
@@ -102,7 +102,7 @@ namespace PassiveBOT
             var message = parameterMessage as SocketUserMessage;
             if (message == null) return;
             int argPos = 0;
-            var context = new CommandContext(client, message);
+            var context = new CommandContext(_client, message);
 
             var lines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
             List<string> result = lines.ToList();

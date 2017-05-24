@@ -11,7 +11,7 @@ namespace PassiveBOT
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class NoPrefix : PreconditionAttribute
     {
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IDependencyMap map)
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
         {
             var lines = File.ReadAllLines(AppContext.BaseDirectory + $"moderation/prefix/nopre.txt");
             List<string> result = lines.ToList();

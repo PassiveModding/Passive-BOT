@@ -21,7 +21,6 @@ namespace PassiveBOT.Commands
         [Command("die"), Summary("die"), Remarks("Kills the bot (owner only)")]
         public async Task Die()
         {
-
             await ReplyAsync("Bye Bye :heart:");
             await client.StopAsync();
             Environment.Exit(1);
@@ -33,7 +32,6 @@ namespace PassiveBOT.Commands
             var glds = (Context.Client as DiscordSocketClient).Guilds;
             var defaultchan = glds.Select(g => g.GetChannel(g.Id)).Cast<ITextChannel>();
             await Task.WhenAll(defaultchan.Select(c => c.SendMessageAsync(msg)));
-
         }
 
         [Command("Username"), Summary("username 'name'"), RequireContext(ContextType.Guild), Remarks("Sets the bots username")]
@@ -52,7 +50,6 @@ namespace PassiveBOT.Commands
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/"));
 
-
             var lines = File.ReadAllLines(AppContext.BaseDirectory + $"moderation/prefix/nopre.txt");
             List<string> result = lines.ToList();
             if (result.Contains(Context.Guild.Id.ToString()))
@@ -61,7 +58,6 @@ namespace PassiveBOT.Commands
                 var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
                 File.WriteAllLines($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}", newLines);
                 await ReplyAsync($"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
-
             }
             else
             {

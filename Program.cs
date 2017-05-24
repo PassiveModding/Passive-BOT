@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace PassiveBOT
@@ -14,8 +15,9 @@ namespace PassiveBOT
         public static void Main(string[] args) =>
          new Program().Start().GetAwaiter().GetResult();
 
-        private DiscordSocketClient client;
-        private CommandHandler handler;
+        private DiscordSocketClient _client;
+        private Config _config;
+        private CommandHandler _handler;
 
         public async Task Start()
         {
@@ -42,7 +44,7 @@ namespace PassiveBOT
             else
                 await Handlers.LogHandler.LogErrorAsync($"Error Loading Debug Config, Set to default", $"Info");
 
-            client = new DiscordSocketClient(new DiscordSocketConfig()
+            _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
                 WebSocketProvider = Discord.Net.Providers.WS4Net.WS4NetProvider.Instance,
                 LogLevel = ll
@@ -50,8 +52,8 @@ namespace PassiveBOT
 
             try
             {
-                await client.LoginAsync(TokenType.Bot, Config.Load().Token);
-                await client.StartAsync();
+                await _client.LoginAsync(TokenType.Bot, Config.Load().Token);
+                await _client.StartAsync();
             }
             catch
             {
@@ -60,49 +62,50 @@ namespace PassiveBOT
                 goto setup; //I know I shouldn't use GOTO but meh
             }
 
-            var map = new DependencyMap();
-            map.Add(client);
-            handler = new CommandHandler();
-            await handler.Install(map);
+            var serviceProvider = ConfigureServices();
+            _handler = new CommandHandler(serviceProvider);
+            await _handler.ConfigureAsync();
 
-            client.Ready += Client_Ready;
+
+            _client.Ready += Client_Ready;
             if (ll == LogSeverity.Debug)
-                client.Log += LogClient;
+                _client.Log += LogClient;
             else
-                client.Log += LogCinfo;
+                _client.Log += LogCinfo;
 
+            //setgame loop
             await Task.Delay(3000);
             while (true)
             {
                 var rnd = new Random().Next(0, 5);
                 if (rnd == 0)
                 {
-                    var g0 = $"{Config.Load().Prefix}help / Users: {(client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}";
-                    await client.SetGameAsync($"{g0}");
+                    var g0 = $"{Config.Load().Prefix}help / Users: {(_client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}";
+                    await _client.SetGameAsync($"{g0}");
                     await Log($"SetGame         | Server: All Guilds      | {g0}");
                 }
                 else if (rnd == 1)
                 {
-                    var g1 = $"{Config.Load().Prefix}help / Servers: {(client as DiscordSocketClient).Guilds.Count}";
-                    await client.SetGameAsync($"{g1}");
+                    var g1 = $"{Config.Load().Prefix}help / Servers: {(_client as DiscordSocketClient).Guilds.Count}";
+                    await _client.SetGameAsync($"{g1}");
                     await Log($"SetGame         | Server: All Guilds      | {g1}");
                 }
                 else if (rnd == 2)
                 {
                     var g2 = $"{Config.Load().Prefix}help / Heap: {GetHeapSize()}MB";
-                    await client.SetGameAsync($"{g2}");
+                    await _client.SetGameAsync($"{g2}");
                     await Log($"SetGame         | Server: All Guilds      | {g2}");
                 }
                 else if (rnd == 3)
                 {
                     var g3 = $"{Config.Load().Prefix}help / {Linkcfg.gamesite}";
-                    await client.SetGameAsync($"{g3}");
+                    await _client.SetGameAsync($"{g3}");
                     await Log($"SetGame         | Server: All Guilds      | {g3}");
                 }
                 else if (rnd == 4)
                 {
                     var g4 = $"{Config.Load().Prefix}help / v{Linkcfg.version}";
-                    await client.SetGameAsync($"{g4}");
+                    await _client.SetGameAsync($"{g4}");
                     await Log($"SetGame         | Server: All Guilds      | {g4}");
                 }
                 await Task.Delay(3600000);
@@ -112,8 +115,16 @@ namespace PassiveBOT
 
         private async Task Client_Ready()
         {
-            var application = await client.GetApplicationInfoAsync();
+            var application = await _client.GetApplicationInfoAsync();
             await Log($"Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
+        }
+
+        private IServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection()
+                .AddSingleton(_client)
+                .AddSingleton(new CommandService(new CommandServiceConfig { CaseSensitiveCommands = false, ThrowOnError = false }));
+            return services.BuildServiceProvider();
         }
 
         public static Task Log(string msg)
