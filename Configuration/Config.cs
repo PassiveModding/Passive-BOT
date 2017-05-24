@@ -37,9 +37,7 @@ namespace PassiveBOT.Configuration
             Handlers.LogHandler.LogAsync("Run (Y for run, N for setup Config)");
             Console.Write("Y or N: ");
             var res = Console.ReadLine();
-            if (res == "N")
-                File.Delete("cfg/config.json");
-            if (res == "n")
+            if (res == "N" || res == "n")
                 File.Delete("cfg/config.json");
 
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "cfg")))
@@ -58,17 +56,10 @@ namespace PassiveBOT.Configuration
                 Handlers.LogHandler.LogAsync("Would you like to log debug?");
                 Console.Write("Y or N: ");
                 cfg.Debug = Console.ReadLine();
-tokeninput:
+
                 Handlers.LogHandler.LogAsync(token);
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
-                if (cfg.Token.Length == 59)
-                    Handlers.LogHandler.LogAsync($"Token Accepted!");
-                else
-                {
-                    Handlers.LogHandler.LogErrorAsync($"Incorrect input", $"Inavlid Token!");
-                    goto tokeninput;
-                }
 
                 cfg.Save();
             }

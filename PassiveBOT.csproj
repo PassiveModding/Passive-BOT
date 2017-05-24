@@ -37,20 +37,17 @@
     <ApplicationIcon>passivemodding_logo_ZVb_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Discord.Addons.InteractiveCommands, Version=1.2.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Addons.InteractiveCommands.1.2.2\lib\netstandard1.3\Discord.Addons.InteractiveCommands.dll</HintPath>
-    </Reference>
     <Reference Include="Discord.Net.Commands, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Commands.1.0.0-rc2\lib\netstandard1.1\Discord.Net.Commands.dll</HintPath>
+      <HintPath>..\packages\Discord.Net.Commands.1.0.0-rc3-00742\lib\netstandard1.1\Discord.Net.Commands.dll</HintPath>
     </Reference>
     <Reference Include="Discord.Net.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Core.1.0.0-rc2\lib\net45\Discord.Net.Core.dll</HintPath>
+      <HintPath>..\packages\Discord.Net.Core.1.0.0-rc3-00742\lib\net45\Discord.Net.Core.dll</HintPath>
     </Reference>
     <Reference Include="Discord.Net.Providers.WS4Net, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Net.Providers.WS4Net.1.0.0-rc2\lib\net45\Discord.Net.Providers.WS4Net.dll</HintPath>
     </Reference>
     <Reference Include="Discord.Net.Rest, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.Rest.1.0.0-rc2\lib\net45\Discord.Net.Rest.dll</HintPath>
+      <HintPath>..\packages\Discord.Net.Rest.1.0.0-rc3-00742\lib\net45\Discord.Net.Rest.dll</HintPath>
     </Reference>
     <Reference Include="Discord.Net.Rpc, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Net.Rpc.1.0.0-rc2\lib\net45\Discord.Net.Rpc.dll</HintPath>
@@ -59,7 +56,7 @@
       <HintPath>..\packages\Discord.Net.Webhook.1.0.0-rc2\lib\netstandard1.1\Discord.Net.Webhook.dll</HintPath>
     </Reference>
     <Reference Include="Discord.Net.WebSocket, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Discord.Net.WebSocket.1.0.0-rc2\lib\net45\Discord.Net.WebSocket.dll</HintPath>
+      <HintPath>..\packages\Discord.Net.WebSocket.1.0.0-rc3-00742\lib\net45\Discord.Net.WebSocket.dll</HintPath>
     </Reference>
     <Reference Include="ImageSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ImageSharp.1.0.0-alpha6-00065\lib\netstandard1.3\ImageSharp.dll</HintPath>
@@ -212,8 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Random.cs" />
-    <Compile Include="Commands\Test.cs" />
-    <Compile Include="Handlers\EmbedHandler.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Parts\Strings3.cs" />
     <Compile Include="Preconditions\ChannelLimit.cs" />
@@ -235,6 +230,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Config.cs" />
     <Compile Include="Configuration\linkcfg.cs" />
+    <Compile Include="Services\PaginationExtensions.cs" />
+    <Compile Include="Services\PaginationService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -243,6 +240,7 @@
   <ItemGroup>
     <Content Include="passivemodding_logo_ZVb_icon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
