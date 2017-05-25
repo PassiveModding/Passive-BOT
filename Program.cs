@@ -78,39 +78,19 @@ namespace PassiveBOT
 
             //setgame loop
             await Task.Delay(10000);
+            public static string[] gametitle = 
+            {
+                $"{prefix}help / Users: {(_client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}",
+                $"{prefix}help / Servers: {(_client as DiscordSocketClient).Guilds.Count}",
+                $"{prefix}help / Heap: {GetHeapSize()}MB"",
+                $"{prefix}help / {Load.gamesite}",
+                $"{prefix}help / v{Load.version}"
+            }
             while (true)
             {
-                var rnd = new Random().Next(0, 5);
-                if (rnd == 0)
-                {
-                    var g0 = $"{prefix}help / Users: {(_client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}";
-                    await _client.SetGameAsync($"{g0}");
-                    await Logged($"SetGame         | Server: All Guilds      | {g0}");
-                }
-                else if (rnd == 1)
-                {
-                    var g1 = $"{prefix}help / Servers: {(_client as DiscordSocketClient).Guilds.Count}";
-                    await _client.SetGameAsync($"{g1}");
-                    await Logged($"SetGame         | Server: All Guilds      | {g1}");
-                }
-                else if (rnd == 2)
-                {
-                    var g2 = $"{prefix}help / Heap: {GetHeapSize()}MB";
-                    await _client.SetGameAsync($"{g2}");
-                    await Logged($"SetGame         | Server: All Guilds      | {g2}");
-                }
-                else if (rnd == 3)
-                {
-                    var g3 = $"{prefix}help / {Load.gamesite}";
-                    await _client.SetGameAsync($"{g3}");
-                    await Logged($"SetGame         | Server: All Guilds      | {g3}");
-                }
-                else if (rnd == 4)
-                {
-                    var g4 = $"{prefix}help / v{Load.version}";
-                    await _client.SetGameAsync($"{g4}");
-                    await Logged($"SetGame         | Server: All Guilds      | {g4}");
-                }
+                var result = new Random Next(0, 5);
+                await _client.Setgame($"{gametitle[result]}");
+                await Logged($"SetGame         | Server: All Guilds      | {gametitle[result]}")
                 await Task.Delay(3600000);
             }
         }
