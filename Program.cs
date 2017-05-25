@@ -88,7 +88,7 @@ namespace PassiveBOT
             }
             while (true)
             {
-                var result = new Random Next(0, 5);
+                var result = new Random Next(0, gametitle.length);
                 await _client.Setgame($"{gametitle[result]}");
                 await Logged($"SetGame         | Server: All Guilds      | {gametitle[result]}")
                 await Task.Delay(3600000);
