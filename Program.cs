@@ -77,24 +77,26 @@ namespace PassiveBOT
 
 
             //setgame loop
-            await Task.Delay(10000);
-            public static string[] gametitle = 
+            await Task.Delay(3000);
+            string[] gametitle =
             {
                 $"{prefix}help / Users: {(_client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}",
                 $"{prefix}help / Servers: {(_client as DiscordSocketClient).Guilds.Count}",
-                $"{prefix}help / Heap: {GetHeapSize()}MB"",
+                $"{prefix}help / Heap: {GetHeapSize()}MB",
                 $"{prefix}help / {Load.gamesite}",
                 $"{prefix}help / v{Load.version}"
-            }
+            };
             while (true)
             {
-                var result = new Random Next(0, gametitle.length);
-                await _client.Setgame($"{gametitle[result]}");
-                await Logged($"SetGame         | Server: All Guilds      | {gametitle[result]}")
+                var rnd = new Random();
+                var result = rnd.Next(0, gametitle.Length);
+                await _client.SetGameAsync($"{gametitle[result]}");
+                await Logged($"SetGame         | Server: All Guilds      | {gametitle[result]}");
                 await Task.Delay(3600000);
             }
         }
         private static string GetHeapSize() => Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString();
+
 
         private async Task Client_Ready()
         {
