@@ -54,7 +54,6 @@ namespace PassiveBOT.Commands
 
                 await ReplyAsync("", false, embed.Build());
             }
-
         }
 
         [Command("fortune"), Summary("fortune"), Remarks("open a fortune cookie")]
@@ -71,7 +70,6 @@ namespace PassiveBOT.Commands
                 ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
             };
             await ReplyAsync("", false, embed.Build());
-
         }
 
         [Command("rps"), Summary("rps 'r'"), Remarks("rock paper scissors!")]
@@ -185,7 +183,6 @@ namespace PassiveBOT.Commands
                 ImageUrl = coin,
                 Description = result
             };
-
             await ReplyAsync("", false, embed.Build());
         }
     }

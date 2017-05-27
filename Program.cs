@@ -1,12 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
+﻿using Discord;
 using Discord.Commands;
-using PassiveBOT.Configuration;
-using System.Linq;
+using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using PassiveBOT.Configuration;
 using PassiveBOT.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PassiveBOT
 {
@@ -68,7 +68,7 @@ namespace PassiveBOT
             _handler = new CommandHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
-
+            //if logging is debug log as debug essentially
             _client.Ready += Client_Ready;
             if (ll == LogSeverity.Debug)
                 _client.Log += LogClient;

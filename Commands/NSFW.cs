@@ -10,6 +10,7 @@ namespace PassiveBOT.Commands
     [Ratelimit(1, 2, Measure.Seconds), NSFWchat]
     public class NSFW : ModuleBase
     {
+        //Tits & Ass from Rick
         [Command("tits"), Summary("tits"), Alias("boobs", "rack"), Remarks("Fetches some sexy titties")]
         public async Task BoobsAsync()
         {

@@ -28,6 +28,7 @@ namespace PassiveBOT.Commands
     public class Admin : ModuleBase
     {
         [Command("qc"), Summary("qc '@role' '60'"), Remarks("quickcolour role")]
+        [RequireContext(ContextType.Guild)]
         public async Task Quickcolour([Optional] IRole role, [Optional] int timeout)
         {
             if (role == null)
@@ -44,6 +45,7 @@ namespace PassiveBOT.Commands
             }
         }
         [Command("qcoff"), Alias("qc off"), Summary("qcoff '@role'"), Remarks("turns quickcolour role off")]
+        [RequireContext(ContextType.Guild)]
         public async Task Qoff([Optional] IRole role)
         {
             if (role == null)
@@ -54,8 +56,10 @@ namespace PassiveBOT.Commands
                 await quick.DeleteAsync();
             }
         }
+        //modified from Nadeko
         private static ConcurrentDictionary<ulong, Timer> _rotatingRoleColors = new ConcurrentDictionary<ulong, Timer>();
         [Command("Colour"), Summary("colour '60' '@role' 'FFFFFF FFFFF1'"), Remarks("Changes the Colour of a role")]
+        [RequireContext(ContextType.Guild)]
         public async Task Colour(int timeout, IRole role, params string[] hexes)
         {
             var channel = (ITextChannel)Context.Channel;
@@ -118,6 +122,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("prune"), Summary("prune"), Remarks("removes all the bots recent messages")]
+        [RequireContext(ContextType.Guild)]
         public async Task Prune()
         {
             var user = await Context.Guild.GetCurrentUserAsync().ConfigureAwait(false);
@@ -127,7 +132,7 @@ namespace PassiveBOT.Commands
             await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
         }
         [Command("clear"), Summary("clear 26"), Remarks("removes the specified amount of messages")]
-        [RequireUserPermission(GuildPermission.ManageMessages)]
+        [RequireUserPermission(GuildPermission.ManageMessages), RequireContext(ContextType.Guild)]
         public async Task Clear([Optional] int count)
         {
             if (count < 1)
@@ -145,6 +150,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("nopre"), Summary("nopre"), Remarks("toggles prefixless commands in the current server")]
+        [RequireContext(ContextType.Guild)]
         public async Task Nopre()
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
@@ -237,6 +243,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("mute"), Summary("mute '@loudboy'"), Remarks("Mutes the specified player")]
+        [RequireContext(ContextType.Guild)]
         public async Task Mute(string user, [Remainder, Optional] string reason)
         {
             if (Utilities.ManageRole((SocketGuild)Context.Guild) == null)
@@ -278,6 +285,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("unmute"), Summary("unmute '@quietboy'"), Remarks("unmutes the specified user")]
+        [RequireContext(ContextType.Guild)]
         public async Task Unmute(string user)
         {
             if (Utilities.ManageRole((SocketGuild)Context.Guild) == null)
@@ -315,6 +323,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("kicks"), Summary("kicks"), Remarks("Users kicked by passivebot")]
+        [RequireContext(ContextType.Guild)]
         public async Task Kicks()
         {
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
@@ -322,6 +331,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("warns"), Summary("warns"), Remarks("Users warned by passivebot")]
+        [RequireContext(ContextType.Guild)]
         public async Task Warns()
         {
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
@@ -329,6 +339,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("bans"), Summary("bans"), Remarks("Users banned by passivebot")]
+        [RequireContext(ContextType.Guild)]
         public async Task Bans()
         {
             var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");

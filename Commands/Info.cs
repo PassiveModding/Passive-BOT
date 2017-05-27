@@ -14,10 +14,9 @@ namespace PassiveBOT.Commands
 {
     public class Information : ModuleBase
     {
-        [Command("user"), Summary("user '@user'"), Alias("whois"), Remarks("Returns info about the current user, or the given user")]
+        [Command("user"), Summary("user '@user'"), Alias("whois", "userinfo"), Remarks("Returns info about the current user, or the given user")]
         public async Task UserInformation([Remainder, Optional] IUser user)
         {
-
             if (user == null)
                 user = Context.User;
             string status = user.Status.ToString();
@@ -40,7 +39,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder);
         }
 
-        [Command("info"), Summary("info"), Remarks("Display's the bots information and statistics.")]
+        [Command("info"), Alias("botinfo"), Summary("info"), Remarks("Display's the bots information and statistics.")]
         public async Task Info()
         {
             var embed = new EmbedBuilder()
@@ -66,7 +65,9 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
+        //From Rick
         [Command("Roleinfo"), Summary("roleinfo '@role'"), Remarks("Displays information about given Role"), Alias("RI")]
+        [RequireContext(ContextType.Guild)]
         public async Task RoleInfoAsync(IRole role)
         {
             var gld = Context.Guild;
@@ -152,7 +153,7 @@ namespace PassiveBOT.Commands
             var Channels = (Context.Guild as SocketGuild).TextChannels;
 
             var embed = new EmbedBuilder()
-                .WithTitle(Context.Guild.Name)
+                .WithTitle($"User Count for {Context.Guild.Name}")
                 .AddInlineField(":busts_in_silhouette: Total Members", mem)
                 .AddInlineField(":robot: Total Bots", botlist)
                 .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
@@ -170,6 +171,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("RoleList"), Summary("rolelist"), Remarks("Displays roles for the current server"), Alias("RL")]
+        [RequireContext(ContextType.Guild)]
         public async Task RoleList()
         {
             var rol = Context.Guild.Roles;

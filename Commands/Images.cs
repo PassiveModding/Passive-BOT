@@ -101,7 +101,6 @@ namespace PassiveBOT.Commands
             }
         }
 
-
         [Command("leet"), Summary("leet"), Alias("mlg", "1337", "dank", "doritos", "illuminati", "memz", "pro"), Remarks("MLG  Dankness")]
         public async Task Leet()
         {
@@ -116,7 +115,6 @@ namespace PassiveBOT.Commands
             };
 
             await ReplyAsync($"", false, builder.Build());
-
         }
 
         [Command("spoonfed"), Summary("spoonfed"), Remarks("for those who just ask for code")]
@@ -132,7 +130,6 @@ namespace PassiveBOT.Commands
             };
 
             await ReplyAsync($"", false, builder.Build());
-
         }
 
         [Command("derp"), Summary("derp '@fag'"), Remarks("For special people (note: may be offensive to some)")]

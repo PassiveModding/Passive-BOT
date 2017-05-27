@@ -41,7 +41,6 @@ namespace PassiveBOT.Services
             await message.AddReactionAsync(new Emoji(STOP));
 
             _messages.Add(message.Id, paginated);
-            await LogHandler.LogAsync("Listening to Pages Message");
             await Handlers.LogHandler.LogAsync($"Paginator       | Message Listening       | Channel: {channel}");
 
             return message;
