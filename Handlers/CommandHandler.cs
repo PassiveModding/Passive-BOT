@@ -94,7 +94,7 @@ namespace PassiveBOT.Handlers
             if (!result.IsSuccess)
                 if (errlog.Contains(context.Guild.Id.ToString()))
                 {
-                    await context.Channel.SendMessageAsync("\u200B" + $"{str} - {result.ErrorReason}");
+                    await context.Channel.SendMessageAsync($"​**COMMAND: **{str} \n**ERROR: **{result.ErrorReason}");
                     await ColourLog.ColourError($"{str} | Server: {gui} | ${result.ErrorReason}");
                 }
                 else

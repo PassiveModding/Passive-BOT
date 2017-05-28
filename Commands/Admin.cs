@@ -242,6 +242,7 @@ namespace PassiveBOT.Commands
         [RequireUserPermission(GuildPermission.KickMembers)]
         public async Task Kickuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
+            var success = false;
             if (user.GuildPermissions.ManageRoles)
             {
                 await ReplyAsync("**ERROR: **you cannot kick a a user with manage roles permission");
@@ -252,16 +253,28 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                await ReplyAsync($"{user.Mention} you have been kicked for `{reason}`:bangbang: ");
-                var dm = await user.CreateDMChannelAsync();
-                await dm.SendMessageAsync($"{user.Mention} you have been kicked from {Context.Guild} for `{reason}`");
-                await user.KickAsync();
-
-                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/kick/")))
+                try
+                {
+                    await user.KickAsync();
+                    if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/kick/")))
                     Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/kick/"));
 
                 File.AppendAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt",
                     $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
+                    success = true;
+                }
+                catch
+                {
+                    await ReplyAsync(
+                        "**ERROR: **I was unable to kick the specified user, please check I have sufficient permissions");
+                }
+                if (success)
+                {
+                    await ReplyAsync($"{user} has been kicked for `{reason}`:bangbang: ");
+                    var dm = await user.CreateDMChannelAsync();
+                    await dm.SendMessageAsync($"{user.Mention} you have been kicked from {Context.Guild} for `{reason}`");
+                }
+
             }
         }
 
@@ -281,7 +294,7 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                await ReplyAsync($"{user.Mention} you have been warned for `{reason}`");
+                await ReplyAsync($"{user.Mention} has been warned for `{reason}`");
                 var dm = await user.CreateDMChannelAsync();
                 await dm.SendMessageAsync($"{user.Mention} you have been warned for `{reason}` in {Context.Guild}");
 
@@ -300,6 +313,7 @@ namespace PassiveBOT.Commands
         [RequireUserPermission(GuildPermission.BanMembers)]
         public async Task Banuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
+            var success = false;
             if (user.GuildPermissions.ManageRoles)
             {
                 await ReplyAsync("**ERROR: **you cannot ban a user with manage roles permission");
@@ -310,16 +324,29 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                await ReplyAsync($"{user.Mention} you have been banned for `{reason}`:bangbang: ");
-                var dm = await user.CreateDMChannelAsync();
-                await dm.SendMessageAsync($"{user.Mention} you have been banned from {Context.Guild} for `{reason}`");
-                await Context.Guild.AddBanAsync(user);
+                try
+                {
+                    await Context.Guild.AddBanAsync(user);
 
-                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/ban/")))
-                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/ban/"));
+                    if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/ban/")))
+                        Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/ban/"));
 
-                File.AppendAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt",
-                    $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
+                    File.AppendAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt",
+                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
+                    success = true;
+                }
+                catch
+                {
+                    await ReplyAsync(
+                        "**ERROR: **I was unable to ban the specified user, please check I have sufficient permissions");
+                }
+                if (success)
+                {
+                    await ReplyAsync($"{user} has been banned for `{reason}`:bangbang: ");
+                    var dm = await user.CreateDMChannelAsync();
+                    await dm.SendMessageAsync($"{user.Mention} you have been banned from {Context.Guild} for `{reason}`");
+                }
+
             }
         }
 

@@ -10,7 +10,7 @@ using PassiveBOT.strings;
 namespace PassiveBOT.Commands
 {
     [Ratelimit(1, 2, Measure.Seconds)]
-    [NsfWchat]
+    [RequireNsfw]
     public class Nsfw : ModuleBase
     {
         //Tits & Ass from Rick

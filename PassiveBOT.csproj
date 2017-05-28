@@ -155,6 +155,7 @@
   <ItemGroup>
     <Compile Include="Commands\Random.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
+    <Compile Include="Preconditions\ChannelTopic.cs" />
     <Compile Include="Strings\NSFWString.cs" />
     <Compile Include="Strings\ANIMALString.cs" />
     <Compile Include="Preconditions\ChannelLimit.cs" />

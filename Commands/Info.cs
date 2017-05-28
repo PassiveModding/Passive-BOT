@@ -158,11 +158,10 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            var socketGuild = Context.Guild as SocketGuild;
-            if (socketGuild != null)
+            if ((Context.Guild as SocketGuild) != null)
             {
-                var botlist = socketGuild.Users.Count(x => x.IsBot);
-                var mem = socketGuild.MemberCount;
+                var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
+                var mem = ((SocketGuild) Context.Guild).MemberCount;
                 var guildusers = mem - botlist;
 
                 var embed = new EmbedBuilder()
@@ -170,9 +169,9 @@ namespace PassiveBOT.Commands
                     .AddInlineField(":busts_in_silhouette: Total Members", mem)
                     .AddInlineField(":robot: Total Bots", botlist)
                     .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
-                    .AddInlineField(":newspaper2: Total Channels", socketGuild.Channels.Count)
-                    .AddInlineField(":microphone: Text/Voice Channels", $"{socketGuild.TextChannels.Count}/{socketGuild.VoiceChannels.Count}")
-                    .AddInlineField(":spy: Role Count", socketGuild.Roles.Count)
+                    .AddInlineField(":newspaper2: Total Channels", ((SocketGuild) Context.Guild).Channels.Count)
+                    .AddInlineField(":microphone: Text/Voice Channels", $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
+                    .AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count)
                     .AddField("Links",
                         "[Forums](https://goo.gl/s3BZTw) \n[Invite](https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591)\n[Main Server](https://discord.gg/ZKXqt2a) \n[Testing Server](https://discord.gg/bmXfBQM)")
                     .WithFooter(x =>

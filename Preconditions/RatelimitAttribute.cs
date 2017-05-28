@@ -38,6 +38,8 @@ namespace PassiveBOT.preconditions
                 case Measure.Milliseconds:
                     _invokeLimitPeriod = TimeSpan.FromMilliseconds(period);
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(measure), measure, null);
             }
         }
 
@@ -48,8 +50,7 @@ namespace PassiveBOT.preconditions
             _invokeLimitPeriod = period;
         }
 
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
-            IServiceProvider prov)
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
         {
             if (context.Channel is IPrivateChannel && _noLimitInDMs)
                 return Task.FromResult(PreconditionResult.FromSuccess());
@@ -62,12 +63,9 @@ namespace PassiveBOT.preconditions
 
             timeout.TimesInvoked++;
 
-            if (timeout.TimesInvoked <= _invokeLimit)
-            {
-                _invokeTracker[context.User.Id] = timeout;
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            }
-            return Task.FromResult(PreconditionResult.FromError("Timeout"));
+            if (timeout.TimesInvoked > _invokeLimit) return Task.FromResult(PreconditionResult.FromError("Timeout"));
+            _invokeTracker[context.User.Id] = timeout;
+            return Task.FromResult(PreconditionResult.FromSuccess());
         }
 
         private class CommandTimeout
