@@ -1,56 +1,61 @@
-﻿using Discord;
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
+using Discord.Net.Providers.WS4Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers;
 using PassiveBOT.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PassiveBOT
 {
     public class Program
     {
-        public static void Main(string[] args) => new Program().Start().GetAwaiter().GetResult();
-
         private DiscordSocketClient _client;
         private CommandHandler _handler;
 
+        public static void Main(string[] args)
+        {
+            new Program().Start().GetAwaiter().GetResult();
+        }
+
         public async Task Start()
         {
-            Console.Title = $"PassiveBOT v{Load.version}";
+            Console.Title = $"PassiveBOT v{Load.Version}";
             Console.WriteLine(
-             "██████╗  █████╗ ███████╗███████╗██╗██╗   ██╗███████╗██████╗  ██████╗ ████████╗\n" +
-             "██╔══██╗██╔══██╗██╔════╝██╔════╝██║██║   ██║██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝\n" +
-             "██████╔╝███████║███████╗███████╗██║██║   ██║█████╗  ██████╔╝██║   ██║   ██║   \n" +
-             "██╔═══╝ ██╔══██║╚════██║╚════██║██║╚██╗ ██╔╝██╔══╝  ██╔══██╗██║   ██║   ██║   \n" +
-             "██║     ██║  ██║███████║███████║██║ ╚████╔╝ ███████╗██████╔╝╚██████╔╝   ██║   \n" +
-             "╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝╚═════╝  ╚═════╝    ╚═╝   \n" +
-             "/--------------------------------------------------------------------------\\ \n" +
-             "| Designed by PassiveModding - PassiveNation.com  ||   Status: Connected   | \n" +
-             "\\--------------------------------------------------------------------------/ \n");
-
+                "██████╗  █████╗ ███████╗███████╗██╗██╗   ██╗███████╗██████╗  ██████╗ ████████╗\n" +
+                "██╔══██╗██╔══██╗██╔════╝██╔════╝██║██║   ██║██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝\n" +
+                "██████╔╝███████║███████╗███████╗██║██║   ██║█████╗  ██████╔╝██║   ██║   ██║   \n" +
+                "██╔═══╝ ██╔══██║╚════██║╚════██║██║╚██╗ ██╔╝██╔══╝  ██╔══██╗██║   ██║   ██║   \n" +
+                "██║     ██║  ██║███████║███████║██║ ╚████╔╝ ███████╗██████╔╝╚██████╔╝   ██║   \n" +
+                "╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝╚═════╝  ╚═════╝    ╚═╝   \n" +
+                "/--------------------------------------------------------------------------\\ \n" +
+                "| Designed by PassiveModding - PassiveNation.com  ||   Status: Connected   | \n" +
+                "\\--------------------------------------------------------------------------/ \n");
 
 
             Config.CheckExistence();
-            string prefix = Config.Load().Prefix;
-            string debug = Config.Load().Debug;
-            string token = Config.Load().Token;
+            var prefix = Config.Load().Prefix;
+            var debug = Config.Load().Debug;
+            var token = Config.Load().Token;
 
 
-            //broken
             var ll = LogSeverity.Info;
             if (debug == "y" || debug == "Y")
                 ll = LogSeverity.Debug;
             else if (debug == "n" || debug == "N")
                 ll = LogSeverity.Info;
             else
-                await Handlers.LogHandler.LogErrorAsync($"Error Loading Debug Config, Set to default", $"Info");
+                await ColourLog.ColourError($"Error Loading Debug Config, Set to default (Entry = {debug})");
 
-            _client = new DiscordSocketClient(new DiscordSocketConfig()
+
+            _client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                WebSocketProvider = Discord.Net.Providers.WS4Net.WS4NetProvider.Instance,
+                WebSocketProvider = WS4NetProvider.Instance,
                 LogLevel = ll
             });
 
@@ -61,7 +66,7 @@ namespace PassiveBOT
             }
             catch
             {
-                await Handlers.LogHandler.LogErrorAsync($"Token was rejected by Discord", $"Invalid Token");
+                await ColourLog.ColourError("Token was rejected by Discord (Invalid Token)");
             }
 
             var serviceProvider = ConfigureServices();
@@ -70,73 +75,80 @@ namespace PassiveBOT
 
             //if logging is debug log as debug essentially
             _client.Ready += Client_Ready;
+            await Task.Delay(1000);
             if (ll == LogSeverity.Debug)
-                _client.Log += LogClient;
+                _client.Log += LogDebug;
             else
-                _client.Log += LogCinfo;
+                _client.Log += LogMessageInfo;
 
 
             //setgame loop
-            await Task.Delay(3000);
+            await Task.Delay(5000);
             string[] gametitle =
             {
-                $"{prefix}help / Users: {(_client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount)}",
-                $"{prefix}help / Servers: {(_client as DiscordSocketClient).Guilds.Count}",
+                $"{prefix}help / Users: {_client.Guilds.Sum(g => g.MemberCount)}",
+                $"{prefix}help / Servers: {_client.Guilds.Count}",
                 $"{prefix}help / Heap: {GetHeapSize()}MB",
-                $"{prefix}help / {Load.gamesite}",
-                $"{prefix}help / v{Load.version}"
+                $"{prefix}help / {Load.Gamesite}",
+                $"{prefix}help / v{Load.Version}"
             };
             while (true)
             {
                 var rnd = new Random();
                 var result = rnd.Next(0, gametitle.Length);
                 await _client.SetGameAsync($"{gametitle[result]}");
-                await Logged($"SetGame         | Server: All Guilds      | {gametitle[result]}");
+                await LogInfo($"SetGame         | Server: All Guilds      | {gametitle[result]}");
                 await Task.Delay(3600000);
             }
+
         }
-        private static string GetHeapSize() => Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString();
+
+        private static string GetHeapSize()
+        {
+            return Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString(CultureInfo.InvariantCulture);
+        }
 
 
         private async Task Client_Ready()
         {
             var application = await _client.GetApplicationInfoAsync();
-            await Logged($"Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
+            await LogInfo($"Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
         }
 
         private IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection()
                 .AddSingleton(_client)
-                .AddSingleton(new CommandService(new CommandServiceConfig { CaseSensitiveCommands = false, ThrowOnError = false }))
+                .AddSingleton(new CommandService(
+                    new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}))
                 .AddPaginator(_client);
             return services.BuildServiceProvider();
         }
 
-        public static Task Log(string message)
+        public static Task LogInfoTrim(string message)
         {
             var msg = message.Substring(21, message.Length - 21);
-            Handlers.LogHandler.LogAsync(msg.ToString());
+            ColourLog.ColourInfo($"{msg}");
             return Task.CompletedTask;
         }
 
-        public static Task Logged(string msg)
+        public static Task LogInfo(string msg)
         {
-            Handlers.LogHandler.LogAsync(msg.ToString());
+            ColourLog.ColourInfo($"{msg}");
             return Task.CompletedTask;
         }
 
-        public static Task LogCinfo(LogMessage msg)
+        public static Task LogMessageInfo(LogMessage message)
         {
-            var message = msg.ToString();
-            var _message = message.Substring(21, message.Length - 21);
-            Handlers.LogHandler.LogAsync(_message.ToString());
+            var messagestr = message.ToString();
+            var msg = messagestr.Substring(21, messagestr.Length - 21);
+            ColourLog.ColourInfo($"{msg}");
             return Task.CompletedTask;
         }
 
-        public static Task LogClient(LogMessage msg)
+        public static Task LogDebug(LogMessage msg)
         {
-            Handlers.LogHandler.LogClientAsync(msg.ToString());
+            ColourLog.ColourDebug(msg.ToString());
             return Task.CompletedTask;
         }
     }

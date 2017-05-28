@@ -1,41 +1,29 @@
-﻿using System.Threading.Tasks;
-using Serilog;
+﻿using System;
+using System.Drawing;
+using System.Threading.Tasks;
+using Console = Colorful.Console;
 
 namespace PassiveBOT.Handlers
 {
-    public class LogHandler
+    //Replaced loghandler with colourlog cause thats sexy!
+    public class ColourLog
     {
-        public static Task LogAsync(string message)
+        public static Task ColourInfo(string message)
         {
-            Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .WriteTo.ColoredConsole()
-                .CreateLogger();
-
-            Serilog.Log.Information($"{message}");
+            Console.WriteLine($"{DateTime.Now} [Info]  {message}", Color.Aqua);
             return Task.CompletedTask;
         }
 
-        public static Task LogErrorAsync(string message, string error)
+        public static Task ColourError(string message)
         {
-            Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .WriteTo.ColoredConsole()
-                .CreateLogger();
-
-            Serilog.Log.Error($"      {message} | {error}");
+            Console.WriteLine($"{DateTime.Now} [Error] {message}", Color.Red);
             return Task.CompletedTask;
         }
 
-        public static Task LogClientAsync(string message)
+        public static Task ColourDebug(string message)
         {
-            Serilog.Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.ColoredConsole()
-                .CreateLogger();
-
-            var msg = message.Substring(21, message.Length - 21); //removes unnecessary data added at the start of debug logging
-            Serilog.Log.Debug($"{msg}");
+            var msg = message.Substring(21, message.Length - 21);
+            Console.WriteLine($"{DateTime.Now} [Debug] {msg}", Color.GreenYellow);
             return Task.CompletedTask;
         }
     }

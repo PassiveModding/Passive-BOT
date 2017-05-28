@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Discord.Commands;
 using Discord;
+using Discord.Commands;
 
-namespace PassiveBOT
+namespace PassiveBOT.preconditions
+
 {
     //from Discord.Addons (slightly edited)
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class RatelimitAttribute : PreconditionAttribute
     {
         private readonly uint _invokeLimit;
-        private readonly bool _noLimitInDMs;
         private readonly TimeSpan _invokeLimitPeriod;
         private readonly Dictionary<ulong, CommandTimeout> _invokeTracker = new Dictionary<ulong, CommandTimeout>();
+        private readonly bool _noLimitInDMs;
 
         public RatelimitAttribute(uint times, double period, Measure measure, bool noLimitInDMs = false)
         {
@@ -47,14 +48,17 @@ namespace PassiveBOT
             _invokeLimitPeriod = period;
         }
 
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
+            IServiceProvider prov)
         {
             if (context.Channel is IPrivateChannel && _noLimitInDMs)
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
             var now = DateTime.UtcNow;
-            var timeout = (_invokeTracker.TryGetValue(context.User.Id, out
-                var t) && ((now - t.FirstInvoke) < _invokeLimitPeriod)) ? t : new CommandTimeout(now);
+            var timeout = _invokeTracker.TryGetValue(context.User.Id, out
+                              var t) && now - t.FirstInvoke < _invokeLimitPeriod
+                ? t
+                : new CommandTimeout(now);
 
             timeout.TimesInvoked++;
 
@@ -63,26 +67,19 @@ namespace PassiveBOT
                 _invokeTracker[context.User.Id] = timeout;
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
-            else
-                return Task.FromResult(PreconditionResult.FromError("Timeout"));
+            return Task.FromResult(PreconditionResult.FromError("Timeout"));
         }
 
         private class CommandTimeout
         {
-            public uint TimesInvoked
-            {
-                get;
-                set;
-            }
-            public DateTime FirstInvoke
-            {
-                get;
-            }
-
             public CommandTimeout(DateTime timeStarted)
             {
                 FirstInvoke = timeStarted;
             }
+
+            public uint TimesInvoked { get; set; }
+
+            public DateTime FirstInvoke { get; }
         }
     }
 

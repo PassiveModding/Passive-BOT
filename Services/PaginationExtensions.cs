@@ -1,9 +1,5 @@
-﻿using Discord;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
-using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Services
 {

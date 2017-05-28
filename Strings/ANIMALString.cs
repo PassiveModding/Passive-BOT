@@ -1,8 +1,8 @@
-﻿namespace PassiveBOT
+﻿namespace PassiveBOT.strings
 {
-    public class Strings3
+    public class AnimalStr
     {
-        public static string[] dog =
+        public static string[] Dog =
         {
             "http://s19.postimg.org/lfmqspb8j/1_goldenretrie.jpg",
             "http://s19.postimg.org/5wpavl2xv/2_siberian_husky_dogs_hd_jpg.jpg",
@@ -114,7 +114,7 @@
             "https://thoughtcatalog.files.wordpress.com/2016/04/uthft4f.jpg?w=800&h=771"
         };
 
-        public static string[] cat =
+        public static string[] Cat =
         {
             "http://s19.postimg.org/an4q9i3z7/1_6_MPzc.jpg",
             "http://s19.postimg.org/762o6j4wz/3_W7dy_C.jpg",

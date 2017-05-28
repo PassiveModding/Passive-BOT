@@ -1,80 +1,116 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using ImageSharp;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using Discord.Commands;
+using Discord.WebSocket;
+
 namespace PassiveBOT.Commands
 {
     [RequireOwner]
     public class Owner : ModuleBase
     {
-        public DiscordSocketClient client;
+        public DiscordSocketClient Client;
 
-        [Command("die"), Summary("die"), Remarks("Kills the bot (owner only)")]
+        [Command("die")]
+        [Summary("die")]
+        [Remarks("Kills the bot (owner only)")]
         public async Task Die()
         {
             await ReplyAsync("Bye Bye :heart:");
-            await client.StopAsync();
+            await Client.StopAsync();
             Environment.Exit(1);
         }
 
-        [Command("Username"), Summary("username 'name'"), Remarks("Sets the bots username")]
+        [Command("Username")]
+        [Summary("username 'name'")]
+        [Remarks("Sets the bots username")]
         public async Task UsernameAsync([Remainder] string value)
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Value cannot be empty");
-            var client = Context.Client as DiscordSocketClient;
             await Context.Client.CurrentUser.ModifyAsync(x => x.Username = value).ConfigureAwait(false);
             await ReplyAsync("Bot Username updated").ConfigureAwait(false);
         }
 
-        [Command("nopre"), Summary("nopre"), Remarks("toggles prefixless commands in the current server")]
+        [Command("nopre-")]
+        [Summary("nopre")]
+        [Remarks("toggles prefixless commands in the current server")]
         [RequireContext(ContextType.Guild)]
         public async Task Nopre()
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/"));
 
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + $"moderation/prefix/nopre.txt");
-            List<string> result = lines.ToList();
+            var lines = File.ReadAllLines(AppContext.BaseDirectory + "moderation/prefix/nopre.txt");
+            var result = lines.ToList();
             if (result.Contains(Context.Guild.Id.ToString()))
             {
-                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}");
+                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "moderation/prefix/nopre.txt"}");
                 var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
-                File.WriteAllLines($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}", newLines);
-                await ReplyAsync($"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
+                File.WriteAllLines($"{AppContext.BaseDirectory + "moderation/prefix/nopre.txt"}", newLines);
+                await ReplyAsync(
+                    $"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
             }
             else
             {
-                File.AppendAllText($"{AppContext.BaseDirectory + $"moderation/prefix/nopre.txt"}", $"{Context.Guild.Id}" + Environment.NewLine);
-                await ReplyAsync($"{Context.Guild} has been added to the noprefix list (secret commands and prefixless commands are now disabled)");
+                File.AppendAllText($"{AppContext.BaseDirectory + "moderation/prefix/nopre.txt"}",
+                    $"{Context.Guild.Id}" + Environment.NewLine);
+                await ReplyAsync(
+                    $"{Context.Guild} has been added to the noprefix list (secret commands and prefixless commands are now disabled)");
             }
         }
 
-        [Command("kicks-"), Summary("kicks"), Remarks("Users kicked by passivebot")]
+        [Command("errors-")]
+        [Summary("errors")]
+        [Remarks("toggles error replies for this bot")]
+        [RequireContext(ContextType.Guild)]
+        public async Task ErrorLog()
+        {
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/error/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/error/"));
+
+            var lines = File.ReadAllLines(AppContext.BaseDirectory + "moderation/error/logging.txt");
+            var result = lines.ToList();
+            if (result.Contains(Context.Guild.Id.ToString()))
+            {
+                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "moderation/error/logging.txt"}");
+                var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
+                File.WriteAllLines($"{AppContext.BaseDirectory + "moderation/error/logging.txt"}", newLines);
+                await ReplyAsync($"I will no longer reply if an error is thrown in {Context.Guild}");
+            }
+            else
+            {
+                File.AppendAllText($"{AppContext.BaseDirectory + "moderation/error/logging.txt"}",
+                    $"{Context.Guild.Id}" + Environment.NewLine);
+                await ReplyAsync($"I will now reply if an error is thrown in {Context.Guild}");
+            }
+        }
+
+        [Command("kicks-")]
+        [Summary("kicks")]
+        [Remarks("Users kicked by passivebot")]
         [RequireContext(ContextType.Guild)]
         public async Task Kicks()
         {
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
         }
-        [Command("warns-"), Summary("warns"), Remarks("Users warned by passivebot")]
+
+        [Command("warns-")]
+        [Summary("warns")]
+        [Remarks("Users warned by passivebot")]
         [RequireContext(ContextType.Guild)]
         public async Task Warns()
         {
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + warns + "\n```");
         }
-        [Command("bans-"), Summary("bans"), Remarks("Users banned by passivebot")]
+
+        [Command("bans-")]
+        [Summary("bans")]
+        [Remarks("Users banned by passivebot")]
         [RequireContext(ContextType.Guild)]
         public async Task Bans()
         {
@@ -83,21 +119,28 @@ namespace PassiveBOT.Commands
         }
 
         //from RICK
-        [Command("ServerList"), Summary("Normal Command"), Remarks("Get's a list of all guilds the bot is in."), Alias("Sl")]
+        [Command("ServerList")]
+        [Summary("Normal Command")]
+        [Remarks("Get's a list of all guilds the bot is in.")]
+        [Alias("Sl")]
         public async Task ServerListAsync()
         {
             var client = Context.Client as DiscordSocketClient;
-            var Info = await client.GetApplicationInfoAsync();
+            var info = await client.GetApplicationInfoAsync();
 
             var String = new StringBuilder();
-            foreach (SocketGuild guild in client.Guilds)
+            foreach (var guild in client.Guilds)
             {
-                string List = $"{guild.Name} || **Owner:** {guild.Owner.Username}\n";
-                String.AppendLine(List);
+                var list = $"{guild.Name} || **Owner:** {guild.Owner.Username}\n";
+                String.AppendLine(list);
             }
-            await (await Info.Owner.CreateDMChannelAsync()).SendMessageAsync(String.ToString());
+            await (await info.Owner.CreateDMChannelAsync()).SendMessageAsync(String.ToString());
         }
-        [Command("Info"), Summary("Normal Command"), Remarks("Shows application info")]
+
+        /* Used in info module instead
+        [Command("Info")]
+        [Summary("Normal Command")]
+        [Remarks("Shows application info")]
         public async Task InfoAsync()
         {
             var application = await Context.Client.GetApplicationInfoAsync();
@@ -107,55 +150,41 @@ namespace PassiveBOT.Commands
             var Is64Bit = IntPtr.Size == 8 ? "Yes" : "No";
             var IsOS64 = Environment.Is64BitOperatingSystem ? "Yes" : "No";
             var isMono = Environment.Is64BitOperatingSystem ? "Yes" : "No";
-            string _description = $"{Format.Bold("Info")}\n" +
-                                $"- Author: {application.Owner.Username} (ID {application.Owner.Id})\n" +
-                                $"- Library: Discord.Net ({DiscordConfig.Version})\n" +
-                                $"- Runtime: {RuntimeInformation.FrameworkDescription} {RuntimeInformation.OSArchitecture}\n" +
-                                $"- Uptime: {(DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss")}\n\n" +
-
-                                $"{Format.Bold("Stats")}\n" +
-                                $"- Heap Size: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString()} MB\n" +
-                                $"- Guilds: {(Context.Client as DiscordSocketClient).Guilds.Count}\n" +
-                                $"- Channels: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)}\n" +
-                                $"- Users: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Users.Count)}\n\n" +
-
-                                $"{Format.Bold("Full dump of all diagnostic information about this instance.")}\n" +
-                                $"- PID: {AppInfo.Id}\n" +
-                                $"- Is 64-bit: {Is64BitStr}\n" +
-                                $"- Is 64-bit: {Is64Bit}\n" +
-                                $"- Thread count: {AppInfo.Threads.Count}\n" +
-                                $"- Total processor time: {AppInfo.TotalProcessorTime:c}\n" +
-                                $"- User processor time: {AppInfo.UserProcessorTime:c}\n" +
-                                $"- Privileged processor time: {AppInfo.PrivilegedProcessorTime:c}\n" +
-                                $"- Handle count: {AppInfo.HandleCount:#,##0}\n" +
-                                $"- Working set: {AppInfo.WorkingSet64.ToString()}\n" +
-                                $"- Virtual memory size: {AppInfo.VirtualMemorySize64.ToString()}\n" +
-                                $"- Paged memory size: {AppInfo.PagedMemorySize64.ToString()}\n\n" +
-
-                                $"{Format.Bold("OS and .Net")}" +
-                                $"- OS platform: {Environment.OSVersion.Platform.ToString()}\n" +
-                                $"- OS version: {Environment.OSVersion.Version} ({Environment.OSVersion.VersionString})\n" +
-                                $"- OS is 64-bit: {IsOS64}\n" +
-                                $"- .NET is Mono: {isMono}\n";
+            var _description = $"{Format.Bold("Info")}\n" +
+                               $"- Author: {application.Owner.Username} (ID {application.Owner.Id})\n" +
+                               $"- Library: Discord.Net ({DiscordConfig.Version})\n" +
+                               $"- Runtime: {RuntimeInformation.FrameworkDescription} {RuntimeInformation.OSArchitecture}\n" +
+                               $"- Uptime: {(DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss")}\n\n" +
+                               $"{Format.Bold("Stats")}\n" +
+                               $"- Heap Size: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" +
+                               $"- Guilds: {(Context.Client as DiscordSocketClient).Guilds.Count}\n" +
+                               $"- Channels: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)}\n" +
+                               $"- Users: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Users.Count)}\n\n" +
+                               $"{Format.Bold("Full dump of all diagnostic information about this instance.")}\n" +
+                               $"- PID: {AppInfo.Id}\n" +
+                               $"- Is 64-bit: {Is64BitStr}\n" +
+                               $"- Is 64-bit: {Is64Bit}\n" +
+                               $"- Thread count: {AppInfo.Threads.Count}\n" +
+                               $"- Total processor time: {AppInfo.TotalProcessorTime:c}\n" +
+                               $"- User processor time: {AppInfo.UserProcessorTime:c}\n" +
+                               $"- Privileged processor time: {AppInfo.PrivilegedProcessorTime:c}\n" +
+                               $"- Handle count: {AppInfo.HandleCount:#,##0}\n" +
+                               $"- Working set: {AppInfo.WorkingSet64}\n" +
+                               $"- Virtual memory size: {AppInfo.VirtualMemorySize64}\n" +
+                               $"- Paged memory size: {AppInfo.PagedMemorySize64}\n\n" +
+                               $"{Format.Bold("OS and .Net")}" +
+                               $"- OS platform: {Environment.OSVersion.Platform}\n" +
+                               $"- OS version: {Environment.OSVersion.Version} ({Environment.OSVersion.VersionString})\n" +
+                               $"- OS is 64-bit: {IsOS64}\n" +
+                               $"- .NET is Mono: {isMono}\n";
             var embed = new EmbedBuilder()
                 .WithTitle("PassiveBOT info")
                 .WithDescription(_description);
 
-            
-            await ReplyAsync("",false, embed.Build());
+
+            await ReplyAsync("", false, embed.Build());
         }
-
-        //Works but I dont reccomend using as it can be annoying to many people
-        /*
-        [Command("Broadcast"), Summary("broadcast 'message'"), Remarks("Sends a message to ALL severs that the bot is connected to."), Alias("Yell", "Shout")]
-        public async Task AsyncBroadcast([Remainder] string msg)
-        {
-            var glds = (Context.Client as DiscordSocketClient).Guilds;
-            var defaultchan = glds.Select(g => g.GetChannel(g.Id)).Cast<ITextChannel>();
-            await Task.WhenAll(defaultchan.Select(c => c.SendMessageAsync(msg)));
-        }*/
-
-        //basically gives owner of the bot access to all permissions the bot has, kinda cheaty so its not included
+        */
         /*
         [Command("kick-"), Summary("kick '@badperson' 'for not being cool'"), Remarks("Kicks the specified user (requires Kick Permissions)")]
         [RequireContext(ContextType.Guild)]
@@ -331,5 +360,17 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Who the fuck is " + user + "?");
             }
             }*/
+
+        //basically gives owner of the bot access to all permissions the bot has, kinda cheaty so its not included
+        /*
+        [Command("Broadcast"), Summary("broadcast 'message'"), Remarks("Sends a message to ALL severs that the bot is connected to."), Alias("Yell", "Shout")]
+        public async Task AsyncBroadcast([Remainder] string msg)
+        {
+            var glds = (Context.Client as DiscordSocketClient).Guilds;
+            var defaultchan = glds.Select(g => g.GetChannel(g.Id)).Cast<ITextChannel>();
+            await Task.WhenAll(defaultchan.Select(c => c.SendMessageAsync(msg)));
+        }*/
+
+        //Works but I dont reccomend using as it can be annoying to many people
     }
 }
