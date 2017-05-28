@@ -1,7 +1,7 @@
 ## PassiveBOT
 
 PassiveBOT is a bot for Discord.  
-Built on Discord.NET 1.0 (C#) - 1.00rc  
+Built on Discord.NET 1.0 (C#) - 1.00rc2 (Pre-release)  
 It features 50+ commands from moderation to rainbow roles to memes and more  
 
 ## Links
@@ -13,27 +13,10 @@ Here are the official links for PassiveBOT:
 
 ## Statistics
 
-As of the date 22/05/17 (DD/MM/YY) PassiveBOT has amassed:  
-154 Servers  
-1981 Individual Channels (Text + Voice)  
-23901 Users (Human + Bot)  
-
-## Modules
-
-Random Stuff - Some silly chat commands  
-InvitePassiveBOT - gives the bot invite URL  
-Admin - Admin commands, kick, ban, warn & more  
-Chat - more complicated custom chat commands that can take input   
-Fun - Games, Chance and other fun things  
-Help - for info and stuff about the bot  
-NSFW - NotSafeForWork, only run in NSFW channels  
-Images - Images, memes, dogs, cats & more  
-Information - User information, bot statistics, server stats & more  
-
-## Motivation
-
-I created this because I couldn't find a discord bot that really fitted my needs as an individual running a mid sized server  
-Also, I have been learning c# so this was a good place to expand my learning and knowledge  
+As of the date 28/05/17 (DD/MM/YY) PassiveBOT has amassed:  
+208 Servers  
+2830 Individual Channels (Text + Voice)  
+29178 Users (Human + Bot)  
 
 ## Installation
 
@@ -41,7 +24,7 @@ Run in visual studio or build using msbuild command
 On startup you will be asked to input a bot token and a prefix  
 these will be written to a config file  
 
-## 3.11 Help List
+## 4.0 Help List
 
 **RandomStuff**  
 .rip - rip in pepperoni  
@@ -57,14 +40,16 @@ these will be written to a config file
 .roast - who doesnt like to be insulted  
 .cringe - Sadness  
 .dick - Compare Sizes  
-**InvitePasssiveBOT**  
+**Invite**  
 .invite - Returns the OAuth2 Invite URL of the bot  
 **Admin**  
 .qc - quickcolour role  
+.qcoff - turns quickcolour role off  
 .colour - Changes the Colour of a role  
 .prune - removes all the bots recent messages  
 .clear - removes the specified amount of messages  
 .nopre - toggles prefixless commands in the current server  
+.errors - toggles error replies for this bot  
 .kick - Kicks the specified user (requires Kick Permissions)  
 .warn - warns the specified user  
 .ban - bans the specified user (requires Ban Permissions)  
@@ -76,10 +61,9 @@ these will be written to a config file
 **Chat**  
 .say - Echos the provided input  
 .quote - Quotes the given message (from message ID)  
-.react - reacts the given emoji(s)  
-.reactid - reacts the given emoji(s) to a message (from ID)  
-.donate - Donation Links for PassiveModding  
-.dm - Direct Messages the user  
+.dm - Direct Messages the specified user  
+.hug - Gives a big sloppy hug  
+.date - Asks them out on a date  
 .revivechat - wakes everyone up (once every hour max)  
 **Fun**  
 .ping - Measures gateway ping and response time  
@@ -90,13 +74,18 @@ these will be written to a config file
 .dice - roll a dice  
 .coin - Flips a coin  
 **Help**  
+.command - all help commands  
 .help - all help commands  
 .faq - Used for the FAQ link for PassiveBOT  
-**NSFW**  
+.donate - Donation Links for PassiveModding  
+**Nsfw**  
 .tits - Fetches some sexy titties  
 .ass - Sexy Ass!  
 .nsfw - Sexy Stuff!  
 .sfw - Porn meets MS Paint  
+.nsfwvid - Porhub + Bots = win?  
+.pussy - ;)  
+.nsfwgif - Gifs  
 **Images**  
 .meme - Dankness ( ͡° ͜ʖ ͡°)  
 .dog - replies with a cute doggo  
@@ -109,7 +98,7 @@ these will be written to a config file
 .user - Returns info about the current user, or the given user  
 .info - Display's the bots information and statistics.  
 .roleinfo - Displays information about given Role  
-.guildcount - User Count for the current server  
+.usercount - User Count for the current server  
 .rolelist - Displays roles for the current server  
 .rolemembers - Displays a list of members with the given role  
 .uptime - Current uptime for passivebot since last restart  
