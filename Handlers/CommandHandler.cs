@@ -40,52 +40,25 @@ namespace PassiveBOT.Handlers
             var argPos = 0;
             var context = new CommandContext(_client, message);
 
-            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
-                  message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
+            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 
             #region shorten
-
             var str = context.Message.ToString();
-            string gui;
             var use = context.User.Username;
-            if (str.Length > 15)
-            {
-                str = str.Substring(0, 15);
-            }
-            else if (str.Length < 15)
-            {
-                str = str + "               .";
-                str = str.Substring(0, 15);
-            }
+            string server;
             if (context.Channel is IPrivateChannel)
-            {
-                gui = "Direct Message ";
-            }
+                server = "Direct Message "; //because direct messages have no guild name define it as Direct Message
             else
             {
-                gui = context.Guild.ToString();
-                if (gui.Length > 15)
-                {
-                    gui = gui.Substring(0, 15);
-                }
-                else if (gui.Length < 15)
-                {
-                    gui = gui + "               .";
-                    gui = gui.Substring(0, 15);
-                }
+                var gui = context.Guild.ToString();
+                var guild = $"{gui}                 ";
+                server = guild.Substring(0, 15);
             }
-
-            if (use.Length > 15)
-            {
-                use = use.Substring(0, 15);
-            }
-            else if (use.Length < 15)
-            {
-                use = use + "               .";
-                use = use.Substring(0, 15);
-            }
-
+            var string2 = $"{str}               ";
+            var msg = string2.Substring(0, 15);
+            var use2 = $"{use}                  ";
+            var user = use2.Substring(0, 15);
             #endregion shorten
 
             var lines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\error\logging.txt");
@@ -94,15 +67,15 @@ namespace PassiveBOT.Handlers
             if (!result.IsSuccess)
                 if (errlog.Contains(context.Guild.Id.ToString()))
                 {
-                    await context.Channel.SendMessageAsync($"​**COMMAND: **{str} \n**ERROR: **{result.ErrorReason}");
-                    await ColourLog.ColourError($"{str} | Server: {gui} | ${result.ErrorReason}");
+                    await context.Channel.SendMessageAsync($"​**COMMAND: **{msg} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
+                    await ColourLog.ColourError($"{msg} | Server: {server} | ${result.ErrorReason}"); 
                 }
                 else
                 {
-                    await ColourLog.ColourError($"{str} | Server: {gui} | ${result.ErrorReason}");
+                    await ColourLog.ColourError($"{msg} | Server: {server} | ${result.ErrorReason}"); // log errors as arrors
                 }
             else
-                await ColourLog.ColourInfo($"{str} | Server: {gui} | User: {use}");
+                await ColourLog.ColourInfo($"{msg} | Server: {server} | User: {user}"); //if there is no error log normally
         }
 
         #region autoresponse
@@ -162,7 +135,9 @@ namespace PassiveBOT.Handlers
                     }
             }
         }
+        
+        #endregion autoresponse
     }
 
-    #endregion autoresponse
+    
 }

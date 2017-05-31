@@ -45,12 +45,20 @@ namespace PassiveBOT
 
 
             var ll = LogSeverity.Info;
-            if (debug == "y" || debug == "Y")
-                ll = LogSeverity.Debug;
-            else if (debug == "n" || debug == "N")
-                ll = LogSeverity.Info;
-            else
-                await ColourLog.ColourError($"Error Loading Debug Config, Set to default (Entry = {debug})");
+            switch (debug)
+            {
+                case "y":
+                case "Y":
+                    ll = LogSeverity.Debug;
+                    break;
+                case "n":
+                case "N":
+                    ll = LogSeverity.Info;
+                    break;
+                default:
+                    await ColourLog.ColourError($"Error Loading Debug Config, Set to default (Entry = {debug})");
+                    break;
+            }
 
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
@@ -73,14 +81,14 @@ namespace PassiveBOT
             _handler = new CommandHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
-            //if logging is debug log as debug essentially
-            _client.Ready += Client_Ready;
+            //checks if the user wants to log debug info or not
+
             await Task.Delay(1000);
             if (ll == LogSeverity.Debug)
                 _client.Log += LogDebug;
             else
                 _client.Log += LogMessageInfo;
-
+            _client.Ready += Client_Ready;
 
             //setgame loop
             await Task.Delay(5000);
@@ -100,7 +108,6 @@ namespace PassiveBOT
                 await LogInfo($"SetGame         | Server: All Guilds      | {gametitle[result]}");
                 await Task.Delay(3600000);
             }
-
         }
 
         private static string GetHeapSize()
@@ -112,7 +119,7 @@ namespace PassiveBOT
         private async Task Client_Ready()
         {
             var application = await _client.GetApplicationInfoAsync();
-            await LogInfo($"Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
+            await LogInfo($"PassiveBOT      | Invite                  | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
         }
 
         private IServiceProvider ConfigureServices()
@@ -121,6 +128,7 @@ namespace PassiveBOT
                 .AddSingleton(_client)
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}))
+                .AddSingleton(new AudioService())
                 .AddPaginator(_client);
             return services.BuildServiceProvider();
         }
@@ -141,7 +149,20 @@ namespace PassiveBOT
         public static Task LogMessageInfo(LogMessage message)
         {
             var messagestr = message.ToString();
+
             var msg = messagestr.Substring(21, messagestr.Length - 21);
+            if (msg.StartsWith("Preemptive"))
+            {
+                msg = "RateLimit       | Triggered               |";
+            }
+            else if (msg == "Connected")
+            {
+                msg = "PassiveBOT      | Connected               |";
+            }
+            else if (msg == "Ready")
+            {
+                msg = "PassiveBOT      | Ready                   |";
+            }
             ColourLog.ColourInfo($"{msg}");
             return Task.CompletedTask;
         }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using PassiveBOT.strings;
 
@@ -10,9 +12,17 @@ namespace PassiveBOT.Commands
         [Command("rip")]
         [Summary("rip")]
         [Remarks("rip in pepperoni")]
-        public async Task Rip()
+        public async Task Rip([Optional] IUser user)
         {
-            await ReplyAsync("rip in pepperoni little boi, you will forever be remembered in the hall of lame");
+            if (user == null)
+            {
+                await ReplyAsync("rip in pepperoni little boi, you will forever be remembered in the hall of lame");
+                
+            }
+            else
+            {
+                await ReplyAsync($"rip in pepperoni {user.Mention}, you will forever be remembered in the hall of lame");
+            }
         }
 
         [Command("rekt")]

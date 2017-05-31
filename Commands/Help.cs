@@ -46,7 +46,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder.Build());
         }
 
-        [Command("help")]
+        [Command("help", RunMode = RunMode.Async)]
         [Summary("help 'meme'")]
         [Remarks("all help commands")]
         [Ratelimit(1, 15, Measure.Seconds)]

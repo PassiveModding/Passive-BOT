@@ -12,7 +12,7 @@ namespace PassiveBOT.Commands
     [Ratelimit(1, 2, Measure.Seconds)]
     public class Fun : ModuleBase
     {
-        [Command("Ping")]
+        [Command("Ping", RunMode = RunMode.Async)]
         [Alias("pong")]
         [Summary("ping")]
         [Remarks("Measures gateway ping and response time")]

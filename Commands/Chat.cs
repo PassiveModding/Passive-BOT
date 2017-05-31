@@ -15,10 +15,9 @@ namespace PassiveBOT.Commands
         [Remarks("Echos the provided input")]
         public async Task Say([Remainder] string input)
         {
-            if (input.Contains("@everyone") || input.Contains("@here"))
-                await ReplyAsync("\u200B Fight me you little scrub");
-            else
-                await ReplyAsync("\u200B" + input);
+            input = input.Replace("@everyone", "Everyone");
+            input = input.Replace("@here", "Here");
+            await ReplyAsync("\u200B" + input);
         }
 
         [Command("quote")]
