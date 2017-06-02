@@ -41,6 +41,10 @@ namespace PassiveBOT.Handlers
             var context = new CommandContext(_client, message);
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
+            if (message.HasStringPrefix(Config.Load().Prefix + Config.Load().Prefix, ref argPos) || message.ToString() == ".")
+            {
+                return;
+            }
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 
             #region shorten

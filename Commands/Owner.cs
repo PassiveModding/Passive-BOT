@@ -3,8 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using PassiveBOT.Configuration;
+using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands
 {
@@ -12,8 +15,33 @@ namespace PassiveBOT.Commands
     public class Owner : ModuleBase
     {
         public DiscordSocketClient Client;
+        public readonly CommandService Service;
 
-        [Command("die")]
+        public Owner(CommandService service)
+        {
+            Service = service;
+        }
+
+        [Command("help+", RunMode = RunMode.Async)]
+        [Summary("help")]
+        [Remarks("Owner Commands")]
+        [Ratelimit(1, 15, Measure.Seconds)]
+        public async Task Help2Async()
+        {
+            var description = "";
+            foreach (var module in Service.Modules)
+                if (module.Name == "Owner")
+                {
+                    description = module.Commands.Aggregate(description, (current, cmd) => current + $"{Config.Load().Prefix}{cmd.Aliases.First()} - {cmd.Remarks}\n");
+                }
+
+            var embed = new EmbedBuilder()
+                .WithTitle("Owner Commands")
+                .WithDescription(description);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("die+")]
         [Summary("die")]
         [Remarks("Kills the bot (owner only)")]
         public async Task Die()
@@ -23,38 +51,34 @@ namespace PassiveBOT.Commands
             Environment.Exit(1);
         }
 
-        //from rick (modified)
-        [Command("Leave")]
-        [Summary("Leave 123897481723 This server is shit!")]
+        [Command("LeaveServer+")]
+        [Summary("Leave 123456789012 This server is shit!")]
         [Remarks("Makes the bot leave the specified guild")]
-        public async Task LeaveAsync(ulong id, [Remainder] string msg = "No reason provided by the owner.")
+        public async Task LeaveAsync(ulong id, [Remainder] string reason = "No reason provided by the owner.")
         {
-            if (string.IsNullOrWhiteSpace(msg))
-                throw new NullReferenceException("You must provide a reason!");
             if (id <= 0)
-                throw new ArgumentException("Please enter a valid Guild ID");
-            var client = Context.Client;
-            var gld = await client.GetGuildAsync(id);
+                await ReplyAsync("Please enter a valid Guild ID");
+            var gld = await Context.Client.GetGuildAsync(id);
             var ch = await gld.GetDefaultChannelAsync();
 
-            await ch.SendMessageAsync($"haha fuck this shit im out... `{msg}`");
+            await ch.SendMessageAsync($"haha fuck this shit I'm out... `{reason}`");
             await Task.Delay(5000);
             await gld.LeaveAsync();
             await ReplyAsync("Message has been sent and I've left the guild!");
         }
 
-        [Command("Username")]
+        [Command("Username+")]
         [Summary("username 'name'")]
         [Remarks("Sets the bots username")]
         public async Task UsernameAsync([Remainder] string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Value cannot be empty");
+                await ReplyAsync("Value cannot be empty");
             await Context.Client.CurrentUser.ModifyAsync(x => x.Username = value).ConfigureAwait(false);
             await ReplyAsync("Bot Username updated").ConfigureAwait(false);
         }
 
-        [Command("nopre-")]
+        [Command("nopre+")]
         [Summary("nopre")]
         [Remarks("toggles prefixless commands in the current server")]
         [RequireContext(ContextType.Guild)]
@@ -82,7 +106,7 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("errors-")]
+        [Command("errors+")]
         [Summary("errors")]
         [Remarks("toggles error replies for this bot")]
         [RequireContext(ContextType.Guild)]
@@ -108,7 +132,7 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("kicks-")]
+        [Command("kicks+")]
         [Summary("kicks")]
         [Remarks("Users kicked by passivebot")]
         [RequireContext(ContextType.Guild)]
@@ -118,7 +142,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("```\n" + kicks + "\n```");
         }
 
-        [Command("warns-")]
+        [Command("warns+")]
         [Summary("warns")]
         [Remarks("Users warned by passivebot")]
         [RequireContext(ContextType.Guild)]
@@ -128,7 +152,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("```\n" + warns + "\n```");
         }
 
-        [Command("bans-")]
+        [Command("bans+")]
         [Summary("bans")]
         [Remarks("Users banned by passivebot")]
         [RequireContext(ContextType.Guild)]
@@ -138,21 +162,21 @@ namespace PassiveBOT.Commands
             await ReplyAsync("```\n" + bans + "\n```");
         }
 
-        //from RICK
-        [Command("ServerList")]
+        [Command("ServerList+")]
         [Summary("Normal Command")]
         [Remarks("Get's a list of all guilds the bot is in.")]
-        [Alias("Sl")]
         public async Task ServerListAsync()
         {
             var client = Context.Client as DiscordSocketClient;
             var info = await client.GetApplicationInfoAsync();
 
             var String = new StringBuilder();
-            foreach (SocketGuild guild in client.Guilds)
+            var i = 0;
+            foreach (var guild in client.Guilds)
             {
-                var list = $"{guild.Name} || **Owner:** {guild.Owner.Username}\n";
+                var list = $"`{i}`- {guild.Name} || **Owner:** {guild.Owner.Username}";
                 String.AppendLine(list);
+                i++;
             }
             await (await info.Owner.CreateDMChannelAsync()).SendMessageAsync(String.ToString());
         }

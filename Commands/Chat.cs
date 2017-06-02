@@ -74,15 +74,5 @@ namespace PassiveBOT.Commands
                 $"Hey Cutie {user.Mention}, {Context.User.Mention} really likes you and would \nlove to go on a date with you, do you accept? :heart:\n" +
                 $"Heres a cute love message from them ```\n{input}\n```");
         }
-
-        [Command("revivechat")]
-        [Summary("revivechat")]
-        [Alias("revive", "wakeup")]
-        [Remarks("wakes everyone up (once every hour max)")]
-        [Ratelimit(1, 60, Measure.Minutes)]
-        public async Task Revive()
-        {
-            await ReplyAsync("pay attention my bitches, theres chatting to do @everyone");
-        }
     }
 }

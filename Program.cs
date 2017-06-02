@@ -15,7 +15,7 @@ namespace PassiveBOT
 {
     public class Program
     {
-        private DiscordSocketClient _client;
+        public DiscordSocketClient Client;
         private CommandHandler _handler;
 
         public static void Main(string[] args)
@@ -61,7 +61,7 @@ namespace PassiveBOT
             }
 
 
-            _client = new DiscordSocketClient(new DiscordSocketConfig
+            Client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 WebSocketProvider = WS4NetProvider.Instance,
                 LogLevel = ll
@@ -69,8 +69,8 @@ namespace PassiveBOT
 
             try
             {
-                await _client.LoginAsync(TokenType.Bot, token);
-                await _client.StartAsync();
+                await Client.LoginAsync(TokenType.Bot, token);
+                await Client.StartAsync();
             }
             catch
             {
@@ -85,17 +85,17 @@ namespace PassiveBOT
 
             await Task.Delay(1000);
             if (ll == LogSeverity.Debug)
-                _client.Log += LogDebug;
+                Client.Log += LogDebug;
             else
-                _client.Log += LogMessageInfo;
-            _client.Ready += Client_Ready;
+                Client.Log += LogMessageInfo;
+            Client.Ready += Client_Ready;
 
             //setgame loop
             await Task.Delay(5000);
             string[] gametitle =
             {
-                $"{prefix}help / Users: {_client.Guilds.Sum(g => g.MemberCount)}",
-                $"{prefix}help / Servers: {_client.Guilds.Count}",
+                $"{prefix}help / Users: {Client.Guilds.Sum(g => g.MemberCount)}",
+                $"{prefix}help / Servers: {Client.Guilds.Count}",
                 $"{prefix}help / Heap: {GetHeapSize()}MB",
                 $"{prefix}help / {Load.Gamesite}",
                 $"{prefix}help / v{Load.Version}"
@@ -104,8 +104,8 @@ namespace PassiveBOT
             {
                 var rnd = new Random();
                 var result = rnd.Next(0, gametitle.Length);
-                await _client.SetGameAsync($"{gametitle[result]}");
-                await LogInfo($"SetGame         | Server: All Guilds      | {gametitle[result]}");
+                await Client.SetGameAsync($"{gametitle[result]}");
+                await LogInfo($"PassiveBOT      | SetGame                 | {gametitle[result]}");
                 await Task.Delay(3600000);
             }
         }
@@ -118,18 +118,18 @@ namespace PassiveBOT
 
         private async Task Client_Ready()
         {
-            var application = await _client.GetApplicationInfoAsync();
-            await LogInfo($"PassiveBOT      | Invite                  | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
+            var application = await Client.GetApplicationInfoAsync();
+            await LogInfo($"PassiveBOT      | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
         }
 
         private IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection()
-                .AddSingleton(_client)
+                .AddSingleton(Client)
                 .AddSingleton(new AudioService())
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}))
-                .AddPaginator(_client);
+                .AddPaginator(Client);
             return services.BuildServiceProvider();
         }
 
@@ -153,7 +153,6 @@ namespace PassiveBOT
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             if (msg.StartsWith("Preemptive"))
             {
-                msg = "RateLimit       | Triggered               |";
             }
             else if (msg == "Connected")
             {
@@ -163,6 +162,11 @@ namespace PassiveBOT
             {
                 msg = "PassiveBOT      | Ready                   |";
             }
+            else if (msg == "Connecting" || msg.StartsWith("Unknown OpCode (8)") || msg == "Disconnecting" || msg == "Disconnected" || msg.StartsWith("Unknown User"))
+            {
+                return Task.CompletedTask;
+            }
+
             ColourLog.ColourInfo($"{msg}");
             return Task.CompletedTask;
         }

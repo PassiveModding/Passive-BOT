@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -11,7 +10,6 @@ namespace PassiveBOT.Commands
     public class Audio : ModuleBase<ICommandContext>
     {
         private readonly AudioService _service;
-
         public Audio(AudioService service)
         {
             _service = service;
@@ -58,19 +56,30 @@ namespace PassiveBOT.Commands
         [Remarks("lists all available songs")]
         public async Task ListMusic()
         {
-            var d = new DirectoryInfo(AppContext.BaseDirectory + "music/");
-            var music = d.GetFiles("*.mp3");
-            var songlist = new List<string>();
-            var i = 0;
-            foreach (var sng in music)
-            {
-                songlist.Add($"`{i}` - {Path.GetFileNameWithoutExtension(sng.Name)}");
-                i++;
-            }
-
-            var list = string.Join("\n", songlist.ToArray());
-
-            await ReplyAsync(list);
+            await _service.ListMusic(Context.Channel, Context.Guild);
         }
+
+        [Command("get", RunMode = RunMode.Async)]
+        [Summary("get 'yt url'")]
+        [Remarks("requests a song for download")]
+        public async Task GetSong(string url)
+        {
+            if (url.Contains("/"))
+            {
+                if (url.Contains("youtube") && url.Contains("watch"))
+                {
+                    Console.WriteLine(url);
+                    var videoId = url.Substring(url.Length - 11, 11);
+                    Console.WriteLine(videoId);
+                    await _service.DlAudio(Context.Guild, Context.Channel, videoId);
+                }
+            }
+            else
+            {
+                await ReplyAsync(
+                    "**Invalid URL format: ** please use something like `https://www.youtube.com/watch?v=tvTRZJ-4EyI`");
+            }
+        }
+
     }
 }
