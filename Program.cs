@@ -126,9 +126,9 @@ namespace PassiveBOT
         {
             var services = new ServiceCollection()
                 .AddSingleton(_client)
+                .AddSingleton(new AudioService())
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}))
-                .AddSingleton(new AudioService())
                 .AddPaginator(_client);
             return services.BuildServiceProvider();
         }
