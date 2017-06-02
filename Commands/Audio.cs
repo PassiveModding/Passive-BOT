@@ -68,9 +68,9 @@ namespace PassiveBOT.Commands
             {
                 if (url.Contains("youtube") && url.Contains("watch"))
                 {
-                    Console.WriteLine(url);
+                    //Console.WriteLine(url);
                     var videoId = url.Substring(url.Length - 11, 11);
-                    Console.WriteLine(videoId);
+                    //Console.WriteLine(videoId);
                     await _service.DlAudio(Context.Guild, Context.Channel, videoId);
                 }
             }
