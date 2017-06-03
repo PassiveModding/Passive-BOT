@@ -1,5 +1,4 @@
 ## PassiveBOT
-[![Header](http://passivenation.com/images/Banner3.png)](http://www.passivenation.com/)
 
 | [![twitter](https://cdn.discordapp.com/attachments/155726317222887425/252192520094613504/twiter_banner.JPG)](https://twitter.com/PassiveModding) | [![discord](https://cdn.discordapp.com/attachments/266240393639755778/281920766490968064/discord.png)](https://discord.gg/ZKXqt2a) | [![Invite](https://i.gyazo.com/3add2fb3dc485cd6e9e5eca315fcba17.png)](https://discordapp.com/oauth2/authorize?client_id=234112036701863936&scope=bot&permissions=2146958591)
 | --- | --- | --- |
