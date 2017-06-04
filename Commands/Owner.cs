@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -138,6 +137,11 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Kicks()
         {
+            if (!File.Exists(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt"))
+            {
+                await ReplyAsync(
+                    "There are currently no kicks in this server, to kick someone type `.kick @user 'reason'`");
+            }
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
         }
@@ -148,6 +152,11 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Warns()
         {
+            if (!File.Exists(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt"))
+            {
+                await ReplyAsync(
+                    "There are currently no warns in this server, to warn someone type `.warn @user 'reason'`");
+            }
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + warns + "\n```");
         }
@@ -158,27 +167,13 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Bans()
         {
+            if (!File.Exists(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt"))
+            {
+                await ReplyAsync(
+                    "There are currently no bans in this server, to ban someone type `.ban @user 'reason'`");
+            }
             var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + bans + "\n```");
-        }
-
-        [Command("ServerList+")]
-        [Summary("Normal Command")]
-        [Remarks("Get's a list of all guilds the bot is in.")]
-        public async Task ServerListAsync()
-        {
-            var client = Context.Client as DiscordSocketClient;
-            var info = await client.GetApplicationInfoAsync();
-
-            var String = new StringBuilder();
-            var i = 0;
-            foreach (var guild in client.Guilds)
-            {
-                var list = $"`{i}`- {guild.Name} || **Owner:** {guild.Owner.Username}";
-                String.AppendLine(list);
-                i++;
-            }
-            await (await info.Owner.CreateDMChannelAsync()).SendMessageAsync(String.ToString());
         }
 
         //Works but I don't recommend using as it can be annoying to many people

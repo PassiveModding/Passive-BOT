@@ -1,6 +1,4 @@
-﻿using PassiveBOT.Configuration;
-
-namespace PassiveBOT.Configuration
+﻿namespace PassiveBOT.Configuration
 {
     public class Load
     {
