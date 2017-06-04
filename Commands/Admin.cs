@@ -458,6 +458,11 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Kicks()
         {
+            if (!File.Exists(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt"))
+            {
+                await ReplyAsync(
+                    "There are currently no kicks in this server, to kick someone type `.kick @user 'reason'`");
+            }
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
         }
@@ -468,6 +473,11 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Warns()
         {
+            if (!File.Exists(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt"))
+            {
+                await ReplyAsync(
+                    "There are currently no warns in this server, to warn someone type `.warn @user 'reason'`");
+            }
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + warns + "\n```");
         }
@@ -478,6 +488,11 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Bans()
         {
+            if (!File.Exists(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt"))
+            {
+                await ReplyAsync(
+                    "There are currently no bans in this server, to ban someone type `.ban @user 'reason'`");
+            }
             var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + bans + "\n```");
         }

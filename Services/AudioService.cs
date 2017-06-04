@@ -155,6 +155,7 @@ namespace PassiveBOT.Services
             var combine = Path.Combine(MusicFolder, guild.Id.ToString());
             var complete = Path.Combine(combine, song);
             var ffmpeg = Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe");
+            //Console.WriteLine(complete + "---" + ffmpeg);
             return Process.Start(new ProcessStartInfo
             {
                 FileName = ffmpeg,

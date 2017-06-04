@@ -24,7 +24,6 @@ namespace PassiveBOT.Handlers
             _commands = new CommandService();
 
             _client.MessageReceived += DoCommand;
-            _client.MessageReceived += Auto;
         }
 
 
@@ -40,14 +39,19 @@ namespace PassiveBOT.Handlers
             var argPos = 0;
             var context = new CommandContext(_client, message);
 
-            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
-            if (message.HasStringPrefix(Config.Load().Prefix + Config.Load().Prefix, ref argPos) || message.ToString() == ".")
-            {
-                return;
-            }
+            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Load.Pre, ref argPos))) return;
+            if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
+
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
+            var success = result.IsSuccess;
+
+            var loggingLines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\error\logging.txt");
+            var nopreLines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
+            var nopre = nopreLines.ToList();
+            var errlog = loggingLines.ToList();
 
             #region shorten
+
             var str = context.Message.ToString();
             var use = context.User.Username;
             string server;
@@ -63,46 +67,17 @@ namespace PassiveBOT.Handlers
             var msg = string2.Substring(0, 15);
             var use2 = $"{use}                  ";
             var user = use2.Substring(0, 15);
+
             #endregion shorten
+            #region Auto
 
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\error\logging.txt");
-            var errlog = lines.ToList();
-
-            if (!result.IsSuccess)
-                if (errlog.Contains(context.Guild.Id.ToString()))
-                {
-                    await context.Channel.SendMessageAsync($"​**COMMAND: **{msg} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
-                    await ColourLog.ColourError($"{msg} | Server: {server} | ${result.ErrorReason}"); 
-                }
-                else
-                {
-                    await ColourLog.ColourError($"{msg} | Server: {server} | ${result.ErrorReason}"); // log errors as arrors
-                }
-            else
-                await ColourLog.ColourInfo($"{msg} | Server: {server} | User: {user}"); //if there is no error log normally
-        }
-
-        #region autoresponse
-
-        public async Task Auto(SocketMessage parameterMessage)
-        {
-            var message = parameterMessage as SocketUserMessage;
-            if (message == null) return;
-            var argPos = 0;
-            var context = new CommandContext(_client, message);
-
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
-            var result = lines.ToList();
-
-            if (context.User.IsBot || context.Channel is IPrivateChannel ||
-                result.Contains(context.Guild.Id.ToString()))
-            {
-            }
-            else
+            if (!context.User.IsBot || !(context.Channel is IPrivateChannel) ||
+                !nopre.Contains(context.Guild.Id.ToString()))
             {
                 var rand = new Random();
                 var val = rand.Next(0, 100);
                 if (val >= 90)
+                {
                     if (message.HasStringPrefix("( ͡° ͜ʖ ͡°)", ref argPos))
                     {
                         await context.Channel.SendMessageAsync("(:eye: ͜ʖ :eye:)");
@@ -137,11 +112,29 @@ namespace PassiveBOT.Handlers
                         await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ FLIP ALL THE TABLES! ", false,
                             embed.Build());
                     }
+                    success = true;
+                }
             }
+
+            #endregion
+
+
+            if (!success)
+                if (errlog.Contains(context.Guild.Id.ToString()))
+                {
+                    await context.Channel.SendMessageAsync(
+                        $"​**COMMAND: **{msg} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
+                    await ColourLog.ColourError($"{msg} | Server: {server} | ERROR: {result.ErrorReason}");
+                }
+                else
+                {
+                    await ColourLog.ColourError(
+                        $"{msg} | Server: {server} | ERROR: {result.ErrorReason}"); // log errors as arrors
+                }
+            else
+                await ColourLog.ColourInfo(
+                    $"{msg} | Server: {server} | User: {user}"); //if there is no error log normally
         }
-        
-        #endregion autoresponse
     }
 
-    
 }
