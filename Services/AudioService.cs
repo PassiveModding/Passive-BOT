@@ -1,5 +1,4 @@
 using System;
-using Discord;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Audio;
 using PassiveBOT.Configuration;
 using YoutubeExplode;
@@ -18,42 +18,29 @@ namespace PassiveBOT.Services
 {
     public class AudioService
     {
+        internal static readonly string MusicFolder = $"{AppContext.BaseDirectory}music";
+
         public readonly ConcurrentDictionary<ulong, IAudioClient> ConnectedChannels =
             new ConcurrentDictionary<ulong, IAudioClient>();
 
-        internal static readonly string MusicFolder = $"{AppContext.BaseDirectory}music";
+        private CancellationTokenSource _cancel = new CancellationTokenSource();
+        private Process _ffmpeg;
+        private bool _next;
 
         public Queue<string> Playlist { get; } = new Queue<string>();
-        private CancellationTokenSource _cancel = new CancellationTokenSource();
-        private bool _next;
-        private Process _ffmpeg;
-
 
 
         public async Task JoinAudio(IGuild guild, IVoiceChannel target)
         {
             if (ConnectedChannels.TryGetValue(guild.Id, out IAudioClient _))
-            {
                 return;
-            }
             if (target.Guild.Id != guild.Id)
-            {
                 return;
-            }
 
             var audioClient = await target.ConnectAsync();
 
             if (ConnectedChannels.TryAdd(guild.Id, audioClient))
             {
-
-            }
-        }
-
-        public async Task LeaveAudio(IGuild guild)
-        {
-            if (ConnectedChannels.TryRemove(guild.Id, out IAudioClient client))
-            {
-                await client.StopAsync();
             }
         }
 
@@ -76,7 +63,6 @@ namespace PassiveBOT.Services
                     $"There are currently no songs in the queue, type `{Load.Pre}help` for info");
                 //making sure the user knows if there are no songs
             }
-
         }
 
         public async Task DeQueue(IMessageChannel channel)
@@ -90,12 +76,11 @@ namespace PassiveBOT.Services
                 await channel.SendMessageAsync($"**{Playlist.Peek()}** has been removed from the queue");
                 Playlist.Dequeue();
             }
-            
         }
 
-        public async Task QueueClear(IMessageChannel channel)
+        public async Task QueueClear(IMessageChannel channel, string message)
         {
-            await channel.SendMessageAsync("**All songs** have been removed from the queue");
+            await channel.SendMessageAsync(message);
             Playlist.Clear();
         }
 
@@ -108,7 +93,7 @@ namespace PassiveBOT.Services
 
             //returns the chosen number
             var path = songlist[number];
-            var song = new List<string> { path };
+            var song = new List<string> {path};
             //check to see if the file exists
             if (!File.Exists($"{MusicFolder}/{guild.Id}/{path}"))
             {
@@ -117,14 +102,10 @@ namespace PassiveBOT.Services
             else
             {
                 if (Playlist.Count == 0)
-                {
                     await SendPlaylist(guild, channel, song); //if the playlist is emply play straight away
-                }
                 else
-                {
                     Playlist.Enqueue(path); //if the playlist is already playing add to the end of the queue
-                }
-                
+
                 await channel.SendMessageAsync(
                     $"Added **{path}** to the queue, you can qiew the queue using `{Load.Pre}queue`");
             }
@@ -132,30 +113,28 @@ namespace PassiveBOT.Services
 
         public async Task SendPlaylist(IGuild guild, IMessageChannel channel, List<string> list)
         {
-            if (ConnectedChannels.TryGetValue(guild.Id, out IAudioClient client))
-            {
-            }
+            ConnectedChannels.TryGetValue(guild.Id, out IAudioClient client);
+
             foreach (var song in list)
-            {
                 Playlist.Enqueue(song); //adds all songs in the supplied list to the queue
-            }
 
             while (Playlist.Count > 0)
             {
                 var path = Playlist.Dequeue();
                 var combine = Path.Combine(MusicFolder, guild.Id.ToString());
                 var complete = Path.Combine(combine, path); //making sure the path is correct
-                await channel.SendMessageAsync($"Now Playing {path}!!");
+                await channel.SendMessageAsync($"Now Playing **{path}**!!");
                 using (_ffmpeg = Process.Start(new ProcessStartInfo
                 {
-                    FileName = Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe"), //sets the ffmpeg.exe directory to be the same as the bot
+                    FileName =
+                        Path.Combine(AppContext.BaseDirectory,
+                            "ffmpeg.exe"), //sets the ffmpeg.exe directory to be the same as the bot
                     Arguments = $"-hide_banner -loglevel panic -i \"{complete}\" -ac 2 -f s16le -ar 48000 pipe:1",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = false
                 }))
                 {
-
                     var stream = client.CreatePCMStream(AudioApplication.Music);
                     try
                     {
@@ -183,12 +162,15 @@ namespace PassiveBOT.Services
         }
 
 
-        public void Cancel()
+        public async Task Cancel(IGuild guild)
         {
+            Playlist.Clear();
             _cancel.Cancel();
             _cancel.Dispose();
             _cancel = new CancellationTokenSource();
             _ffmpeg.Kill();
+            if (ConnectedChannels.TryRemove(guild.Id, out IAudioClient client))
+                await client.StopAsync();
         }
 
         public async Task Next(IGuild guild, IMessageChannel channel)
@@ -206,7 +188,6 @@ namespace PassiveBOT.Services
         }
 
 
-
         public async Task DlAudio(IGuild guild, IMessageChannel channel, string url)
         {
             await channel.SendMessageAsync("**Downloading**");
@@ -217,20 +198,17 @@ namespace PassiveBOT.Services
 
             var input = await ytclient.GetMediaStreamAsync(streamInfo);
             if (!Directory.Exists($"{MusicFolder}/{guild.Id}/"))
-            {
                 Directory.CreateDirectory($"{MusicFolder}/{guild.Id}/"); //creating the servers directory
-            }
             else if (File.Exists($"{MusicFolder}/{guild.Id}/{videoInfo.Title}.{fileExtension}"))
-            {
                 return; //making sure we do not double up on the same file
-            }
 
             //downloads the song
             var output = File.Create($"{MusicFolder}/{guild.Id}/{videoInfo.Title}.{fileExtension}");
             await input.CopyToAsync(output);
 
             //shows intructions on playing after the song is downloaded
-            await channel.SendMessageAsync($"{videoInfo.Title} has been downloaded, you can play it using `{Config.Load().Prefix}play {videoInfo.Title}`");
+            await channel.SendMessageAsync(
+                $"{videoInfo.Title} has been downloaded, you can play it using `{Config.Load().Prefix}play {videoInfo.Title}`");
         }
 
         public async Task ListMusic(IMessageChannel channel, IGuild guild)

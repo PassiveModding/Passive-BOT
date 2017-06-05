@@ -4,14 +4,15 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using PassiveBOT.Services;
 using PassiveBOT.Configuration;
+using PassiveBOT.Services;
 
 namespace PassiveBOT.Commands
 {
     public class Audio : ModuleBase<ICommandContext>
     {
         private readonly AudioService _service;
+
         public Audio(AudioService service)
         {
             _service = service;
@@ -24,16 +25,6 @@ namespace PassiveBOT.Commands
         {
             await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
         }
-
-        [Command("leave", RunMode = RunMode.Async)]
-        [Summary("leave")]
-        [Remarks("Leaves the current Audio Channel")]
-        public async Task LeaveCmd()
-        {
-            await _service.LeaveAudio(Context.Guild);
-        }
-
-
 
         [Command("list")]
         [Summary("list")]
@@ -56,16 +47,11 @@ namespace PassiveBOT.Commands
                     var videoId = url.Substring(url.Length - 11, 11);
                     //Console.WriteLine(videoId);
                     if (videoId.Contains("="))
-                    {
                         await ReplyAsync(
                             "**Invalid URL format: ** please use something like `https://www.youtube.com/watch?v=tvTRZJ-4EyI`\n" +
                             "this cannot be from a playlist");
-                    }
                     else
-                    {
                         await _service.DlAudio(Context.Guild, Context.Channel, videoId);
-                    }
-
                 }
             }
             else
@@ -91,6 +77,7 @@ namespace PassiveBOT.Commands
                 var d = new DirectoryInfo($"{AudioService.MusicFolder}/{Context.Guild.Id}");
                 var music = d.GetFiles("*.m4a");
                 var songlist = music.Select(sng => sng.Name).ToList();
+                await _service.QueueClear(Context.Channel, ":D");
                 await _service.SendPlaylist(Context.Guild, Context.Channel, songlist);
             }
         }
@@ -108,14 +95,12 @@ namespace PassiveBOT.Commands
         [Alias("q")]
         [Summary("queue")]
         [Remarks("type `.q help` for info")]
-        public async Task Queue(string arg, [Remainder, Optional]int quantity)
+        public async Task Queue(string arg, [Remainder] [Optional] int quantity)
         {
             if (arg == "add")
             {
                 if (quantity >= 0)
-                {
                     await _service.SendSongNo(Context.Guild, Context.Channel, quantity);
-                }
             }
             else if (arg == "del")
             {
@@ -123,7 +108,7 @@ namespace PassiveBOT.Commands
             }
             else if (arg == "clear")
             {
-                await _service.QueueClear(Context.Channel);
+                await _service.QueueClear(Context.Channel, "**All Songs** have been cleared from the queue");
             }
             else if (arg == "help")
             {
@@ -136,10 +121,11 @@ namespace PassiveBOT.Commands
 
         [Command("stop", RunMode = RunMode.Async)]
         [Summary("stop")]
+        [Alias("leave")]
         [Remarks("Stops playing music")]
         public async Task Stop()
         {
-            _service.Cancel();
+            await _service.Cancel(Context.Guild);
             await ReplyAsync("Music Has been stopped");
         }
 
