@@ -34,7 +34,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("leave", RunMode = RunMode.Async)]
-        [Summary("loin")]
+        [Summary("leave")]
         [Remarks("Leaves your Voice Channel")]
         public async Task LeaveCmd()
         {
