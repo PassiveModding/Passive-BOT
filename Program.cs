@@ -22,7 +22,7 @@ namespace PassiveBOT
         {
             new Program().Start().GetAwaiter().GetResult();
         }
-
+        
         public async Task Start()
         {
             Console.Title = $"PassiveBOT v{Load.Version}";

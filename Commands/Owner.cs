@@ -31,7 +31,7 @@ namespace PassiveBOT.Commands
             foreach (var module in Service.Modules)
                 if (module.Name == "Owner")
                 {
-                    description = module.Commands.Aggregate(description, (current, cmd) => current + $"{Config.Load().Prefix}{cmd.Aliases.First()} - {cmd.Remarks}\n");
+                    description = module.Commands.Aggregate(description, (current, cmd) => current + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n");
                 }
 
             var embed = new EmbedBuilder()
@@ -362,54 +362,5 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Who the fuck is " + user + "?");
             }
             }*/
-
-        /* Used in info module instead
-        [Command("Info")]
-        [Summary("Normal Command")]
-        [Remarks("Shows application info")]
-        public async Task InfoAsync()
-        {
-            var application = await Context.Client.GetApplicationInfoAsync();
-            var AppInfo = Process.GetCurrentProcess();
-            var S = new StringBuilder();
-            var Is64BitStr = Environment.Is64BitProcess ? "Yes" : "No";
-            var Is64Bit = IntPtr.Size == 8 ? "Yes" : "No";
-            var IsOS64 = Environment.Is64BitOperatingSystem ? "Yes" : "No";
-            var isMono = Environment.Is64BitOperatingSystem ? "Yes" : "No";
-            var _description = $"{Format.Bold("Info")}\n" +
-                               $"- Author: {application.Owner.Username} (ID {application.Owner.Id})\n" +
-                               $"- Library: Discord.Net ({DiscordConfig.Version})\n" +
-                               $"- Runtime: {RuntimeInformation.FrameworkDescription} {RuntimeInformation.OSArchitecture}\n" +
-                               $"- Uptime: {(DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\.hh\:mm\:ss")}\n\n" +
-                               $"{Format.Bold("Stats")}\n" +
-                               $"- Heap Size: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" +
-                               $"- Guilds: {(Context.Client as DiscordSocketClient).Guilds.Count}\n" +
-                               $"- Channels: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count)}\n" +
-                               $"- Users: {(Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Users.Count)}\n\n" +
-                               $"{Format.Bold("Full dump of all diagnostic information about this instance.")}\n" +
-                               $"- PID: {AppInfo.Id}\n" +
-                               $"- Is 64-bit: {Is64BitStr}\n" +
-                               $"- Is 64-bit: {Is64Bit}\n" +
-                               $"- Thread count: {AppInfo.Threads.Count}\n" +
-                               $"- Total processor time: {AppInfo.TotalProcessorTime:c}\n" +
-                               $"- User processor time: {AppInfo.UserProcessorTime:c}\n" +
-                               $"- Privileged processor time: {AppInfo.PrivilegedProcessorTime:c}\n" +
-                               $"- Handle count: {AppInfo.HandleCount:#,##0}\n" +
-                               $"- Working set: {AppInfo.WorkingSet64}\n" +
-                               $"- Virtual memory size: {AppInfo.VirtualMemorySize64}\n" +
-                               $"- Paged memory size: {AppInfo.PagedMemorySize64}\n\n" +
-                               $"{Format.Bold("OS and .Net")}" +
-                               $"- OS platform: {Environment.OSVersion.Platform}\n" +
-                               $"- OS version: {Environment.OSVersion.Version} ({Environment.OSVersion.VersionString})\n" +
-                               $"- OS is 64-bit: {IsOS64}\n" +
-                               $"- .NET is Mono: {isMono}\n";
-            var embed = new EmbedBuilder()
-                .WithTitle("PassiveBOT info")
-                .WithDescription(_description);
-
-
-            await ReplyAsync("", false, embed.Build());
-        }
-        */
     }
 }

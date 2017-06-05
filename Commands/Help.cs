@@ -41,7 +41,7 @@ namespace PassiveBOT.Commands
                 builder.Title = cmd.Name.ToUpper();
                 builder.Description =
                     $"**Aliases:** {string.Join(", ", cmd.Aliases)}\n**Parameters:** {string.Join(", ", cmd.Parameters.Select(p => p.Name))}\n" +
-                    $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Config.Load().Prefix}{cmd.Summary}`";
+                    $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Load.Pre}{cmd.Summary}`";
             }
             await ReplyAsync("", false, builder.Build());
         }
@@ -66,7 +66,7 @@ namespace PassiveBOT.Commands
                     }
                     else
                     {
-                        description += $"{Config.Load().Prefix}{cmd.Aliases.First()} - {cmd.Remarks}\n";
+                        description += $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
                     }
                 }
 

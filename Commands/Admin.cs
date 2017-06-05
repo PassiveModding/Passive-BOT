@@ -362,11 +362,11 @@ namespace PassiveBOT.Commands
             }
             else if (Utilities.GetMutedRole((SocketGuild) Context.Guild) == null)
             {
-                await ReplyAsync("This server does not contain the role 'Muted' type `.mutehelp` for more info");
+                await ReplyAsync($"This server does not contain the role 'Muted' type `{Load.Pre}mutehelp` for more info");
             }
             else if (reason == null)
             {
-                await ReplyAsync("**ERROR: **Please specify a reason type `.mutehelp` for more info");
+                await ReplyAsync($"**ERROR: **Please specify a reason type `{Load.Pre}mutehelp` for more info");
             }
             else if (Context.Message.MentionedUserIds.Count != 0 &&
                      Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault()) != null)
@@ -415,7 +415,7 @@ namespace PassiveBOT.Commands
             }
             else if (Utilities.GetMutedRole((SocketGuild) Context.Guild) == null)
             {
-                await ReplyAsync("This server does not contain the role 'Muted' type `.mutehelp` for more info");
+                await ReplyAsync($"This server does not contain the role 'Muted' type `{Load.Pre}mutehelp` for more info");
             }
             else if (Context.Message.MentionedUserIds.Count != 0 &&
                      Context.Guild.GetUserAsync(Context.Message.MentionedUserIds.FirstOrDefault()) != null)
@@ -452,6 +452,15 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("mutehelp")]
+        [Summary("mutehelp")]
+        [Remarks("A guide on setting up the mute command")]
+        public async Task Mutehelp()
+        {
+            await ReplyAsync(
+                "Here is a quick guide on how to set up the mute command: \n http://passivenation.com/showthread.php?tid=105");
+        }
+
         [Command("kicks")]
         [Summary("kicks")]
         [Remarks("Users kicked by passivebot")]
@@ -461,7 +470,7 @@ namespace PassiveBOT.Commands
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt"))
             {
                 await ReplyAsync(
-                    "There are currently no kicks in this server, to kick someone type `.kick @user 'reason'`");
+                    $"There are currently no kicks in this server, to kick someone type `{Load.Pre}kick @user 'reason'`");
             }
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
@@ -476,7 +485,7 @@ namespace PassiveBOT.Commands
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt"))
             {
                 await ReplyAsync(
-                    "There are currently no warns in this server, to warn someone type `.warn @user 'reason'`");
+                    $"There are currently no warns in this server, to warn someone type `{Load.Pre}warn @user 'reason'`");
             }
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + warns + "\n```");
@@ -491,7 +500,7 @@ namespace PassiveBOT.Commands
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt"))
             {
                 await ReplyAsync(
-                    "There are currently no bans in this server, to ban someone type `.ban @user 'reason'`");
+                    $"There are currently no bans in this server, to ban someone type `{Load.Pre}ban @user 'reason'`");
             }
             var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + bans + "\n```");

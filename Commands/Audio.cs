@@ -1,17 +1,21 @@
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 using PassiveBOT.Services;
+using YoutubeExplode;
 
 namespace PassiveBOT.Commands
 {
     public class Audio : ModuleBase<ICommandContext>
     {
+        private static readonly List<string> Queue = new List<string>();
+
         private readonly AudioService _service;
+        private string _reply, _nextSong, _leftInQueue;
 
         public Audio(AudioService service)
         {
@@ -19,123 +23,139 @@ namespace PassiveBOT.Commands
         }
 
         [Command("join", RunMode = RunMode.Async)]
-        [Summary("join")]
-        [Remarks("Joins the current Audio Channel")]
+        [Alias("j")]
+        [Summary("j")]
+        [Remarks("Joins your Voice Channel")]
         public async Task JoinCmd()
         {
+            await ReplyAsync($"{Context.Client.CurrentUser.Username} is joining **{Context.Channel}**");
             await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
         }
 
-        [Command("list")]
-        [Summary("list")]
-        [Remarks("lists all available songs")]
-        public async Task ListMusic()
+        [Command("leave", RunMode = RunMode.Async)]
+        [Alias("l")]
+        [Summary("l")]
+        [Remarks("Leaves your Voice Channel")]
+        public async Task LeaveCmd()
         {
-            await _service.ListMusic(Context.Channel, Context.Guild);
+            await _service.LeaveAudio(Context.Guild);
+            await ReplyAsync($"{Context.Client.CurrentUser.Username} is Leaving **{Context.Channel}**");
         }
 
-        [Command("get", RunMode = RunMode.Async)]
-        [Summary("get 'yt url'")]
-        [Remarks("requests a song for download")]
-        public async Task GetSong(string url)
+        [Command("play", RunMode = RunMode.Async)]
+        [Alias("p")]
+        [Summary("p")]
+        [Remarks("Plays the requested Song")]
+        public async Task PlayCmd([Remainder] string linkOrSearchTerm)
         {
-            if (url.Contains("/"))
-            {
-                if (url.Contains("youtube") && url.Contains("watch"))
-                {
-                    //Console.WriteLine(url);
-                    var videoId = url.Substring(url.Length - 11, 11);
-                    //Console.WriteLine(videoId);
-                    if (videoId.Contains("="))
-                        await ReplyAsync(
-                            "**Invalid URL format: ** please use something like `https://www.youtube.com/watch?v=tvTRZJ-4EyI`\n" +
-                            "this cannot be from a playlist");
-                    else
-                        await _service.DlAudio(Context.Guild, Context.Channel, videoId);
-                }
-            }
-            else
-            {
-                await ReplyAsync(
-                    "**Invalid URL format: ** please use something like `https://www.youtube.com/watch?v=tvTRZJ-4EyI`");
-            }
+            await _service.LeaveAudio(Context.Guild);
+            await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
+            await _service.SendAudioAsync(Context.Guild, Context.Channel, linkOrSearchTerm);
+            await _service.LeaveAudio(Context.Guild);
+            await ReplyAsync($"{Context.Client.CurrentUser.Username} is Leaving **{Context.Channel}**");
         }
 
         [Command("playlist", RunMode = RunMode.Async)]
-        [Summary("playlist")]
-        [Remarks("plays all saved songs for your server")]
-        public async Task Playlist()
+        [Alias("pl")]
+        [Summary("pl")]
+        [Remarks("Plays the given playlist")]
+        public async Task PlaylistCmd([Remainder] string playlistLink)
         {
-            //builds a list of .m4a files within the guilds folder
-            if (!Directory.Exists($"{AudioService.MusicFolder}/{Context.Guild.Id}"))
+            await _service.LeaveAudio(Context.Guild);
+            await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
+
+            var ytc = new YoutubeClient();
+
+            var playListInfo = await ytc.GetPlaylistInfoAsync(YoutubeClient.ParsePlaylistId(playlistLink));
+
+            var idArray = playListInfo.VideoIds.ToArray();
+
+            foreach (var id in idArray)
+                await _service.SendAudioAsync(Context.Guild, Context.Channel, id);
+            await _service.LeaveAudio(Context.Guild);
+        }
+
+        [Command("queue", RunMode = RunMode.Async)]
+        [Alias("q")]
+        [Summary("q")]
+        [Remarks("Adds a song to the queue")]
+        public async Task QueueSong([Remainder] string linkOrSearchTerm)
+        {
+            Queue.Add(linkOrSearchTerm);
+            _reply = Queue.Count == 1
+                ? "There is 1 song in the queue."
+                : $"There are **{Queue.Count}** songs in the queue.";
+            await ReplyAsync($"**{linkOrSearchTerm}** added.\n{_reply}");
+        }
+
+        [Command("list", RunMode = RunMode.Async)]
+        [Alias("li")]
+        [Summary("li")]
+        [Remarks("Lists all songs in the queue")]
+        public async Task QueueList()
+        {
+            if (Queue.Count > 0)
             {
-                await ReplyAsync(
-                    $"There are no songs saved for this server, please use the `{Load.Pre}get` command to download some");
+                var songList = new StringBuilder();
+                var i = 0;
+                foreach (var song in Queue)
+                {
+                    songList.AppendLine($"`{i}` - {song}");
+                    i++;
+                }
+                await ReplyAsync(songList.ToString());
             }
             else
             {
-                var d = new DirectoryInfo($"{AudioService.MusicFolder}/{Context.Guild.Id}");
-                var music = d.GetFiles("*.m4a");
-                var songlist = music.Select(sng => sng.Name).ToList();
-                await _service.QueueClear(Context.Channel, ":D");
-                await _service.SendPlaylist(Context.Guild, Context.Channel, songlist);
+                await ReplyAsync("There are No songs in the queue");
             }
         }
 
-        [Command("queue", RunMode = RunMode.Async)]
-        [Alias("q")]
-        [Summary("queue")]
-        [Remarks("displays the current music queue")]
-        public async Task QueueTask()
+        [Command("clearque", RunMode = RunMode.Async)]
+        [Alias("clearq")]
+        [Summary("clearq")]
+        [Remarks("Empties the queue")]
+        public async Task ClearQue()
         {
-            await _service.Queue(Context.Channel);
+            Queue.Clear();
+            await ReplyAsync("Queue has been cleared");
         }
 
-        [Command("queue", RunMode = RunMode.Async)]
-        [Alias("q")]
-        [Summary("queue")]
-        [Remarks("type `.q help` for info")]
-        public async Task Queue(string arg, [Remainder] [Optional] int quantity)
+        [Command("playqueue", RunMode = RunMode.Async)]
+        [Alias("playq")]
+        [Summary("playq")]
+        [Remarks("Plays the queue")]
+        public async Task PlayQueue()
         {
-            if (arg == "add")
+            while (Queue.Count > 0)
             {
-                if (quantity >= 0)
-                    await _service.SendSongNo(Context.Guild, Context.Channel, quantity);
-            }
-            else if (arg == "del")
-            {
-                await _service.DeQueue(Context.Channel);
-            }
-            else if (arg == "clear")
-            {
-                await _service.QueueClear(Context.Channel, "**All Songs** have been cleared from the queue");
-            }
-            else if (arg == "help")
-            {
-                await ReplyAsync("**Here are the queue (q) commands:**\n\n" +
-                                 $"1- `{Load.Pre}q add 'x'` adds a song from `{Load.Pre}list` to the end of the queue\n" +
-                                 $"2- `{Load.Pre}q del` removes the next song from the queue without skipping the surrent one\n" +
-                                 $"3- `{Load.Pre}q clear` clears all songs from the queue\n");
-            }
-        }
+                await _service.LeaveAudio(Context.Guild);
+                await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
 
-        [Command("stop", RunMode = RunMode.Async)]
-        [Summary("stop")]
-        [Alias("leave")]
-        [Remarks("Stops playing music")]
-        public async Task Stop()
-        {
-            await _service.Cancel(Context.Guild);
-            await ReplyAsync("Music Has been stopped");
+                _nextSong = Queue.Count != 1 ? $", next song: **{Queue.ElementAt(1)}**" : "";
+                _leftInQueue = Queue.Count == 1
+                    ? "There is 1 song in the queue."
+                    : $"There are {Queue.Count} songs in the queue.";
+                await ReplyAsync($"Now Playing: **{Queue.First()}** {_nextSong}.\n{_leftInQueue}");
+
+                await _service.SendAudioAsync(Context.Guild, Context.Channel, Queue.First());
+                Queue.RemoveAt(0);
+            }
+
+            await ReplyAsync($"Sorry, the queue is empty, {Load.Pre}queue (or {Load.Pre}q) to add more!");
+
+            await _service.LeaveAudio(Context.Guild);
+            await ReplyAsync($"{Context.Client.CurrentUser.Username} is Leaving **{Context.Channel}**");
         }
 
         [Command("skip", RunMode = RunMode.Async)]
         [Summary("skip")]
-        [Remarks("Skips the current song")]
-        public async Task Skip()
+        [Remarks("Removes the given song from the queue")]
+        public async Task SkipSong([Remainder] int x = 0)
         {
-            await _service.Next(Context.Guild, Context.Channel);
-            await ReplyAsync("Music Has been skipped");
+            if (Queue.Count > 0 && x < Queue.Count && x > -1)
+                Queue.RemoveAt(x);
+            await ReplyAsync($"Removed the Song `#{x}` from the Queue");
         }
     }
 }
