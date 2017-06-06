@@ -8,5 +8,10 @@
         public static string Owner = "PassiveModding";
         public static string Version = "4.06";
         public static readonly string Pre = Config.Load().Prefix;
+
+        public static string Invite =
+            "https://discordapp.com/oauth2/authorize?client_id=234112036701863936&scope=bot&permissions=2146958591";
+
+        public static string Server = "https://discord.gg/ZKXqt2a";
     }
 }

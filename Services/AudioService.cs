@@ -14,8 +14,6 @@ namespace PassiveBOT.Services
 {
     public class AudioService
     {
-        //CREDIT TO Dalelion
-
         private readonly ConcurrentDictionary<ulong, IAudioClient> _connectedChannels =
             new ConcurrentDictionary<ulong, IAudioClient>();
 

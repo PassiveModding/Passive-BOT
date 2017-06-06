@@ -159,7 +159,9 @@ namespace PassiveBOT.Commands
         [Remarks("For special people (note: may be offensive to some)")]
         public async Task Derp([Remainder] [Optional] IUser user)
         {
-            var title = user == null ? "You suffer from an extreme case of autism" : $"{user.Username} suffers from extreme cases of autism";
+            var title = user == null
+                ? "You suffer from an extreme case of autism"
+                : $"{user.Username} suffers from extreme cases of autism";
 
             var str = MemeStr.Autism;
             var rnd = new Random();

@@ -34,7 +34,7 @@ namespace PassiveBOT.Commands
                 .AddInlineField("Discriminatior", user.Discriminator)
                 .AddInlineField("Status", status)
                 .AddField("Links",
-                    "[Forums](https://goo.gl/s3BZTw) \n[Invite](https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591)\n[Main Server](https://discord.gg/ZKXqt2a) \n[Testing Server](https://discord.gg/bmXfBQM)")
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");
@@ -63,7 +63,7 @@ namespace PassiveBOT.Commands
                 .AddInlineField("Channels", (Context.Client as DiscordSocketClient).Guilds.Sum(g => g.Channels.Count))
                 .AddInlineField("Users", (Context.Client as DiscordSocketClient).Guilds.Sum(g => g.MemberCount))
                 .AddField("Links",
-                    "[Forums](https://goo.gl/s3BZTw) \n[Invite](https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591)\n[Main Server](https://discord.gg/ZKXqt2a) \n[Testing Server](https://discord.gg/bmXfBQM)")
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");
@@ -158,7 +158,7 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            if ((Context.Guild as SocketGuild) != null)
+            if (Context.Guild as SocketGuild != null)
             {
                 var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
                 var mem = ((SocketGuild) Context.Guild).MemberCount;
@@ -170,10 +170,11 @@ namespace PassiveBOT.Commands
                     .AddInlineField(":robot: Total Bots", botlist)
                     .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
                     .AddInlineField(":newspaper2: Total Channels", ((SocketGuild) Context.Guild).Channels.Count)
-                    .AddInlineField(":microphone: Text/Voice Channels", $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
+                    .AddInlineField(":microphone: Text/Voice Channels",
+                        $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
                     .AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count)
                     .AddField("Links",
-                        "[Forums](https://goo.gl/s3BZTw) \n[Invite](https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591)\n[Main Server](https://discord.gg/ZKXqt2a) \n[Testing Server](https://discord.gg/bmXfBQM)")
+                        $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
                     .WithFooter(x =>
                     {
                         x.WithText("PassiveBOT");
@@ -218,13 +219,9 @@ namespace PassiveBOT.Commands
             foreach (var user in guild.Users)
                 if (user.Roles.Contains(Context.Guild.GetRole(id)))
                     if (type == "username")
-                    {
                         members.Add(user.Username);
-                    }
                     else
-                    {
                         members.Add(user.Nickname ?? user.Username);
-                    }
             var embed = new EmbedBuilder()
                 .WithTitle($"Here is a list of Members with the role {role}")
                 .WithDescription(string.Join(" \n", members))

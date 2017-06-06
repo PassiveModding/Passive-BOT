@@ -50,7 +50,8 @@ namespace PassiveBOT.preconditions
             _invokeLimitPeriod = period;
         }
 
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
+            IServiceProvider prov)
         {
             if (context.Channel is IPrivateChannel && _noLimitInDMs)
                 return Task.FromResult(PreconditionResult.FromSuccess());

@@ -13,8 +13,8 @@ namespace PassiveBOT.Commands
     [RequireOwner]
     public class Owner : ModuleBase
     {
-        public DiscordSocketClient Client;
         public readonly CommandService Service;
+        public DiscordSocketClient Client;
 
         public Owner(CommandService service)
         {
@@ -30,9 +30,8 @@ namespace PassiveBOT.Commands
             var description = "";
             foreach (var module in Service.Modules)
                 if (module.Name == "Owner")
-                {
-                    description = module.Commands.Aggregate(description, (current, cmd) => current + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n");
-                }
+                    description = module.Commands.Aggregate(description,
+                        (current, cmd) => current + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n");
 
             var embed = new EmbedBuilder()
                 .WithTitle("Owner Commands")
@@ -138,10 +137,8 @@ namespace PassiveBOT.Commands
         public async Task Kicks()
         {
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt"))
-            {
                 await ReplyAsync(
                     "There are currently no kicks in this server, to kick someone type `.kick @user 'reason'`");
-            }
             var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
         }
@@ -153,10 +150,8 @@ namespace PassiveBOT.Commands
         public async Task Warns()
         {
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt"))
-            {
                 await ReplyAsync(
                     "There are currently no warns in this server, to warn someone type `.warn @user 'reason'`");
-            }
             var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + warns + "\n```");
         }
@@ -168,25 +163,11 @@ namespace PassiveBOT.Commands
         public async Task Bans()
         {
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt"))
-            {
                 await ReplyAsync(
                     "There are currently no bans in this server, to ban someone type `.ban @user 'reason'`");
-            }
             var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
             await ReplyAsync("```\n" + bans + "\n```");
         }
-
-        //Works but I don't recommend using as it can be annoying to many people
-        /*
-        [Command("Broadcast"), Summary("broadcast 'message'"), Remarks("Sends a message to ALL severs that the bot is connected to."), Alias("Yell", "Shout")]
-        public async Task AsyncBroadcast([Remainder] string msg)
-        {
-            var glds = (Context.Client as DiscordSocketClient).Guilds;
-            var defaultchan = glds.Select(g => g.GetChannel(g.Id)).Cast<ITextChannel>();
-            await Task.WhenAll(defaultchan.Select(c => c.SendMessageAsync(msg)));
-        }*/
-
-        //basically gives owner of the bot access to all permissions the bot has, kinda cheaty so its not included
         /*
         [Command("kick-"), Summary("kick '@badperson' 'for not being cool'"), Remarks("Kicks the specified user (requires Kick Permissions)")]
         [RequireContext(ContextType.Guild)]
@@ -362,5 +343,17 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Who the fuck is " + user + "?");
             }
             }*/
+
+        //basically gives owner of the bot access to all permissions the bot has, kinda cheaty so its not included
+        /*
+        [Command("Broadcast"), Summary("broadcast 'message'"), Remarks("Sends a message to ALL severs that the bot is connected to."), Alias("Yell", "Shout")]
+        public async Task AsyncBroadcast([Remainder] string msg)
+        {
+            var glds = (Context.Client as DiscordSocketClient).Guilds;
+            var defaultchan = glds.Select(g => g.GetChannel(g.Id)).Cast<ITextChannel>();
+            await Task.WhenAll(defaultchan.Select(c => c.SendMessageAsync(msg)));
+        }*/
+
+        //Works but I don't recommend using as it can be annoying to many people
     }
 }

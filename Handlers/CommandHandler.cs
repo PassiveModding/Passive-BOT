@@ -39,7 +39,8 @@ namespace PassiveBOT.Handlers
             var argPos = 0;
             var context = new CommandContext(_client, message);
 
-            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Load.Pre, ref argPos))) return;
+            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
+                  message.HasStringPrefix(Load.Pre, ref argPos))) return;
             if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
@@ -56,7 +57,9 @@ namespace PassiveBOT.Handlers
             var use = context.User.Username;
             string server;
             if (context.Channel is IPrivateChannel)
+            {
                 server = "Direct Message "; //because direct messages have no guild name define it as Direct Message
+            }
             else
             {
                 var gui = context.Guild.ToString();
@@ -69,6 +72,7 @@ namespace PassiveBOT.Handlers
             var user = use2.Substring(0, 15);
 
             #endregion shorten
+
             #region Auto
 
             if (!context.User.IsBot || !(context.Channel is IPrivateChannel) ||
@@ -136,5 +140,4 @@ namespace PassiveBOT.Handlers
                     $"{msg} | Server: {server} | User: {user}"); //if there is no error log normally
         }
     }
-
 }

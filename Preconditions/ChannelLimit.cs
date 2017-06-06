@@ -14,12 +14,16 @@ namespace PassiveBOT.preconditions
         {
             _name = name;
         }
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
+
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
+            IServiceProvider prov)
         {
-            if (context.Channel.Name == _name || context.Channel.Name.StartsWith(_name + "-") || context.Channel is IDMChannel)
+            if (context.Channel.Name == _name || context.Channel.Name.StartsWith(_name + "-") ||
+                context.Channel is IDMChannel)
                 return Task.FromResult(PreconditionResult.FromSuccess());
             return Task.FromResult(
-                PreconditionResult.FromError($"Command is locked to channels titled `{_name}` or that start with `{_name}-`"));
+                PreconditionResult.FromError(
+                    $"Command is locked to channels titled `{_name}` or that start with `{_name}-`"));
         }
     }
 
@@ -32,10 +36,14 @@ namespace PassiveBOT.preconditions
         {
             _name = name;
         }
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command, IServiceProvider prov)
+
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
+            IServiceProvider prov)
         {
             if (context.Channel.Name == _name || context.Channel.Name.StartsWith(_name + "-"))
-                return Task.FromResult(PreconditionResult.FromError($"Command is banned from being used in `{_name}` and channels starting with `{_name}-`"));
+                return Task.FromResult(
+                    PreconditionResult.FromError(
+                        $"Command is banned from being used in `{_name}` and channels starting with `{_name}-`"));
             return Task.FromResult(PreconditionResult.FromSuccess());
         }
     }

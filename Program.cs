@@ -15,14 +15,14 @@ namespace PassiveBOT
 {
     public class Program
     {
-        public DiscordSocketClient Client;
         private CommandHandler _handler;
+        public DiscordSocketClient Client;
 
         public static void Main(string[] args)
         {
             new Program().Start().GetAwaiter().GetResult();
         }
-        
+
         public async Task Start()
         {
             Console.Title = $"PassiveBOT v{Load.Version}";
@@ -119,7 +119,8 @@ namespace PassiveBOT
         private async Task Client_Ready()
         {
             var application = await Client.GetApplicationInfoAsync();
-            await LogInfo($"PassiveBOT      | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
+            await LogInfo(
+                $"PassiveBOT      | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
         }
 
         private IServiceProvider ConfigureServices()
@@ -162,7 +163,8 @@ namespace PassiveBOT
             {
                 msg = "PassiveBOT      | Ready                   |";
             }
-            else if (msg == "Connecting" || msg.StartsWith("Unknown OpCode (8)") || msg == "Disconnecting" || msg == "Disconnected" || msg.StartsWith("Unknown User"))
+            else if (msg == "Connecting" || msg.StartsWith("Unknown OpCode (8)") || msg == "Disconnecting" ||
+                     msg == "Disconnected" || msg.StartsWith("Unknown User"))
             {
                 return Task.CompletedTask;
             }
