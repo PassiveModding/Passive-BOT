@@ -52,31 +52,60 @@ namespace PassiveBOT.Commands
         [Ratelimit(1, 15, Measure.Seconds)]
         public async Task Help2Async()
         {
-            var pages = new List<string>();
-
-            foreach (var module in _service.Modules)
+            if (Context.Channel is IDMChannel)
             {
-                string description = null;
-                foreach (var cmd in module.Commands)
+                var builder = new EmbedBuilder
                 {
-                    var result = module.Name;
+                    Color = new Color(114, 137, 218),
+                    Title = $"I am PassiveBOT Created By {Load.Owner} <{Load.Siteurl}>, Here are my commands:"
+                };
 
-                    if (result == "Owner")
+                foreach (var module in _service.Modules)
+                {
+                    var description =
+                        (from cmd in module.Commands let result = module.Name where result != "Owner" select cmd)
+                        .Aggregate<CommandInfo, string>(null,
+                            (current, cmd) => current + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n");
+
+                    if (!string.IsNullOrWhiteSpace(description))
                     {
-                    }
-                    else
-                    {
-                        description += $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
+                        builder.AddField(x =>
+                        {
+                            x.Name = module.Name;
+                            x.Value = description;
+                        });
                     }
                 }
-
-                if (!string.IsNullOrWhiteSpace(description))
-                    pages.Add($"**{module.Name}**\n{description}");
+                await ReplyAsync("", false, builder.Build());
             }
-            var message = new PaginatedMessage(pages, "Help Commands", new Color(0xb100c1), Context.User);
+            else
+            {
+                var pages = new List<string>();
 
-            await _paginator.SendPaginatedMessageAsync(Context.Channel, message);
+                foreach (var module in _service.Modules)
+                {
+                    string description = null;
+                    foreach (var cmd in module.Commands)
+                    {
+                        var result = module.Name;
+
+                        if (result != "Owner")
+                        {
+                            description += $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(description))
+                        pages.Add($"**{module.Name}**\n{description}");
+                }
+                var message = new PaginatedMessage(pages, "Help Commands", new Color(0xb100c1), Context.User);
+
+                await _paginator.SendPaginatedMessageAsync(Context.Channel, message);
+            }
         }
+
+
+
 
         [Command("faq")]
         [Alias("helpme")]
