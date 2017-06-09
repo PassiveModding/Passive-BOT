@@ -26,7 +26,8 @@ namespace PassiveBOT.Commands
         }
     }
 
-    [RequireUserPermission(GuildPermission.ManageRoles)]
+    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireContext(ContextType.Guild)]
     public class Admin : ModuleBase
     {
         //modified from Nadeko
@@ -36,14 +37,9 @@ namespace PassiveBOT.Commands
         [Command("qc")]
         [Summary("qc '@role' '60'")]
         [Remarks("quickcolour role")]
-        [RequireContext(ContextType.Guild)]
-        public async Task Quickcolour([Optional] IRole role, [Optional] int timeout)
+        public async Task Quickcolour(IRole role, [Optional] int timeout)
         {
-            if (role == null)
-            {
-                await ReplyAsync("**ERROR: **Please Specify a role and an interval eg. `.qc @LSD 60`");
-            }
-            else if (timeout == 0)
+            if (timeout == 0)
             {
                 await ReplyAsync("**ERROR: ** Please specify a role an interval eg. `.qc @LSD 60`");
             }
@@ -53,10 +49,7 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                var quick = await ReplyAsync(".colour " + timeout + " " + role.Mention +
-                                             " 9400D3 4B0082 0000FF 00FF00 FFFF00 FF7F00 FF0000");
-                await Task.Delay(200);
-                await quick.DeleteAsync();
+                await Colour(timeout, role); //no longer replies then deletes the message
             }
         }
 
@@ -64,7 +57,6 @@ namespace PassiveBOT.Commands
         [Alias("qc off")]
         [Summary("qcoff '@role'")]
         [Remarks("turns quickcolour role off")]
-        [RequireContext(ContextType.Guild)]
         public async Task Qoff([Optional] IRole role)
         {
             if (role == null)
@@ -73,15 +65,14 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                var quick = await ReplyAsync(".colour 0 " + role.Mention);
-                await quick.DeleteAsync();
+                
+                await Colour(0, role); //no longer replies then deletes the message
             }
         }
 
         [Command("Colour")]
         [Summary("colour '60' '@role' 'FFFFFF FFFFF1'")]
         [Remarks("Changes the Colour of a role")]
-        [RequireContext(ContextType.Guild)]
         public async Task Colour(int timeout, IRole role, params string[] hexes)
         {
             if (timeout < 60 && timeout != 0 || timeout > 3600)
@@ -90,11 +81,9 @@ namespace PassiveBOT.Commands
             Timer t;
             if (timeout == 0 || hexes.Length == 0)
             {
-                if (RotatingRoleColors.TryRemove(role.Id, out t))
-                {
-                    t.Change(Timeout.Infinite, Timeout.Infinite);
-                    await ReplyAsync("**Stopped Rotating Colours for**\n**Role:** " + role);
-                }
+                if (!RotatingRoleColors.TryRemove(role.Id, out t)) return;
+                t.Change(Timeout.Infinite, Timeout.Infinite);
+                await ReplyAsync("**Stopped Rotating Colours for**\n**Role:** " + role);
                 return;
             }
             var hexColors = hexes.Select(hex =>
@@ -146,7 +135,6 @@ namespace PassiveBOT.Commands
         [Command("prune")]
         [Summary("prune")]
         [Remarks("removes all the bots recent messages")]
-        [RequireContext(ContextType.Guild)]
         public async Task Prune()
         {
             var user = await Context.Guild.GetCurrentUserAsync().ConfigureAwait(false);
@@ -159,8 +147,6 @@ namespace PassiveBOT.Commands
         [Command("clear")]
         [Summary("clear 26")]
         [Remarks("removes the specified amount of messages")]
-        [RequireUserPermission(GuildPermission.ManageMessages)]
-        [RequireContext(ContextType.Guild)]
         public async Task Clear([Optional] int count)
         {
             if (count < 1)
@@ -184,7 +170,6 @@ namespace PassiveBOT.Commands
         [Command("nopre")]
         [Summary("nopre")]
         [Remarks("toggles prefixless commands in the current server")]
-        [RequireContext(ContextType.Guild)]
         public async Task Nopre()
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
@@ -212,7 +197,6 @@ namespace PassiveBOT.Commands
         [Command("errors")]
         [Summary("errors")]
         [Remarks("toggles error replies for this bot")]
-        [RequireContext(ContextType.Guild)]
         public async Task ErrorLog()
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/error/")))
@@ -238,8 +222,6 @@ namespace PassiveBOT.Commands
         [Command("kick")]
         [Summary("kick '@badperson' 'for not being cool'")]
         [Remarks("Kicks the specified user (requires Kick Permissions)")]
-        [RequireContext(ContextType.Guild)]
-        [RequireUserPermission(GuildPermission.KickMembers)]
         public async Task Kickuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
             var success = false;
@@ -256,8 +238,6 @@ namespace PassiveBOT.Commands
                 try
                 {
                     await user.KickAsync();
-                    if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/kick/")))
-                        Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/kick/"));
 
                     File.AppendAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt",
                         $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
@@ -281,7 +261,6 @@ namespace PassiveBOT.Commands
         [Command("warn")]
         [Summary("warn '@naughtykiddo' 'for being a noob'")]
         [Remarks("warns the specified user")]
-        [RequireContext(ContextType.Guild)]
         public async Task NewWarnuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
             if (user.GuildPermissions.ManageRoles)
@@ -298,9 +277,6 @@ namespace PassiveBOT.Commands
                 var dm = await user.CreateDMChannelAsync();
                 await dm.SendMessageAsync($"{user.Mention} you have been warned for `{reason}` in {Context.Guild}");
 
-                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/warn/")))
-                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/warn/"));
-
                 File.AppendAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt",
                     $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
             }
@@ -309,8 +285,6 @@ namespace PassiveBOT.Commands
         [Command("ban")]
         [Summary("ban 'badfag' 'for sucking'")]
         [Remarks("bans the specified user (requires Ban Permissions)")]
-        [RequireContext(ContextType.Guild)]
-        [RequireUserPermission(GuildPermission.BanMembers)]
         public async Task Banuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
             var success = false;
@@ -327,9 +301,6 @@ namespace PassiveBOT.Commands
                 try
                 {
                     await Context.Guild.AddBanAsync(user);
-
-                    if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/ban/")))
-                        Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/ban/"));
 
                     File.AppendAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt",
                         $"User: {user} || Moderator: {Context.User} || Reason: {reason}" + Environment.NewLine);
@@ -353,7 +324,6 @@ namespace PassiveBOT.Commands
         [Command("mute")]
         [Summary("mute '@loudboy'")]
         [Remarks("Mutes the specified player")]
-        [RequireContext(ContextType.Guild)]
         public async Task Mute(string user, [Remainder] [Optional] string reason)
         {
             if (Utilities.ManageRole((SocketGuild) Context.Guild) == null)
@@ -407,7 +377,6 @@ namespace PassiveBOT.Commands
         [Command("unmute")]
         [Summary("unmute '@quietboy'")]
         [Remarks("unmutes the specified user")]
-        [RequireContext(ContextType.Guild)]
         public async Task Unmute(string user)
         {
             if (Utilities.ManageRole((SocketGuild) Context.Guild) == null)
@@ -466,7 +435,6 @@ namespace PassiveBOT.Commands
         [Command("kicks")]
         [Summary("kicks")]
         [Remarks("Users kicked by passivebot")]
-        [RequireContext(ContextType.Guild)]
         public async Task Kicks()
         {
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt"))
@@ -479,7 +447,6 @@ namespace PassiveBOT.Commands
         [Command("warns")]
         [Summary("warns")]
         [Remarks("Users warned by passivebot")]
-        [RequireContext(ContextType.Guild)]
         public async Task Warns()
         {
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt"))
@@ -492,7 +459,6 @@ namespace PassiveBOT.Commands
         [Command("bans")]
         [Summary("bans")]
         [Remarks("Users banned by passivebot")]
-        [RequireContext(ContextType.Guild)]
         public async Task Bans()
         {
             if (!File.Exists(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt"))

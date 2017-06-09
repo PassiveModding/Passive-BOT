@@ -162,6 +162,7 @@
   <ItemGroup>
     <Compile Include="Commands\Audio.cs" />
     <Compile Include="Commands\Random.cs" />
+    <Compile Include="Commands\Tags.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Preconditions\ChannelTopic.cs" />
     <Compile Include="Services\AudioService.cs" />
