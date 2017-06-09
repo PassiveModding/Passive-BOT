@@ -42,7 +42,8 @@ namespace PassiveBOT.Handlers
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
                   message.HasStringPrefix(Load.Pre, ref argPos))) return;
             if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
-
+            if (context.User.IsBot)
+                return;
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var success = result.IsSuccess;
 
