@@ -68,13 +68,11 @@ namespace PassiveBOT.Commands
                             (current, cmd) => current + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n");
 
                     if (!string.IsNullOrWhiteSpace(description))
-                    {
                         builder.AddField(x =>
                         {
                             x.Name = module.Name;
                             x.Value = description;
                         });
-                    }
                 }
                 await ReplyAsync("", false, builder.Build());
             }
@@ -90,9 +88,7 @@ namespace PassiveBOT.Commands
                         var result = module.Name;
 
                         if (result != "Owner")
-                        {
                             description += $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
-                        }
                     }
 
                     if (!string.IsNullOrWhiteSpace(description))
@@ -103,8 +99,6 @@ namespace PassiveBOT.Commands
                 await _paginator.SendPaginatedMessageAsync(Context.Channel, message);
             }
         }
-
-
 
 
         [Command("faq")]

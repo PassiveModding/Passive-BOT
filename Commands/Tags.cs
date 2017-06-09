@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -14,7 +13,6 @@ namespace PassiveBOT.Commands
         [Command("tag add")]
         [Summary("tag add")]
         [Remarks("adds a tag to the servers files")]
-        [RequireUserPermission(GuildPermission.Administrator)] //this can be removed however for now only admins will be able to make tags
         public async Task Tagadd(string tagname, [Remainder] string tagmessage)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
@@ -75,7 +73,8 @@ namespace PassiveBOT.Commands
             if (tagname == null)
             {
                 var d = new DirectoryInfo(tagfolder).GetFiles("*.*");
-                var newlist = string.Join(", ", d.Select(file => Path.GetFileNameWithoutExtension(file.Name)).ToArray());
+                var newlist = string.Join(", ",
+                    d.Select(file => Path.GetFileNameWithoutExtension(file.Name)).ToArray());
                 await ReplyAsync($"Here are the tags for this server: \n{newlist}");
             }
             else

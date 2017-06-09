@@ -40,17 +40,11 @@ namespace PassiveBOT.Commands
         public async Task Quickcolour(IRole role, [Optional] int timeout)
         {
             if (timeout == 0)
-            {
                 await ReplyAsync("**ERROR: ** Please specify a role an interval eg. `.qc @LSD 60`");
-            }
             else if (timeout >= 1 && timeout < 60)
-            {
                 await ReplyAsync("**ERROR: ** Minimum interval must be 60 eg. `.qc @LSD 60`");
-            }
             else
-            {
                 await Colour(timeout, role); //no longer replies then deletes the message
-            }
         }
 
         [Command("qcoff")]
@@ -60,14 +54,9 @@ namespace PassiveBOT.Commands
         public async Task Qoff([Optional] IRole role)
         {
             if (role == null)
-            {
                 await ReplyAsync("**ERROR: **Please Specify a role and an interval eg. `.qc @LSD 60`");
-            }
             else
-            {
-                
                 await Colour(0, role); //no longer replies then deletes the message
-            }
         }
 
         [Command("Colour")]
