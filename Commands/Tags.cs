@@ -35,7 +35,8 @@ namespace PassiveBOT.Commands
         }
 
         [Command("del")]
-        [Summary("Removes a tag from the servers files")]
+        [Summary("tag  del")]
+        [Remarks("Removes a tag from the servers files")]
         public async Task Tagdel(string tagname)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
@@ -64,8 +65,8 @@ namespace PassiveBOT.Commands
         }
 
         [Command]
-        [Summary("tag")]
-        [Remarks("adds a tag or sends a tag")]
+        [Summary("tag [optional]'tagname'")]
+        [Remarks("lists all tags for the server or sends a tag")]
         public async Task Tag(string tagname = null)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
