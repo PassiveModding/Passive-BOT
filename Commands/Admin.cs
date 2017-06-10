@@ -30,10 +30,6 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class Admin : ModuleBase
     {
-        //modified from Nadeko
-        private static readonly ConcurrentDictionary<ulong, Timer> RotatingRoleColors =
-            new ConcurrentDictionary<ulong, Timer>();
-
         [Command("qc")]
         [Summary("qc '@role' '60'")]
         [Remarks("quickcolour role")]
