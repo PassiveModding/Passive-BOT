@@ -104,7 +104,7 @@ namespace PassiveBOT.Commands
 
         [Command("q all", RunMode = RunMode.Async)]
         [Alias("queue all")]
-        [Summary("pa")]
+        [Summary("q all")]
         [Remarks("Plays all downloaded songs")]
         public async Task Pall()
         {
