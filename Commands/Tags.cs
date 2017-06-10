@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
 {
     [RequireContext(ContextType.Guild)]
+    [Group("tag")]
     public class Tags : ModuleBase
     {
-        [Command("tag add")]
-        [Summary("tag add")]
+        [Command("add")]
+        [Summary("tag add 'tagname' 'tagmessage'")]
         [Remarks("adds a tag to the servers files")]
         public async Task Tagadd(string tagname, [Remainder] string tagmessage)
         {
@@ -27,11 +30,11 @@ namespace PassiveBOT.Commands
             {
                 File.AppendAllText(tagfile,
                     $"{Context.User.Id}\n{tagmessage}" + Environment.NewLine);
-                await ReplyAsync($"**Tag Name:** {tagname}\n **Tag Response:** {tagmessage}");
+                await ReplyAsync($"**Tag Name:** {tagname}\n**Tag Response:** {tagmessage}");
             }
         }
 
-        [Command("tag del")]
+        [Command("del")]
         [Summary("Removes a tag from the servers files")]
         public async Task Tagdel(string tagname)
         {
@@ -60,9 +63,9 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("tag")]
+        [Command]
         [Summary("tag")]
-        [Remarks("adds a tag to the servers files")]
+        [Remarks("adds a tag or sends a tag")]
         public async Task Tag(string tagname = null)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
