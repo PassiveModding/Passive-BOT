@@ -82,36 +82,31 @@ namespace PassiveBOT.Handlers
                 var val = rand.Next(0, 100);
                 if (val >= 90)
                 {
+                    success = true;
                     if (message.HasStringPrefix("( ͡° ͜ʖ ͡°)", ref argPos))
                     {
                         await context.Channel.SendMessageAsync("(:eye: ͜ʖ :eye:)");
-                        success = true;
                     }
                     else if (message.HasStringPrefix("lol", ref argPos))
                     {
                         await context.Channel.SendMessageAsync("lol");
-                        success = true;
                     }
                     else if (message.HasStringPrefix("lel", ref argPos))
                     {
-                        
                         await context.Channel.SendMessageAsync("lel");
-                        success = true;
                     }
                     else if (message.HasStringPrefix(":3", ref argPos))
                     {
                         await context.Channel.SendMessageAsync("meow");
-                        success = true;
                     }
                     else if (message.HasStringPrefix("┬─┬ノ(ಠ_ಠノ)", ref argPos) ||
-                             message.HasStringPrefix("┬─┬ ノ( ゜-゜ノ)", ref argPos)) 
+                             message.HasStringPrefix("┬─┬ ノ( ゜-゜ノ)", ref argPos))
                     {
                         var embed = new EmbedBuilder
                         {
                             ImageUrl = "https://media.giphy.com/media/Pch8FiF08bc1G/giphy.gif"
                         };
                         await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ NO! ", false, embed.Build());
-                        success = true;
                     }
                     else if (message.HasStringPrefix("(╯°□°）╯︵ ┻━┻", ref argPos))
                     {
@@ -121,7 +116,10 @@ namespace PassiveBOT.Handlers
                         };
                         await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ FLIP ALL THE TABLES! ", false,
                             embed.Build());
-                        success = true;
+                    }
+                    else
+                    {
+                        success = false;
                     }
                 }
             }
