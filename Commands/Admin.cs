@@ -30,15 +30,6 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class Admin : ModuleBase
     {
-        [Command("qc")]
-        [Summary("qc '@role' '60'")]
-        [Remarks("quickcolour role")]
-        public async Task Quickcolour([Remainder, Optional]string empty)
-        {
-            await ReplyAsync(
-                "this command has been removed from PassiveBOT, however it has been added to our new bot RainbowBOT, you can get an invite link and some help here: http://passivenation.com/showthread.php?tid=64");
-        }
-
         [Command("prune")]
         [Summary("prune")]
         [Remarks("removes all the bots recent messages")]
