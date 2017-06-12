@@ -24,9 +24,15 @@ namespace PassiveBOT.Commands
         [Command("command")]
         [Summary("command 'meme'")]
         [Remarks("all help commands")]
-        public async Task HelpAsync([Remainder] [Optional] string command)
+        public async Task HelpAsync([Remainder]string command = null)
         {
             var result = _service.Search(Context, command);
+
+            if (command == null)
+            {
+                await ReplyAsync($"Please specify a command, ie '{Load.Pre}command kick'");
+                return;
+            }
 
             if (!result.IsSuccess)
                 await ReplyAsync($"**Command Name:** {command}\n**Error:** Not Found!\n**Reason:** Wubbalubbadubdub!");

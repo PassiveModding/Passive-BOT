@@ -11,6 +11,7 @@ using YoutubeExplode;
 
 namespace PassiveBOT.Commands
 {
+    [RequireContext(ContextType.Guild)]
     public class Audio : ModuleBase
     {
         public static Dictionary<ulong, List<string>> Queue =
@@ -32,14 +33,14 @@ namespace PassiveBOT.Commands
         {
             var list = new List<string>();
             if (Queue.ContainsKey(Context.Guild.Id))
-                Queue.TryGetValue(Context.Guild.Id, out list);
+                Queue.TryGetValue(Context.Guild.Id, out list); //gets current queue
             var songlist = new List<string>();
             if (list.Count > 0)
             {
                 var i = 0;
                 foreach (var item in list)
                 {
-                    songlist.Add($"`{i}` - {item}");
+                    songlist.Add($"`{i}` - {item}"); //adds each item in the queue with index to a list
                     i++;
                 }
 
@@ -53,7 +54,7 @@ namespace PassiveBOT.Commands
 
 
         [Command("q add", RunMode = RunMode.Async)]
-        [Alias("queue add")]
+        [Alias("queue add", "play")]
         [Summary("q add 'yt video'/'yt video name'")]
         [Remarks("Adds a song to the queue")]
         public async Task QueueSong([Remainder] string linkOrSearchTerm)
@@ -61,12 +62,13 @@ namespace PassiveBOT.Commands
             var list = new List<string>();
             if (Queue.ContainsKey(Context.Guild.Id))
                 Queue.TryGetValue(Context.Guild.Id, out list);
-            list.Add(linkOrSearchTerm);
+            list.Add(linkOrSearchTerm); //adds the given item to the queue, if its a URL it will be converted to a song later on
 
             Queue.Remove(Context.Guild.Id);
             Queue.Add(Context.Guild.Id, list);
             await ReplyAsync(
-                $"**{linkOrSearchTerm}** has been added to the end of the queue. \nQueue Length: **{list.Count}**");
+                $"**{linkOrSearchTerm}** has been added to the end of the queue. \n" +
+                $"Queue Length: **{list.Count}**");
         }
 
         [Command("q pl", RunMode = RunMode.Async)]
@@ -78,10 +80,10 @@ namespace PassiveBOT.Commands
             var ytc = new YoutubeClient();
 
             var playListInfo = await ytc.GetPlaylistInfoAsync(YoutubeClient.ParsePlaylistId(playlistLink));
-            var ten = playListInfo.VideoIds.ToArray().Take(10).ToArray();
+            var ten = playListInfo.VideoIds.ToArray().Take(10).ToArray(); //adds first 10 songs in playlist to an array
             var list = new List<string>();
             if (Queue.ContainsKey(Context.Guild.Id))
-                Queue.TryGetValue(Context.Guild.Id, out list);
+                Queue.TryGetValue(Context.Guild.Id, out list); //outputs the current queue to a list
             await ReplyAsync($"Attempting to add the first 10 songs of **{playListInfo.Title}** to the queue!");
             var i = 0;
             foreach (var song in ten)
@@ -91,8 +93,8 @@ namespace PassiveBOT.Commands
                 list.Add(title);
                 await ReplyAsync($"`{i}` - **{title}** added to the queue");
                 Queue.Remove(Context.Guild.Id);
-                Queue.Add(Context.Guild.Id,
-                    list); //ineffieient as fuck because im adding all songs one by one rather than as a group, however. it takes a long time so this is better timewise
+                Queue.Add(Context.Guild.Id, list);
+                //ineffieient as fuck because im adding all songs one by one rather than as a group, however. it takes a long time so this is better timewise
                 i++;
             }
 
@@ -112,6 +114,7 @@ namespace PassiveBOT.Commands
             if (Queue.ContainsKey(Context.Guild.Id))
                 Queue.TryGetValue(Context.Guild.Id, out list);
 
+            //similar to the .songs command, this gets the current guilds list, adds all downloaded songs to it and plays
             if (Directory.Exists($"{AppContext.BaseDirectory}/music/{Context.Guild.Id}/"))
             {
                 var d = new DirectoryInfo($"{AppContext.BaseDirectory}/music/{Context.Guild.Id}/");
@@ -137,6 +140,7 @@ namespace PassiveBOT.Commands
             if (Queue.ContainsKey(Context.Guild.Id))
                 Queue.TryGetValue(Context.Guild.Id, out list);
 
+            //gets the queue, removes the first entry then replays the queue
             if (list.Count > 0)
             {
                 list.RemoveAt(0);
@@ -156,7 +160,7 @@ namespace PassiveBOT.Commands
             if (Queue.ContainsKey(Context.Guild.Id))
                 Queue.TryGetValue(Context.Guild.Id, out list);
 
-
+            //simply removes an entry from the queue then saves it
             if (list.Count > 0)
             {
                 await ReplyAsync($"Removed **{list.ElementAt(x)}** from the queue");
@@ -176,6 +180,8 @@ namespace PassiveBOT.Commands
             if (Queue.ContainsKey(Context.Guild.Id))
                 Queue.TryGetValue(Context.Guild.Id, out list);
 
+            //if the queue isn't empty, clears all items from the queue
+
             if (list.Count > 0)
             {
                 list.Clear();
@@ -194,18 +200,26 @@ namespace PassiveBOT.Commands
             List<string> list;
             if (Queue.ContainsKey(Context.Guild.Id))
             {
-                Queue.TryGetValue(Context.Guild.Id, out list);
+                Queue.TryGetValue(Context.Guild.Id, out list); //gets the guilds queue
             }
             else
             {
-                await ReplyAsync("This guilds queue is empty. Please add some songs first before playing!");
+                await ReplyAsync("This guilds queue is empty. Please add some songs first before playing!\n" +
+                                 $"`{Load.Pre}q add` - adds a song to the queue\n" +
+                                 $"`{Load.Pre}q pl 'playlist URL'` - adds the first ten songs form a youtube playlist to the queue\n" +
+                                 $"`{Load.Pre}q all` - adds all songs previously downloaded in your server to the queue");
                 return;
+                //if the queue is empty instruct the user to add songs to it
             }
+
+            await _service.LeaveAudio(Context.Guild);
+            await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
 
             while (list.Count > 0)
             {
-                await _service.LeaveAudio(Context.Guild);
-                await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
+                //await _service.LeaveAudio(Context.Guild);
+                //await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
+                //bot only connects when this is first invoked, this is to stop it reconnecting for each song
 
                 _nextSong = list.Count != 1 ? $", next song: **{list.ElementAt(1)}**" : "";
                 _leftInQueue = list.Count == 1
@@ -218,9 +232,11 @@ namespace PassiveBOT.Commands
                 Queue.Remove(Context.Guild.Id);
                 Queue.Add(Context.Guild.Id, list);
                 Queue.TryGetValue(Context.Guild.Id, out list);
+                //at end of song, removes the current song from the list and plays the next
             }
 
-            await ReplyAsync($"Sorry, the queue is empty, {Load.Pre}queue (or {Load.Pre}q) to add more!");
+            await ReplyAsync(
+                $"Sorry, the queue is empty, {Load.Pre}play 'song' (or {Load.Pre}q add 'song') to add more!");
 
             await _service.LeaveAudio(Context.Guild);
             await ReplyAsync("Leaving Audio Channel");
@@ -255,12 +271,33 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("reconnect", RunMode = RunMode.Async)]
+        [Summary("reconnect")]
+        [Remarks("reconnects to the voice channel")]
+        public async Task ReconnectTask()
+        {
+            await _service.LeaveAudio(Context.Guild);
+
+            try
+            {
+                await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
+            }
+            catch
+            {
+                await ReplyAsync("I was unable to connect to your voice channel\n" +
+                                 "Please make sure you are in a voice channel and\n" +
+                                 "I have sufficient permissions");
+            }
+        }
+
         [Command("join", RunMode = RunMode.Async)]
         [Summary("join")]
         [Remarks("Joins your Voice Channel")]
         public async Task JoinCmd()
         {
-            await ReplyAsync("Joining Audio Channel");
+            await ReplyAsync("Joining Audio Channel\n" +
+                             $"Add songs using - `{Load.Pre}play 'songname'`\n" +
+                             $"Play the queue using - `{Load.Pre}q play`");
             await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
         }
 
