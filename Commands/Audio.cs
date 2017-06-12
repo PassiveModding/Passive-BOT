@@ -195,8 +195,12 @@ namespace PassiveBOT.Commands
         [Alias("queue play")]
         [Summary("q play")]
         [Remarks("Plays the queue")]
-        public async Task PlayQueue()
+        public async Task PlayQueue(string song = null)
         {
+            if (song != null)
+            {
+                await QueueSong(song);
+            }
             List<string> list;
             if (Queue.ContainsKey(Context.Guild.Id))
             {
@@ -242,6 +246,8 @@ namespace PassiveBOT.Commands
             await ReplyAsync("Leaving Audio Channel");
         }
 
+
+
         [Command("songs", RunMode = RunMode.Async)]
         [Summary("songs")]
         [Remarks("Lists all songs downloaded in your server")]
@@ -270,7 +276,7 @@ namespace PassiveBOT.Commands
                                  $"you can download songs using the `{Load.Pre}play` command");
             }
         }
-
+        //connection commands
         [Command("reconnect", RunMode = RunMode.Async)]
         [Summary("reconnect")]
         [Remarks("reconnects to the voice channel")]
