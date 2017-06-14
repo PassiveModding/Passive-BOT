@@ -320,7 +320,6 @@ namespace PassiveBOT.Commands
                 i++;
             }
             if (song <= i)
-            {
                 try
                 {
                     await ReplyAsync($"**Deleted song: **{songname[song]}");
@@ -330,13 +329,8 @@ namespace PassiveBOT.Commands
                 {
                     await ReplyAsync($"Unable to delete song number **{song}** from the songs directory");
                 }
-
-            }
             else
-            {
                 await ReplyAsync($"Unable to delete song number **{song}** from the songs directory");
-            }
-
         }
 
         [Command("delete all")]

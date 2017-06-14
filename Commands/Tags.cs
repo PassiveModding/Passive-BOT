@@ -17,7 +17,8 @@ namespace PassiveBOT.Commands
         public async Task Tagadd(string tagname, [Remainder] string tagmessage)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/"));
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory,
+                    $"setup/server/{Context.Guild.Id}/tags/"));
 
             var tagfile = AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/tags/{tagname}.txt";
             if (File.Exists(tagfile))
@@ -38,7 +39,8 @@ namespace PassiveBOT.Commands
         public async Task Tagdel(string tagname)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/"));
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory,
+                    $"setup/server/{Context.Guild.Id}/tags/"));
 
             var tagfile = AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/tags/{tagname}.txt";
 
@@ -68,7 +70,8 @@ namespace PassiveBOT.Commands
         public async Task Tag(string tagname = null)
         {
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/"));
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory,
+                    $"setup/server/{Context.Guild.Id}/tags/"));
 
             var tagfolder = AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/tags/";
             var tagfile = tagfolder + $"{tagname}.txt";

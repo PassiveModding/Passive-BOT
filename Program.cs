@@ -48,13 +48,9 @@ namespace PassiveBOT
             {
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
                 if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/nopre.txt"))
-                {
                     File.Create($"{AppContext.BaseDirectory}setup/moderation/nopre.txt");
-                }
                 if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt"))
-                {
                     File.Create($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt");
-                }
             }
 
             var ll = LogSeverity.Info;

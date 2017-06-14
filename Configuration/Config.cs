@@ -58,7 +58,8 @@ namespace PassiveBOT.Configuration
                 Console.Write("Y or N: ");
                 cfg.Debug = Console.ReadLine();
 
-                ColourLog.ColourInfo(@"After you input your token, a config will be generated at 'setup/config/config.json'");
+                ColourLog.ColourInfo(
+                    @"After you input your token, a config will be generated at 'setup/config/config.json'");
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
 
@@ -66,7 +67,7 @@ namespace PassiveBOT.Configuration
             }
             else
             {
-                Configuration.Load.Pre = Config.Load().Prefix;
+                Configuration.Load.Pre = Load().Prefix;
             }
             ColourLog.ColourInfo("Config Loaded!");
             ColourLog.ColourInfo($"Prefix: {Load().Prefix}");
