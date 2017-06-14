@@ -46,25 +46,18 @@ namespace PassiveBOT.Commands
                 if (page <= 0)
                 {
                     if (i > 10)
-                    {
-                        await ReplyAsync($"**Page 0**\nHere are the first 10 songs in your playlist (total = {i}):\n{string.Join("\n", songlist.Take(10).ToArray())}");
-                    }
+                        await ReplyAsync(
+                            $"**Page 0**\nHere are the first 10 songs in your playlist (total = {i}):\n{string.Join("\n", songlist.Take(10).ToArray())}");
                     else
-                    {
                         await ReplyAsync(string.Join("\n", songlist.ToArray()));
-                    }
-                    
                 }
                 else
                 {
                     var response = string.Join("\n", songlist.Skip(page * 10).Take(10).ToArray());
                     if (response == "")
-                    {
                         await ReplyAsync($"**Page {page}** of your playlist:\nEmpty");
-                    }
                     await ReplyAsync($"**Page {page}** of your playlist:\n{response}");
                 }
-                
             }
             else
             {
@@ -286,8 +279,9 @@ namespace PassiveBOT.Commands
                 if (i > 10)
                     if (page <= 0)
                     {
-                        await ReplyAsync($"**Page 0**\nHere are the first 10 songs saved in your server (total = {i})\n" +
-                                         $"{list}");
+                        await ReplyAsync(
+                            $"**Page 0**\nHere are the first 10 songs saved in your server (total = {i})\n" +
+                            $"{list}");
                     }
                     else
                     {
