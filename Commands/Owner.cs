@@ -82,22 +82,19 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Nopre()
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/"));
-
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + "moderation/prefix/nopre.txt");
+            var lines = File.ReadAllLines(AppContext.BaseDirectory + "setup/moderation/nopre.txt");
             var result = lines.ToList();
             if (result.Contains(Context.Guild.Id.ToString()))
             {
-                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "moderation/prefix/nopre.txt"}");
+                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "setup/moderation/nopre.txt"}");
                 var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
-                File.WriteAllLines($"{AppContext.BaseDirectory + "moderation/prefix/nopre.txt"}", newLines);
+                File.WriteAllLines($"{AppContext.BaseDirectory + "setup/moderation/nopre.txt"}", newLines);
                 await ReplyAsync(
                     $"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
             }
             else
             {
-                File.AppendAllText($"{AppContext.BaseDirectory + "moderation/prefix/nopre.txt"}",
+                File.AppendAllText($"{AppContext.BaseDirectory + "setup/moderation/nopre.txt"}",
                     $"{Context.Guild.Id}" + Environment.NewLine);
                 await ReplyAsync(
                     $"{Context.Guild} has been added to the noprefix list (secret commands and prefixless commands are now disabled)");
@@ -110,21 +107,18 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task ErrorLog()
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/error/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/error/"));
-
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + "moderation/error/logging.txt");
+            var lines = File.ReadAllLines(AppContext.BaseDirectory + "setup/moderation/errlogging.txt");
             var result = lines.ToList();
             if (result.Contains(Context.Guild.Id.ToString()))
             {
-                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "moderation/error/logging.txt"}");
+                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "setup/moderation/errlogging.txt"}");
                 var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
-                File.WriteAllLines($"{AppContext.BaseDirectory + "moderation/error/logging.txt"}", newLines);
+                File.WriteAllLines($"{AppContext.BaseDirectory + "setup/moderation/errlogging.txt"}", newLines);
                 await ReplyAsync($"I will no longer reply if an error is thrown in {Context.Guild}");
             }
             else
             {
-                File.AppendAllText($"{AppContext.BaseDirectory + "moderation/error/logging.txt"}",
+                File.AppendAllText($"{AppContext.BaseDirectory + "setup/moderation/errlogging.txt"}",
                     $"{Context.Guild.Id}" + Environment.NewLine);
                 await ReplyAsync($"I will now reply if an error is thrown in {Context.Guild}");
             }
@@ -136,10 +130,10 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Kicks()
         {
-            if (!File.Exists(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt"))
+            if (!File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
                 await ReplyAsync(
                     "There are currently no kicks in this server, to kick someone type `.kick @user 'reason'`");
-            var kicks = File.ReadAllText(AppContext.BaseDirectory + $"moderation/kick/{Context.Guild.Id}.txt");
+            var kicks = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt");
             await ReplyAsync("```\n" + kicks + "\n```");
         }
 
@@ -149,10 +143,10 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Warns()
         {
-            if (!File.Exists(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt"))
+            if (!File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
                 await ReplyAsync(
                     "There are currently no warns in this server, to warn someone type `.warn @user 'reason'`");
-            var warns = File.ReadAllText(AppContext.BaseDirectory + $"moderation/warn/{Context.Guild.Id}.txt");
+            var warns = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
             await ReplyAsync("```\n" + warns + "\n```");
         }
 
@@ -162,10 +156,10 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Bans()
         {
-            if (!File.Exists(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt"))
+            if (!File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
                 await ReplyAsync(
                     "There are currently no bans in this server, to ban someone type `.ban @user 'reason'`");
-            var bans = File.ReadAllText(AppContext.BaseDirectory + $"moderation/ban/{Context.Guild.Id}.txt");
+            var bans = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
             await ReplyAsync("```\n" + bans + "\n```");
         }
     }

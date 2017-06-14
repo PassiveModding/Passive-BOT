@@ -62,9 +62,9 @@ namespace PassiveBOT.Services
             var rgx = new Regex("[^a-zA-Z0-9 -]");
             title = rgx.Replace(title, "");
 
-            var path = $"{AppContext.BaseDirectory}/music/{guild.Id}/{title}.{asi.Container.GetFileExtension()}";
-            if (!Directory.Exists($"{AppContext.BaseDirectory}/music/{guild.Id}"))
-                Directory.CreateDirectory($"{AppContext.BaseDirectory}/music/{guild.Id}");
+            var path = $"{AppContext.BaseDirectory}/setup/server/{guild.Id}/music/{title}.{asi.Container.GetFileExtension()}";
+            if (!Directory.Exists($"{AppContext.BaseDirectory}/setup/server/{guild.Id}/music/"))
+                Directory.CreateDirectory($"{AppContext.BaseDirectory}/setup/server/{guild.Id}/music/");
 
             if (!File.Exists(path))
             {

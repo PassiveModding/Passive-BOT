@@ -45,8 +45,8 @@ namespace PassiveBOT.Handlers
                 return;
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var commandsuccess = result.IsSuccess;
-            var loggingLines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\error\logging.txt");
-            var nopreLines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
+            var loggingLines = File.ReadAllLines(AppContext.BaseDirectory + @"setup\moderation\errlogging.txt");
+            var nopreLines = File.ReadAllLines(AppContext.BaseDirectory + @"setup\moderation\nopre.txt");
             var nopre = nopreLines.ToList();
             var errlog = loggingLines.ToList();
 

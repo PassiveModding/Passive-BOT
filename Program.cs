@@ -44,21 +44,17 @@ namespace PassiveBOT
             var debug = Config.Load().Debug;
             var token = Config.Load().Token;
 
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/warn/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/warn/"));
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/ban/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/ban/"));
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "moderation/kick/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/kick/"));
-            if (!File.Exists($"{AppContext.BaseDirectory}moderation/prefix/nopre.txt"))
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/moderation/")))
             {
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/prefix/"));
-                File.Create($"{AppContext.BaseDirectory}moderation/prefix/nopre.txt");
-            }
-            if (!File.Exists($"{AppContext.BaseDirectory}moderation/error/logging.txt"))
-            {
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "moderation/error/"));
-                File.Create($"{AppContext.BaseDirectory}moderation/error/logging.txt");
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
+                if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/nopre.txt"))
+                {
+                    File.Create($"{AppContext.BaseDirectory}setup/moderation/nopre.txt");
+                }
+                if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt"))
+                {
+                    File.Create($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt");
+                }
             }
 
             var ll = LogSeverity.Info;

@@ -13,7 +13,7 @@ namespace PassiveBOT.Preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider prov)
         {
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + "moderation/prefix/nopre.txt");
+            var lines = File.ReadAllLines(AppContext.BaseDirectory + "setup/moderation/prefix/nopre.txt");
             var result = lines.ToList();
             var id = context.Guild.Id.ToString();
             if (result.Contains(id))

@@ -16,10 +16,10 @@ namespace PassiveBOT.Commands
         [Remarks("adds a tag to the servers files")]
         public async Task Tagadd(string tagname, [Remainder] string tagmessage)
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/"));
 
-            var tagfile = AppContext.BaseDirectory + $"tags/{Context.Guild.Id}/{tagname}.txt";
+            var tagfile = AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/tags/{tagname}.txt";
             if (File.Exists(tagfile))
             {
                 await ReplyAsync("This tag already exists!");
@@ -37,10 +37,10 @@ namespace PassiveBOT.Commands
         [Remarks("Removes a tag from the servers files")]
         public async Task Tagdel(string tagname)
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/"));
 
-            var tagfile = AppContext.BaseDirectory + $"tags/{Context.Guild.Id}/{tagname}.txt";
+            var tagfile = AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/tags/{tagname}.txt";
 
             if (File.Exists(tagfile))
             {
@@ -67,10 +67,10 @@ namespace PassiveBOT.Commands
         [Remarks("lists all tags for the server or sends a tag")]
         public async Task Tag(string tagname = null)
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"tags/{Context.Guild.Id}/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/tags/"));
 
-            var tagfolder = AppContext.BaseDirectory + $"tags/{Context.Guild.Id}/";
+            var tagfolder = AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/tags/";
             var tagfile = tagfolder + $"{tagname}.txt";
             if (tagname == null)
             {
