@@ -198,9 +198,7 @@ namespace PassiveBOT.Commands
         public async Task PlayQueue(string song = null)
         {
             if (song != null)
-            {
                 await QueueSong(song);
-            }
             List<string> list;
             if (Queue.ContainsKey(Context.Guild.Id))
             {
@@ -247,11 +245,10 @@ namespace PassiveBOT.Commands
         }
 
 
-
         [Command("songs", RunMode = RunMode.Async)]
         [Summary("songs")]
         [Remarks("Lists all songs downloaded in your server")]
-        public async Task SongList()
+        public async Task SongList(int page = 0)
         {
             //gets the current guilds directory
             if (Directory.Exists($"{AppContext.BaseDirectory}/music/{Context.Guild.Id}/"))
@@ -265,10 +262,25 @@ namespace PassiveBOT.Commands
                     songlist.Add($"`{i}` - {Path.GetFileNameWithoutExtension(sng.Name)}");
                     i++;
                 }
-
-                var list = string.Join("\n", songlist.ToArray());
-
-                await ReplyAsync(list);
+                var list = string.Join("\n", songlist.Take(10).ToArray());
+                if (i > 10)
+                    if (page <= 0)
+                    {
+                        await ReplyAsync($"Here are the first 10 songs saved in your server (total = {i})\n" +
+                                         $"{list}");
+                    }
+                    else
+                    {
+                        list = string.Join("\n", songlist.Skip(page * 10).Take(10).ToArray());
+                        if (list == "")
+                            await ReplyAsync($"**Page {page}**\n" +
+                                             "This page is empty");
+                        else
+                            await ReplyAsync($"**Page {page}**\n" +
+                                             $"{list}");
+                    }
+                else
+                    await ReplyAsync(list);
             }
             else
             {
@@ -276,6 +288,7 @@ namespace PassiveBOT.Commands
                                  $"you can download songs using the `{Load.Pre}play` command");
             }
         }
+
         //connection commands
         [Command("reconnect", RunMode = RunMode.Async)]
         [Summary("reconnect")]

@@ -44,8 +44,7 @@ namespace PassiveBOT.Handlers
             if (context.User.IsBot)
                 return;
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
-            var success = result.IsSuccess;
-
+            var commandsuccess = result.IsSuccess;
             var loggingLines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\error\logging.txt");
             var nopreLines = File.ReadAllLines(AppContext.BaseDirectory + @"moderation\prefix\nopre.txt");
             var nopre = nopreLines.ToList();
@@ -82,7 +81,6 @@ namespace PassiveBOT.Handlers
                 var val = rand.Next(0, 100);
                 if (val >= 90)
                 {
-                    success = true;
                     if (message.HasStringPrefix("( ͡° ͜ʖ ͡°)", ref argPos))
                     {
                         await context.Channel.SendMessageAsync("(:eye: ͜ʖ :eye:)");
@@ -117,17 +115,13 @@ namespace PassiveBOT.Handlers
                         await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ FLIP ALL THE TABLES! ", false,
                             embed.Build());
                     }
-                    else
-                    {
-                        success = false;
-                    }
                 }
             }
 
             #endregion
 
 
-            if (!success)
+            if (!commandsuccess) //auto replies do not need to be measures as a command, this should in turn fix many logging issues
                 if (errlog.Contains(context.Guild.Id.ToString()))
                 {
                     await context.Channel.SendMessageAsync(

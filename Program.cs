@@ -171,6 +171,7 @@ namespace PassiveBOT
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             if (msg.StartsWith("Preemptive"))
             {
+                msg = "PassiveBOT      | Preemptive              |";
             }
             else if (msg == "Connected")
             {
