@@ -29,7 +29,7 @@ namespace PassiveBOT.Commands
         [Alias("q")]
         [Summary("q")]
         [Remarks("Lists all songs in the queue")]
-        public async Task QueueList()
+        public async Task QueueList(int page = 0)
         {
             var list = new List<string>();
             if (Queue.ContainsKey(Context.Guild.Id))
@@ -43,8 +43,28 @@ namespace PassiveBOT.Commands
                     songlist.Add($"`{i}` - {item}"); //adds each item in the queue with index to a list
                     i++;
                 }
-
-                await ReplyAsync(string.Join("\n", songlist.ToArray()));
+                if (page <= 0)
+                {
+                    if (i > 10)
+                    {
+                        await ReplyAsync($"**Page 0**\nHere are the first 10 songs in your playlist (total = {i}):\n{string.Join("\n", songlist.Take(10).ToArray())}");
+                    }
+                    else
+                    {
+                        await ReplyAsync(string.Join("\n", songlist.ToArray()));
+                    }
+                    
+                }
+                else
+                {
+                    var response = string.Join("\n", songlist.Skip(page * 10).Take(10).ToArray());
+                    if (response == "")
+                    {
+                        await ReplyAsync($"**Page {page}** of your playlist:\nEmpty");
+                    }
+                    await ReplyAsync($"**Page {page}** of your playlist:\n{response}");
+                }
+                
             }
             else
             {
@@ -266,7 +286,7 @@ namespace PassiveBOT.Commands
                 if (i > 10)
                     if (page <= 0)
                     {
-                        await ReplyAsync($"Here are the first 10 songs saved in your server (total = {i})\n" +
+                        await ReplyAsync($"**Page 0**\nHere are the first 10 songs saved in your server (total = {i})\n" +
                                          $"{list}");
                     }
                     else
