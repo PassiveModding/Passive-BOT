@@ -170,22 +170,14 @@ namespace PassiveBOT
 
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             if (msg.StartsWith("Preemptive"))
-            {
                 msg = "PassiveBOT      | Preemptive              |";
-            }
             else if (msg == "Connected")
-            {
                 msg = "PassiveBOT      | Connected               |";
-            }
             else if (msg == "Ready")
-            {
                 msg = "PassiveBOT      | Ready                   |";
-            }
             else if (msg == "Connecting" || msg.StartsWith("Unknown OpCode (8)") || msg == "Disconnecting" ||
                      msg == "Disconnected" || msg.StartsWith("Unknown User"))
-            {
                 return Task.CompletedTask;
-            }
 
             ColourLog.ColourInfo($"{msg}");
             return Task.CompletedTask;

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
-using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
 {

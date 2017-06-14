@@ -80,7 +80,6 @@ namespace PassiveBOT.Handlers
                 var rand = new Random();
                 var val = rand.Next(0, 100);
                 if (val >= 90)
-                {
                     if (message.HasStringPrefix("( ͡° ͜ʖ ͡°)", ref argPos))
                     {
                         await context.Channel.SendMessageAsync("(:eye: ͜ʖ :eye:)");
@@ -115,13 +114,12 @@ namespace PassiveBOT.Handlers
                         await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ FLIP ALL THE TABLES! ", false,
                             embed.Build());
                     }
-                }
             }
 
             #endregion
 
 
-            if (!commandsuccess) //auto replies do not need to be measures as a command, this should in turn fix many logging issues
+            if (!commandsuccess)
                 if (errlog.Contains(context.Guild.Id.ToString()))
                 {
                     await context.Channel.SendMessageAsync(

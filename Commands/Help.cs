@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -24,7 +23,7 @@ namespace PassiveBOT.Commands
         [Command("command")]
         [Summary("command 'meme'")]
         [Remarks("all help commands")]
-        public async Task HelpAsync([Remainder]string command = null)
+        public async Task HelpAsync([Remainder] string command = null)
         {
             var result = _service.Search(Context, command);
 
