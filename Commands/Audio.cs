@@ -303,6 +303,62 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("delete")]
+        [Summary("delete 'songnumber'")]
+        [Remarks("deletes the given song number's file from the servers folder")]
+        public async Task DeleteTask(int song)
+        {
+            var d = new DirectoryInfo($"{AppContext.BaseDirectory}/music/{Context.Guild.Id}/");
+            var music = d.GetFiles("*.*");
+            var songpath = new List<string>();
+            var songname = new List<string>();
+            var i = 0;
+            foreach (var sng in music)
+            {
+                songpath.Add($"{sng.FullName}");
+                songname.Add($"{Path.GetFileNameWithoutExtension(sng.Name)}");
+                i++;
+            }
+            if (song <= i)
+            {
+                try
+                {
+                    await ReplyAsync($"**Deleted song: **{songname[song]}");
+                    File.Delete(songpath[song]);
+                }
+                catch
+                {
+                    await ReplyAsync($"Unable to delete song number **{song}** from the songs directory");
+                }
+
+            }
+            else
+            {
+                await ReplyAsync($"Unable to delete song number **{song}** from the songs directory");
+            }
+
+        }
+
+        [Command("delete all")]
+        [Summary("delete all")]
+        [Remarks("Deletes all downloaded song files from the servers folder (ADMIN)")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public async Task DeleteAllTask()
+        {
+            var d = new DirectoryInfo($"{AppContext.BaseDirectory}/music/{Context.Guild.Id}/");
+            var music = d.GetFiles("*.*");
+            var i = 0;
+            foreach (var sng in music)
+            {
+                File.Delete(sng.FullName);
+                i++;
+            }
+
+            await ReplyAsync($"{Context.User} deleted all downloaded songs (total = {i}) from this server's folder\n" +
+                             $"you can download more using `{Load.Pre}play 'songname or YT URL'`\n" +
+                             $"for a rundown on commands type `{Load.Pre}help`");
+        }
+
         //connection commands
         [Command("reconnect", RunMode = RunMode.Async)]
         [Summary("reconnect")]
