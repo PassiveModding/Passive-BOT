@@ -15,6 +15,13 @@ namespace PassiveBOT.Handlers
             return Task.CompletedTask;
         }
 
+        public static Task ColourInput(string message, Color colour)
+        {
+            message = message.Replace("\n", " ");
+            Console.WriteLine($"{DateTime.Now} [Info]  {message}", colour);
+            return Task.CompletedTask;
+        }
+
         public static Task ColourError(string message)
         {
             message = message.Replace("\n", " ");

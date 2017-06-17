@@ -26,6 +26,13 @@ namespace PassiveBOT.Commands
         public async Task Quote([Remainder] ulong id)
         {
             var msg = await Context.Channel.GetMessageAsync(id);
+
+            if (msg == null)
+            {
+                await ReplyAsync("This message is unavailable");
+                return;
+            }
+
             var user = msg.Author;
             var time = msg.Timestamp;
 

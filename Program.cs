@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Services;
+using Color = System.Drawing.Color;
 
 namespace PassiveBOT
 {
@@ -97,6 +98,7 @@ namespace PassiveBOT
                 Client.Log += LogDebug;
             else
                 Client.Log += LogMessageInfo;
+
             Client.Ready += Client_Ready;
 
             //setgame loop
@@ -143,16 +145,9 @@ namespace PassiveBOT
             return services.BuildServiceProvider();
         }
 
-        public static Task LogInfoTrim(string message)
-        {
-            var msg = message.Substring(21, message.Length - 21);
-            ColourLog.ColourInfo($"{msg}");
-            return Task.CompletedTask;
-        }
-
         public static Task LogInfo(string msg)
         {
-            ColourLog.ColourInfo($"{msg}");
+            ColourLog.ColourInput($"{msg}", Color.Chartreuse);
             return Task.CompletedTask;
         }
 
@@ -163,7 +158,7 @@ namespace PassiveBOT
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             var code = $"{msg}                            ".Substring(0, 23);
             msg = $"PassiveBOT      | {code} |";
-            ColourLog.ColourInfo($"{msg}");
+            ColourLog.ColourInput($"{msg}", Color.Chartreuse);
             return Task.CompletedTask;
         }
 
