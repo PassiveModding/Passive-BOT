@@ -38,12 +38,6 @@ namespace PassiveBOT
                 "| Designed by PassiveModding - PassiveNation.com  ||   Status: Connected   | \n" +
                 "\\--------------------------------------------------------------------------/ \n");
 
-
-            Config.CheckExistence();
-            var prefix = Config.Load().Prefix;
-            var debug = Config.Load().Debug;
-            var token = Config.Load().Token;
-
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/moderation/")))
             {
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
@@ -52,6 +46,12 @@ namespace PassiveBOT
                 if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt"))
                     File.Create($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt");
             }
+            Config.CheckExistence();
+            var prefix = Config.Load().Prefix;
+            var debug = Config.Load().Debug;
+            var token = Config.Load().Token;
+
+
 
             var ll = LogSeverity.Info;
             switch (debug)

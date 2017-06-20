@@ -41,8 +41,8 @@ namespace PassiveBOT.Configuration
             if (res == "N" || res == "n")
                 File.Delete("setup/config/config.json");
 
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "config")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "config"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config"));
 
             if (!File.Exists(ConfigPath))
             {
