@@ -158,8 +158,6 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            if (Context.Guild as SocketGuild != null)
-            {
                 var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
                 var mem = ((SocketGuild) Context.Guild).MemberCount;
                 var guildusers = mem - botlist;
@@ -182,7 +180,6 @@ namespace PassiveBOT.Commands
                     });
 
                 await ReplyAsync("", false, embed);
-            }
         }
 
         [Command("RoleList")]

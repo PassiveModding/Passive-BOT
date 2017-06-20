@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -105,8 +104,9 @@ namespace PassiveBOT
             await Task.Delay(5000);
             string[] gametitle =
             {
-                $"{prefix}help / Users: {Client.Guilds.Sum(g => g.MemberCount)}",
-                $"{prefix}help / Servers: {Client.Guilds.Count}",
+                //Client while defined here is inaccurate for unknown reasons
+                //$"{prefix}help / Users: {Client.Guilds.Sum(g => g.MemberCount)}", 
+                //$"{prefix}help / Servers: {Client.Guilds.Count}",
                 $"{prefix}help / Heap: {GetHeapSize()}MB",
                 $"{prefix}help / {Load.Gamesite}",
                 $"{prefix}help / v{Load.Version}"

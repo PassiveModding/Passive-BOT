@@ -8,6 +8,7 @@
         public static string Owner = "PassiveModding";
         public static string Version = "4.08";
         public static string Pre;
+
         public static string Invite =
             "https://discordapp.com/oauth2/authorize?client_id=234112036701863936&scope=bot&permissions=2146958591";
 

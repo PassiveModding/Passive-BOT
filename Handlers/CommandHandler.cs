@@ -62,13 +62,10 @@ namespace PassiveBOT.Handlers
             else
             {
                 var gui = context.Guild.ToString();
-                var guild = $"{gui}                 ";
-                server = guild.Substring(0, 15);
+                server = $"{gui}                 ".Substring(0, 15);
             }
-            var string2 = $"{str}               ";
-            var msg = string2.Substring(0, 15);
-            var use2 = $"{use}                  ";
-            var user = use2.Substring(0, 15);
+            var msg = $"{str}                  ".Substring(0, 15);
+            var user = $"{use}                  ".Substring(0, 15);
 
             #endregion shorten
 
