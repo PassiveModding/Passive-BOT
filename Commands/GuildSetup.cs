@@ -18,6 +18,14 @@ namespace PassiveBOT.Commands
             await ReplyAsync(GuildConfig.Read(Context.Guild.Id));
         }
 
+        [Command("Config")]
+        [Summary("Config")]
+        [Remarks("Shows the servers current configuration")]
+        public async Task Config()
+        {
+            await ReplyAsync(GuildConfig.Read(Context.Guild.Id));
+        }
+
         [Command("Welcome")]
         [Summary("Welcome 'message'")]
         [Remarks("Sets the welcome message for new users in the server")]
@@ -47,6 +55,15 @@ namespace PassiveBOT.Commands
         {
             GuildConfig.SetWelcomeStatus(Context.Guild.Id, status);
             await ReplyAsync($"Welcome Messageing for this server has been set to: {status}");
+        }
+
+        [Command("SetDj")]
+        [Summary("SetDj '@role'")]
+        [Remarks("Sets the DJ role")]
+        public async Task Dj([Remainder] IRole role)
+        {
+            GuildConfig.SetDj(Context.Guild.Id, role.Id);
+            await ReplyAsync($"The DJ Role has been set to: {role.Name}");
         }
     }
 }

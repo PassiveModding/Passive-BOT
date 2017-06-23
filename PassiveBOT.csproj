@@ -169,6 +169,7 @@
     <Compile Include="Configuration\GuildConfig.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Preconditions\ChannelTopic.cs" />
+    <Compile Include="Preconditions\CheckDJ.cs" />
     <Compile Include="Services\AudioService.cs" />
     <Compile Include="Strings\NSFWString.cs" />
     <Compile Include="Strings\ANIMALString.cs" />

@@ -143,17 +143,10 @@ namespace PassiveBOT.Handlers
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/"));
 
-            var infofile = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}/info.txt");
-            if (!File.Exists(infofile))
+            var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}/config.json");
+            if (!File.Exists(config))
             {
-                File.Create(infofile).Dispose();
-                File.WriteAllText(infofile,
-                    $"ID: {guild.Id}\nName: {guild.Name}\nCreation Date: {guild.CreatedAt}\nOwner: {guild.Owner}");
-            }
-            else
-            {
-                File.WriteAllText(infofile,
-                    $"ID: {guild.Id}\nName: {guild.Name}\nCreation Date: {guild.CreatedAt}\nOwner: {guild.Owner}");
+                GuildConfig.Setup(guild.Id, guild.Name);
             }
 
             await guild.DefaultChannel.SendMessageAsync(

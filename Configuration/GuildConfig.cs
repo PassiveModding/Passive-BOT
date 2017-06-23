@@ -112,5 +112,22 @@ namespace PassiveBOT.Configuration
             }
             return null;
         }
+
+        public static string SetDj(ulong id, ulong role)
+        {
+            var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
+            if (File.Exists(file))
+            {
+                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+                jsonObj.DjRoleId = role;
+                string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+            }
+            else
+            {
+                return "please run the setup command before using configuration commands";
+            }
+            return null;
+        }
     }
 }
