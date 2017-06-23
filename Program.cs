@@ -42,15 +42,14 @@ namespace PassiveBOT
             {
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
                 if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/nopre.txt"))
-                    File.Create($"{AppContext.BaseDirectory}setup/moderation/nopre.txt");
+                    File.Create($"{AppContext.BaseDirectory}setup/moderation/nopre.txt").Close();
                 if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt"))
-                    File.Create($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt");
+                    File.Create($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt").Close();
             }
             Config.CheckExistence();
             var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug;
             var token = Config.Load().Token;
-
 
 
             var ll = LogSeverity.Info;
@@ -154,7 +153,10 @@ namespace PassiveBOT
         public static Task LogMessageInfo(LogMessage message)
         {
             var messagestr = message.ToString();
-
+            if (message.ToString() == "Disconnecting" || message.ToString() == "Connecting" ||
+                message.ToString().StartsWith("Unknown OpCode (8)") || message.ToString() == "Connected")
+            {
+            }
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             var code = $"{msg}                            ".Substring(0, 23);
             msg = $"PassiveBOT      | {code} |";

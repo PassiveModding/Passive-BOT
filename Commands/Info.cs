@@ -158,28 +158,28 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-                var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
-                var mem = ((SocketGuild) Context.Guild).MemberCount;
-                var guildusers = mem - botlist;
+            var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
+            var mem = ((SocketGuild) Context.Guild).MemberCount;
+            var guildusers = mem - botlist;
 
-                var embed = new EmbedBuilder()
-                    .WithTitle($"User Count for {Context.Guild.Name}")
-                    .AddInlineField(":busts_in_silhouette: Total Members", mem)
-                    .AddInlineField(":robot: Total Bots", botlist)
-                    .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
-                    .AddInlineField(":newspaper2: Total Channels", ((SocketGuild) Context.Guild).Channels.Count)
-                    .AddInlineField(":microphone: Text/Voice Channels",
-                        $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
-                    .AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count)
-                    .AddField("Links",
-                        $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
-                    .WithFooter(x =>
-                    {
-                        x.WithText("PassiveBOT");
-                        x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                    });
+            var embed = new EmbedBuilder()
+                .WithTitle($"User Count for {Context.Guild.Name}")
+                .AddInlineField(":busts_in_silhouette: Total Members", mem)
+                .AddInlineField(":robot: Total Bots", botlist)
+                .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
+                .AddInlineField(":newspaper2: Total Channels", ((SocketGuild) Context.Guild).Channels.Count)
+                .AddInlineField(":microphone: Text/Voice Channels",
+                    $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
+                .AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count)
+                .AddField("Links",
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
+                .WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
 
-                await ReplyAsync("", false, embed);
+            await ReplyAsync("", false, embed);
         }
 
         [Command("RoleList")]

@@ -49,6 +49,18 @@ namespace PassiveBOT.Commands
             Environment.Exit(1);
         }
 
+        [Command("Reconnect+")]
+        [Summary("Reboot")]
+        [Remarks("When you dont wanna kill me")]
+        public async Task ReconnectAsync()
+        {
+            var client = Context.Client as DiscordSocketClient;
+            await client.StopAsync();
+            await Task.Delay(1000);
+            await client.StartAsync();
+            await ReplyAsync("Restarted!");
+        }
+
         [Command("LeaveServer+")]
         [Summary("Leave 123456789012 This server is shit!")]
         [Remarks("Makes the bot leave the specified guild")]

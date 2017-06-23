@@ -24,12 +24,15 @@ namespace PassiveBOT.Handlers
             _commands = new CommandService();
 
             _client.MessageReceived += DoCommand;
+            _client.JoinedGuild += _client_JoinedGuild;
+            _client.UserJoined += UserJoinedAsync;
         }
 
         public async Task ConfigureAsync()
         {
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
+
 
         public async Task DoCommand(SocketMessage parameterMessage)
         {
@@ -131,6 +134,49 @@ namespace PassiveBOT.Handlers
             else
                 await ColourLog.ColourInfo(
                     $"{msg} | Server: {server} | User: {user}"); //if there is no error log normally
+        }
+
+        public async Task _client_JoinedGuild(SocketGuild guild)
+        {
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/tags/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/tags/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/"));
+
+            var infofile = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}/info.txt");
+            if (!File.Exists(infofile))
+            {
+                File.Create(infofile).Dispose();
+                File.WriteAllText(infofile,
+                    $"ID: {guild.Id}\nName: {guild.Name}\nCreation Date: {guild.CreatedAt}\nOwner: {guild.Owner}");
+            }
+            else
+            {
+                File.WriteAllText(infofile,
+                    $"ID: {guild.Id}\nName: {guild.Name}\nCreation Date: {guild.CreatedAt}\nOwner: {guild.Owner}");
+            }
+
+            await guild.DefaultChannel.SendMessageAsync(
+                $"Hi, I'm PassiveBOT. To see a list of my commands type `{Load.Pre}help` and for some statistics about me type `{Load.Pre}info`\n" +
+                "I am able to do music, tags, moderation, memes & more!!!!!");
+        }
+
+        public static async Task UserJoinedAsync(SocketGuildUser user)
+        {
+            var id = user.Guild.Id;
+            var wevent = GuildConfig.Load(id).WelcomeEvent;
+            if (!wevent) return;
+            var wchan = GuildConfig.Load(id).WelcomeChannel;
+            var wmessage = GuildConfig.Load(id).WelcomeMessage;
+            if (wchan != 0)
+            {
+                var channel = user.Guild.GetTextChannel(wchan);
+                await channel.SendMessageAsync($"{user.Mention}: {wmessage}");
+            }
+            else
+            {
+                await user.Guild.DefaultChannel.SendMessageAsync($"{user.Mention}: {wmessage}");
+            }
         }
     }
 }

@@ -72,6 +72,9 @@ namespace PassiveBOT.Commands
         [Remarks("Adds a song to the queue")]
         public async Task QueueSong([Remainder] string linkOrSearchTerm)
         {
+            if (string.IsNullOrWhiteSpace(linkOrSearchTerm))
+                return;
+
             var list = new List<string>();
             if (Queue.ContainsKey(Context.Guild.Id))
                 Queue.TryGetValue(Context.Guild.Id, out list);
@@ -90,6 +93,9 @@ namespace PassiveBOT.Commands
         [Remarks("Adds the given YT playlist to the Queue")]
         public async Task PlaylistCmd([Remainder] string playlistLink)
         {
+            if (string.IsNullOrWhiteSpace(playlistLink))
+                return;
+
             var ytc = new YoutubeClient();
 
             var playListInfo = await ytc.GetPlaylistInfoAsync(YoutubeClient.ParsePlaylistId(playlistLink));
@@ -210,8 +216,11 @@ namespace PassiveBOT.Commands
         [Remarks("Plays the queue")]
         public async Task PlayQueue(string song = null)
         {
+            if (string.IsNullOrWhiteSpace(song))
+                song = null;
             if (song != null)
                 await QueueSong(song);
+
             List<string> list;
             if (Queue.ContainsKey(Context.Guild.Id))
             {
@@ -227,14 +236,19 @@ namespace PassiveBOT.Commands
                 //if the queue is empty instruct the user to add songs to it
             }
 
-            await _service.LeaveAudio(Context.Guild);
-            await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
-
             while (list.Count > 0)
             {
-                //await _service.LeaveAudio(Context.Guild);
-                //await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
-                //bot only connects when this is first invoked, this is to stop it reconnecting for each song
+                await _service.LeaveAudio(Context.Guild);
+                try
+                {
+                    await _service.JoinAudio(Context.Guild, (Context.User as IVoiceState).VoiceChannel);
+                }
+                catch
+                {
+                    await ReplyAsync("The playlists DJ is no longer in the channel");
+                    break;
+                }
+
 
                 _nextSong = list.Count != 1 ? $", next song: **{list.ElementAt(1)}**" : "";
                 _leftInQueue = list.Count == 1
@@ -249,9 +263,10 @@ namespace PassiveBOT.Commands
                 Queue.TryGetValue(Context.Guild.Id, out list);
                 //at end of song, removes the current song from the list and plays the next
             }
+            if (list.Count == 0)
+                await ReplyAsync(
+                    $"Sorry, the queue is empty, `{Load.Pre}play 'song'` (or `{Load.Pre}q add 'song'`) to add more!");
 
-            await ReplyAsync(
-                $"Sorry, the queue is empty, {Load.Pre}play 'song' (or {Load.Pre}q add 'song') to add more!");
 
             await _service.LeaveAudio(Context.Guild);
             await ReplyAsync("Leaving Audio Channel");

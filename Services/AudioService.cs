@@ -80,9 +80,9 @@ namespace PassiveBOT.Services
             if (_connectedChannels.TryGetValue(guild.Id, out IAudioClient audioClient))
             {
                 await channel.SendMessageAsync($"Now Playing: **{title}**");
-                var output = CreateStream(path).StandardOutput.BaseStream;
+                //var output = CreateStream(path).StandardOutput.BaseStream;
                 var discordStream = audioClient.CreatePCMStream(AudioApplication.Music);
-                await output.CopyToAsync(discordStream);
+                await CreateStream(path).StandardOutput.BaseStream.CopyToAsync(discordStream);
                 await discordStream.FlushAsync();
             }
         }

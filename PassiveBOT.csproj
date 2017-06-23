@@ -66,6 +66,7 @@
       <HintPath>..\packages\ImageSharp.1.0.0-alpha6-00065\lib\netstandard1.3\ImageSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.1.1.1\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
@@ -161,9 +162,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Audio.cs" />
+    <Compile Include="Commands\GuildSetup.cs" />
     <Compile Include="Commands\Invite.cs" />
     <Compile Include="Commands\Random.cs" />
     <Compile Include="Commands\Tags.cs" />
+    <Compile Include="Configuration\GuildConfig.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Preconditions\ChannelTopic.cs" />
     <Compile Include="Services\AudioService.cs" />
