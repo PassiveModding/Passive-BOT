@@ -10,6 +10,8 @@ namespace PassiveBOT.Commands
     public class GuildSetup : ModuleBase
     {
         [Command("Setup")]
+        [Summary("Setup")]
+        [Remarks("Initialises the servers configuration file")]
         public async Task Setup()
         {
             GuildConfig.Setup(Context.Guild.Id, Context.Guild.Name);
@@ -17,6 +19,8 @@ namespace PassiveBOT.Commands
         }
 
         [Command("Welcome")]
+        [Summary("Welcome 'message'")]
+        [Remarks("Sets the welcome message for new users in the server")]
         public async Task Welcome([Remainder] string message)
         {
             GuildConfig.SetWMessage(Context.Guild.Id, message);
@@ -25,6 +29,9 @@ namespace PassiveBOT.Commands
         }
 
         [Command("WelcomeChannel")]
+        [Alias("wc")]
+        [Summary("wc")]
+        [Remarks("Sets the current channel as the welcome channel")]
         public async Task Wchannel()
         {
             GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
@@ -33,6 +40,9 @@ namespace PassiveBOT.Commands
         }
 
         [Command("WelcomeStatus")]
+        [Alias("ws")]
+        [Summary("ws 'true/false'")]
+        [Remarks("sets the welcome message as true or false (on/off)")]
         public async Task WOff(bool status)
         {
             GuildConfig.SetWelcomeStatus(Context.Guild.Id, status);
