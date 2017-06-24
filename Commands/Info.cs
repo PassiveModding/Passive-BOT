@@ -44,6 +44,26 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder);
         }
 
+        [Command("avatar")]
+        [Summary("avatar '@user'")]
+        [Remarks("Returns the users avatar")]
+        public async Task Avatar([Remainder]IUser user = null)
+        {
+            if (user == null)
+                user = Context.User;
+
+            var builder = new EmbedBuilder()
+                .WithTitle($"{user}'s Avatar")
+                .WithImageUrl(user.GetAvatarUrl())
+                .WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
+
+            await ReplyAsync("", false, builder);
+        }
+
         [Command("info")]
         [Alias("botinfo")]
         [Summary("info")]
@@ -73,7 +93,6 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
-        //From Rick
         [Command("Roleinfo")]
         [Summary("roleinfo '@role'")]
         [Remarks("Displays information about given Role")]
@@ -81,74 +100,84 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task RoleInfoAsync(IRole role)
         {
-            var chn = Context.Channel;
-            var grp = role;
-            if (grp == null)
-                await ReplyAsync("You must supply a role.");
-            var grl = grp as SocketRole;
-            var perms = new List<string>(23);
-            if (grl.Permissions.Administrator)
-                perms.Add("Administrator");
-            if (grl.Permissions.AttachFiles)
-                perms.Add("Can attach files");
-            if (grl.Permissions.BanMembers)
-                perms.Add("Can ban members");
-            if (grl.Permissions.ChangeNickname)
-                perms.Add("Can change nickname");
-            if (grl.Permissions.Connect)
-                perms.Add("Can use voice chat");
-            if (grl.Permissions.CreateInstantInvite)
-                perms.Add("Can create instant invites");
-            if (grl.Permissions.DeafenMembers)
-                perms.Add("Can deafen members");
-            if (grl.Permissions.EmbedLinks)
-                perms.Add("Can embed links");
-            if (grl.Permissions.KickMembers)
-                perms.Add("Can kick members");
-            if (grl.Permissions.ManageChannels)
-                perms.Add("Can manage channels");
-            if (grl.Permissions.ManageMessages)
-                perms.Add("Can manage messages");
-            if (grl.Permissions.ManageNicknames)
-                perms.Add("Can manage nicknames");
-            if (grl.Permissions.ManageRoles)
-                perms.Add("Can manage roles");
-            if (grl.Permissions.ManageGuild)
-                perms.Add("Can manage guild");
-            if (grl.Permissions.MentionEveryone)
-                perms.Add("Can mention everyone group");
-            if (grl.Permissions.MoveMembers)
-                perms.Add("Can move members between voice channels");
-            if (grl.Permissions.MuteMembers)
-                perms.Add("Can mute members");
-            if (grl.Permissions.ReadMessageHistory)
-                perms.Add("Can read message history");
-            if (grl.Permissions.ReadMessages)
-                perms.Add("Can read messages");
-            if (grl.Permissions.SendMessages)
-                perms.Add("Can send messages");
-            if (grl.Permissions.SendTTSMessages)
-                perms.Add("Can send TTS messages");
-            if (grl.Permissions.Speak)
-                perms.Add("Can speak");
-            if (grl.Permissions.UseVAD)
-                perms.Add("Can use voice activation");
+            var srole = (role as SocketRole).Permissions;
+            var l = new List<string>();
+            if (srole.AddReactions)
+                l.Add("Can Add Reactions");
+            if (srole.Administrator)
+                l.Add("Is Administrator");
+            if (srole.AttachFiles)
+                l.Add("Can Attach Files");
+            if (srole.BanMembers)
+                l.Add("Can Ban Members");
+            if (srole.ChangeNickname)
+                l.Add("Can Change Nickname");
+            if (srole.Connect)
+                l.Add("Can Connect");
+            if (srole.CreateInstantInvite)
+                l.Add("Can Create Invite");
+            if (srole.DeafenMembers)
+                l.Add("Can Deafen Members");
+            if (srole.EmbedLinks)
+                l.Add("Can Embed Links");
+            if (srole.KickMembers)
+                l.Add("Can Kick Members");
+            if (srole.ManageChannels)
+                l.Add("Can Manage Channels");
+            if (srole.ManageEmojis)
+                l.Add("Can Manage Emojis");
+            if (srole.ManageGuild)
+                l.Add("Can Manage Guild");
+            if (srole.ManageMessages)
+                l.Add("Can Manage Messages");
+            if (srole.ManageNicknames)
+                l.Add("Can Manage Nicknames");
+            if (srole.ManageRoles)
+                l.Add("Can Manage Roles");
+            if (srole.ManageWebhooks)
+                l.Add("Can Manage Webhooks");
+            if (srole.MentionEveryone)
+                l.Add("Can Mention Everyone");
+            if (srole.MoveMembers)
+                l.Add("Can Move Members");
+            if (srole.MuteMembers)
+                l.Add("Can Mute Members");
+            if (srole.ReadMessageHistory)
+                l.Add("Can Read Message History");
+            if (srole.ReadMessages)
+                l.Add("Can Read Messages");
+            if (srole.SendMessages)
+                l.Add("Can Send Messages");
+            if (srole.SendTTSMessages)
+                l.Add("Can Send TTS Messages");
+            if (srole.Speak)
+                l.Add("Can Speak");
+            if (srole.UseExternalEmojis)
+                l.Add("Can Use Externam Emojis");
+            if (srole.UseVAD)
+                l.Add("Can Use VAD");
 
+            var list = string.Join("\n", l.ToArray());
+            if (list == "")
+            {
+                list = "None :(";
+            }
             var embed = new EmbedBuilder()
-                .WithTitle($"Info For: {role}")
-                .AddInlineField("Name", grl.Name)
-                .AddInlineField("ID", grl.Id.ToString())
-                .AddInlineField("Color", grl.Color.RawValue.ToString("X6"))
-                .AddInlineField("Displayed Seperately?", grl.IsHoisted ? "Yes" : "No")
-                .AddInlineField("Mentionable?", grl.IsMentionable ? "Yes" : "No")
-                .AddField("Permissions", string.Join("\n", perms))
+                .WithTitle($"RoleInfo for {role.Name}")
+                .AddInlineField("Colour", $"{role.Color}")
+                .AddInlineField("ID", $"{role.Id}")
+                .AddInlineField("Creation Date", $"{role.CreatedAt}")
+                .AddInlineField("Displayed Separately?", $"{role.IsHoisted}")
+                .AddInlineField("Mentionable?", $"{role.IsMentionable}")
+                .AddInlineField("Discord Generated?", $"{role.IsManaged}")
+                .AddField("Permissions", list)
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
 
-            await chn.SendMessageAsync("", false, embed);
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("UserCount")]
