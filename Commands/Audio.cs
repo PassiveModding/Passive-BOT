@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
+using PassiveBOT.Preconditions;
 using PassiveBOT.Services;
 using YoutubeExplode;
 
@@ -70,7 +71,7 @@ namespace PassiveBOT.Commands
         [Alias("queue add", "play")]
         [Summary("q add 'yt video'/'yt video name'")]
         [Remarks("Adds a song to the queue")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task QueueSong([Remainder] string linkOrSearchTerm)
         {
             if (string.IsNullOrWhiteSpace(linkOrSearchTerm))
@@ -92,7 +93,7 @@ namespace PassiveBOT.Commands
         [Alias("q playlist", "queue playlist", "queue pl")]
         [Summary("q pl 'playlist url'")]
         [Remarks("Adds the given YT playlist to the Queue")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task PlaylistCmd([Remainder] string playlistLink)
         {
             if (string.IsNullOrWhiteSpace(playlistLink))
@@ -129,7 +130,7 @@ namespace PassiveBOT.Commands
         [Alias("queue all")]
         [Summary("q all")]
         [Remarks("Plays all downloaded songs")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task Pall()
         {
             var list = new List<string>();
@@ -156,7 +157,7 @@ namespace PassiveBOT.Commands
         [Alias("queue skip")]
         [Summary("q skip")]
         [Remarks("Skips the current song")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task SkipSong()
         {
             var list = new List<string>();
@@ -177,7 +178,7 @@ namespace PassiveBOT.Commands
         [Alias("queue del", "q delete", "queue delete")]
         [Summary("q del 'x'")]
         [Remarks("Removes the given song from the queue")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task Qdel(int x)
         {
             var list = new List<string>();
@@ -198,7 +199,7 @@ namespace PassiveBOT.Commands
         [Alias("queue clear")]
         [Summary("q clear")]
         [Remarks("Empties the queue")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task ClearQue()
         {
             var list = new List<string>();
@@ -220,7 +221,7 @@ namespace PassiveBOT.Commands
         [Alias("queue play")]
         [Summary("q play")]
         [Remarks("Plays the queue")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task PlayQueue(string song = null)
         {
             if (string.IsNullOrWhiteSpace(song))
@@ -328,7 +329,7 @@ namespace PassiveBOT.Commands
         [Command("delete")]
         [Summary("delete 'songnumber'")]
         [Remarks("deletes the given song number's file from the servers folder")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task DeleteTask(int song)
         {
             var d = new DirectoryInfo($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/");
@@ -380,7 +381,7 @@ namespace PassiveBOT.Commands
         [Command("reconnect", RunMode = RunMode.Async)]
         [Summary("reconnect")]
         [Remarks("reconnects to the voice channel")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task ReconnectTask()
         {
             await _service.LeaveAudio(Context.Guild);
@@ -400,7 +401,7 @@ namespace PassiveBOT.Commands
         [Command("join", RunMode = RunMode.Async)]
         [Summary("join")]
         [Remarks("Joins your Voice Channel")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task JoinCmd()
         {
             await ReplyAsync("Joining Audio Channel\n" +
@@ -412,7 +413,7 @@ namespace PassiveBOT.Commands
         [Command("leave", RunMode = RunMode.Async)]
         [Summary("leave")]
         [Remarks("Leaves your Voice Channel")]
-        [Preconditions.CheckDj]
+        [CheckDj]
         public async Task LeaveCmd()
         {
             await _service.LeaveAudio(Context.Guild);

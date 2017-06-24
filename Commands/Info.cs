@@ -47,7 +47,7 @@ namespace PassiveBOT.Commands
         [Command("avatar")]
         [Summary("avatar '@user'")]
         [Remarks("Returns the users avatar")]
-        public async Task Avatar([Remainder]IUser user = null)
+        public async Task Avatar([Remainder] IUser user = null)
         {
             if (user == null)
                 user = Context.User;
@@ -159,9 +159,7 @@ namespace PassiveBOT.Commands
 
             var list = string.Join("\n", l.ToArray());
             if (list == "")
-            {
                 list = "None :(";
-            }
             var embed = new EmbedBuilder()
                 .WithTitle($"RoleInfo for {role.Name}")
                 .AddInlineField("Colour", $"{role.Color}")

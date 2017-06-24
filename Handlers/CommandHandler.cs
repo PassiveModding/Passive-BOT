@@ -145,9 +145,7 @@ namespace PassiveBOT.Handlers
 
             var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}/config.json");
             if (!File.Exists(config))
-            {
                 GuildConfig.Setup(guild.Id, guild.Name);
-            }
 
             await guild.DefaultChannel.SendMessageAsync(
                 $"Hi, I'm PassiveBOT. To see a list of my commands type `{Load.Pre}help` and for some statistics about me type `{Load.Pre}info`\n" +

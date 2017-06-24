@@ -1,16 +1,41 @@
 ﻿using System;
+using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Newtonsoft.Json;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
+using PassiveBOT.Services;
+using YoutubeExplode;
 
 namespace PassiveBOT.Commands
 {
     [Ratelimit(1, 2, Measure.Seconds)]
-    public class Images : ModuleBase
+    public class Media : ModuleBase
     {
+        [Command("youtube", RunMode = RunMode.Async)]
+        [Summary("youtube 'search'")]
+        [Alias("myt")]
+        [Remarks("Gives the first youtube result from the given search terms")]
+        public async Task Youtube(string search)
+        {
+            var ytc = new YoutubeClient();
+            await ReplyAsync($"Trying to get the top three results for the search: **{search}**\n" +
+                             "Please be patient... <3");
+            var searchList = await ytc.SearchAsync(search);
+            var results = searchList.Take(3);
+            var embed = new EmbedBuilder();
+            foreach (var item in results)
+            {
+                var video = await ytc.GetVideoInfoAsync(item);
+                embed.AddField(video.Title, $"https://www.youtube.com/watch?v={video.Id}");
+            }
+            await ReplyAsync("", false, embed.Build());
+        }
+
         [Command("meme")]
         [Summary("meme")]
         [Alias("memes")]
@@ -33,43 +58,40 @@ namespace PassiveBOT.Commands
         }
 
         [Command("dog")]
-        [Summary("dog")]
-        [Remarks("replies with a cute doggo")]
-        public async Task Doggo()
+        [Summary("Gets a random dog image from random.dog")]
+        public async Task Doggo2()
         {
-            var str = AnimalStr.Dog;
-            var rnd = new Random();
-            var result = rnd.Next(0, str.Length);
-
-            var builder = new EmbedBuilder()
-                .WithImageUrl(str[result])
+            var woof = "http://random.dog/" + await SearchHelper.GetResponseStringAsync("https://random.dog/woof")
+                           .ConfigureAwait(false);
+            var embed = new EmbedBuilder()
+                .WithImageUrl(woof)
+                .WithTitle("Woof")
+                .WithUrl(woof)
                 .WithFooter(x =>
                 {
-                    x.WithText($"PassiveBOT | {result}/{str.Length}");
+                    x.WithText("PassiveBOT");
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
-
-            await ReplyAsync("", false, builder.Build());
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("cat")]
-        [Summary("cat")]
-        [Remarks("replies with a kitty cat")]
-        public async Task Kitty()
+        [Summary("Gets a random dog image from random.cat")]
+        public async Task Kitty2()
         {
-            var str = AnimalStr.Cat;
-            var rnd = new Random();
-            var result = rnd.Next(0, str.Length);
-
-            var builder = new EmbedBuilder()
-                .WithImageUrl(str[result])
+            var xDoc = JsonConvert.DeserializeXNode(await new HttpClient().GetStringAsync("http://random.cat/meow"),
+                "root");
+            var embed = new EmbedBuilder()
+                .WithImageUrl(xDoc.Element("root").Element("file").Value)
+                .WithTitle("Meow")
+                .WithUrl(xDoc.Element("root").Element("file").Value)
                 .WithFooter(x =>
                 {
-                    x.WithText($"PassiveBOT | {result}/{str.Length}");
+                    x.WithText("PassiveBOT");
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
 
-            await ReplyAsync("", false, builder.Build());
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("salt")]
