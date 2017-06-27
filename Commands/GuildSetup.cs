@@ -27,7 +27,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("Welcome")]
-        [Summary("Welcome 'message'")]
+        [Summary("Welcome <message>")]
         [Remarks("Sets the welcome message for new users in the server")]
         public async Task Welcome([Remainder] string message)
         {
@@ -49,7 +49,7 @@ namespace PassiveBOT.Commands
 
         [Command("WelcomeStatus")]
         [Alias("ws")]
-        [Summary("ws 'true/false'")]
+        [Summary("ws <true/false>")]
         [Remarks("sets the welcome message as true or false (on/off)")]
         public async Task WOff(bool status)
         {
@@ -58,7 +58,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("SetDj")]
-        [Summary("SetDj '@role'")]
+        [Summary("SetDj <@role>")]
         [Remarks("Sets the DJ role")]
         public async Task Dj([Remainder] IRole role)
         {

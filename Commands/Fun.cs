@@ -34,7 +34,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("8ball")]
-        [Summary("8ball 'am I special?'")]
+        [Summary("8ball <question?>")]
         [Remarks("ask me anything")]
         public async Task Ball([Remainder] [Optional] string input)
         {
@@ -76,7 +76,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("rps")]
-        [Summary("rps 'r'")]
+        [Summary("rps <r, p or s>")]
         [Remarks("rock paper scissors!")]
         public async Task Rps([Optional] string input)
         {

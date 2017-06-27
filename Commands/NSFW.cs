@@ -13,7 +13,7 @@ namespace PassiveBOT.Commands
     [RequireNsfw]
     public class Nsfw : ModuleBase
     {
-        //Tits & Ass from Rick
+
         [Command("tits")]
         [Summary("tits")]
         [Alias("boobs", "rack")]

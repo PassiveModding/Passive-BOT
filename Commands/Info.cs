@@ -15,7 +15,7 @@ namespace PassiveBOT.Commands
     public class Information : ModuleBase
     {
         [Command("user")]
-        [Summary("user '@user'")]
+        [Summary("user [Optional]<@user>")]
         [Alias("whois", "userinfo")]
         [Remarks("Returns info about the current user, or the given user")]
         public async Task UserInformation([Remainder] [Optional] IUser user)
@@ -45,7 +45,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("avatar")]
-        [Summary("avatar '@user'")]
+        [Summary("avatar [Optional]<@user>")]
         [Remarks("Returns the users avatar")]
         public async Task Avatar([Remainder] IUser user = null)
         {
@@ -94,7 +94,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("Roleinfo")]
-        [Summary("roleinfo '@role'")]
+        [Summary("roleinfo <@role>")]
         [Remarks("Displays information about given Role")]
         [Alias("RI")]
         [RequireContext(ContextType.Guild)]
@@ -231,7 +231,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("RoleMembers")]
-        [Summary("rolemembers '@role' 'nick or username'")]
+        [Summary("rolemembers <@role> <nick/username>")]
         [Remarks("Displays a list of members with the given role")]
         [Alias("RM")]
         [RequireContext(ContextType.Guild)]

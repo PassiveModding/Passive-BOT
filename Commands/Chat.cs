@@ -10,7 +10,7 @@ namespace PassiveBOT.Commands
     public class Chat : ModuleBase
     {
         [Command("say")]
-        [Summary("say 'hi'")]
+        [Summary("say <message>")]
         [Alias("echo")]
         [Remarks("Echos the provided input")]
         public async Task Say([Remainder] string input)
@@ -21,7 +21,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("quote")]
-        [Summary("quote 'messageID'")]
+        [Summary("quote <msg ID>")]
         [Remarks("Quotes the given message (from message ID)")]
         public async Task Quote([Remainder] ulong id)
         {
@@ -46,7 +46,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("dm")]
-        [Summary("dm @sexyperson 'hey babe'")]
+        [Summary("dm <@user> <message>")]
         [Remarks("Direct Messages the specified user")]
         public async Task Dmuser([Optional] IUser recipient, [Remainder] string message)
         {
@@ -65,7 +65,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("hug")]
-        [Summary("hug @bae")]
+        [Summary("hug <@user>")]
         [Remarks("Gives a big sloppy hug")]
         public async Task Huguser(IUser user)
         {
@@ -73,7 +73,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("date")]
-        [Summary("date @babe")]
+        [Summary("date <@user>")]
         [Remarks("Asks them out on a date")]
         public async Task Date(IUser user, [Remainder] string input)
         {

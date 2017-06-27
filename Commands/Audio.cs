@@ -69,7 +69,7 @@ namespace PassiveBOT.Commands
 
         [Command("q add", RunMode = RunMode.Async)]
         [Alias("queue add", "play")]
-        [Summary("q add 'yt video'/'yt video name'")]
+        [Summary("q add  <song name or YT URL>")]
         [Remarks("Adds a song to the queue")]
         [CheckDj]
         public async Task QueueSong([Remainder] string linkOrSearchTerm)
@@ -91,7 +91,7 @@ namespace PassiveBOT.Commands
 
         [Command("q pl", RunMode = RunMode.Async)]
         [Alias("q playlist", "queue playlist", "queue pl")]
-        [Summary("q pl 'playlist url'")]
+        [Summary("q pl <Playlist URL>")]
         [Remarks("Adds the given YT playlist to the Queue")]
         [CheckDj]
         public async Task PlaylistCmd([Remainder] string playlistLink)
@@ -176,7 +176,7 @@ namespace PassiveBOT.Commands
 
         [Command("q del", RunMode = RunMode.Async)]
         [Alias("queue del", "q delete", "queue delete")]
-        [Summary("q del 'x'")]
+        [Summary("q del <songnumber>")]
         [Remarks("Removes the given song from the queue")]
         [CheckDj]
         public async Task Qdel(int x)
@@ -327,7 +327,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("delete")]
-        [Summary("delete 'songnumber'")]
+        [Summary("delete <songnumber>")]
         [Remarks("deletes the given song number's file from the servers folder")]
         [CheckDj]
         public async Task DeleteTask(int song)

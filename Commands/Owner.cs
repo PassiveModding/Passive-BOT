@@ -22,7 +22,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("help+", RunMode = RunMode.Async)]
-        [Summary("help")]
+        [Summary("help+")]
         [Remarks("Owner Commands")]
         [Ratelimit(1, 15, Measure.Seconds)]
         public async Task Help2Async()
@@ -40,8 +40,8 @@ namespace PassiveBOT.Commands
         }
 
         [Command("die+")]
-        [Summary("die")]
-        [Remarks("Kills the bot (owner only)")]
+        [Summary("die+")]
+        [Remarks("Kills the bot")]
         public async Task Die()
         {
             await ReplyAsync("Bye Bye :heart:");
@@ -50,7 +50,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("Reconnect+")]
-        [Summary("Reboot")]
+        [Summary("Reconnect+")]
         [Remarks("When you dont wanna kill me")]
         public async Task ReconnectAsync()
         {
@@ -62,7 +62,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("LeaveServer+")]
-        [Summary("Leave 123456789012 This server is shit!")]
+        [Summary("Leave+ <guild ID> [Optional]<reason>")]
         [Remarks("Makes the bot leave the specified guild")]
         public async Task LeaveAsync(ulong id, [Remainder] string reason = "No reason provided by the owner.")
         {
@@ -78,7 +78,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("Username+")]
-        [Summary("username 'name'")]
+        [Summary("username+ <name>")]
         [Remarks("Sets the bots username")]
         public async Task UsernameAsync([Remainder] string value)
         {
@@ -89,7 +89,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("nopre+")]
-        [Summary("nopre")]
+        [Summary("nopre+")]
         [Remarks("toggles prefixless commands in the current server")]
         [RequireContext(ContextType.Guild)]
         public async Task Nopre()
@@ -114,7 +114,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("errors+")]
-        [Summary("errors")]
+        [Summary("errors+")]
         [Remarks("toggles error replies for this bot")]
         [RequireContext(ContextType.Guild)]
         public async Task ErrorLog()
@@ -137,7 +137,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("kicks+")]
-        [Summary("kicks")]
+        [Summary("kicks+")]
         [Remarks("Users kicked by passivebot")]
         [RequireContext(ContextType.Guild)]
         public async Task Kicks()
@@ -150,7 +150,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("warns+")]
-        [Summary("warns")]
+        [Summary("warns+")]
         [Remarks("Users warned by passivebot")]
         [RequireContext(ContextType.Guild)]
         public async Task Warns()
@@ -163,7 +163,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("bans+")]
-        [Summary("bans")]
+        [Summary("bans+")]
         [Remarks("Users banned by passivebot")]
         [RequireContext(ContextType.Guild)]
         public async Task Bans()

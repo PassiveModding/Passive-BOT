@@ -27,7 +27,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("clear")]
-        [Summary("clear 26")]
+        [Summary("clear <no. of messages>")]
         [Remarks("removes the specified amount of messages")]
         public async Task Clear([Optional] int count)
         {
@@ -96,7 +96,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("kick", RunMode = RunMode.Async)]
-        [Summary("kick '@badperson' 'for not being cool'")]
+        [Summary("kick <@user> <reason>")]
         [Remarks("Kicks the specified user (requires Kick Permissions)")]
         public async Task Kickuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
@@ -139,7 +139,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("warn", RunMode = RunMode.Async)]
-        [Summary("warn '@naughtykiddo' 'for being a noob'")]
+        [Summary("warn <@user> <reason>")]
         [Remarks("warns the specified user")]
         public async Task NewWarnuser(SocketGuildUser user, [Remainder] string reason = null)
         {
@@ -167,7 +167,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("ban", RunMode = RunMode.Async)]
-        [Summary("ban '@badfag' 'for sucking'")]
+        [Summary("ban <@user> <reason>")]
         [Remarks("bans the specified user (requires Ban Permissions)")]
         public async Task Banuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {

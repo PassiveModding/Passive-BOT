@@ -10,7 +10,7 @@ namespace PassiveBOT.Commands
     public class RandomStuff : ModuleBase
     {
         [Command("qc")]
-        [Summary("qc '@role' '60'")]
+        [Summary("qc")]
         [Remarks("quickcolour role")]
         public async Task Quickcolour([Remainder] [Optional] string empty)
         {

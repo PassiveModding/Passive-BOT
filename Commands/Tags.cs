@@ -12,7 +12,7 @@ namespace PassiveBOT.Commands
     public class Tags : ModuleBase
     {
         [Command("add")]
-        [Summary("tag add 'tagname' 'tagmessage'")]
+        [Summary("tag add <name> <message>")]
         [Remarks("adds a tag to the servers files")]
         public async Task Tagadd(string tagname, [Remainder] string tagmessage)
         {
@@ -34,7 +34,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("del")]
-        [Summary("tag  del")]
+        [Summary("tag  del <name>")]
         [Remarks("Removes a tag from the servers files")]
         public async Task Tagdel(string tagname)
         {
@@ -65,7 +65,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command]
-        [Summary("tag [optional]'tagname'")]
+        [Summary("tag [optional]<tagname>")]
         [Remarks("lists all tags for the server or sends a tag")]
         public async Task Tag(string tagname = null)
         {

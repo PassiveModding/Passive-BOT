@@ -17,8 +17,8 @@ namespace PassiveBOT.Commands
     public class Media : ModuleBase
     {
         [Command("youtube", RunMode = RunMode.Async)]
-        [Summary("youtube 'search'")]
-        [Alias("myt")]
+        [Summary("youtube <search>")]
+        [Alias("yt")]
         [Remarks("Gives the first youtube result from the given search terms")]
         public async Task Youtube(string search)
         {
@@ -95,7 +95,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("salt")]
-        [Summary("salt '@user'")]
+        [Summary("salt <@user>")]
         [Alias("salty")]
         [Remarks("For salty people")]
         public async Task Salt([Optional] IUser user)
@@ -177,7 +177,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("derp")]
-        [Summary("derp '@fag'")]
+        [Summary("derp <@user>")]
         [Remarks("For special people (note: may be offensive to some)")]
         public async Task Derp([Remainder] [Optional] IUser user)
         {
