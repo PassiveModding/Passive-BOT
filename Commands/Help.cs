@@ -21,7 +21,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("command")]
-        [Summary("command 'meme'")]
+        [Summary("command <command name>")]
         [Remarks("all help commands")]
         public async Task HelpAsync([Remainder] string command = null)
         {
@@ -52,7 +52,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("help", RunMode = RunMode.Async)]
-        [Summary("help 'meme'")]
+        [Summary("help")]
         [Remarks("all help commands")]
         [Ratelimit(1, 15, Measure.Seconds)]
         public async Task Help2Async()
