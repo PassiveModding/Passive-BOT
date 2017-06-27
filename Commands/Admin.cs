@@ -187,7 +187,7 @@ namespace PassiveBOT.Commands
             {
                 try
                 {
-                    //await Context.Guild.AddBanAsync(user);
+                    await Context.Guild.AddBanAsync(user);
                     await Task.Delay(1000);
                     File.AppendAllText(
                         Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/ban.txt"),
