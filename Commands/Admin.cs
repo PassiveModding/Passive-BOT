@@ -15,21 +15,9 @@ namespace PassiveBOT.Commands
     public class Admin : ModuleBase
     {
         [Command("prune")]
-        [Summary("prune")]
-        [Remarks("removes all the bots recent messages")]
-        public async Task Prune()
-        {
-            var user = await Context.Guild.GetCurrentUserAsync().ConfigureAwait(false);
-
-            var enumerable = (await Context.Channel.GetMessagesAsync().Flatten()).AsEnumerable();
-            enumerable = enumerable.Where(x => x.Author.Id == user.Id);
-            await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
-        }
-
-        [Command("clear")]
-        [Summary("clear <no. of messages>")]
-        [Remarks("removes the specified amount of messages")]
-        public async Task Clear([Optional] int count)
+        [Summary("prune <no. of messages>")]
+        [Remarks("removes specified amount of messages")]
+        public async Task Prune(int count = 100)
         {
             if (count < 1)
             {
@@ -117,10 +105,6 @@ namespace PassiveBOT.Commands
                 try
                 {
                     await user.KickAsync();
-                    await Task.Delay(1000);
-                    File.AppendAllText(
-                        Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/kick.txt"),
-                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
                     success = true;
                 }
                 catch
@@ -130,6 +114,10 @@ namespace PassiveBOT.Commands
                 }
                 if (success)
                 {
+                    await Task.Delay(1000);
+                    File.AppendAllText(
+                        Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/kick.txt"),
+                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
                     await ReplyAsync($"{user} has been kicked for `{reason}`:bangbang: ");
                     var dm = await user.CreateDMChannelAsync();
                     await dm.SendMessageAsync(
@@ -167,7 +155,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("ban", RunMode = RunMode.Async)]
-        [Summary("ban <@user> <reason>")]
+        [Summary("ban <@user> <reason>-")]
         [Remarks("bans the specified user (requires Ban Permissions)")]
         public async Task Banuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
@@ -188,10 +176,6 @@ namespace PassiveBOT.Commands
                 try
                 {
                     await Context.Guild.AddBanAsync(user);
-                    await Task.Delay(1000);
-                    File.AppendAllText(
-                        Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/ban.txt"),
-                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
                     success = true;
                 }
                 catch
@@ -201,6 +185,10 @@ namespace PassiveBOT.Commands
                 }
                 if (success)
                 {
+                    await Task.Delay(1000);
+                    File.AppendAllText(
+                        Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/ban.txt"),
+                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
                     await ReplyAsync($"{user} has been banned for `{reason}`:bangbang: ");
                     var dm = await user.CreateDMChannelAsync();
                     await dm.SendMessageAsync(
@@ -257,6 +245,38 @@ namespace PassiveBOT.Commands
             {
                 var bans = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt");
                 await ReplyAsync("```\n" + bans + "\n```");
+            }
+        }
+
+        [Command("clear")]
+        [Summary("clear <type>")]
+        [Remarks("removes ban, kick or warn logs")]
+        public async Task Clear([Optional] string type)
+        {
+            var success = true;
+            if (type == null)
+            {
+                await ReplyAsync("Please specify a type of punishment to clear:\n" +
+                    "`warn`, `kick`, `ban`");
+                return;
+            }
+            else if (type == "warn" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
+                File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
+            else if (type == "kick" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
+                File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt");
+            else if (type == "ban" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
+                File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt");
+            else
+            {
+                success = false;
+            }
+            if (success)
+            {
+                await ReplyAsync($"All {type}'s have been cleared for this server");
+            }
+            else
+            {
+                await ReplyAsync("Invalid type or there are none of the specified type in the server");
             }
         }
     }
