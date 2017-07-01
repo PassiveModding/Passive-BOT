@@ -119,7 +119,7 @@ namespace PassiveBOT.Commands
                         Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/kick.txt"),
                         $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
                     await ReplyAsync($"{user} has been kicked for `{reason}`:bangbang: ");
-                    var dm = await user.CreateDMChannelAsync();
+                    var dm = await user.GetOrCreateDMChannelAsync();
                     await dm.SendMessageAsync(
                         $"{user.Mention} you have been kicked from {Context.Guild} for `{reason}`");
                 }
@@ -145,7 +145,7 @@ namespace PassiveBOT.Commands
             else
             {
                 await ReplyAsync($"{user.Mention} has been warned for `{reason}`");
-                var dm = await user.CreateDMChannelAsync();
+                var dm = await user.GetOrCreateDMChannelAsync();
                 await dm.SendMessageAsync($"{user.Mention} you have been warned for `{reason}` in {Context.Guild}");
 
                 await Task.Delay(1000);
@@ -190,7 +190,7 @@ namespace PassiveBOT.Commands
                         Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/ban.txt"),
                         $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
                     await ReplyAsync($"{user} has been banned for `{reason}`:bangbang: ");
-                    var dm = await user.CreateDMChannelAsync();
+                    var dm = await user.GetOrCreateDMChannelAsync();
                     await dm.SendMessageAsync(
                         $"{user.Mention} you have been banned from {Context.Guild} for `{reason}`");
                 }

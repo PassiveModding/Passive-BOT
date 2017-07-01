@@ -52,13 +52,13 @@ namespace PassiveBOT.Commands
         {
             if (recipient == null)
             {
-                var dm = await Context.User.CreateDMChannelAsync();
+                var dm = await Context.User.GetOrCreateDMChannelAsync();
                 await dm.SendMessageAsync(message);
                 await ReplyAsync("check your DMs babe :heart:");
             }
             else
             {
-                var dm = await recipient.CreateDMChannelAsync();
+                var dm = await recipient.GetOrCreateDMChannelAsync();
                 await dm.SendMessageAsync($"Message from {Context.User}: {message}");
                 await ReplyAsync($"check your DMs babe :heart: {recipient.Mention}");
             }

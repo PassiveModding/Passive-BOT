@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Net.Providers.WS4Net;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
@@ -18,6 +17,8 @@ namespace PassiveBOT
     {
         private CommandHandler _handler;
         public DiscordSocketClient Client;
+        private readonly IServiceCollection _map = new ServiceCollection();
+        private readonly CommandService _commands = new CommandService();
 
         public static void Main(string[] args)
         {
@@ -71,7 +72,6 @@ namespace PassiveBOT
 
             Client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                WebSocketProvider = WS4NetProvider.Instance,
                 LogLevel = ll
             });
 
@@ -90,8 +90,6 @@ namespace PassiveBOT
             await _handler.ConfigureAsync();
 
             //checks if the user wants to log debug info or not
-
-            await Task.Delay(1000);
             if (ll == LogSeverity.Debug)
                 Client.Log += LogDebug;
             else
@@ -103,9 +101,6 @@ namespace PassiveBOT
             await Task.Delay(5000);
             string[] gametitle =
             {
-                //Client while defined here is inaccurate for unknown reasons
-                //$"{prefix}help / Users: {Client.Guilds.Sum(g => g.MemberCount)}", 
-                //$"{prefix}help / Servers: {Client.Guilds.Count}",
                 $"{prefix}help / Heap: {GetHeapSize()}MB",
                 $"{prefix}help / {Load.Gamesite}",
                 $"{prefix}help / v{Load.Version}"
@@ -130,7 +125,7 @@ namespace PassiveBOT
         {
             var application = await Client.GetApplicationInfoAsync();
             await LogInfo(
-                $"PassiveBOT      | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot");
+                $"PassiveBOT      | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
         }
 
         private IServiceProvider ConfigureServices()
