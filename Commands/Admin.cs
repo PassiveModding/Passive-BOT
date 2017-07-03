@@ -37,52 +37,6 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("nopre")]
-        [Summary("nopre")]
-        [Remarks("toggles prefixless commands in the current server")]
-        public async Task Nopre()
-        {
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + "setup/moderation/nopre.txt");
-            var result = lines.ToList();
-            if (result.Contains(Context.Guild.Id.ToString()))
-            {
-                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "setup/moderation/nopre.txt"}");
-                var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
-                File.WriteAllLines($"{AppContext.BaseDirectory + "setup/moderation/nopre.txt"}", newLines);
-                await ReplyAsync(
-                    $"{Context.Guild} has been removed from the noprefix list (secret commands and prefixless commands are now enabled)");
-            }
-            else
-            {
-                File.AppendAllText($"{AppContext.BaseDirectory + "setup/moderation/nopre.txt"}",
-                    $"{Context.Guild.Id}" + Environment.NewLine);
-                await ReplyAsync(
-                    $"{Context.Guild} has been added to the noprefix list (secret commands and prefixless commands are now disabled)");
-            }
-        }
-
-        [Command("errors")]
-        [Summary("errors")]
-        [Remarks("toggles error replies for this bot")]
-        public async Task ErrorLog()
-        {
-            var lines = File.ReadAllLines(AppContext.BaseDirectory + "setup/moderation/errlogging.txt");
-            var result = lines.ToList();
-            if (result.Contains(Context.Guild.Id.ToString()))
-            {
-                var oldLines = File.ReadAllLines($"{AppContext.BaseDirectory + "setup/moderation/errlogging.txt"}");
-                var newLines = oldLines.Where(line => !line.Contains(Context.Guild.Id.ToString()));
-                File.WriteAllLines($"{AppContext.BaseDirectory + "setup/moderation/errlogging.txt"}", newLines);
-                await ReplyAsync($"I will no longer reply if an error is thrown in {Context.Guild}");
-            }
-            else
-            {
-                File.AppendAllText($"{AppContext.BaseDirectory + "setup/moderation/errlogging.txt"}",
-                    $"{Context.Guild.Id}" + Environment.NewLine);
-                await ReplyAsync($"I will now reply if an error is thrown in {Context.Guild}");
-            }
-        }
-
         [Command("kick", RunMode = RunMode.Async)]
         [Summary("kick <@user> <reason>")]
         [Remarks("Kicks the specified user (requires Kick Permissions)")]
@@ -251,33 +205,29 @@ namespace PassiveBOT.Commands
         [Command("clear")]
         [Summary("clear <type>")]
         [Remarks("removes ban, kick or warn logs")]
-        public async Task Clear([Optional] string type)
+        public async Task Clear(string type = null)
         {
             var success = true;
             if (type == null)
             {
                 await ReplyAsync("Please specify a type of punishment to clear:\n" +
-                    "`warn`, `kick`, `ban`");
+                                 "`warn`, `kick`, `ban`");
                 return;
             }
-            else if (type == "warn" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
+            if (type == "warn" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
                 File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
-            else if (type == "kick" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
+            else if (type == "kick" ||
+                     File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
                 File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt");
-            else if (type == "ban" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
+            else if (type == "ban" ||
+                     File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
                 File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt");
             else
-            {
                 success = false;
-            }
             if (success)
-            {
                 await ReplyAsync($"All {type}'s have been cleared for this server");
-            }
             else
-            {
                 await ReplyAsync("Invalid type or there are none of the specified type in the server");
-            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
@@ -48,10 +47,15 @@ namespace PassiveBOT.Handlers
                 return;
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var commandsuccess = result.IsSuccess;
-            var loggingLines = File.ReadAllLines(AppContext.BaseDirectory + @"setup\moderation\errlogging.txt");
-            var nopreLines = File.ReadAllLines(AppContext.BaseDirectory + @"setup\moderation\nopre.txt");
-            var nopre = nopreLines.ToList();
-            var errlog = loggingLines.ToList();
+            bool errlog;
+            try
+            {
+                errlog = GuildConfig.Load(context.Guild.Id).ErrorLog;
+            }
+            catch
+            {
+                errlog = false;
+            }
 
             #region shorten
 
@@ -72,55 +76,9 @@ namespace PassiveBOT.Handlers
 
             #endregion shorten
 
-            #region Auto
-
-            if (!context.User.IsBot || !(context.Channel is IPrivateChannel) ||
-                !nopre.Contains(context.Guild.Id.ToString()))
-            {
-                var rand = new Random();
-                var val = rand.Next(0, 100);
-                if (val >= 90)
-                    if (message.HasStringPrefix("( ͡° ͜ʖ ͡°)", ref argPos))
-                    {
-                        await context.Channel.SendMessageAsync("(:eye: ͜ʖ :eye:)");
-                    }
-                    else if (message.HasStringPrefix("lol", ref argPos))
-                    {
-                        await context.Channel.SendMessageAsync("lol");
-                    }
-                    else if (message.HasStringPrefix("lel", ref argPos))
-                    {
-                        await context.Channel.SendMessageAsync("lel");
-                    }
-                    else if (message.HasStringPrefix(":3", ref argPos))
-                    {
-                        await context.Channel.SendMessageAsync("meow");
-                    }
-                    else if (message.HasStringPrefix("┬─┬ノ(ಠ_ಠノ)", ref argPos) ||
-                             message.HasStringPrefix("┬─┬ ノ( ゜-゜ノ)", ref argPos))
-                    {
-                        var embed = new EmbedBuilder
-                        {
-                            ImageUrl = "https://media.giphy.com/media/Pch8FiF08bc1G/giphy.gif"
-                        };
-                        await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ NO! ", false, embed.Build());
-                    }
-                    else if (message.HasStringPrefix("(╯°□°）╯︵ ┻━┻", ref argPos))
-                    {
-                        var embed = new EmbedBuilder
-                        {
-                            ImageUrl = "https://media.giphy.com/media/Pch8FiF08bc1G/giphy.gif"
-                        };
-                        await context.Channel.SendMessageAsync("\u200B" + "(╯°□°）╯︵ ┻━┻ FLIP ALL THE TABLES! ", false,
-                            embed.Build());
-                    }
-            }
-
-            #endregion
-
 
             if (!commandsuccess)
-                if (errlog.Contains(context.Guild.Id.ToString()))
+                if (errlog)
                 {
                     await context.Channel.SendMessageAsync(
                         $"​**COMMAND: **{msg} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error

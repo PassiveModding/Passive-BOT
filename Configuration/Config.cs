@@ -55,8 +55,13 @@ namespace PassiveBOT.Configuration
                 Configuration.Load.Pre = cfg.Prefix;
 
                 ColourLog.ColourInfo("Would you like to log debug?");
-                Console.Write("Y or N: ");
-                cfg.Debug = Console.ReadLine();
+                Console.Write("Yes or No: ");
+                var type = Console.ReadLine();
+                if (type.StartsWith("y") || type.StartsWith("Y"))
+                    type = "Y";
+                else
+                    type = "N";
+                cfg.Debug = type;
 
                 ColourLog.ColourInfo(
                     @"After you input your token, a config will be generated at 'setup/config/config.json'");

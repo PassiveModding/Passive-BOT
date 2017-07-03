@@ -17,8 +17,6 @@ namespace PassiveBOT
     {
         private CommandHandler _handler;
         public DiscordSocketClient Client;
-        private readonly IServiceCollection _map = new ServiceCollection();
-        private readonly CommandService _commands = new CommandService();
 
         public static void Main(string[] args)
         {
@@ -56,11 +54,9 @@ namespace PassiveBOT
             var ll = LogSeverity.Info;
             switch (debug)
             {
-                case "y":
                 case "Y":
                     ll = LogSeverity.Debug;
                     break;
-                case "n":
                 case "N":
                     ll = LogSeverity.Info;
                     break;
@@ -82,7 +78,7 @@ namespace PassiveBOT
             }
             catch
             {
-                await ColourLog.ColourError("Token was rejected by Discord (Invalid Token)");
+                await ColourLog.ColourError("Token was rejected by Discord (Invalid Token or Connection Error)");
             }
 
             var serviceProvider = ConfigureServices();

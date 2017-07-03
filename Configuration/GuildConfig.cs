@@ -14,6 +14,7 @@ namespace PassiveBOT.Configuration
         public string WelcomeMessage { get; set; }
         public ulong WelcomeChannel { get; set; }
         public ulong DjRoleId { get; set; }
+        public bool ErrorLog { get; set; }
 
         public void Save(ulong id)
         {
@@ -41,7 +42,9 @@ namespace PassiveBOT.Configuration
             var cfg = new GuildConfig
             {
                 GuildId = id,
-                GuildName = name
+                GuildName = name,
+                WelcomeMessage = "Welcome to Our Server!!",
+                ErrorLog = false
             };
 
             cfg.Save(id);
@@ -57,7 +60,8 @@ namespace PassiveBOT.Configuration
                          $"Welcome Event: {p.WelcomeEvent}\n" +
                          $"Welcome Channel: {p.WelcomeChannel}\n" +
                          $"Welcome Message: {p.WelcomeMessage}\n" +
-                         $"DJ Role: {p.DjRoleId}";
+                         $"DJ Role: {p.DjRoleId}\n" +
+                         $"Error Logging: {p.ErrorLog}";
             return output;
         }
 
@@ -95,6 +99,24 @@ namespace PassiveBOT.Configuration
             }
             return null;
         }
+
+        public static string SetError(ulong id, bool status)
+        {
+            var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
+            if (File.Exists(file))
+            {
+                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+                jsonObj.ErrorLog = status;
+                string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+            }
+            else
+            {
+                return "please run the setup command before using configuration commands";
+            }
+            return null;
+        }
+
 
         public static string SetWelcomeStatus(ulong id, bool status)
         {

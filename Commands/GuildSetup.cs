@@ -65,5 +65,18 @@ namespace PassiveBOT.Commands
             GuildConfig.SetDj(Context.Guild.Id, role.Id);
             await ReplyAsync($"The DJ Role has been set to: {role.Name}");
         }
+
+        [Command("Errors")]
+        [Summary("Errors <true/false>")]
+        [Remarks("Toggles Error Status")]
+        public async Task Errors(bool status)
+        {
+            GuildConfig.SetError(Context.Guild.Id, status);
+            if (status)
+                await ReplyAsync("Errors will now be Logged");
+            else
+                await ReplyAsync("Errors will no longer be logged");
+        }
+
     }
 }
