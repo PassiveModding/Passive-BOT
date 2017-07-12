@@ -80,7 +80,15 @@ namespace PassiveBOT.Commands
                 var d = new DirectoryInfo(tagfolder).GetFiles("*.*");
                 var newlist = string.Join(", ",
                     d.Select(file => Path.GetFileNameWithoutExtension(file.Name)).ToArray());
-                await ReplyAsync($"Here are the tags for this server: \n{newlist}");
+                if (newlist == "")
+                {
+                    await ReplyAsync("There are currently no tags for your server, you can add some using `.tag add`");
+                }
+                else
+                {
+                    await ReplyAsync($"Here are the tags for this server: \n{newlist}");
+                }
+                
             }
             else
             {

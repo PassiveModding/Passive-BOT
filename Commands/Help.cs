@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -11,12 +12,10 @@ namespace PassiveBOT.Commands
 {
     public class Help : ModuleBase
     {
-        private readonly PaginationService _paginator;
         private readonly CommandService _service;
 
-        public Help(PaginationService paginator, CommandService service)
+        public Help(CommandService service)
         {
-            _paginator = paginator;
             _service = service;
         }
 
@@ -51,26 +50,44 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder.Build());
         }
 
-        [Command("help", RunMode = RunMode.Async)]
+        [Command("help")]
         [Summary("help")]
         [Remarks("all help commands")]
-        [Ratelimit(1, 15, Measure.Seconds)]
-        public async Task Help2Async()
+        public async Task Help2Async(string modulename = null)
         {
-            if (Context.Channel is IDMChannel)
+            if (modulename == null)
+            {
+                var builder = new EmbedBuilder
+                {
+                    Color = new Color(114, 137, 218),
+                    Title = $"I am PassiveBOT Created By {Load.Owner}"
+                };
+                var list = new List<string>();
+                foreach (var module in _service.Modules)
+                {
+                    list.Add(module.Name);
+                }
+                builder.AddField("Modules", string.Join("\n", list.ToArray()));
+                builder.AddField("Commands",
+                    $"Type `{Load.Pre}help <modulename>` to see a list of commands in each module\n" +
+                    $"or type `{Load.Pre}help all` for all commands");
+                await ReplyAsync("", false, builder.Build());
+            }
+            else if (modulename.ToLower() == "all")
             {
                 var builder = new EmbedBuilder
                 {
                     Color = new Color(114, 137, 218),
                     Title = $"I am PassiveBOT Created By {Load.Owner} <{Load.Siteurl}>, Here are my commands:"
                 };
-
                 foreach (var module in _service.Modules)
                 {
-                    var description =
-                        (from cmd in module.Commands let result = module.Name where result != "Owner" select cmd)
-                        .Aggregate<CommandInfo, string>(null,
-                            (current, cmd) => current + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n");
+                    string description = null;
+                    foreach (var cmd in module.Commands)
+                    {
+                        string result = module.Name;
+                        if (result != "Owner") description = description + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
+                    }
 
                     if (!string.IsNullOrWhiteSpace(description))
                         builder.AddField(x =>
@@ -78,31 +95,54 @@ namespace PassiveBOT.Commands
                             x.Name = module.Name;
                             x.Value = description;
                         });
+
+
                 }
                 await ReplyAsync("", false, builder.Build());
             }
+
             else
             {
-                var pages = new List<string>();
+                var builder = new EmbedBuilder
+                {
+                    Color = new Color(114, 137, 218),
+                    Title = $"I am PassiveBOT Created By {Load.Owner}\nHere are my commands:"
+                };
+                var list = new List<string>();
 
                 foreach (var module in _service.Modules)
                 {
-                    string description = null;
-                    foreach (var cmd in module.Commands)
+                    if (String.Equals(module.Name, modulename, StringComparison.OrdinalIgnoreCase))
                     {
-                        var result = module.Name;
+                        var description = new List<string>();
+                        foreach (var cmd in module.Commands)
+                        {
+                            description.Add($"{Load.Pre}{cmd.Summary} - {cmd.Remarks}");
+                        }
+                        if (description.ToString() != "")
+                        {
+                            builder.AddField(x =>
+                            {
+                                x.Name = module.Name;
+                                x.Value = string.Join("\n", description.ToArray());
+                            });
+                        }
+                        else
+                        {
+                            await ReplyAsync($"{modulename} does not exist, here is a list of all the modules:\n" +
+                                            $"{string.Join("\n", list.ToArray())}");
+                            return;
+                        }
 
-                        if (result != "Owner")
-                            description += $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
                     }
-
-                    if (!string.IsNullOrWhiteSpace(description))
-                        pages.Add($"**{module.Name}**\n{description}");
+                    list.Add(module.Name);
                 }
-                var message = new PaginatedMessage(pages, "Help Commands", new Color(0xb100c1), Context.User);
+                builder.AddField("Other Modules", string.Join("\n", list.ToArray()));
+                await ReplyAsync("", false, builder.Build());
 
-                await _paginator.SendPaginatedMessageAsync(Context.Channel, message);
+
             }
+
         }
 
 

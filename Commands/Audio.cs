@@ -138,9 +138,11 @@ namespace PassiveBOT.Commands
                 Queue.TryGetValue(Context.Guild.Id, out list);
 
             //similar to the .songs command, this gets the current guilds list, adds all downloaded songs to it and plays
-            if (Directory.Exists($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/"))
+            var dir = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/music/");
+
+            if (Directory.Exists(dir))
             {
-                var d = new DirectoryInfo($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/");
+                var d = new DirectoryInfo(dir);
                 var music = d.GetFiles("*.*");
                 list.AddRange(music.Select(sng => Path.GetFileNameWithoutExtension(sng.Name)));
                 Queue.Remove(Context.Guild.Id);
@@ -287,9 +289,11 @@ namespace PassiveBOT.Commands
         public async Task SongList(int page = 0)
         {
             //gets the current guilds directory
-            if (Directory.Exists($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/"))
+            var dir = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/music/");
+
+            if (Directory.Exists(dir))
             {
-                var d = new DirectoryInfo($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/");
+                var d = new DirectoryInfo(dir);
                 var music = d.GetFiles("*.*");
                 var songlist = new List<string>();
                 var i = 0;
@@ -332,7 +336,8 @@ namespace PassiveBOT.Commands
         [CheckDj]
         public async Task DeleteTask(int song)
         {
-            var d = new DirectoryInfo($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/");
+            var dir = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/music/");
+            var d = new DirectoryInfo(dir);
             var music = d.GetFiles("*.*");
             var songpath = new List<string>();
             var songname = new List<string>();
@@ -357,13 +362,14 @@ namespace PassiveBOT.Commands
                 await ReplyAsync($"Unable to delete song number **{song}** from the songs directory");
         }
 
-        [Command("delete all")]
+        [Command("delete all", RunMode = RunMode.Async)]
         [Summary("delete all")]
         [Remarks("Deletes all downloaded song files from the servers folder (ADMIN)")]
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task DeleteAllTask()
         {
-            var d = new DirectoryInfo($"{AppContext.BaseDirectory}/setup/server/{Context.Guild.Id}/music/");
+            var dir = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/music/");
+            var d = new DirectoryInfo(dir);
             var music = d.GetFiles("*.*");
             var i = 0;
             foreach (var sng in music)

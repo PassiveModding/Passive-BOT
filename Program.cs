@@ -130,8 +130,7 @@ namespace PassiveBOT
                 .AddSingleton(Client)
                 .AddSingleton(new AudioService())
                 .AddSingleton(new CommandService(
-                    new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}))
-                .AddPaginator(Client);
+                    new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();
         }
 
@@ -149,8 +148,7 @@ namespace PassiveBOT
             {
             }
             var msg = messagestr.Substring(21, messagestr.Length - 21);
-            var code = $"{msg}                            ".Substring(0, 23);
-            msg = $"PassiveBOT      | {code} |";
+            msg = $"PassiveBOT      | {msg}";
             ColourLog.ColourInput($"{msg}", Color.Chartreuse);
             return Task.CompletedTask;
         }
