@@ -77,6 +77,5 @@ namespace PassiveBOT.Commands
             else
                 await ReplyAsync("Errors will no longer be logged");
         }
-
     }
 }

@@ -16,9 +16,7 @@ namespace PassiveBOT.Preconditions
             var id = context.Guild.Id;
             var role = GuildConfig.Load(id).DjRoleId;
             if (role == 0)
-            {
                 return Task.FromResult(PreconditionResult.FromSuccess());
-            }
             var users = (context.Guild as SocketGuild).Users;
             foreach (var user in users)
                 if (user.Roles.Contains((context.Guild as SocketGuild).GetRole(role)))
