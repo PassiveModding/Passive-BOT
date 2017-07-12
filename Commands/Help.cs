@@ -70,11 +70,12 @@ namespace PassiveBOT.Commands
                 builder.AddField("Modules", string.Join("\n", list.ToArray()));
                 builder.AddField("Commands",
                     $"Type `{Load.Pre}help <modulename>` to see a list of commands in each module\n" +
-                    $"or type `{Load.Pre}help all` for all commands");
+                    $"or type `{Load.Pre}help all` in a direct message for all commands");
                 await ReplyAsync("", false, builder.Build());
             }
             else if (modulename.ToLower() == "all")
             {
+
                 var builder = new EmbedBuilder
                 {
                     Color = new Color(114, 137, 218),
@@ -85,7 +86,7 @@ namespace PassiveBOT.Commands
                     string description = null;
                     foreach (var cmd in module.Commands)
                     {
-                        string result = module.Name;
+                        var result = module.Name;
                         if (result != "Owner") description = description + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
                     }
 
@@ -98,9 +99,13 @@ namespace PassiveBOT.Commands
 
 
                 }
-                await ReplyAsync("", false, builder.Build());
+                if (!(Context.Channel is IDMChannel))
+                {
+                    await ReplyAsync(
+                        $"Hey {Context.User.Mention}, I have sent my full command list to you in a direct message! <3");
+                }
+                    await Context.User.SendMessageAsync("", false, builder.Build());
             }
-
             else
             {
                 var builder = new EmbedBuilder
@@ -112,13 +117,9 @@ namespace PassiveBOT.Commands
 
                 foreach (var module in _service.Modules)
                 {
-                    if (String.Equals(module.Name, modulename, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(module.Name, modulename, StringComparison.OrdinalIgnoreCase))
                     {
-                        var description = new List<string>();
-                        foreach (var cmd in module.Commands)
-                        {
-                            description.Add($"{Load.Pre}{cmd.Summary} - {cmd.Remarks}");
-                        }
+                        var description = module.Commands.Select(cmd => $"{Load.Pre}{cmd.Summary} - {cmd.Remarks}").ToList();
                         if (description.ToString() != "")
                         {
                             builder.AddField(x =>
@@ -127,15 +128,24 @@ namespace PassiveBOT.Commands
                                 x.Value = string.Join("\n", description.ToArray());
                             });
                         }
-                        else
-                        {
-                            await ReplyAsync($"{modulename} does not exist, here is a list of all the modules:\n" +
-                                            $"{string.Join("\n", list.ToArray())}");
-                            return;
-                        }
+
 
                     }
                     list.Add(module.Name);
+                }
+                if (builder.Fields.Count == 0)
+                {
+                    var embed = new EmbedBuilder
+                    {
+                        Color = new Color(114, 137, 218),
+                        Title = $"I am PassiveBOT Created By {Load.Owner}"
+                    };
+                    embed.AddField("Error", $"The Module **{modulename}** does not exist\n" +
+                                            $"Type `{Load.Pre}help <modulename>` using one of the modules below for a list of those commands\n" +
+                                            $"or type `{Load.Pre}help all` for a list of all commands to be sent to your DMs");
+                    embed.AddField("Modules", string.Join("\n", list.ToArray()));
+                    await ReplyAsync("", false, embed.Build());
+                    return;
                 }
                 builder.AddField("Other Modules", string.Join("\n", list.ToArray()));
                 await ReplyAsync("", false, builder.Build());
