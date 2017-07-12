@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
-using PassiveBOT.preconditions;
-using PassiveBOT.Services;
 
 namespace PassiveBOT.Commands
 {
@@ -64,9 +62,7 @@ namespace PassiveBOT.Commands
                 };
                 var list = new List<string>();
                 foreach (var module in _service.Modules)
-                {
                     list.Add(module.Name);
-                }
                 builder.AddField("Modules", string.Join("\n", list.ToArray()));
                 builder.AddField("Commands",
                     $"Type `{Load.Pre}help <modulename>` to see a list of commands in each module\n" +
@@ -75,7 +71,6 @@ namespace PassiveBOT.Commands
             }
             else if (modulename.ToLower() == "all")
             {
-
                 var builder = new EmbedBuilder
                 {
                     Color = new Color(114, 137, 218),
@@ -87,7 +82,8 @@ namespace PassiveBOT.Commands
                     foreach (var cmd in module.Commands)
                     {
                         var result = module.Name;
-                        if (result != "Owner") description = description + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
+                        if (result != "Owner")
+                            description = description + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
                     }
 
                     if (!string.IsNullOrWhiteSpace(description))
@@ -96,15 +92,11 @@ namespace PassiveBOT.Commands
                             x.Name = module.Name;
                             x.Value = description;
                         });
-
-
                 }
                 if (!(Context.Channel is IDMChannel))
-                {
                     await ReplyAsync(
                         $"Hey {Context.User.Mention}, I have sent my full command list to you in a direct message! <3");
-                }
-                    await Context.User.SendMessageAsync("", false, builder.Build());
+                await Context.User.SendMessageAsync("", false, builder.Build());
             }
             else
             {
@@ -119,17 +111,14 @@ namespace PassiveBOT.Commands
                 {
                     if (string.Equals(module.Name, modulename, StringComparison.OrdinalIgnoreCase))
                     {
-                        var description = module.Commands.Select(cmd => $"{Load.Pre}{cmd.Summary} - {cmd.Remarks}").ToList();
+                        var description = module.Commands.Select(cmd => $"{Load.Pre}{cmd.Summary} - {cmd.Remarks}")
+                            .ToList();
                         if (description.ToString() != "")
-                        {
                             builder.AddField(x =>
                             {
                                 x.Name = module.Name;
                                 x.Value = string.Join("\n", description.ToArray());
                             });
-                        }
-
-
                     }
                     list.Add(module.Name);
                 }
@@ -149,10 +138,7 @@ namespace PassiveBOT.Commands
                 }
                 builder.AddField("Other Modules", string.Join("\n", list.ToArray()));
                 await ReplyAsync("", false, builder.Build());
-
-
             }
-
         }
 
 
