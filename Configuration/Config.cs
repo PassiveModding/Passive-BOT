@@ -34,7 +34,7 @@ namespace PassiveBOT.Configuration
 
         public static void CheckExistence()
         {
-            ColourLog.ColourInfo("Run (Y for run, N for setup Config)");
+            ColourLog.In1Run("Run (Y for run, N for setup Config)");
 
             Console.Write("Y or N: ");
             var res = Console.ReadLine();
@@ -48,13 +48,13 @@ namespace PassiveBOT.Configuration
             {
                 var cfg = new Config();
 
-                ColourLog.ColourInfo(
+                ColourLog.In1Run(
                     @"Please enter a prefix for the bot eg. '+' (do not include the '' outside of the prefix)");
                 Console.Write("Prefix: ");
                 cfg.Prefix = Console.ReadLine();
                 Configuration.Load.Pre = cfg.Prefix;
 
-                ColourLog.ColourInfo("Would you like to log debug?");
+                ColourLog.In1Run("Would you like to log debug?");
                 Console.Write("Yes or No: ");
                 var type = Console.ReadLine();
                 if (type.StartsWith("y") || type.StartsWith("Y"))
@@ -63,7 +63,7 @@ namespace PassiveBOT.Configuration
                     type = "N";
                 cfg.Debug = type;
 
-                ColourLog.ColourInfo(
+                ColourLog.In1Run(
                     @"After you input your token, a config will be generated at 'setup/config/config.json'");
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
@@ -74,10 +74,10 @@ namespace PassiveBOT.Configuration
             {
                 Configuration.Load.Pre = Load().Prefix;
             }
-            ColourLog.ColourInfo("Config Loaded!");
-            ColourLog.ColourInfo($"Prefix: {Load().Prefix}");
-            ColourLog.ColourInfo($"Debug: {Load().Debug}");
-            ColourLog.ColourInfo($"Token Length: {Load().Token.Length} (should be 59)");
+            ColourLog.In1Run("Config Loaded!");
+            ColourLog.In1Run($"Prefix: {Load().Prefix}");
+            ColourLog.In1Run($"Debug: {Load().Debug}");
+            ColourLog.In1Run($"Token Length: {Load().Token.Length} (should be 59)");
         }
     }
 }

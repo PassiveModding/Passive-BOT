@@ -48,6 +48,7 @@ namespace PassiveBOT.Handlers
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var commandsuccess = result.IsSuccess;
             bool errlog;
+
             try
             {
                 errlog = GuildConfig.Load(context.Guild.Id).ErrorLog;
@@ -57,10 +58,7 @@ namespace PassiveBOT.Handlers
                 errlog = false;
             }
 
-            #region shorten
 
-            var str = context.Message.ToString();
-            var use = context.User.Username;
             string server;
             if (context.Channel is IPrivateChannel)
             {
@@ -68,30 +66,22 @@ namespace PassiveBOT.Handlers
             }
             else
             {
-                var gui = context.Guild.ToString();
-                server = $"{gui}                 ".Substring(0, 15);
+                server = context.Guild.ToString();
             }
-            var msg = $"{str}                  ".Substring(0, 15);
-            var user = $"{use}                  ".Substring(0, 15);
-
-            #endregion shorten
 
 
             if (!commandsuccess)
+            {
                 if (errlog)
                 {
                     await context.Channel.SendMessageAsync(
-                        $"​**COMMAND: **{msg} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
-                    await ColourLog.ColourError($"{msg} | Server: {server} | ERROR: {result.ErrorReason}");
+                        $"​**COMMAND: **{context.Message} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
                 }
-                else
-                {
-                    await ColourLog.ColourError(
-                        $"{msg} | Server: {server} | ERROR: {result.ErrorReason}"); // log errors as arrors
-                }
+                await ColourLog.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E', $"{result.ErrorReason}"); // log errors as arrors
+            }
             else
-                await ColourLog.ColourInfo(
-                    $"{msg} | Server: {server} | User: {user}"); //if there is no error log normally
+                await ColourLog.In3(
+                    $"{context.Message}",'S', $"{server}",'U', $"{context.User}", System.Drawing.Color.Teal); //if there is no error log normally
         }
 
         public async Task _client_JoinedGuild(SocketGuild guild)

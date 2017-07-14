@@ -45,20 +45,7 @@ namespace PassiveBOT.Commands
         public async Task Die()
         {
             await ReplyAsync("Bye Bye :heart:");
-            await Client.StopAsync();
-            Environment.Exit(1);
-        }
-
-        [Command("Reconnect+")]
-        [Summary("Reconnect+")]
-        [Remarks("When you dont wanna kill me")]
-        public async Task ReconnectAsync()
-        {
-            var client = Context.Client as DiscordSocketClient;
-            await client.StopAsync();
-            await Task.Delay(1000);
-            await client.StartAsync();
-            await ReplyAsync("Restarted!");
+            Environment.Exit(0);
         }
 
         [Command("LeaveServer+")]

@@ -20,7 +20,7 @@ namespace PassiveBOT
 
         public static void Main(string[] args)
         {
-            new Program().Start().GetAwaiter().GetResult();
+                new Program().Start().GetAwaiter().GetResult();
         }
 
         public async Task Start()
@@ -40,16 +40,11 @@ namespace PassiveBOT
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/moderation/")))
             {
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
-                if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/nopre.txt"))
-                    File.Create($"{AppContext.BaseDirectory}setup/moderation/nopre.txt").Close();
-                if (!File.Exists($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt"))
-                    File.Create($"{AppContext.BaseDirectory}setup/moderation/errlogging.txt").Close();
             }
             Config.CheckExistence();
             var prefix = Config.Load().Prefix;
-            var debug = Config.Load().Debug;
+            var debug = Config.Load().Debug.ToUpper();
             var token = Config.Load().Token;
-
 
             var ll = LogSeverity.Info;
             switch (debug)
@@ -61,7 +56,7 @@ namespace PassiveBOT
                     ll = LogSeverity.Info;
                     break;
                 default:
-                    await ColourLog.ColourError($"Error Loading Debug Config, Set to default (Entry = {debug})");
+                    await ColourLog.In1Run($"Error Loading Debug Config, Set to default (Entry = {debug})");
                     break;
             }
 
@@ -76,9 +71,10 @@ namespace PassiveBOT
                 await Client.LoginAsync(TokenType.Bot, token);
                 await Client.StartAsync();
             }
-            catch
+            catch (Exception e)
             {
-                await ColourLog.ColourError("Token was rejected by Discord (Invalid Token or Connection Error)");
+                await ColourLog.In1Run("Token was rejected by Discord (Invalid Token or Connection Error)\n" +
+                                       $"{e}");
             }
 
             var serviceProvider = ConfigureServices();
@@ -106,7 +102,9 @@ namespace PassiveBOT
                 var rnd = new Random();
                 var result = rnd.Next(0, gametitle.Length);
                 await Client.SetGameAsync($"{gametitle[result]}");
-                await LogInfo($"PassiveBOT      | SetGame                 | {gametitle[result]}");
+                //await LogInfo($"PassiveBOT      | SetGame                 | {gametitle[result]}");
+                await ColourLog.In3("PassiveBOT", 'B', "SetGame", 'R', $"{gametitle[result]}",
+                    Color.GreenYellow);
                 await Task.Delay(3600000);
             }
         }
@@ -120,8 +118,8 @@ namespace PassiveBOT
         private async Task Client_Ready()
         {
             var application = await Client.GetApplicationInfoAsync();
-            await LogInfo(
-                $"PassiveBOT      | Link: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
+            await ColourLog.In1Run(
+                $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
         }
 
         private IServiceProvider ConfigureServices()
@@ -134,28 +132,21 @@ namespace PassiveBOT
             return services.BuildServiceProvider();
         }
 
-        public static Task LogInfo(string msg)
-        {
-            ColourLog.ColourInput($"{msg}", Color.Chartreuse);
-            return Task.CompletedTask;
-        }
-
         public static Task LogMessageInfo(LogMessage message)
         {
             var messagestr = message.ToString();
-            if (message.ToString() == "Disconnecting" || message.ToString() == "Connecting" ||
-                message.ToString().StartsWith("Unknown OpCode (8)") || message.ToString() == "Connected")
+            if (message.ToString().StartsWith("Unknown OpCode (8)"))
             {
+                return Task.CompletedTask;
             }
             var msg = messagestr.Substring(21, messagestr.Length - 21);
-            msg = $"PassiveBOT      | {msg}";
-            ColourLog.ColourInput($"{msg}", Color.Chartreuse);
+            ColourLog.In2("PassiveBOT",'?', $"{msg}", Color.Chartreuse);
             return Task.CompletedTask;
         }
 
         public static Task LogDebug(LogMessage msg)
         {
-            ColourLog.ColourDebug(msg.ToString());
+            ColourLog.Debug(msg.ToString());
             return Task.CompletedTask;
         }
     }

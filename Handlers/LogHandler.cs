@@ -8,32 +8,52 @@ namespace PassiveBOT.Handlers
     //Replaced loghandler with colourlog cause thats sexy!
     public class ColourLog
     {
-        public static Task ColourInfo(string message)
+        public static Task In3(string command, char type, string server, char res, string user, Color colour)
         {
-            message = message.Replace("\n", " ");
-            Console.WriteLine($"{DateTime.Now} [Info]  {message}", Color.Aqua);
+            command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
+            server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
+
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server} | {res}: {user}", colour);
             return Task.CompletedTask;
         }
 
-        public static Task ColourInput(string message, Color colour)
+        public static Task In3Error(string command, char type, string server, char res, string user)
         {
-            message = message.Replace("\n", " ");
-            Console.WriteLine($"{DateTime.Now} [Info]  {message}", colour);
+            command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
+            server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
+
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {command} | {type}: {server} | {res}: {user}", Color.Red);
             return Task.CompletedTask;
         }
 
-        public static Task ColourError(string message)
+        public static Task In2(string command, char type, string server, Color colour)
         {
-            message = message.Replace("\n", " ");
-            Console.WriteLine($"{DateTime.Now} [Error] {message}", Color.Red);
+            command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
+
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server}", colour);
             return Task.CompletedTask;
         }
 
-        public static Task ColourDebug(string message)
+        public static Task In2Error(string one, char type, string error)
+        {
+            one = $"{one}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
+
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {one} | {type}: {error}", Color.Red);
+            return Task.CompletedTask;
+        }
+
+        public static Task In1Run(string one)
+        {
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Run]   {one}", Color.Gold);
+            return Task.CompletedTask;
+        }
+
+        public static Task Debug(string message)
         {
             message = message.Replace("\n", " ");
             var msg = message.Substring(21, message.Length - 21);
-            Console.WriteLine($"{DateTime.Now} [Debug] {msg}", Color.GreenYellow);
+
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}", Color.GreenYellow);
             return Task.CompletedTask;
         }
     }
