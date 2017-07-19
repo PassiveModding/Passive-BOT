@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
@@ -76,6 +79,45 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Errors will now be Logged");
             else
                 await ReplyAsync("Errors will no longer be logged");
+        }
+
+        [Command("addrole")]
+        [Summary("addrole @role")]
+        [Remarks("adds a subscribable role")]
+        public async Task Arole(IRole role)
+        {
+            GuildConfig.Subrole(Context.Guild.Id, role.Id, true);
+            await ReplyAsync($"{role.Name} is now subscribable by typing `{Load.Pre}joinrole {role.Mention}`");
+        }
+
+        [Command("delrole")]
+        [Summary("delrole @role")]
+        [Remarks("removes the subscribable role")]
+        public async Task Drole(IRole role)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+
+                if (jsonObj.Roles == null || jsonObj.Roles == 0)
+                {
+                    await ReplyAsync("There is no subscribable role set up.");
+                }
+                else if (jsonObj.Roles != role.Id)
+                {
+                    await ReplyAsync($"{role.Name} is not the subscribable role, it cannot be removed");
+                }
+                else if (jsonObj.Roles == role.Id)
+                {
+                    GuildConfig.Subrole(Context.Guild.Id, role.Id, false);
+                    await ReplyAsync($"{role.Name} is no longer subscribable");
+                }
+            }
+            else
+            {
+                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+            }
         }
     }
 }

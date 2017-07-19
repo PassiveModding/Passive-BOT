@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ namespace PassiveBOT.Configuration
         public ulong WelcomeChannel { get; set; }
         public ulong DjRoleId { get; set; }
         public bool ErrorLog { get; set; }
+        public List<ulong> Roles { get; set; }
 
         public void Save(ulong id)
         {
@@ -44,7 +46,8 @@ namespace PassiveBOT.Configuration
                 GuildId = id,
                 GuildName = name,
                 WelcomeMessage = "Welcome to Our Server!!",
-                ErrorLog = false
+                ErrorLog = false,
+                Roles = new List<ulong>(0)
             };
 
             cfg.Save(id);
@@ -144,6 +147,34 @@ namespace PassiveBOT.Configuration
                 jsonObj.DjRoleId = role;
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                 File.WriteAllText(file, output);
+            }
+            else
+            {
+                return "please run the setup command before using configuration commands";
+            }
+            return null;
+        }
+
+        public static string Subrole(ulong id, ulong role, bool add)
+        {
+            var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
+            if (File.Exists(file))
+            {
+                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+                var list = new List<ulong>();
+
+                if (add)
+                    list.Add(role);
+
+                if (list.Count == 1)
+                    jsonObj.Roles = role;
+                else if (list.Count == 0)
+                    jsonObj.Roles = 0;
+
+                Console.WriteLine(1);
+                string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+                Console.WriteLine(1);
             }
             else
             {

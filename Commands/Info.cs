@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
@@ -42,6 +44,59 @@ namespace PassiveBOT.Commands
                 });
 
             await ReplyAsync("", false, builder);
+        }
+
+
+        [Command("joinrole")]
+        [Summary("joinrole @role")]
+        [Remarks("Joins the specified role")]
+        public async Task JoinRole(IRole role = null)
+        {
+            if (role == null)
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+                    var list = new List<ulong>();
+
+                    ulong val = jsonObj.Roles;
+                    if (val != 0)
+                        list.Add(val);
+
+                    if (list.Count == 0)
+                    {
+                        await ReplyAsync("This server has no roles configured for this command.");
+                    }
+                    else if (list.Count == 1)
+                    {
+                        ulong value = jsonObj.Roles;
+                        var rolename = Context.Guild.GetRole(value);
+                        await ReplyAsync($"There is one available role to join in this server => {rolename}");
+                    }
+                }
+            }
+            else
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+
+                    ulong val = jsonObj.Roles;
+                    if ((Context.User as SocketGuildUser).Roles.ToArray().Contains(role))
+                    {
+                        await (Context.User as SocketGuildUser).RemoveRoleAsync(role);
+                    }
+                    else
+                    {
+                        if (role.Id == val)
+                            await (Context.User as SocketGuildUser).AddRoleAsync(role);
+                        else
+                            await ReplyAsync("This role is not joinable!");
+                    }
+                }
+            }
         }
 
         [Command("avatar")]

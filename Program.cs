@@ -20,7 +20,7 @@ namespace PassiveBOT
 
         public static void Main(string[] args)
         {
-                new Program().Start().GetAwaiter().GetResult();
+            new Program().Start().GetAwaiter().GetResult();
         }
 
         public async Task Start()
@@ -38,9 +38,7 @@ namespace PassiveBOT
                 "\\--------------------------------------------------------------------------/ \n");
 
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/moderation/")))
-            {
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
-            }
             Config.CheckExistence();
             var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug.ToUpper();
@@ -136,11 +134,9 @@ namespace PassiveBOT
         {
             var messagestr = message.ToString();
             if (message.ToString().StartsWith("Unknown OpCode (8)"))
-            {
                 return Task.CompletedTask;
-            }
             var msg = messagestr.Substring(21, messagestr.Length - 21);
-            ColourLog.In2("PassiveBOT",'?', $"{msg}", Color.Chartreuse);
+            ColourLog.In2("PassiveBOT", '?', $"{msg}", Color.Chartreuse);
             return Task.CompletedTask;
         }
 

@@ -13,7 +13,8 @@ namespace PassiveBOT.Handlers
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
             server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
 
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server} | {res}: {user}", colour);
+            Console.WriteLine(
+                $"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server} | {res}: {user}", colour);
             return Task.CompletedTask;
         }
 
@@ -22,7 +23,9 @@ namespace PassiveBOT.Handlers
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
             server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
 
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {command} | {type}: {server} | {res}: {user}", Color.Red);
+            Console.WriteLine(
+                $"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {command} | {type}: {server} | {res}: {user}",
+                Color.Red);
             return Task.CompletedTask;
         }
 
@@ -53,7 +56,8 @@ namespace PassiveBOT.Handlers
             message = message.Replace("\n", " ");
             var msg = message.Substring(21, message.Length - 21);
 
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}", Color.GreenYellow);
+            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}",
+                Color.GreenYellow);
             return Task.CompletedTask;
         }
     }

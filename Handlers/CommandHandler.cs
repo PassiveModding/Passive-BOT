@@ -7,6 +7,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
+using Color = System.Drawing.Color;
 
 namespace PassiveBOT.Handlers
 {
@@ -61,27 +62,25 @@ namespace PassiveBOT.Handlers
 
             string server;
             if (context.Channel is IPrivateChannel)
-            {
                 server = "Direct Message "; //because direct messages have no guild name define it as Direct Message
-            }
             else
-            {
                 server = context.Guild.ToString();
-            }
 
 
             if (!commandsuccess)
             {
                 if (errlog)
-                {
                     await context.Channel.SendMessageAsync(
                         $"​**COMMAND: **{context.Message} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
-                }
-                await ColourLog.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E', $"{result.ErrorReason}"); // log errors as arrors
+                await ColourLog.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E',
+                    $"{result.ErrorReason}"); // log errors as arrors
             }
             else
+            {
                 await ColourLog.In3(
-                    $"{context.Message}",'S', $"{server}",'U', $"{context.User}", System.Drawing.Color.Teal); //if there is no error log normally
+                    $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}",
+                    Color.Teal); //if there is no error log normally
+            }
         }
 
         public async Task _client_JoinedGuild(SocketGuild guild)
