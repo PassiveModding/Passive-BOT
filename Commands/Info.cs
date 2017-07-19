@@ -47,9 +47,9 @@ namespace PassiveBOT.Commands
         }
 
 
-        [Command("joinrole")]
-        [Summary("joinrole @role")]
-        [Remarks("Joins the specified role")]
+        [Command("subrole")]
+        [Summary("subrole @role")]
+        [Remarks("Joins/Leaves the specified(subscribable) role")]
         public async Task JoinRole(IRole role = null)
         {
             if (role == null)
