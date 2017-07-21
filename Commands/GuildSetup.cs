@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
+using System.Xml;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
@@ -118,6 +120,62 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
             }
+        }
+
+        [Command("rss", RunMode = RunMode.Async)]
+        [Summary("rss <feed url>")]
+        [Remarks("adds an rss feed")]
+        public async Task Rss(string url = null)
+        {
+            if (url != null)
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, url, true);
+                    await ReplyAsync("Rss Config has been updated!\n" +
+                                     $"Updates will be posted in: {Context.Channel.Name}\n" +
+                                     $"Url: {url}");
+                }
+                else
+                {
+                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                }
+
+                const int minutes = 5;
+
+                while (true)
+                {
+                    SyndicationFeed feed;
+                    try
+                    {
+                        var reader = XmlReader.Create(url);
+                        feed = SyndicationFeed.Load(reader);
+                        reader.Close();
+                    }
+                    catch
+                    {
+                        await ReplyAsync($"Error with Rss URL! {url}");
+                        return;
+                    }
+
+                    foreach (var item in feed.Items)
+                    {
+                        var now = DateTime.UtcNow;
+                        if (item.PublishDate > now.AddMinutes(-minutes) && item.PublishDate <= now)
+                        {
+                            var subject = item.Title.Text;
+                            var link = item.Links[0].Uri.ToString();
+
+                            await ReplyAsync($"New Post: **{subject}**\n" +
+                                             $"Link: {link}");
+                        }
+                    }
+                    await Task.Delay(1000 * 60 * minutes);
+                }
+            }
+            GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, null, false);
+            await ReplyAsync("Rss Config has been updated! Updates will no longer be posted");
         }
     }
 }

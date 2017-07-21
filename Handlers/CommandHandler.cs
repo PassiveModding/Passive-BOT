@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.ServiceModel.Syndication;
 using System.Threading.Tasks;
+using System.Xml;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -26,6 +29,72 @@ namespace PassiveBOT.Handlers
             _client.MessageReceived += DoCommand;
             _client.JoinedGuild += _client_JoinedGuild;
             _client.UserJoined += UserJoinedAsync;
+            _client.Ready += _client_Ready;
+        }
+
+        public async Task _client_Ready()
+        {
+            var config = Path.Combine(AppContext.BaseDirectory + "setup/server");
+            var dirs = Directory.GetDirectories(config);
+            var list = dirs.Select(d => Convert.ToUInt64(Path.GetFileName(d))).ToList();
+
+
+            foreach (var guild in list)
+            {
+                var server = _client.GetGuild(guild);
+                try
+                {
+                    var channel = GuildConfig.Load(guild).RssChannel;
+                    var chan = server.GetTextChannel(channel);
+
+                    var url = GuildConfig.Load(guild).Rss;
+                    await Rss2(url, chan);
+                }
+                catch
+                {
+                    //
+                }
+            }
+        }
+
+
+        public async Task Rss2(string url, SocketTextChannel channel)
+        {
+            const int minutes = 5;
+
+
+            await ColourLog.In2("RSS", 'R', channel.Guild.Name, Color.Teal);
+            while (true)
+            {
+                SyndicationFeed feed;
+
+                try
+                {
+                    var reader = XmlReader.Create(url);
+                    feed = SyndicationFeed.Load(reader);
+                    reader.Close();
+                }
+                catch
+                {
+                    await channel.SendMessageAsync($"Error with Rss URL! {url}");
+                    return;
+                }
+
+
+                foreach (var item in feed.Items)
+                {
+                    var now = DateTime.UtcNow;
+                    if (item.PublishDate > now.AddMinutes(-minutes) && item.PublishDate <= now)
+                    {
+                        var subject = item.Title.Text;
+                        var link = item.Links[0].Uri.ToString();
+
+                        await channel.SendMessageAsync($"New Post: **{subject}**\n" +
+                                                       $"Link: {link}");
+                    }
+                }
+                await Task.Delay(1000 * 60 * minutes);
+            }
         }
 
         public async Task ConfigureAsync()

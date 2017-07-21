@@ -87,13 +87,20 @@ namespace PassiveBOT.Commands
                     if ((Context.User as SocketGuildUser).Roles.ToArray().Contains(role))
                     {
                         await (Context.User as SocketGuildUser).RemoveRoleAsync(role);
+                        await ReplyAsync($"{Context.User.Mention} has been removed from the role {role.Name}");
                     }
                     else
                     {
                         if (role.Id == val)
+                        {
                             await (Context.User as SocketGuildUser).AddRoleAsync(role);
+                            await ReplyAsync($"{Context.User.Mention} has been added to the role {role.Name}");
+                        }
+
                         else
+                        {
                             await ReplyAsync("This role is not joinable!");
+                        }
                     }
                 }
             }
