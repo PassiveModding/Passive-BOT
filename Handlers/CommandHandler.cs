@@ -47,8 +47,7 @@ namespace PassiveBOT.Handlers
                     var channel = GuildConfig.Load(guild).RssChannel;
                     var chan = server.GetTextChannel(channel);
 
-                    var url = GuildConfig.Load(guild).Rss;
-                    await Rss2(url, chan);
+                    await Rss2(chan);
                 }
                 catch
                 {
@@ -58,18 +57,27 @@ namespace PassiveBOT.Handlers
         }
 
 
-        public async Task Rss2(string url, SocketTextChannel channel)
+        public async Task Rss2(SocketTextChannel channel)
         {
             const int minutes = 5;
 
+            var u = GuildConfig.Load(channel.Guild.Id).Rss;
+            if (u != null && u != "0")
+            {
+                await ColourLog.In2("RSS", 'R', u, Color.Teal);
+            }
 
-            await ColourLog.In2("RSS", 'R', channel.Guild.Name, Color.Teal);
             while (true)
             {
                 SyndicationFeed feed;
-
+                var url = GuildConfig.Load(channel.Guild.Id).Rss;
+                if (url == "0" || url == null)
+                {
+                    return;
+                }
                 try
                 {
+                    
                     var reader = XmlReader.Create(url);
                     feed = SyndicationFeed.Load(reader);
                     reader.Close();
@@ -84,14 +92,12 @@ namespace PassiveBOT.Handlers
                 foreach (var item in feed.Items)
                 {
                     var now = DateTime.UtcNow;
-                    if (item.PublishDate > now.AddMinutes(-minutes) && item.PublishDate <= now)
-                    {
-                        var subject = item.Title.Text;
-                        var link = item.Links[0].Uri.ToString();
+                    if (item.PublishDate <= now.AddMinutes(-minutes) || item.PublishDate > now) continue;
+                    var subject = item.Title.Text;
+                    var link = item.Links[0].Uri.ToString();
 
-                        await channel.SendMessageAsync($"New Post: **{subject}**\n" +
-                                                       $"Link: {link}");
-                    }
+                    await channel.SendMessageAsync($"New Post: **{subject}**\n" +
+                                                   $"Link: {link}");
                 }
                 await Task.Delay(1000 * 60 * minutes);
             }

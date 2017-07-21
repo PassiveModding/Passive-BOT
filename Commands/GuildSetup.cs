@@ -147,15 +147,21 @@ namespace PassiveBOT.Commands
                 while (true)
                 {
                     SyndicationFeed feed;
+                    var u = GuildConfig.Load(Context.Guild.Id).Rss;
+                    if (u == null || url == "0")
+                    {
+                        return;
+                    }
+
                     try
                     {
-                        var reader = XmlReader.Create(url);
+                        var reader = XmlReader.Create(u);
                         feed = SyndicationFeed.Load(reader);
                         reader.Close();
                     }
                     catch
                     {
-                        await ReplyAsync($"Error with Rss URL! {url}");
+                        await ReplyAsync($"Error with Rss URL! {u}");
                         return;
                     }
 

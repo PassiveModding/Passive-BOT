@@ -100,7 +100,7 @@ namespace PassiveBOT
                 var rnd = new Random();
                 var result = rnd.Next(0, gametitle.Length);
                 await Client.SetGameAsync($"{gametitle[result]}");
-                //await LogInfo($"PassiveBOT      | SetGame                 | {gametitle[result]}");
+
                 await ColourLog.In3("PassiveBOT", 'B', "SetGame", 'R', $"{gametitle[result]}",
                     Color.GreenYellow);
                 await Task.Delay(3600000);
