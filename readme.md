@@ -5,8 +5,8 @@
 | **Follow me on Twitter.** | **Join PassiveNation Discord.** | **Add PassiveBOT to your server.** |
 
 PassiveBOT is a bot for Discord.  
-Built on Discord.NET 1.0 (C#) - 1.00rc2 (Pre-release)  
-It features 50+ commands from moderation to rainbow roles to memes, music and more  
+Built on Discord.NET 1.0.1 (C#)
+It features 50+ commands from moderation to rainbow roles to memes, music, rss feeds and more  
 
 ## Links
 
@@ -16,10 +16,10 @@ Here are the official links for PassiveBOT:
 
 ## Statistics
 
-As of the date 03/06/17 (DD/MM/YY) PassiveBOT has amassed:  
-260 Servers  
-3772 Individual Channels (Text + Voice)  
-35128 Users (Human + Bot)  
+As of the date 022/07/17 (DD/MM/YY) PassiveBOT has amassed:  
+719 Servers  
+11706 Individual Channels (Text + Voice)  
+77754 Users (Human + Bot)  
 
 ## Installation
 
