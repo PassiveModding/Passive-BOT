@@ -149,9 +149,7 @@ namespace PassiveBOT.Commands
                     SyndicationFeed feed;
                     var u = GuildConfig.Load(Context.Guild.Id).Rss;
                     if (u == null || url == "0")
-                    {
                         return;
-                    }
 
                     try
                     {

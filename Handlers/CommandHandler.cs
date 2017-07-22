@@ -63,21 +63,16 @@ namespace PassiveBOT.Handlers
 
             var u = GuildConfig.Load(channel.Guild.Id).Rss;
             if (u != null && u != "0")
-            {
                 await ColourLog.In2("RSS", 'R', u, Color.Teal);
-            }
 
             while (true)
             {
                 SyndicationFeed feed;
                 var url = GuildConfig.Load(channel.Guild.Id).Rss;
                 if (url == "0" || url == null)
-                {
                     return;
-                }
                 try
                 {
-                    
                     var reader = XmlReader.Create(url);
                     feed = SyndicationFeed.Load(reader);
                     reader.Close();
