@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.ServiceModel.Syndication;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers;
+using Color = System.Drawing.Color;
 
 namespace PassiveBOT.Commands
 {
@@ -14,6 +18,9 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class GuildSetup : ModuleBase
     {
+        public static readonly ConcurrentDictionary<ulong, Timer> RSS =
+            new ConcurrentDictionary<ulong, Timer>();
+
         [Command("Setup")]
         [Summary("Setup")]
         [Remarks("Initialises the servers configuration file")]
@@ -125,61 +132,91 @@ namespace PassiveBOT.Commands
         [Command("rss", RunMode = RunMode.Async)]
         [Summary("rss <feed url>")]
         [Remarks("adds an rss feed")]
-        public async Task Rss(string url = null)
+        public async Task Rss(string url1 = null)
         {
-            if (url != null)
+            if (url1 != null)
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
                 if (File.Exists(file))
                 {
-                    GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, url, true);
+                    GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, url1, true);
                     await ReplyAsync("Rss Config has been updated!\n" +
                                      $"Updates will be posted in: {Context.Channel.Name}\n" +
-                                     $"Url: {url}");
+                                     $"Url: {url1}");
                 }
                 else
                 {
                     await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                    return;
                 }
 
                 const int minutes = 5;
 
-                while (true)
+                var server = Context.Guild;
+                try
                 {
-                    SyndicationFeed feed;
-                    var u = GuildConfig.Load(Context.Guild.Id).Rss;
-                    if (u == null || url == "0")
-                        return;
+                    var chan = Context.Channel;
 
-                    try
+                    var t = new Timer(async _ =>
                     {
-                        var reader = XmlReader.Create(u);
-                        feed = SyndicationFeed.Load(reader);
-                        reader.Close();
-                    }
-                    catch
-                    {
-                        await ReplyAsync($"Error with Rss URL! {u}");
-                        return;
-                    }
-
-                    foreach (var item in feed.Items)
-                    {
-                        var now = DateTime.UtcNow;
-                        if (item.PublishDate > now.AddMinutes(-minutes) && item.PublishDate <= now)
+                        try
                         {
-                            var subject = item.Title.Text;
-                            var link = item.Links[0].Uri.ToString();
+                            SyndicationFeed feed;
+                            var url = GuildConfig.Load(Context.Guild.Id).Rss;
+                            if (url == "0" || url == null)
+                                return;
+                            try
+                            {
+                                var reader = XmlReader.Create(url);
+                                feed = SyndicationFeed.Load(reader);
+                                reader.Close();
+                            }
+                            catch
+                            {
+                                await chan.SendMessageAsync($"Error loading Rss URL! {url}");
+                                
+                                return;
+                            }
 
-                            await ReplyAsync($"New Post: **{subject}**\n" +
-                                             $"Link: {link}");
+
+                            foreach (var item in feed.Items)
+                            {
+                                var now = DateTime.UtcNow;
+                                if (item.PublishDate <= now.AddMinutes(-minutes) || item.PublishDate > now)
+                                    continue;
+                                var subject = item.Title.Text;
+                                var link = item.Links[0].Uri.ToString();
+
+                                await chan.SendMessageAsync($"New Post: **{subject}**\n" +
+                                                            $"Link: {link}");
+                            }
+                            await Task.Delay(1000 * 60 * minutes);
                         }
-                    }
-                    await Task.Delay(1000 * 60 * minutes);
+                        catch
+                        {
+                            //
+                        }
+                    }, null, 0, minutes * 1000 * 60);
+                    Commands.GuildSetup.RSS.AddOrUpdate(chan.Id, t, (key, old) =>
+                    {
+                        old.Change(Timeout.Infinite, Timeout.Infinite);
+                        return t;
+                    });
+
+                    await ColourLog.In2("RSS", 'R', server.Name, Color.Teal);
                 }
+                catch
+                {
+                    await ColourLog.In2Error("RSS Error", 'R', server.Name);
+                }
+
             }
-            GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, null, false);
+            else
+            {
+                GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, null, false);
             await ReplyAsync("Rss Config has been updated! Updates will no longer be posted");
+            }
+            
         }
     }
 }

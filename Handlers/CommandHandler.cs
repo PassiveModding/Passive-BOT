@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel.Syndication;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Discord;
@@ -37,7 +38,7 @@ namespace PassiveBOT.Handlers
             var config = Path.Combine(AppContext.BaseDirectory + "setup/server");
             var dirs = Directory.GetDirectories(config);
             var list = dirs.Select(d => Convert.ToUInt64(Path.GetFileName(d))).ToList();
-
+            const int minutes = 5;
 
             foreach (var guild in list)
             {
@@ -47,17 +48,64 @@ namespace PassiveBOT.Handlers
                     var channel = GuildConfig.Load(guild).RssChannel;
                     var chan = server.GetTextChannel(channel);
 
-                    await Rss2(chan);
+                    var t = new Timer(async _ =>
+                        {
+                            try
+                            {
+                                SyndicationFeed feed;
+                                var url = GuildConfig.Load(guild).Rss;
+                                if (url == "0" || url == null)
+                                    return;
+                                try
+                                {
+                                    var reader = XmlReader.Create(url);
+                                    feed = SyndicationFeed.Load(reader);
+                                    reader.Close();
+                                }
+                                catch
+                                {
+                                        await chan.SendMessageAsync($"Error loading Rss URL! {url}");
+                                        return;
+                                }
+
+
+                                foreach (var item in feed.Items)
+                                {
+                                    var now = DateTime.UtcNow;
+                                    if (item.PublishDate <= now.AddMinutes(-minutes) || item.PublishDate > now)
+                                        continue;
+                                    var subject = item.Title.Text;
+                                    var link = item.Links[0].Uri.ToString();
+
+                                    await chan.SendMessageAsync($"New Post: **{subject}**\n" +
+                                                                $"Link: {link}");
+                                }
+                                await Task.Delay(1000 * 60 * minutes);
+                            }
+                            catch
+                            {
+                                //
+                            }
+                        }, null, 0, minutes * 1000 * 60);
+                    Commands.GuildSetup.RSS.AddOrUpdate(chan.Id, t, (key, old) =>
+                    {
+                        old.Change(Timeout.Infinite, Timeout.Infinite);
+                        return t;
+                    });
+
+                    await ColourLog.In2("RSS", 'R', chan.Guild.Name, Color.Teal);
+
+                    //await Rss2(chan);
                 }
                 catch
                 {
-                    //
+                    await ColourLog.In2Error("RSS Error", 'R', server.Name);
                 }
             }
         }
 
 
-        public async Task Rss2(SocketTextChannel channel)
+        /*public async Task Rss2(SocketTextChannel channel)
         {
             const int minutes = 5;
 
@@ -96,7 +144,7 @@ namespace PassiveBOT.Handlers
                 }
                 await Task.Delay(1000 * 60 * minutes);
             }
-        }
+        }*/
 
         public async Task ConfigureAsync()
         {
