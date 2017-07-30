@@ -125,6 +125,7 @@ namespace PassiveBOT
             var services = new ServiceCollection()
                 .AddSingleton(Client)
                 .AddSingleton(new AudioService())
+                .AddSingleton(new RssService())
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();
