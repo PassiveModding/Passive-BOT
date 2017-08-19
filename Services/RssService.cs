@@ -45,7 +45,8 @@ namespace PassiveBOT.Services
                             }
                             catch
                             {
-                                await (channel as ITextChannel).SendMessageAsync($"Error loading Rss URL! {url}");
+                                await (channel as ITextChannel).SendMessageAsync($"Error loading Rss URL! {url}\n" +
+                                                                                 "Ending Feed");
                                 Guild.TryRemove(channel.Id, out Timer _);
                                 return;
                             }
