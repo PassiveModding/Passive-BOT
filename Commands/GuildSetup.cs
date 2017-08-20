@@ -6,12 +6,13 @@ using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Services;
+using Discord.Addons.Interactive;
 
 namespace PassiveBOT.Commands
 {
     [RequireUserPermission(GuildPermission.Administrator)]
     [RequireContext(ContextType.Guild)]
-    public class GuildSetup : ModuleBase
+    public class GuildSetup : InteractiveBase
     {
         private readonly RssService _rss;
 
@@ -21,21 +22,99 @@ namespace PassiveBOT.Commands
         }
 
 
-        [Command("Setup")]
+        [Command("Setup", RunMode = RunMode.Async)]
         [Summary("Setup")]
         [Remarks("Initialises the servers configuration file")]
         public async Task Setup()
         {
-            GuildConfig.Setup(Context.Guild.Id, Context.Guild.Name);
-            await ReplyAsync(GuildConfig.Read(Context.Guild.Id));
+            await ReplyAsync("```\n" +
+                             "Reply with the command you would like to perform\n" +
+                             "[1] Initialise the setup\n" +
+                             "[2] Read the config file\n" +
+                             "\nNOTE: Initialising the config file will delete ant preexisting config info (pick 2 to see existing info)\n" +
+                             "```");
+            var n = await NextMessageAsync();
+            if (n.Content == "1")
+            {
+                GuildConfig.Setup(Context.Guild);
+                await ConfigInfo();
+            }
+            else if (n.Content == "2")
+            {
+                await ConfigInfo();
+            }
+            else
+            {
+                await ReplyAsync("bitch you fail pick 1 or 2");
+            }
         }
 
-        [Command("Config")]
-        [Summary("Config")]
-        [Remarks("Shows the servers current configuration")]
-        public async Task Config()
+        public async Task ConfigInfo()
         {
-            await ReplyAsync(GuildConfig.Read(Context.Guild.Id));
+            var embed = new EmbedBuilder();
+            var l = GuildConfig.Load(Context.Guild.Id);
+
+            try
+            {
+                embed.AddField("DJ Role", $"Role: {Context.Guild.GetRole(l.DjRoleId).Name}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("Error logging", $"Status: {l.ErrorLog}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("Guild ID & Name", $"{l.GuildName}, {l.GuildId}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("SubRole", $"Role: {Context.Guild.GetRole(l.Roles).Name}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("RSS URL/Channel", $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel)}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("Tags", $"Tags: {string.Join(",", l.Tags.Keys)}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("Welcome", $"Status: {l.WelcomeEvent}\n" +
+                                          $"Channel: {Context.Guild.GetChannel(l.WelcomeChannel).Name}\n" +
+                                          $"Message: {l.WelcomeMessage}");
+            }
+            catch
+            {
+                //
+            }
+
+
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("Welcome")]
@@ -44,8 +123,10 @@ namespace PassiveBOT.Commands
         public async Task Welcome([Remainder] string message)
         {
             GuildConfig.SetWMessage(Context.Guild.Id, message);
+            GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
             await ReplyAsync("The Welcome Message for this server has been set to:\n" +
-                             $"**{message}**");
+                             $"**{message}**\n" +
+                             $"In the channel **{Context.Channel.Name}**");
         }
 
         [Command("WelcomeChannel")]

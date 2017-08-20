@@ -108,7 +108,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("ban", RunMode = RunMode.Async)]
-        [Summary("ban <@user> <reason>-")]
+        [Summary("ban <@user> <reason>")]
         [Remarks("bans the specified user (requires Ban Permissions)")]
         public async Task Banuser(SocketGuildUser user, [Remainder] [Optional] string reason)
         {
@@ -201,32 +201,55 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("clear")]
+        [Command("clearwarn")]
         [Summary("clear <type>")]
-        [Remarks("removes ban, kick or warn logs")]
-        public async Task Clear(string type = null)
+        [Remarks("warn logs")]
+        public async Task ClearWarn()
         {
-            var success = true;
-            if (type == null)
+            if (File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
             {
-                await ReplyAsync("Please specify a type of punishment to clear:\n" +
-                                 "`warn`, `kick`, `ban`");
-                return;
-            }
-            if (type == "warn" || File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
                 File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
-            else if (type == "kick" ||
-                     File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
+                await ReplyAsync("All warnings have been cleared for this server");
+            }
+            else
+            {
+                await ReplyAsync(
+                    "There are no warnings to delete in this server, please type `.warn @user` to warn someone");
+            }
+        }
+
+        [Command("clearkick")]
+        [Summary("clearkick")]
+        [Remarks("clears kick logs logs")]
+        public async Task ClearKicks()
+        {
+            if (File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
+            {
                 File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt");
-            else if (type == "ban" ||
-                     File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
+                await ReplyAsync("All warnings have been cleared for this server");
+            }
+            else
+            {
+                await ReplyAsync(
+                    "There are no kick logs to delete in this server, please type `.warn @user` to warn someone");
+            }
+        }
+
+        [Command("clearban")]
+        [Summary("clearban>")]
+        [Remarks("clears ban logs")]
+        public async Task ClearBan()
+        {
+            if (File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
+            {
                 File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt");
+                await ReplyAsync("All bans have been cleared for this server");
+            }
             else
-                success = false;
-            if (success)
-                await ReplyAsync($"All {type}'s have been cleared for this server");
-            else
-                await ReplyAsync("Invalid type or there are none of the specified type in the server");
+            {
+                await ReplyAsync(
+                    "There are no ban logs to delete in this server, please type `.warn @user` to warn someone");
+            }
         }
     }
 }

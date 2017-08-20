@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
 using PassiveBOT.Services;
 using Color = System.Drawing.Color;
+using Discord.Addons.Interactive;
 
 namespace PassiveBOT.Handlers
 {
@@ -67,15 +68,18 @@ namespace PassiveBOT.Handlers
             var message = parameterMessage as SocketUserMessage;
             if (message == null) return;
             var argPos = 0;
-            var context = new CommandContext(_client, message);
+            var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
                   message.HasStringPrefix(Load.Pre, ref argPos))) return;
             if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
             if (context.User.IsBot)
                 return;
-            var result = await _commands.ExecuteAsync(context, argPos, Provider);
+
+                var result = await _commands.ExecuteAsync(context, argPos, Provider);
+            
             var commandsuccess = result.IsSuccess;
+
             bool errlog;
 
             try
@@ -120,7 +124,7 @@ namespace PassiveBOT.Handlers
 
             var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}/config.json");
             if (!File.Exists(config))
-                GuildConfig.Setup(guild.Id, guild.Name);
+                GuildConfig.Setup(guild);
 
             await guild.DefaultChannel.SendMessageAsync(
                 $"Hi, I'm PassiveBOT. To see a list of my commands type `{Load.Pre}help` and for some statistics about me type `{Load.Pre}info`\n" +

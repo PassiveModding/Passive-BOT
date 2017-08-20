@@ -189,6 +189,7 @@
     <Compile Include="Commands\GuildSetup.cs" />
     <Compile Include="Commands\Invite.cs" />
     <Compile Include="Commands\Random.cs" />
+    <Compile Include="Commands\Server.cs" />
     <Compile Include="Commands\Tags.cs" />
     <Compile Include="Configuration\GuildConfig.cs" />
     <Compile Include="Handlers\LogHandler.cs" />

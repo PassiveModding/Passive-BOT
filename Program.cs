@@ -10,6 +10,7 @@ using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Services;
 using Color = System.Drawing.Color;
+using Discord.Addons.Interactive;
 
 namespace PassiveBOT
 {
@@ -126,6 +127,7 @@ namespace PassiveBOT
                 .AddSingleton(Client)
                 .AddSingleton(new AudioService())
                 .AddSingleton(new RssService())
+                .AddSingleton<InteractiveService>()
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();

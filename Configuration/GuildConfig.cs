@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Discord;
 
 namespace PassiveBOT.Configuration
 {
@@ -19,6 +20,7 @@ namespace PassiveBOT.Configuration
         public ulong Roles { get; set; }
         public string Rss { get; set; }
         public ulong RssChannel { get; set; }
+        public Dictionary<string, string> Tags { get; set; }
 
         public void Save(ulong id)
         {
@@ -37,8 +39,10 @@ namespace PassiveBOT.Configuration
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
-        public static void Setup(ulong id, string name)
+        public static void Setup(IGuild guild)
         {
+            var id = guild.Id;
+            var name = guild.Name;
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{id}")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{id}"));
 
@@ -53,21 +57,6 @@ namespace PassiveBOT.Configuration
             };
 
             cfg.Save(id);
-        }
-
-        public static string Read(ulong id)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
-            if (!File.Exists(file)) return null;
-            var p = Load(id);
-            var output = $"Guild ID: {p.GuildId}\n" +
-                         $"Guild Name: {p.GuildName}\n" +
-                         $"Welcome Event: {p.WelcomeEvent}\n" +
-                         $"Welcome Channel: {p.WelcomeChannel}\n" +
-                         $"Welcome Message: {p.WelcomeMessage}\n" +
-                         $"DJ Role: {p.DjRoleId}\n" +
-                         $"Error Logging: {p.ErrorLog}";
-            return output;
         }
 
         public static string SetWMessage(ulong id, string input)
