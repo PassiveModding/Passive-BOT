@@ -190,7 +190,7 @@
     <Compile Include="Commands\Invite.cs" />
     <Compile Include="Commands\Random.cs" />
     <Compile Include="Commands\Server.cs" />
-    <Compile Include="Commands\Tags.cs" />
+    <Compile Include="Commands\TagsV2.cs" />
     <Compile Include="Configuration\GuildConfig.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Preconditions\ChannelTopic.cs" />

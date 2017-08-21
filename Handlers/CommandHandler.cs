@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
 using PassiveBOT.Services;
 using Color = System.Drawing.Color;
-using Discord.Addons.Interactive;
 
 namespace PassiveBOT.Handlers
 {
@@ -76,8 +75,8 @@ namespace PassiveBOT.Handlers
             if (context.User.IsBot)
                 return;
 
-                var result = await _commands.ExecuteAsync(context, argPos, Provider);
-            
+            var result = await _commands.ExecuteAsync(context, argPos, Provider);
+
             var commandsuccess = result.IsSuccess;
 
             bool errlog;

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
 using Discord;
+using Newtonsoft.Json;
+using PassiveBOT.Commands;
 
 namespace PassiveBOT.Configuration
 {
@@ -20,7 +21,7 @@ namespace PassiveBOT.Configuration
         public ulong Roles { get; set; }
         public string Rss { get; set; }
         public ulong RssChannel { get; set; }
-        public Dictionary<string, string> Tags { get; set; }
+        public List<Tags.Tagging> Dict { get; set; }
 
         public void Save(ulong id)
         {

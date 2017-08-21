@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
@@ -122,7 +118,7 @@ namespace PassiveBOT.Commands
 
             embed.AddField("Links",
                 $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");
-                
+
 
             await ReplyAsync("", false, embed.Build());
         }

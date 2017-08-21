@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +11,6 @@ using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Services;
 using Color = System.Drawing.Color;
-using Discord.Addons.Interactive;
 
 namespace PassiveBOT
 {

@@ -9,7 +9,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
-using PassiveBOT.Services;
 
 namespace PassiveBOT.Commands
 {
@@ -22,8 +21,8 @@ namespace PassiveBOT.Commands
         public async Task ServerInfo()
         {
             var embed = new EmbedBuilder();
-            var botlist = ((SocketGuild)Context.Guild).Users.Count(x => x.IsBot);
-            var mem = ((SocketGuild)Context.Guild).MemberCount;
+            var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
+            var mem = ((SocketGuild) Context.Guild).MemberCount;
             var guildusers = mem - botlist;
             var s = (SocketGuild) Context.Guild;
             var g = Context.Guild;
@@ -34,16 +33,11 @@ namespace PassiveBOT.Commands
             embed.AddInlineField("Voice Region", s.VoiceRegionId);
             embed.AddInlineField("Verification Level", s.VerificationLevel);
             if (s.SplashUrl == null)
-            {
                 embed.AddInlineField("Splash Url", "null");
-            }
             else
-            {
                 embed.AddInlineField("Splash Url", s.SplashUrl);
-            }
             embed.AddField("Creation Date", s.CreatedAt);
 
-            
 
             //
             if (s.Features.Count > 0)
@@ -54,7 +48,6 @@ namespace PassiveBOT.Commands
                 {
                     i++;
                     embed.AddField($"{i}", feature);
-
                 }
             }
 
@@ -82,10 +75,10 @@ namespace PassiveBOT.Commands
             embed.AddField("Links",
                 $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");
             embed.WithFooter(x =>
-                {
-                    x.WithText("PassiveBOT");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
+            {
+                x.WithText("PassiveBOT");
+                x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+            });
 
             await ReplyAsync("", false, embed.Build());
         }
@@ -241,8 +234,8 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            var botlist = ((SocketGuild)Context.Guild).Users.Count(x => x.IsBot);
-            var mem = ((SocketGuild)Context.Guild).MemberCount;
+            var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
+            var mem = ((SocketGuild) Context.Guild).MemberCount;
             var guildusers = mem - botlist;
 
             var embed = new EmbedBuilder()
@@ -250,10 +243,10 @@ namespace PassiveBOT.Commands
                 .AddInlineField(":busts_in_silhouette: Total Members", mem)
                 .AddInlineField(":robot: Total Bots", botlist)
                 .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
-                .AddInlineField(":newspaper2: Total Channels", ((SocketGuild)Context.Guild).Channels.Count)
+                .AddInlineField(":newspaper2: Total Channels", ((SocketGuild) Context.Guild).Channels.Count)
                 .AddInlineField(":microphone: Text/Voice Channels",
-                    $"{((SocketGuild)Context.Guild).TextChannels.Count}/{((SocketGuild)Context.Guild).VoiceChannels.Count}")
-                .AddInlineField(":spy: Role Count", ((SocketGuild)Context.Guild).Roles.Count)
+                    $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
+                .AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count)
                 .AddField("Links",
                     $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>

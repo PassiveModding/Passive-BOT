@@ -2,11 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Services;
-using Discord.Addons.Interactive;
 
 namespace PassiveBOT.Commands
 {
@@ -96,7 +96,13 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                embed.AddField("Tags", $"Tags: {string.Join(",", l.Tags.Keys)}");
+                var dict = GuildConfig.Load(Context.Guild.Id).Dict;
+                var list = "";
+                foreach (var tagging in dict)
+                    list += $"{tagging.Tagname}, ";
+
+                var res = list.Substring(0, list.Length - 2);
+                embed.AddField("Tags", $"Tags: {res}");
             }
             catch
             {
