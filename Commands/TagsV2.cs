@@ -16,7 +16,7 @@ namespace PassiveBOT.Commands
     {
         [Command("add")]
         [Summary("tag add <name> <message>")]
-        [Remarks("adds a tag to the servers files")]
+        [Remarks("adds a tag to the server")]
         public async Task Tagadd(string tagname, [Remainder] string tagmessage)
         {
             var tg = new Tagging
@@ -31,6 +31,15 @@ namespace PassiveBOT.Commands
             try
             {
                 var d = GuildConfig.Load(Context.Guild.Id).Dict;
+                foreach (var tagging in d)
+                {
+                    if (tagging.Tagname == tagname)
+                    {
+                        await ReplyAsync(
+                            $"**{tagname}** is already a tag in this server, if you want to edit it, please delete it first, then add the new tag");
+                        return;
+                    }
+                }
                 d.Add(tg);
                 jsononb.Dict = d;
                 var output = JsonConvert.SerializeObject(jsononb, Formatting.Indented);
@@ -48,7 +57,7 @@ namespace PassiveBOT.Commands
 
         [Command("del")]
         [Summary("tag  del <name>")]
-        [Remarks("Removes a tag from the servers files")]
+        [Remarks("Removes a tag from the server")]
         public async Task Tagdel(string tagname)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
@@ -105,7 +114,7 @@ namespace PassiveBOT.Commands
                         list += $"{tagging.Tagname}, ";
 
                     var res = list.Substring(0, list.Length - 2);
-                    await ReplyAsync(res);
+                    await ReplyAsync($"**Tags:** {res}");
                 }
                 catch
                 {
