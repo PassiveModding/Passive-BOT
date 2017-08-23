@@ -69,11 +69,37 @@ namespace PassiveBOT.Handlers
             var argPos = 0;
             var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
 
+            if (context.User.IsBot)
+                return;
+
+            if (message.Content.Contains("discord.gg"))
+            {
+                try
+                {
+                    if (context.Channel is IGuildChannel)
+                    {
+                        if (GuildConfig.Load(context.Guild.Id).Invite && !(context.User as SocketGuildUser).GuildPermissions.Administrator)
+                        {
+                           await message.DeleteAsync();
+                           await context.Channel.SendMessageAsync(
+                               $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry");
+                        }
+                    }
+                }
+                catch
+                {
+                    //
+                }
+
+            }
+
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
                   message.HasStringPrefix(Load.Pre, ref argPos))) return;
             if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
-            if (context.User.IsBot)
-                return;
+
+
+
+
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 

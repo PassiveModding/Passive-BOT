@@ -156,6 +156,35 @@ namespace PassiveBOT.Commands
             await ReplyAsync($"Welcome Messageing for this server has been set to: {status}");
         }
 
+        [Command("NoInvite")]
+        [Summary("NoInvite <true/false>")]
+        [Remarks("disables/enables the sending of invites in a server from regular members")]
+        public async Task NoInvite(bool status)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                jsonObj.Invite = status;
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+
+                if (status)
+                {
+                    
+                    await ReplyAsync("Invite links will now be deleted!");
+                }
+                else
+                {
+                    await ReplyAsync("Invite links are now allowed to be sent");
+                }
+            }
+            else
+            {
+                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+            }
+        }
+
         [Command("SetDj")]
         [Summary("SetDj <@role>")]
         [Remarks("Sets the DJ role")]
