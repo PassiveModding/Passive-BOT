@@ -185,6 +185,35 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("NoMention")]
+        [Summary("NoMention <true/false>")]
+        [Remarks("disables/enables the use of @ everyone and @ here in a server from regular members")]
+        public async Task NoMention(bool status)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                jsonObj.MentionAll = status;
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+
+                if (status)
+                {
+
+                    await ReplyAsync("Mass Mentions will now be deleted!");
+                }
+                else
+                {
+                    await ReplyAsync("Mass Mentions are now allowed to be sent");
+                }
+            }
+            else
+            {
+                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+            }
+        }
+
         [Command("SetDj")]
         [Summary("SetDj <@role>")]
         [Remarks("Sets the DJ role")]

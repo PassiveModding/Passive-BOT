@@ -68,7 +68,7 @@ namespace PassiveBOT.Commands
                 var dict = GuildConfig.Load(Context.Guild.Id).Dict;
 
                 foreach (var tagging in dict)
-                    if (tagging.Tagname == tagname)
+                    if (tagging.Tagname.ToLower() == tagname.ToLower())
                     {
                         if ((Context.User as SocketGuildUser).GuildPermissions.Administrator)
                         {
@@ -126,7 +126,7 @@ namespace PassiveBOT.Commands
                     var dict = GuildConfig.Load(Context.Guild.Id).Dict;
                     var embed = new EmbedBuilder();
                     foreach (var tagging in dict)
-                        if (tagging.Tagname == tagname)
+                        if (tagging.Tagname.ToLower() == tagname.ToLower())
                         {
                             string ownername;
                             try

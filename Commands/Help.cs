@@ -109,7 +109,7 @@ namespace PassiveBOT.Commands
 
                 foreach (var module in _service.Modules)
                 {
-                    if (string.Equals(module.Name, modulename, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(module.Name, modulename, StringComparison.CurrentCultureIgnoreCase))
                     {
                         var description = module.Commands.Select(cmd => $"{Load.Pre}{cmd.Summary} - {cmd.Remarks}")
                             .ToList();

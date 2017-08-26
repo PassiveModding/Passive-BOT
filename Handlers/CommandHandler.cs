@@ -90,7 +90,34 @@ namespace PassiveBOT.Handlers
                 {
                     //
                 }
+            }
+            if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
+            {
+                try
+                {
+                    if (context.Channel is IGuildChannel)
+                    {
+                        if (GuildConfig.Load(context.Guild.Id).MentionAll && !(context.User as SocketGuildUser).GuildPermissions.Administrator)
+                        {
+                            await message.DeleteAsync();
 
+                            var rnd = new Random();
+                            var res = rnd.Next(0, strings.FunStr.Everyone.Length);
+                            var emb = new EmbedBuilder
+                            {
+                                Title = $"{context.User} - the admins might get angry",
+                                ImageUrl = strings.FunStr.Everyone[res]
+                            };
+                            await context.Channel.SendMessageAsync("", false, emb.Build());
+                            
+
+                        }
+                    }
+                }
+                catch
+                {
+                    //
+                }
             }
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
