@@ -22,6 +22,7 @@ namespace PassiveBOT.Configuration
         public string Rss { get; set; }
         public ulong RssChannel { get; set; }
         public List<Tags.Tagging> Dict { get; set; }
+        public List<string> Blacklist { get; set; }
         public bool Invite { get; set; }
         public bool MentionAll { get; set; }
 
