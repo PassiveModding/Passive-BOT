@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
@@ -29,9 +30,10 @@ namespace PassiveBOT.Commands
         {
             await ReplyAsync("```\n" +
                              "Reply with the command you would like to perform\n" +
-                             "[1] Initialise the setup\n" +
+                             "[1] Initialise the config file\n" +
                              "[2] Read the config file\n" +
-                             "\nNOTE: Initialising the config file will delete ant preexisting config info (pick 2 to see existing info)\n" +
+                             "[3] Delete the config file\n" +
+                             "" +
                              "```");
             var n = await NextMessageAsync();
             if (n.Content == "1")
@@ -43,11 +45,26 @@ namespace PassiveBOT.Commands
             {
                 await ConfigInfo();
             }
+            else if (n.Content == "3")
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    File.Delete(file);
+                    await ReplyAsync("The config file has been deleted.");
+                }
+                else
+                {
+                    await ReplyAsync($"The config file does not exist, please use option 1 to initialise it");
+                }
+            }
             else
             {
-                await ReplyAsync("bitch you fail pick 1 or 2");
+                await ReplyAsync("Please only reply with the character of your option ie. if you picked 2, reply with just `2`");
             }
         }
+
+        
 
         public async Task ConfigInfo()
         {
@@ -80,7 +97,12 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                embed.AddField("SubRole", $"Role: {Context.Guild.GetRole(l.Roles).Name}");
+                var list = "";
+                foreach (var role in l.Roles)
+                {
+                    list += Context.Guild.GetRole(role).Name;
+                }
+                embed.AddField("SubRoles", $"Role: {list}");
             }
             catch
             {
@@ -113,6 +135,14 @@ namespace PassiveBOT.Commands
                 embed.AddField("Welcome", $"Status: {l.WelcomeEvent}\n" +
                                           $"Channel: {Context.Guild.GetChannel(l.WelcomeChannel).Name}\n" +
                                           $"Message: {l.WelcomeMessage}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("NoMention", $"Status: {l.MentionAll}");
             }
             catch
             {
@@ -153,6 +183,7 @@ namespace PassiveBOT.Commands
         public async Task WOff(bool status)
         {
             GuildConfig.SetWelcomeStatus(Context.Guild.Id, status);
+
             await ReplyAsync($"Welcome Messageing for this server has been set to: {status}");
         }
 
@@ -240,8 +271,32 @@ namespace PassiveBOT.Commands
         [Remarks("adds a subscribable role")]
         public async Task Arole(IRole role)
         {
-            GuildConfig.Subrole(Context.Guild.Id, role.Id, true);
-            await ReplyAsync($"{role.Name} is now subscribable by typing `{Load.Pre}joinrole {role.Mention}`");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                if (jsonObj.Roles == null)
+                {
+                    jsonObj.Roles = new List<ulong>();
+                }
+                if (!jsonObj.Roles.Contains(role.Id))
+                {
+                    jsonObj.Roles.Add(role.Id);
+                    await ReplyAsync($"{role.Name} has been added to the subscribable roles list");
+                }
+                else
+                {
+                    await ReplyAsync($"{role.Name} is already subscribable");
+                    return;
+                }
+
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+            }
+            else
+            {
+                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+            }
         }
 
         [Command("delrole")]
@@ -252,21 +307,21 @@ namespace PassiveBOT.Commands
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-                if (jsonObj.Roles == null || jsonObj.Roles == 0)
+                if (jsonObj.Roles.Contains(role.Id))
                 {
-                    await ReplyAsync("There is no subscribable role set up.");
+                    jsonObj.Roles.Remove(role.Id);
+                    await ReplyAsync($"{role.Name} is has been removed from the subscribable roles list");
                 }
-                else if (jsonObj.Roles != role.Id)
+                else
                 {
-                    await ReplyAsync($"{role.Name} is not the subscribable role, it cannot be removed");
+                    await ReplyAsync($"{role.Name} is not a subscribable role");
+                    return;
                 }
-                else if (jsonObj.Roles == role.Id)
-                {
-                    GuildConfig.Subrole(Context.Guild.Id, role.Id, false);
-                    await ReplyAsync($"{role.Name} is no longer subscribable");
-                }
+
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
             }
             else
             {

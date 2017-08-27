@@ -88,56 +88,55 @@ namespace PassiveBOT.Commands
         [Remarks("Joins/Leaves the specified(subscribable) role")]
         public async Task JoinRole(IRole role = null)
         {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
             if (role == null)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
                 if (File.Exists(file))
                 {
-                    dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
-                    var list = new List<ulong>();
-
-                    ulong val = jsonObj.Roles;
-                    if (val != 0)
-                        list.Add(val);
-
-                    if (list.Count == 0)
+                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    var embed = new EmbedBuilder();
+                    var roles = "";
+                    foreach (var roleid in jsonObj.Roles)
                     {
-                        await ReplyAsync("This server has no roles configured for this command.");
+                        try
+                        {
+                            roles += $"{Context.Guild.GetRole(roleid).Name}\n";
+                        }
+                        catch
+                        {
+                            //
+                        }
                     }
-                    else if (list.Count == 1)
-                    {
-                        ulong value = jsonObj.Roles;
-                        var rolename = Context.Guild.GetRole(value);
-                        await ReplyAsync($"There is one available role to join in this server => {rolename}");
-                    }
+                    embed.AddField("Subscribable Roles", $"{roles}\n" +
+                                                         "NOTE: If this list is empty, there are no roles setup in this server");
+                    await ReplyAsync("", false, embed.Build());
                 }
             }
             else
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
                 if (File.Exists(file))
                 {
-                    dynamic jsonObj = JsonConvert.DeserializeObject(File.ReadAllText(file));
-
-                    ulong val = jsonObj.Roles;
-                    if ((Context.User as SocketGuildUser).Roles.ToArray().Contains(role))
+                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    var embed = new EmbedBuilder();
+                    if (jsonObj.Roles.Contains(role.Id))
                     {
-                        await (Context.User as SocketGuildUser).RemoveRoleAsync(role);
-                        await ReplyAsync($"{Context.User.Mention} has been removed from the role {role.Name}");
+                        var u = Context.User as IGuildUser;
+                        if (u.RoleIds.Contains(role.Id))
+                        {
+                            await (Context.User as IGuildUser).RemoveRoleAsync(role);
+                            embed.AddField("Success", $"You have been removed from the role {role.Name}");
+                        }
+                        else
+                        {
+                            await (Context.User as IGuildUser).AddRoleAsync(role);
+                            embed.AddField("Success", $"You have been added to the role {role.Name}");
+                        }
                     }
                     else
                     {
-                        if (role.Id == val)
-                        {
-                            await (Context.User as SocketGuildUser).AddRoleAsync(role);
-                            await ReplyAsync($"{Context.User.Mention} has been added to the role {role.Name}");
-                        }
-
-                        else
-                        {
-                            await ReplyAsync("This role is not joinable!");
-                        }
+                        embed.AddField("Failed", $"{role.Name} is not a subscribable role");
                     }
+                    await ReplyAsync("", false, embed.Build());
                 }
             }
         }

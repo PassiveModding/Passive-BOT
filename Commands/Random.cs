@@ -9,15 +9,6 @@ namespace PassiveBOT.Commands
 {
     public class RandomStuff : ModuleBase
     {
-        [Command("qc")]
-        [Summary("qc")]
-        [Remarks("quickcolour role")]
-        public async Task Quickcolour([Remainder] [Optional] string empty)
-        {
-            await ReplyAsync(
-                "this command has been removed from PassiveBOT, however it has been added to our new bot RainbowBOT, you can get an invite link and some help here: http://passivenation.com/showthread.php?tid=64");
-        }
-
         [Command("rip")]
         [Summary("rip")]
         [Remarks("rip in pepperoni")]

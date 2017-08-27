@@ -18,7 +18,7 @@ namespace PassiveBOT.Configuration
         public ulong WelcomeChannel { get; set; }
         public ulong DjRoleId { get; set; }
         public bool ErrorLog { get; set; }
-        public ulong Roles { get; set; }
+        public List<ulong> Roles { get; set; }
         public string Rss { get; set; }
         public ulong RssChannel { get; set; }
         public List<Tags.Tagging> Dict { get; set; }
@@ -55,8 +55,7 @@ namespace PassiveBOT.Configuration
                 GuildId = id,
                 GuildName = name,
                 WelcomeMessage = "Welcome to Our Server!!",
-                ErrorLog = false,
-                Roles = 0
+                ErrorLog = false
             };
 
             cfg.Save(id);
