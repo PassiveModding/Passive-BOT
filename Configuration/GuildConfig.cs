@@ -11,20 +11,20 @@ namespace PassiveBOT.Configuration
     {
         [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;
 
-        public bool WelcomeEvent { get; set; }
-        public ulong GuildId { get; set; }
-        public string GuildName { get; set; }
-        public string WelcomeMessage { get; set; }
-        public ulong WelcomeChannel { get; set; }
-        public ulong DjRoleId { get; set; }
-        public bool ErrorLog { get; set; }
-        public List<ulong> Roles { get; set; }
-        public string Rss { get; set; }
-        public ulong RssChannel { get; set; }
-        public List<Tags.Tagging> Dict { get; set; }
-        public List<string> Blacklist { get; set; }
-        public bool Invite { get; set; }
-        public bool MentionAll { get; set; }
+        public bool WelcomeEvent { get; set; } // toggles welcome messages for new users
+        public ulong GuildId { get; set; } //
+        public string GuildName { get; set; } //
+        public string WelcomeMessage { get; set; } // the welcome message
+        public ulong WelcomeChannel { get; set; } // welcome messages in a channel
+        public ulong DjRoleId { get; set; } // restrict the music module to a specific role
+        public bool ErrorLog { get; set; } // allows for responses with errors 
+        public List<ulong> Roles { get; set; } // a list of roles that users can join via command
+        public string Rss { get; set; } // rss feed url
+        public ulong RssChannel { get; set; } // channel to post custom rss feeds to
+        public List<Tags.Tagging> Dict { get; set; } // tags module
+        public List<string> Blacklist { get; set; } // keyword blacklist
+        public bool Invite { get; set; } // blacklist for discord invites
+        public bool MentionAll { get; set; } //blacklist for @everyone and @here 
 
         public void Save(ulong id)
         {

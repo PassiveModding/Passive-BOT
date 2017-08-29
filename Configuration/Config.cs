@@ -14,6 +14,7 @@ namespace PassiveBOT.Configuration
         public string Prefix { get; set; } = "";
         public string Token { get; set; } = "";
         public string Debug { get; set; } = "";
+        public bool AutoRun { get; set; } = false;
 
         public void Save(string dir = "setup/config/config.json")
         {
@@ -34,7 +35,22 @@ namespace PassiveBOT.Configuration
 
         public static void CheckExistence()
         {
-            ColourLog.In1Run("Run (Y for run, N for setup Config)");
+            bool auto;
+            try
+            {
+                auto = Load().AutoRun;
+            }
+            catch
+            {
+                auto = false;
+            }
+            if (auto)
+            {
+                
+            }
+            else
+            {
+              ColourLog.In1Run("Run (Y for run, N for setup Config)");
 
             Console.Write("Y or N: ");
             var res = Console.ReadLine();
@@ -42,7 +58,9 @@ namespace PassiveBOT.Configuration
                 File.Delete("setup/config/config.json");
 
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config"));
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config"));  
+            }
+            
 
             if (!File.Exists(ConfigPath))
             {
@@ -68,6 +86,13 @@ namespace PassiveBOT.Configuration
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
 
+                ColourLog.In1Run("Would you like to AutoRun the bot from now on?");
+                var type2 = Console.ReadLine();
+                if (type2.StartsWith("y") || type2.StartsWith("Y"))
+                    cfg.AutoRun = true;
+                else
+                    cfg.AutoRun = false;
+
                 cfg.Save();
             }
             else
@@ -78,6 +103,7 @@ namespace PassiveBOT.Configuration
             ColourLog.In1Run($"Prefix: {Load().Prefix}");
             ColourLog.In1Run($"Debug: {Load().Debug}");
             ColourLog.In1Run($"Token Length: {Load().Token.Length} (should be 59)");
+            ColourLog.In1Run($"Autorun: {Load().AutoRun}");
         }
     }
 }

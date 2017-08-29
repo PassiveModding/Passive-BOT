@@ -270,6 +270,8 @@ namespace PassiveBOT.Commands
         public class Blacklist : InteractiveBase
         {
             [Command]
+            [Summary("blacklist")]
+            [Remarks("displays the blacklist for 5 seconds")]
             public async Task B()
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
@@ -306,7 +308,7 @@ namespace PassiveBOT.Commands
             }
 
             [Command("add")]
-            [Summary("add <word>")]
+            [Summary("blacklist add <word>")]
             [Remarks("adds a word to the blacklist")]
             public async Task Ab(string keyword)
             {
@@ -341,7 +343,7 @@ namespace PassiveBOT.Commands
             }
 
             [Command("del")]
-            [Summary("del <word>")]
+            [Summary("blacklist del <word>")]
             [Remarks("removes a word from the blacklist")]
             public async Task Db(string keyword)
             {

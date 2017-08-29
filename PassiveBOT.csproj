@@ -185,7 +185,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\Audio.cs" />
     <Compile Include="Commands\GuildSetup.cs" />
     <Compile Include="Commands\Invite.cs" />
     <Compile Include="Commands\Random.cs" />
