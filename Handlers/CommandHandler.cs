@@ -31,6 +31,25 @@ namespace PassiveBOT.Handlers
             _client.JoinedGuild += _client_JoinedGuild;
             _client.UserJoined += UserJoinedAsync;
             _client.Ready += _client_Ready;
+            _client.UserLeft += _client_UserLeft;
+        }
+
+        private async Task _client_UserLeft(SocketGuildUser user)
+        {
+            var id = user.Guild.Id;
+            var gevent = GuildConfig.Load(id).GoodbyeEvent;
+            if (!gevent) return;
+            var gchan = GuildConfig.Load(id).GoodByeChannel;
+            var gmessage = GuildConfig.Load(id).GoodbyeMessage;
+            if (gchan != 0)
+            {
+                var channel = user.Guild.GetTextChannel(gchan);
+                await channel.SendMessageAsync($"{user.Mention}: {gmessage}");
+            }
+            else
+            {
+                await user.Guild.DefaultChannel.SendMessageAsync($"{user.Mention}: {gmessage}");
+            }
         }
 
         public async Task _client_Ready()

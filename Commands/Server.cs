@@ -84,6 +84,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("subrole")]
+        [Alias("setrole", "joinrole")]
         [Summary("subrole @role")]
         [Remarks("Joins/Leaves the specified(subscribable) role")]
         public async Task JoinRole(IRole role = null)
@@ -268,7 +269,7 @@ namespace PassiveBOT.Commands
 
             var embed = new EmbedBuilder()
                 .WithTitle($"Roles for {Context.Guild.Name}")
-                .WithDescription(string.Join("\n", rol))
+                .WithDescription(string.Join("\n", rol.OrderByDescending(x => x.Position)))
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");

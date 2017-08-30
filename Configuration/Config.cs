@@ -86,7 +86,7 @@ namespace PassiveBOT.Configuration
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
 
-                ColourLog.In1Run("Would you like to AutoRun the bot from now on?");
+                ColourLog.In1Run("Would you like to AutoRun the bot from now on? Y/N");
                 var type2 = Console.ReadLine();
                 if (type2.StartsWith("y") || type2.StartsWith("Y"))
                     cfg.AutoRun = true;

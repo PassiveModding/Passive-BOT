@@ -64,7 +64,7 @@ namespace PassiveBOT.Commands
             }
         }
 
-        
+
 
         public async Task ConfigInfo()
         {
@@ -153,38 +153,147 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
-        [Command("Welcome")]
-        [Summary("Welcome <message>")]
-        [Remarks("Sets the welcome message for new users in the server")]
-        public async Task Welcome([Remainder] string message)
+        [Command("Welcome", RunMode = RunMode.Async)]
+        [Remarks("Setup the Welcome Message for new users")]
+        [Summary("Welcome")]
+        public async Task InitialiseWelcome()
         {
-            GuildConfig.SetWMessage(Context.Guild.Id, message);
-            GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
-            await ReplyAsync("The Welcome Message for this server has been set to:\n" +
-                             $"**{message}**\n" +
-                             $"In the channel **{Context.Channel.Name}**");
+            await ReplyAsync("```\n" +
+                             "Reply with the command you would like to perform\n" +
+                             "[1] Set the welcome message\n" +
+                             "[2] Set the current channel for welcome events\n" +
+                             "[3] Enable the welcome event\n" +
+                             "[4] Disable the welcome event\n" +
+                             "[5] View Welcome Info" +
+                             "" +
+                             "```");
+
+            var next = await NextMessageAsync();
+            if (next.Content == "1")
+            {
+                await ReplyAsync(
+                    "Please reply with the welcome message you want to be sent when a user joins the server ie. `Welcome to Our Server!!`");
+                var next2 = await NextMessageAsync();
+                GuildConfig.SetWMessage(Context.Guild.Id, next2.Content);
+                GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
+                await ReplyAsync("The Welcome Message for this server has been set to:\n" +
+                                 $"**{next2.Content}**\n" +
+                                 $"In the channel **{Context.Channel.Name}**");
+            }
+            else if (next.Content == "2")
+            {
+                GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
+                await ReplyAsync($"Welcome Events will be sent in the channel: **{Context.Channel.Name}**");
+            }
+            else if (next.Content == "3")
+            {
+                GuildConfig.SetWelcomeStatus(Context.Guild.Id, true);
+                await ReplyAsync($"Welcome Messageing for this server has been set to: true");
+            }
+            else if (next.Content == "4")
+            {
+                GuildConfig.SetWelcomeStatus(Context.Guild.Id, false);
+                await ReplyAsync($"Welcome Messageing for this server has been set to: false");
+            }
+            else if (next.Content == "5")
+            {
+                var l = GuildConfig.Load(Context.Guild.Id);
+                var embed = new EmbedBuilder();
+                try
+                {
+                    embed.AddField("Message", l.WelcomeMessage);
+                    embed.AddField("Channel", Context.Guild.GetChannel(l.WelcomeChannel).Name);
+                    embed.AddField("Status", l.WelcomeEvent ? "On" : "Off");
+                    await ReplyAsync("", false, embed.Build());
+                }
+                catch
+                {
+                    await ReplyAsync(
+                        "Error, this guilds welcome config is not fully set up yet, please consider using options 1 thru 4 first");
+                }
+            }
+            else
+            {
+                await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
+            }
+            
         }
 
-        [Command("WelcomeChannel")]
-        [Alias("wc")]
-        [Summary("wc")]
-        [Remarks("Sets the current channel as the welcome channel")]
-        public async Task Wchannel()
+        [Command("GoodBye", RunMode = RunMode.Async)]
+        [Remarks("Setup the goodbye message for new users")]
+        [Summary("Goodbye")]
+        public async Task InitialiseGoodbye()
         {
-            GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
-            await ReplyAsync("The Welcome Channel for this server has been set to:\n" +
-                             $"**{Context.Channel.Name}**");
-        }
+            await ReplyAsync("```\n" +
+                             "Reply with the command you would like to perform\n" +
+                             "[1] Set the GoodBye message\n" +
+                             "[2] Set the current channel for GoodBye events\n" +
+                             "[3] Enable the GoodBye event\n" +
+                             "[4] Disable the GoodBye event\n" +
+                             "[5] View GoodBye Info" +
+                             "" +
+                             "```");
 
-        [Command("WelcomeStatus")]
-        [Alias("ws")]
-        [Summary("ws <true/false>")]
-        [Remarks("sets the welcome message as true or false (on/off)")]
-        public async Task WOff(bool status)
-        {
-            GuildConfig.SetWelcomeStatus(Context.Guild.Id, status);
+            var next = await NextMessageAsync();
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-            await ReplyAsync($"Welcome Messageing for this server has been set to: {status}");
+                if (next.Content == "1")
+                {
+                    await ReplyAsync(
+                        "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
+                    var next2 = await NextMessageAsync();
+                    //GuildConfig.SetWMessage(Context.Guild.Id, next2.Content);
+                    //GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
+                        jsonObj.GoodbyeMessage = next2.Content;
+                        jsonObj.GoodByeChannel = Context.Channel.Id;
+                        GuildConfig.SaveServer(jsonObj, Context.Guild);
+
+                    await ReplyAsync("The Goodbye Message for this server has been set to:\n" +
+                                     $"**{next2.Content}**\n" +
+                                     $"In the channel **{Context.Channel.Name}**");
+                }
+                else if (next.Content == "2")
+                {
+                    jsonObj.GoodByeChannel = Context.Channel.Id;
+                    GuildConfig.SaveServer(jsonObj, Context.Guild);
+                    await ReplyAsync($"Goodbye Events will be sent in the channel: **{Context.Channel.Name}**");
+                }
+                else if (next.Content == "3")
+                {
+                    jsonObj.GoodbyeEvent = true;
+                    GuildConfig.SaveServer(jsonObj, Context.Guild);
+                    await ReplyAsync("GoodBye Messaging for this server has been set to: On");
+                }
+                else if (next.Content == "4")
+                {
+                    jsonObj.GoodbyeEvent = false;
+                    GuildConfig.SaveServer(jsonObj, Context.Guild);
+                    await ReplyAsync("GoodBye Messaging for this server has been set to: Off");
+                }
+                else if (next.Content == "5")
+                {
+                    var embed = new EmbedBuilder();
+                    try
+                    {
+                          embed.AddField("Message", jsonObj.GoodbyeMessage);
+                          embed.AddField("Channel", Context.Guild.GetChannel(jsonObj.GoodByeChannel).Name);
+                           embed.AddField("Status", jsonObj.GoodbyeEvent ? "On" : "Off");
+                          await ReplyAsync("", false, embed.Build());
+                      }
+                      catch
+                      {
+                    await ReplyAsync(
+                        "Error, this guilds Goodbye config is not fully set up yet, please consider using options 1 thru 4 first");
+                      }
+                }
+                else
+                {
+                    await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
+                }
+            }
         }
 
         [Command("NoInvite")]
@@ -202,7 +311,7 @@ namespace PassiveBOT.Commands
 
                 if (status)
                 {
-                    
+
                     await ReplyAsync("Invite links will now be deleted!");
                 }
                 else
