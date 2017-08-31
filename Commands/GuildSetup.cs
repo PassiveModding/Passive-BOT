@@ -79,14 +79,9 @@ namespace PassiveBOT.Commands
             {
                 //
             }
-            try
-            {
-                embed.AddField("Error logging", $"Status: {l.ErrorLog}");
-            }
-            catch
-            {
-                //
-            }
+
+            
+
             try
             {
                 embed.AddField("Guild ID & Name", $"{l.GuildName}, {l.GuildId}");
@@ -95,11 +90,14 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
+            embed.AddField("Error logging", $"Status: {l.ErrorLog}");
+
             try
             {
                 var list = "";
                 foreach (var role in l.Roles)
-                    list += Context.Guild.GetRole(role).Name;
+                    list += $"{Context.Guild.GetRole(role).Name}\n";
                 embed.AddField("SubRoles", $"Role: {list}");
             }
             catch
@@ -108,7 +106,7 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                embed.AddField("RSS URL/Channel", $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel)}");
+                embed.AddField("RSS URL/Channel", $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel).Name}");
             }
             catch
             {
@@ -140,12 +138,30 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                embed.AddField("NoMention", $"Status: {l.MentionAll}");
+                embed.AddField("Goodbye", $"Status: {l.GoodbyeEvent}\n" +
+                                          $"Channel: {Context.Guild.GetChannel(l.GoodByeChannel).Name}\n" +
+                                          $"Message: {l.GoodbyeMessage}");
             }
             catch
             {
                 //
             }
+            embed.AddField("NoMention", $"Status: {l.MentionAll}");
+            embed.AddField("NoInvite", $"Status: {l.Invite}");
+            try
+            {
+                embed.AddField("EventLogging", $"Status: {l.EventLogging}\n" +
+                                               $"Channel: {Context.Guild.GetChannel(l.EventChannel).Name}");
+            }
+            catch
+            {
+                //
+            }
+            embed.AddField("Admin Uses", $"Warnings: {l.Warnings.Count}\n" +
+                                         $"Kicks: {l.Kicking.Count}\n" +
+                                         $"Bans: {l.Banning.Count}");
+            embed.AddField("Blacklisted Word Count", $"{l.Blacklist.Count}");
+
 
 
             await ReplyAsync("", false, embed.Build());

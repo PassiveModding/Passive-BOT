@@ -441,16 +441,12 @@ namespace PassiveBOT.Handlers
             var wmessage = GuildConfig.Load(id).WelcomeMessage;
             if (wchan != 0)
             {
-                var embed = new EmbedBuilder();
-                embed.AddField($"Welcome {user.Mention}", $"{wmessage}");
                 var channel = user.Guild.GetTextChannel(wchan);
-                await channel.SendMessageAsync($"", false, embed.Build());
+                await channel.SendMessageAsync($"**Welcome {user.Mention}**: {wmessage}");
             }
             else
             {
-                var embed = new EmbedBuilder();
-                embed.AddField($"Welcome {user.Mention}", $"{wmessage}");
-                await user.Guild.DefaultChannel.SendMessageAsync($"", false, embed.Build());
+                await user.Guild.DefaultChannel.SendMessageAsync($"**Welcome {user.Mention}**: {wmessage}");
             }
         }
     }
