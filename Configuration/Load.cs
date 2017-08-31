@@ -6,7 +6,7 @@
         public static string Siteurl = "http://passivenation.com/forumdisplay.php?fid=20";
         public static string Faq = "http://passivenation.com/showthread.php?tid=42";
         public static string Owner = "PassiveModding";
-        public static string Version = "5.3.1";
+        public static string Version = "5.3.2";
         public static string Pre;
 
         public static string Invite =

@@ -20,15 +20,15 @@ namespace PassiveBOT.Configuration
         public List<ulong> Roles { get; set; } = new List<ulong>(); // a list of roles that users can join via command
 
         public string Rss { get; set; } = "http://passivenation.com/syndication.php/"; // rss feed url
-        public ulong RssChannel { get; set; } // channel to post custom rss feeds to
+        public ulong RssChannel { get; set; } = 0; // channel to post custom rss feeds to
 
-        public List<Tags.Tagging> Dict { get; set; } // tags module
+        public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>();// tags module
 
         public List<string> Blacklist { get; set; } = new List<string>();// keyword blacklist
-        public bool Invite { get; set; } // blacklist for discord invites
-        public bool MentionAll { get; set; } //blacklist for @everyone and @here 
+        public bool Invite { get; set; } = false; // blacklist for discord invites
+        public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
 
-        public bool ErrorLog { get; set; } // allows for responses with errors 
+        public bool ErrorLog { get; set; } = false; // allows for responses with errors 
 
         public bool GoodbyeEvent { get; set; } = false;
         public string GoodbyeMessage { get; set; } = "Has Left the Server :(";
@@ -37,7 +37,36 @@ namespace PassiveBOT.Configuration
         public string WelcomeMessage { get; set; } = "Welcome to Our Server!!!"; // the welcome message
         public ulong WelcomeChannel { get; set; } = 0; // welcome messages in a channel
         public bool EventLogging { get; set; } = false;
-        public ulong EventChannel { get; set; }
+        public ulong EventChannel { get; set; } = 0;
+
+        public List<Warns> Warnings { get; set; } = new List<Warns>();
+        public List<Kicks> Kicking { get; set; } = new List<Kicks>();
+        public List<Bans> Banning { get; set; } = new List<Bans>();
+
+        public class Warns
+        {
+            public string User { get; set; }
+            public string Reason { get; set; }
+            public string Moderator { get; set; }
+            public ulong UserId { get; set; }
+        }
+
+        public class Kicks
+        {
+            public string User { get; set; }
+            public string Reason { get; set; }
+            public string Moderator { get; set; }
+            public ulong UserId { get; set; }
+        }
+
+        public class Bans
+        {
+            public string User { get; set; }
+            public string Reason { get; set; }
+            public string Moderator { get; set; }
+            public ulong UserId { get; set; }
+        }
+
 
         public void Save(ulong id)
         {

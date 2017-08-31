@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -6,6 +7,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace PassiveBOT.Commands
 {
@@ -36,219 +39,446 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("kick", RunMode = RunMode.Async)]
+        [Command("Kick")]
         [Summary("kick <@user> <reason>")]
-        [Remarks("Kicks the specified user (requires Kick Permissions)")]
-        public async Task Kickuser(SocketGuildUser user, [Remainder] [Optional] string reason)
+        [Remarks("Kicks the specified user (requires Admin Permissions)")]
+        public async Task Kickuser(SocketGuildUser user, [Remainder] string reason = null)
         {
-            if (!Directory.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/"))
-                Directory.CreateDirectory(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var embed = new EmbedBuilder();
+                if (reason == null)
+                {
+                    embed.AddField("Error", "Please Specify a reason for kicking the user, ie\n" +
+                                            "`.kick @noobnoob being a noob");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
+                }
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-            var success = false;
-            if (user.GuildPermissions.ManageRoles)
-            {
-                await ReplyAsync("**ERROR: **you cannot kick a a user with manage roles permission");
-            }
-            else if (reason == null)
-            {
-                await ReplyAsync("**ERROR: **Please specify a reason for Kicking the user");
-            }
-            else
-            {
+                var add = new GuildConfig.Kicks
+                {
+                    Moderator = Context.User.Username,
+                    Reason = reason,
+                    User = user.Username,
+                    UserId = user.Id
+                };
+
+                if (user.GuildPermissions.Administrator || user.GuildPermissions.KickMembers)
+                {
+                    embed.AddField("User Kick Failed",
+                        $"This user is an administrator or has the ability to kick other users");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
+                }
+
                 try
                 {
                     await user.KickAsync();
-                    success = true;
                 }
                 catch
                 {
-                    await ReplyAsync(
-                        "**ERROR: **I was unable to kick the specified user, please check I have sufficient permissions");
+                    embed.AddField("User Kick Failed", $"This user was unable to be kicked");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
                 }
-                if (success)
-                {
-                    await Task.Delay(1000);
-                    File.AppendAllText(
-                        Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/kick.txt"),
-                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
-                    await ReplyAsync($"{user} has been kicked for `{reason}`:bangbang: ");
-                    var dm = await user.GetOrCreateDMChannelAsync();
-                    await dm.SendMessageAsync(
-                        $"{user.Mention} you have been kicked from {Context.Guild} for `{reason}`");
-                }
-            }
-        }
 
-        [Command("warn", RunMode = RunMode.Async)]
-        [Summary("warn <@user> <reason>")]
-        [Remarks("warns the specified user")]
-        public async Task NewWarnuser(SocketGuildUser user, [Remainder] string reason = null)
-        {
-            if (!Directory.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/"))
-                Directory.CreateDirectory(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/");
+                config.Kicking.Add(add);
+                GuildConfig.SaveServer(config, Context.Guild);
 
-            if (user.GuildPermissions.ManageRoles)
-            {
-                await ReplyAsync("**ERROR: **you cannot warn a a user with manage roles permission");
-            }
-            else if (reason == null)
-            {
-                await ReplyAsync("**ERROR: **Please Specify a reason for warning the user");
+                embed.AddField("User Kicked", $"User: {user.Username}\n" +
+                                              $"UserID: {user.Id}\n" +
+                                              $"Moderator: {Context.User.Username}\n" +
+                                              $"Reason: {reason}");
+                await ReplyAsync("", false, embed.Build());
             }
             else
             {
-                await ReplyAsync($"{user.Mention} has been warned for `{reason}`");
-                var dm = await user.GetOrCreateDMChannelAsync();
-                await dm.SendMessageAsync($"{user.Mention} you have been warned for `{reason}` in {Context.Guild}");
-
-                await Task.Delay(1000);
-                File.AppendAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt",
-                    $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
+                await ReplyAsync(
+                    "This server is not set up yet in the guildsetup module, please use the command `.setup` to begin");
             }
         }
 
-        [Command("ban", RunMode = RunMode.Async)]
-        [Summary("ban <@user> <reason>")]
-        [Remarks("bans the specified user (requires Ban Permissions)")]
-        public async Task Banuser(SocketGuildUser user, [Remainder] [Optional] string reason)
-        {
-            if (!Directory.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/"))
-                Directory.CreateDirectory(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/");
-
-            var success = false;
-            if (user.GuildPermissions.ManageRoles)
-            {
-                await ReplyAsync("**ERROR: **you cannot ban a user with manage roles permission");
-            }
-            else if (reason == null)
-            {
-                await ReplyAsync("**ERROR: ** Please specify a reason for banning the user!");
-            }
-            else
-            {
-                try
-                {
-                    await Context.Guild.AddBanAsync(user);
-                    success = true;
-                }
-                catch
-                {
-                    await ReplyAsync(
-                        "**ERROR: **I was unable to ban the specified user, please check I have sufficient permissions");
-                }
-                if (success)
-                {
-                    await Task.Delay(1000);
-                    File.AppendAllText(
-                        Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/ban.txt"),
-                        $"User: {user} || Moderator: {Context.User} || Reason: {reason}\n");
-                    await ReplyAsync($"{user} has been banned for `{reason}`:bangbang: ");
-                    var dm = await user.GetOrCreateDMChannelAsync();
-                    await dm.SendMessageAsync(
-                        $"{user.Mention} you have been banned from {Context.Guild} for `{reason}`");
-                }
-            }
-        }
-
-        [Command("kicks")]
+        [Command("Kicks")]
         [Summary("kicks")]
-        [Remarks("Users kicked by passivebot")]
+        [Remarks("view all kicks for the current server")]
         public async Task Kicks()
         {
-            if (!File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                await ReplyAsync(
-                    $"There are currently no kicks in this server, to kick someone type `{Load.Pre}kick @user 'reason'`");
-            }
-            else
-            {
-                var kicks = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt");
-                await ReplyAsync("```\n" + kicks + "\n```");
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Kicks");
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                var groupedlist = config.Kicking.GroupBy(x => x.UserId)
+                    .Select(group => new
+                    {
+                        UserId = group.Key,
+                        List = group.ToList()
+                    })
+                    .ToList();
+
+                foreach (var group in groupedlist)
+                {
+                    string username;
+                    try
+                    {
+                        var user = await Context.Guild.GetUserAsync(group.UserId);
+                        username = user.Username;
+                    }
+                    catch
+                    {
+                        username = group.List.First().User;
+                    }
+                    var list = "";
+                    foreach (var x in group.List)
+                    {
+                        var moderator =
+                            $"{x.Moderator}                                             ".Substring(0, 20);
+                        list += $"Mod: {moderator} || Reason: {x.Reason}\n";
+                    }
+                    embed.AddField(username, list);
+                }
+
+                if (embed.Fields.Count > 0)
+                {
+                    await ReplyAsync("", false, embed.Build());
+                }
+                else
+                {
+                    await ReplyAsync("There are no kicks in the server...");
+                }
+
             }
         }
 
-        [Command("warns")]
-        [Summary("warns")]
-        [Remarks("Users warned by passivebot")]
-        public async Task Warns()
+        [Command("Ban")]
+        [Summary("Ban <@user> <reason>")]
+        [Remarks("Bans the specified user (requires Admin Permissions)")]
+        public async Task BanUser(SocketGuildUser user, [Remainder] string reason = null)
         {
-            if (!File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                await ReplyAsync(
-                    $"There are currently no warns in this server, to warn someone type `{Load.Pre}warn @user 'reason'`");
+                var embed = new EmbedBuilder();
+                if (reason == null)
+                {
+                    embed.AddField("Error", "Please Specify a reason for banning the user, ie\n" +
+                                            "`.ban @noobnoob being a noob");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
+                }
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                var add = new GuildConfig.Bans
+                {
+                    Moderator = Context.User.Username,
+                    Reason = reason,
+                    User = user.Username,
+                    UserId = user.Id
+                };
+
+                if (user.GuildPermissions.Administrator || user.GuildPermissions.BanMembers)
+                {
+                    embed.AddField("User Ban Failed",
+                        $"This user is an administrator or has the ability to ban other users");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
+                }
+
+                try
+                {
+                    await user.SendMessageAsync($"You have been banned from {Context.Guild.Name} for:\n" +
+                                                $"`{reason}`");
+                    await Context.Guild.AddBanAsync(user);
+                }
+                catch
+                {
+                    embed.AddField("User Ban Failed", $"This user was unable to be banned");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
+                }
+
+                config.Banning.Add(add);
+                GuildConfig.SaveServer(config, Context.Guild);
+
+                embed.AddField("User Banned", $"User: {user.Username}\n" +
+                                              $"UserID: {user.Id}\n" +
+                                              $"Moderator: {Context.User.Username}\n" +
+                                              $"Reason: {reason}");
+                await ReplyAsync("", false, embed.Build());
             }
             else
             {
-                var warns = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
-                await ReplyAsync("```\n" + warns + "\n```");
+                await ReplyAsync(
+                    "This server is not set up yet in the guildsetup module, please use the command `.setup` to begin");
             }
         }
 
-        [Command("bans")]
-        [Summary("bans")]
-        [Remarks("Users banned by passivebot")]
+        [Command("Bans")]
+        [Summary("Bans")]
+        [Remarks("view all Bans for the current server")]
         public async Task Bans()
         {
-            if (!File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                await ReplyAsync(
-                    $"There are currently no bans in this server, to ban someone type `{Load.Pre}ban @user 'reason'`");
-            }
-            else
-            {
-                var bans = File.ReadAllText(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt");
-                await ReplyAsync("```\n" + bans + "\n```");
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Bans");
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                var groupedlist = config.Banning.GroupBy(x => x.UserId)
+                    .Select(group => new
+                    {
+                        UserId = group.Key,
+                        List = group.ToList()
+                    })
+                    .ToList();
+
+                foreach (var group in groupedlist)
+                {
+                    string username;
+                    try
+                    {
+                        var user = await Context.Guild.GetUserAsync(group.UserId);
+                        username = user.Username;
+                    }
+                    catch
+                    {
+                        username = group.List.First().User;
+                    }
+                    var list = "";
+                    foreach (var x in group.List)
+                    {
+                        var moderator =
+                            $"{x.Moderator}                                             ".Substring(0, 20);
+                        list += $"Mod: {moderator} || Reason: {x.Reason}\n";
+                    }
+                    embed.AddField(username, list);
+                }
+
+                if (embed.Fields.Count > 0)
+                {
+                    await ReplyAsync("", false, embed.Build());
+                }
+                else
+                {
+                    await ReplyAsync("There are no bans in the server...");
+                }
+
             }
         }
 
-        [Command("clearwarn")]
-        [Summary("clear <type>")]
-        [Remarks("warn logs")]
-        public async Task ClearWarn()
+        [Command("Warn")]
+        [Summary("Warn <@user> <reason>")]
+        [Remarks("Warns the specified user (requires Admin Permissions)")]
+        public async Task WarnUser(SocketGuildUser user, [Remainder] string reason = null)
         {
-            if (File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/warn.txt");
-                await ReplyAsync("All warnings have been cleared for this server");
+                var embed = new EmbedBuilder();
+                if (reason == null)
+                {
+                    embed.AddField("Error", "Please Specify a reason for warning the user, ie\n" +
+                                            "`.warn @noobnoob being a noob");
+                    await ReplyAsync("", false, embed.Build());
+                    return;
+                }
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                var add = new GuildConfig.Warns
+                {
+                    Moderator = Context.User.Username,
+                    Reason = reason,
+                    User = user.Username,
+                    UserId = user.Id
+                };
+
+                try
+                {
+                    await user.SendMessageAsync($"You have been warned in {Context.Guild.Name} for:\n" +
+                                                $"`{reason}`");
+                }
+                catch
+                {
+                    //
+                }
+
+                config.Warnings.Add(add);
+                GuildConfig.SaveServer(config, Context.Guild);
+
+                embed.AddField("User Warned", $"User: {user.Username}\n" +
+                                              $"UserID: {user.Id}\n" +
+                                              $"Moderator: {Context.User.Username}\n" +
+                                              $"Reason: {reason}");
+                await ReplyAsync("", false, embed.Build());
             }
             else
             {
                 await ReplyAsync(
-                    "There are no warnings to delete in this server, please type `.warn @user` to warn someone");
+                    "This server is not set up yet in the guildsetup module, please use the command `.setup` to begin");
             }
         }
 
-        [Command("clearkick")]
-        [Summary("clearkick")]
-        [Remarks("clears kick logs logs")]
-        public async Task ClearKicks()
+        [Command("Warns")]
+        [Summary("Warns")]
+        [Remarks("view all Warns for the current server")]
+        public async Task Warns()
         {
-            if (File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/kick.txt");
-                await ReplyAsync("All warnings have been cleared for this server");
-            }
-            else
-            {
-                await ReplyAsync(
-                    "There are no kick logs to delete in this server, please type `.warn @user` to warn someone");
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Warns");
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                var groupedlist = config.Warnings.GroupBy(x => x.UserId)
+                    .Select(group => new
+                    {
+                        UserId = group.Key,
+                        List = group.ToList()
+                    })
+                    .ToList();
+
+                foreach (var group in groupedlist)
+                {
+                    string username;
+                    try
+                    {
+                        var user = await Context.Guild.GetUserAsync(group.UserId);
+                        username = user.Username;
+                    }
+                    catch
+                    {
+                        username = group.List.First().User;
+                    }
+                    var list = "";
+                    foreach (var x in group.List)
+                    {
+                        var moderator =
+                            $"{x.Moderator}                                             ".Substring(0, 20);
+                        list += $"Mod: {moderator} || Reason: {x.Reason}\n";
+                    }
+                    embed.AddField(username, list);
+                }
+
+                if (embed.Fields.Count > 0)
+                {
+                    await ReplyAsync("", false, embed.Build());
+                }
+                else
+                {
+                    await ReplyAsync("There are no warns in the server...");
+                }
+
             }
         }
 
-        [Command("clearban")]
-        [Summary("clearban>")]
-        [Remarks("clears ban logs")]
-        public async Task ClearBan()
+        [Command("ClearWarn")]
+        [Summary("ClearWarn")]
+        [Remarks("Clears warnings for the specified user")]
+        public async Task ClearWarn(SocketGuildUser removeuser)
         {
-            if (File.Exists(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt"))
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                File.Delete(AppContext.BaseDirectory + $"setup/server/{Context.Guild.Id}/ban.txt");
-                await ReplyAsync("All bans have been cleared for this server");
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Warns Removed");
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var list = "";
+                var newconfig = new List<GuildConfig.Warns>();
+                foreach (var group in config.Warnings)
+                {
+                    if (group.UserId == removeuser.Id)
+                    {
+                        var moderator =
+                            $"{group.Moderator}                                             ".Substring(0, 20);
+                        list += $"Mod: {moderator} || Reason: {group.Reason}\n";
+                        //config.Warnings.Remove(group);
+
+                    }
+                    else
+                    {
+                        newconfig.Add(group);
+                    }
+                }
+                config.Warnings = newconfig;
+                embed.WithDescription(list);
+                GuildConfig.SaveServer(config, Context.Guild);
+                await ReplyAsync($"Warnings for the user {removeuser} have been cleared", false, embed.Build());
             }
-            else
+        }
+
+        [Command("ClearKick")]
+        [Summary("ClearKick")]
+        [Remarks("Clears Kicks for the specified user")]
+        public async Task ClearKick(SocketGuildUser removeuser)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
             {
-                await ReplyAsync(
-                    "There are no ban logs to delete in this server, please type `.warn @user` to warn someone");
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Kicks Removed");
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var list = "";
+                var newconfig = new List<GuildConfig.Kicks>();
+                foreach (var group in config.Kicking)
+                {
+                    if (group.UserId == removeuser.Id)
+                    {
+                        var moderator =
+                            $"{group.Moderator}                                             ".Substring(0, 20);
+                        list += $"Mod: {moderator} || Reason: {group.Reason}\n";
+                        //config.Kicking.Remove(group);
+
+                    }
+                    else
+                    {
+                        newconfig.Add(group);
+                    }
+                }
+                embed.WithDescription(list);
+                config.Kicking = newconfig;
+                GuildConfig.SaveServer(config, Context.Guild);
+                await ReplyAsync($"Kicks for the user {removeuser} have been cleared", false, embed.Build());
+            }
+        }
+
+        [Command("ClearBan")]
+        [Summary("ClearBan")]
+        [Remarks("Clears Bans for the specified user")]
+        public async Task ClearBan(SocketGuildUser removeuser)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var embed = new EmbedBuilder();
+                embed.WithTitle("Bans Removed");
+                var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var list = "";
+                var newconfig = new List<GuildConfig.Bans>();
+                foreach (var group in config.Banning)
+                {
+                    if (group.UserId == removeuser.Id)
+                    {
+                        var moderator =
+                            $"{group.Moderator}                                             ".Substring(0, 20);
+                        list += $"Mod: {moderator} || Reason: {group.Reason}\n";
+                        //config.Banning.Remove(group);
+
+                    }
+                    else
+                    {
+                        newconfig.Add(group);
+                    }
+                }
+                config.Banning = newconfig;
+                embed.WithDescription(list);
+                GuildConfig.SaveServer(config, Context.Guild);
+                await ReplyAsync($"Warnings for the user {removeuser} have been cleared", false, embed.Build());
             }
         }
     }

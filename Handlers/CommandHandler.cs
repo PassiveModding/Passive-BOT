@@ -140,6 +140,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
+
         private async Task MessageDeletedEvent(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
         {
             var guild = (channel as SocketGuildChannel).Guild;
