@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -140,12 +142,17 @@ namespace PassiveBOT.Handlers
             }
         }
 
-
+        private DateTime _delay; //NOTE THIS IS NOT GUILD SPECIFIC YET!
         private async Task MessageDeletedEvent(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
         {
             var guild = (channel as SocketGuildChannel).Guild;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
+
+                if (_delay > DateTime.UtcNow)
+                    return;
+                _delay = DateTime.UtcNow.AddSeconds(2);
+
                 var embed = new EmbedBuilder();
                 try
                 {
