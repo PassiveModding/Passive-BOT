@@ -38,8 +38,12 @@ namespace PassiveBOT
                 "| Designed by PassiveModding - PassiveNation.com  ||   Status: Connected   | \n" +
                 "\\--------------------------------------------------------------------------/ \n");
 
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/moderation/")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/moderation/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config/"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/server/")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/server/"));
             Config.CheckExistence();
             var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug.ToUpper();
@@ -137,7 +141,8 @@ namespace PassiveBOT
         public static Task LogMessageInfo(LogMessage message)
         {
             var messagestr = message.ToString();
-            if (message.ToString().StartsWith("Unknown OpCode (8)") || message.ToString().Contains("VOICE_STATE_UPDATE"))
+            if (message.ToString().StartsWith("Unknown OpCode (8)") ||
+                message.ToString().Contains("VOICE_STATE_UPDATE"))
                 return Task.CompletedTask;
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             ColourLog.In2("PassiveBOT", '?', $"{msg}", Color.Chartreuse);

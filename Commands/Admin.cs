@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using PassiveBOT.Configuration;
 using Newtonsoft.Json;
-using System.Linq;
+using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
 {
@@ -143,14 +142,9 @@ namespace PassiveBOT.Commands
                 }
 
                 if (embed.Fields.Count > 0)
-                {
                     await ReplyAsync("", false, embed.Build());
-                }
                 else
-                {
                     await ReplyAsync("There are no kicks in the server...");
-                }
-
             }
         }
 
@@ -260,14 +254,9 @@ namespace PassiveBOT.Commands
                 }
 
                 if (embed.Fields.Count > 0)
-                {
                     await ReplyAsync("", false, embed.Build());
-                }
                 else
-                {
                     await ReplyAsync("There are no bans in the server...");
-                }
-
             }
         }
 
@@ -366,14 +355,9 @@ namespace PassiveBOT.Commands
                 }
 
                 if (embed.Fields.Count > 0)
-                {
                     await ReplyAsync("", false, embed.Build());
-                }
                 else
-                {
                     await ReplyAsync("There are no warns in the server...");
-                }
-
             }
         }
 
@@ -391,20 +375,17 @@ namespace PassiveBOT.Commands
                 var list = "";
                 var newconfig = new List<GuildConfig.Warns>();
                 foreach (var group in config.Warnings)
-                {
                     if (group.UserId == removeuser.Id)
                     {
                         var moderator =
                             $"{group.Moderator}                                             ".Substring(0, 20);
                         list += $"Mod: {moderator} || Reason: {group.Reason}\n";
                         //config.Warnings.Remove(group);
-
                     }
                     else
                     {
                         newconfig.Add(group);
                     }
-                }
                 config.Warnings = newconfig;
                 embed.WithDescription(list);
                 GuildConfig.SaveServer(config, Context.Guild);
@@ -426,20 +407,17 @@ namespace PassiveBOT.Commands
                 var list = "";
                 var newconfig = new List<GuildConfig.Kicks>();
                 foreach (var group in config.Kicking)
-                {
                     if (group.UserId == removeuser.Id)
                     {
                         var moderator =
                             $"{group.Moderator}                                             ".Substring(0, 20);
                         list += $"Mod: {moderator} || Reason: {group.Reason}\n";
                         //config.Kicking.Remove(group);
-
                     }
                     else
                     {
                         newconfig.Add(group);
                     }
-                }
                 embed.WithDescription(list);
                 config.Kicking = newconfig;
                 GuildConfig.SaveServer(config, Context.Guild);
@@ -461,20 +439,17 @@ namespace PassiveBOT.Commands
                 var list = "";
                 var newconfig = new List<GuildConfig.Bans>();
                 foreach (var group in config.Banning)
-                {
                     if (group.UserId == removeuser.Id)
                     {
                         var moderator =
                             $"{group.Moderator}                                             ".Substring(0, 20);
                         list += $"Mod: {moderator} || Reason: {group.Reason}\n";
                         //config.Banning.Remove(group);
-
                     }
                     else
                     {
                         newconfig.Add(group);
                     }
-                }
                 config.Banning = newconfig;
                 embed.WithDescription(list);
                 GuildConfig.SaveServer(config, Context.Guild);

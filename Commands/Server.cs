@@ -93,28 +93,18 @@ namespace PassiveBOT.Commands
             var emotelist = "";
             var emotelist2 = "";
             foreach (var emote in Context.Guild.Emotes)
-            {
                 if (emotelist.Length > 1000)
-                {
                     emotelist2 += $"<:{emote.Name}:{emote.Id}>";
-                }
                 else
-                {
                     emotelist += $"<:{emote.Name}:{emote.Id}>";
-                }
-                
-            }
             if (emotelist != "")
             {
                 embed.AddField("Emotes", emotelist);
                 if (emotelist2 != "")
-                {
                     embed.AddField("Emotes 2", emotelist2);
-                }
 
                 await ReplyAsync("", false, embed.Build());
             }
-
         }
 
         [Command("subrole")]
@@ -132,7 +122,6 @@ namespace PassiveBOT.Commands
                     var embed = new EmbedBuilder();
                     var roles = "";
                     foreach (var roleid in jsonObj.Roles)
-                    {
                         try
                         {
                             roles += $"{Context.Guild.GetRole(roleid).Name}\n";
@@ -141,7 +130,6 @@ namespace PassiveBOT.Commands
                         {
                             //
                         }
-                    }
                     embed.AddField("Subscribable Roles", $"{roles}\n" +
                                                          "NOTE: If this list is empty, there are no roles setup in this server");
                     await ReplyAsync("", false, embed.Build());

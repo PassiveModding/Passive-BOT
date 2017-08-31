@@ -34,7 +34,9 @@ namespace PassiveBOT.Services
                         try
                         {
                             SyndicationFeed feed;
+
                             var url = GuildConfig.Load(channel.GuildId).Rss;
+
                             if (url == "0" || url == null)
                                 return;
                             try
@@ -86,9 +88,9 @@ namespace PassiveBOT.Services
                                 }
                             }
                         }
-                        catch (Exception e)
+                        catch
                         {
-                            Console.WriteLine(e);
+                            //
                         }
                     }, null, 0, minutes * 1000 * 60);
                     Guild.AddOrUpdate(channel.Id, t, (key, old) =>

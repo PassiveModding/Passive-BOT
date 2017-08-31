@@ -14,7 +14,7 @@ namespace PassiveBOT.Configuration
         public string Prefix { get; set; } = "";
         public string Token { get; set; } = "";
         public string Debug { get; set; } = "";
-        public bool AutoRun { get; set; } = false;
+        public bool AutoRun { get; set; }
 
         public void Save(string dir = "setup/config/config.json")
         {
@@ -46,21 +46,20 @@ namespace PassiveBOT.Configuration
             }
             if (auto)
             {
-                
             }
             else
             {
-              ColourLog.In1Run("Run (Y for run, N for setup Config)");
+                ColourLog.In1Run("Run (Y for run, N for setup Config)");
 
-            Console.Write("Y or N: ");
-            var res = Console.ReadLine();
-            if (res == "N" || res == "n")
-                File.Delete("setup/config/config.json");
+                Console.Write("Y or N: ");
+                var res = Console.ReadLine();
+                if (res == "N" || res == "n")
+                    File.Delete("setup/config/config.json");
 
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config"));  
+                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config")))
+                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config"));
             }
-            
+
 
             if (!File.Exists(ConfigPath))
             {

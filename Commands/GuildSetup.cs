@@ -60,10 +60,10 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                await ReplyAsync("Please only reply with the character of your option ie. if you picked 2, reply with just `2`");
+                await ReplyAsync(
+                    "Please only reply with the character of your option ie. if you picked 2, reply with just `2`");
             }
         }
-
 
 
         public async Task ConfigInfo()
@@ -99,9 +99,7 @@ namespace PassiveBOT.Commands
             {
                 var list = "";
                 foreach (var role in l.Roles)
-                {
                     list += Context.Guild.GetRole(role).Name;
-                }
                 embed.AddField("SubRoles", $"Role: {list}");
             }
             catch
@@ -216,7 +214,6 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
             }
-            
         }
 
         [Command("GoodBye", RunMode = RunMode.Async)]
@@ -247,9 +244,9 @@ namespace PassiveBOT.Commands
                     var next2 = await NextMessageAsync();
                     //GuildConfig.SetWMessage(Context.Guild.Id, next2.Content);
                     //GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
-                        jsonObj.GoodbyeMessage = next2.Content;
-                        jsonObj.GoodByeChannel = Context.Channel.Id;
-                        GuildConfig.SaveServer(jsonObj, Context.Guild);
+                    jsonObj.GoodbyeMessage = next2.Content;
+                    jsonObj.GoodByeChannel = Context.Channel.Id;
+                    GuildConfig.SaveServer(jsonObj, Context.Guild);
 
                     await ReplyAsync("The Goodbye Message for this server has been set to:\n" +
                                      $"**{next2.Content}**\n" +
@@ -278,16 +275,16 @@ namespace PassiveBOT.Commands
                     var embed = new EmbedBuilder();
                     try
                     {
-                          embed.AddField("Message", jsonObj.GoodbyeMessage);
-                          embed.AddField("Channel", Context.Guild.GetChannel(jsonObj.GoodByeChannel).Name);
-                           embed.AddField("Status", jsonObj.GoodbyeEvent ? "On" : "Off");
-                          await ReplyAsync("", false, embed.Build());
-                      }
-                      catch
-                      {
-                    await ReplyAsync(
-                        "Error, this guilds Goodbye config is not fully set up yet, please consider using options 1 thru 4 first");
-                      }
+                        embed.AddField("Message", jsonObj.GoodbyeMessage);
+                        embed.AddField("Channel", Context.Guild.GetChannel(jsonObj.GoodByeChannel).Name);
+                        embed.AddField("Status", jsonObj.GoodbyeEvent ? "On" : "Off");
+                        await ReplyAsync("", false, embed.Build());
+                    }
+                    catch
+                    {
+                        await ReplyAsync(
+                            "Error, this guilds Goodbye config is not fully set up yet, please consider using options 1 thru 4 first");
+                    }
                 }
                 else
                 {
@@ -311,13 +308,9 @@ namespace PassiveBOT.Commands
                 File.WriteAllText(file, output);
 
                 if (status)
-                {
                     await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
-                }
                 else
-                {
                     await ReplyAsync("Events will no longer be logged");
-                }
             }
             else
             {
@@ -340,14 +333,9 @@ namespace PassiveBOT.Commands
                 File.WriteAllText(file, output);
 
                 if (status)
-                {
-
                     await ReplyAsync("Invite links will now be deleted!");
-                }
                 else
-                {
                     await ReplyAsync("Invite links are now allowed to be sent");
-                }
             }
             else
             {
@@ -369,14 +357,9 @@ namespace PassiveBOT.Commands
                 File.WriteAllText(file, output);
 
                 if (status)
-                {
-
                     await ReplyAsync("Mass Mentions will now be deleted!");
-                }
                 else
-                {
                     await ReplyAsync("Mass Mentions are now allowed to be sent");
-                }
             }
             else
             {
@@ -405,139 +388,6 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Errors will no longer be logged");
         }
 
-        [Group("blacklist")]
-        public class Blacklist : InteractiveBase
-        {
-            [Command]
-            [Summary("blacklist")]
-            [Remarks("displays the blacklist for 5 seconds")]
-            public async Task B()
-            {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
-                if (File.Exists(file))
-                {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                    if (jsonObj.Blacklist == null)
-                    {
-                        jsonObj.Blacklist = new List<string>();
-                    }
-                    var embed = new EmbedBuilder();
-                    var blackl = "";
-                    foreach (var word in jsonObj.Blacklist)
-                    {
-                        blackl += $"{word} \n";
-                    }
-                    try
-                    {
-                        embed.AddField("Blacklisted Words", blackl);
-                    }
-                    catch
-                    {
-                        //
-                    }
-                    embed.AddField("Timeout", "This message self destructs after 5 seconds.");
-
-                    await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
-
-                }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
-            }
-
-            [Command("add")]
-            [Summary("blacklist add <word>")]
-            [Remarks("adds a word to the blacklist")]
-            public async Task Ab(string keyword)
-            {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
-                if (File.Exists(file))
-                {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                    if (jsonObj.Blacklist == null)
-                    {
-                        jsonObj.Blacklist = new List<string>();
-                    }
-                    if (!jsonObj.Blacklist.Contains(keyword))
-                    {
-                        jsonObj.Blacklist.Add(keyword);
-                        await Context.Message.DeleteAsync();
-                        await ReplyAsync("Added to the Blacklist");
-                    }
-                    else
-                    {
-                        await Context.Message.DeleteAsync();
-                        await ReplyAsync("Keyword is already in the blacklist");
-                        return;
-                    }
-
-                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                    File.WriteAllText(file, output);
-                }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
-            }
-
-            [Command("del")]
-            [Summary("blacklist del <word>")]
-            [Remarks("removes a word from the blacklist")]
-            public async Task Db(string keyword)
-            {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
-                if (File.Exists(file))
-                {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-
-                    if (jsonObj.Blacklist == null)
-                    {
-                        jsonObj.Blacklist = new List<string>();
-                    }
-
-                    if (jsonObj.Blacklist.Contains(keyword))
-                    {
-                        jsonObj.Blacklist.Remove(keyword);
-                        await ReplyAsync($"{keyword} is has been removed from the blacklist");
-                    }
-                    else
-                    {
-                        await ReplyAsync($"{keyword} is not in the blacklist");
-                        return;
-                    }
-
-                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                    File.WriteAllText(file, output);
-                }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
-            }
-
-            [Command("clear")]
-            [Summary("clear")]
-            [Remarks("clears the blacklist")]
-            public async Task Clear()
-            {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
-                if (File.Exists(file))
-                {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                    jsonObj.Blacklist = new List<string>();
-
-                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                    File.WriteAllText(file, output);
-
-                    await ReplyAsync("The blacklist has been cleared.");
-                }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
-            }
-        }
         [Command("addrole")]
         [Summary("addrole @role")]
         [Remarks("adds a subscribable role")]
@@ -548,9 +398,7 @@ namespace PassiveBOT.Commands
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 if (jsonObj.Roles == null)
-                {
                     jsonObj.Roles = new List<ulong>();
-                }
                 if (!jsonObj.Roles.Contains(role.Id))
                 {
                     jsonObj.Roles.Add(role.Id);
@@ -627,6 +475,131 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync("The RSS Feed has been removed (null input)");
                 await _rss.Rss(null, Context.Channel as IGuildChannel);
+            }
+        }
+
+        [Group("blacklist")]
+        public class Blacklist : InteractiveBase
+        {
+            [Command]
+            [Summary("blacklist")]
+            [Remarks("displays the blacklist for 5 seconds")]
+            public async Task B()
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    if (jsonObj.Blacklist == null)
+                        jsonObj.Blacklist = new List<string>();
+                    var embed = new EmbedBuilder();
+                    var blackl = "";
+                    foreach (var word in jsonObj.Blacklist)
+                        blackl += $"{word} \n";
+                    try
+                    {
+                        embed.AddField("Blacklisted Words", blackl);
+                    }
+                    catch
+                    {
+                        //
+                    }
+                    embed.AddField("Timeout", "This message self destructs after 5 seconds.");
+
+                    await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
+                }
+                else
+                {
+                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                }
+            }
+
+            [Command("add")]
+            [Summary("blacklist add <word>")]
+            [Remarks("adds a word to the blacklist")]
+            public async Task Ab(string keyword)
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    if (jsonObj.Blacklist == null)
+                        jsonObj.Blacklist = new List<string>();
+                    if (!jsonObj.Blacklist.Contains(keyword))
+                    {
+                        jsonObj.Blacklist.Add(keyword);
+                        await Context.Message.DeleteAsync();
+                        await ReplyAsync("Added to the Blacklist");
+                    }
+                    else
+                    {
+                        await Context.Message.DeleteAsync();
+                        await ReplyAsync("Keyword is already in the blacklist");
+                        return;
+                    }
+
+                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                    File.WriteAllText(file, output);
+                }
+                else
+                {
+                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                }
+            }
+
+            [Command("del")]
+            [Summary("blacklist del <word>")]
+            [Remarks("removes a word from the blacklist")]
+            public async Task Db(string keyword)
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                    if (jsonObj.Blacklist == null)
+                        jsonObj.Blacklist = new List<string>();
+
+                    if (jsonObj.Blacklist.Contains(keyword))
+                    {
+                        jsonObj.Blacklist.Remove(keyword);
+                        await ReplyAsync($"{keyword} is has been removed from the blacklist");
+                    }
+                    else
+                    {
+                        await ReplyAsync($"{keyword} is not in the blacklist");
+                        return;
+                    }
+
+                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                    File.WriteAllText(file, output);
+                }
+                else
+                {
+                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                }
+            }
+
+            [Command("clear")]
+            [Summary("clear")]
+            [Remarks("clears the blacklist")]
+            public async Task Clear()
+            {
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                if (File.Exists(file))
+                {
+                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    jsonObj.Blacklist = new List<string>();
+
+                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                    File.WriteAllText(file, output);
+
+                    await ReplyAsync("The blacklist has been cleared.");
+                }
+                else
+                {
+                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                }
             }
         }
     }

@@ -32,14 +32,12 @@ namespace PassiveBOT.Commands
             {
                 var d = GuildConfig.Load(Context.Guild.Id).Dict;
                 foreach (var tagging in d)
-                {
                     if (tagging.Tagname == tagname)
                     {
                         await ReplyAsync(
                             $"**{tagname}** is already a tag in this server, if you want to edit it, please delete it first, then add the new tag");
                         return;
                     }
-                }
                 d.Add(tg);
                 jsononb.Dict = d;
                 var output = JsonConvert.SerializeObject(jsononb, Formatting.Indented);
