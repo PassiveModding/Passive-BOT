@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,8 +9,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
+using PassiveBOT.strings;
 using PassiveBOT.Services;
-using Color = System.Drawing.Color;
 
 namespace PassiveBOT.Handlers
 {
@@ -32,6 +33,215 @@ namespace PassiveBOT.Handlers
             _client.UserJoined += UserJoinedAsync;
             _client.Ready += _client_Ready;
             _client.UserLeft += _client_UserLeft;
+
+
+            //user
+            _client.UserLeft += UserLeftEvent;
+            _client.UserJoined += UserJoinedEvent;
+            _client.UserBanned += UserBannedEvent;
+            _client.UserUnbanned += UserUnbannedEvent;
+            //Message
+            _client.MessageDeleted += MessageDeletedEvent;
+            _client.MessageUpdated += MessageUpdatedEvent;
+            //Channel
+            _client.ChannelCreated += ChannelCreatedEvent;
+            _client.ChannelDestroyed += ChannelDeletedEvent;
+            _client.ChannelUpdated += ChannelUpdatedEvent;
+        }
+
+        private async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
+            ISocketMessageChannel Channel)
+        {
+            var guild = (Channel as SocketGuildChannel).Guild;
+            if (messageNew.Author.IsBot) return;
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("Message Updated", $"Author: {messageNew.Author.Username}\n" +
+                                                  $"Old Message: {messageOld.Value.Content}\n" +
+                                                  $"New Message: {messageNew.Content}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Green;
+
+                if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                {
+                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                    await(channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task ChannelUpdatedEvent(SocketChannel sChannel1, SocketChannel sChannel2)
+        {
+            var guild = (sChannel1 as SocketGuildChannel).Guild;
+            var gChannel = sChannel1 as SocketGuildChannel;
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("Channel Updated", $"{gChannel.Name}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Blue;
+
+                if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                {
+                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task ChannelDeletedEvent(SocketChannel sChannel)
+        {
+            var guild = (sChannel as SocketGuildChannel).Guild;
+            var gChannel = sChannel as SocketGuildChannel;
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("Channel Deleted", $"{gChannel.Name}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Green;
+
+                if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                {
+                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                    await(channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task ChannelCreatedEvent(SocketChannel sChannel)
+        {
+            var guild = (sChannel as SocketGuildChannel).Guild;
+            var gChannel = sChannel as SocketGuildChannel;
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("Channel Created", $"{gChannel.Name}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Green;
+
+                if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                {
+                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task MessageDeletedEvent(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
+        {
+            var guild = (channel as SocketGuildChannel).Guild;
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                try
+                {
+                    embed.AddField("Message Deleted", $"Message: {message.Value.Content}\n" +
+                                                      $"Author: {message.Value.Author}\n" +
+                                                      $"Channel: {channel.Name}");
+                }
+                catch
+                {
+                    embed.AddField("Message Deleted", "Message was unable to be retrieved\n" +
+                                                      $"Channel: {channel.Name}");
+                }
+
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Green;
+                var cchannel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                await (cchannel as ITextChannel).SendMessageAsync("", false, embed.Build());
+            }
+        }
+
+        private async Task UserUnbannedEvent(SocketUser user, SocketGuild guild)
+        {
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("User UnBanned", $"Username: {user.Username}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Green;
+                if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                {
+                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task UserBannedEvent(SocketUser user, SocketGuild guild)
+        {
+            if (GuildConfig.Load(guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("User Banned", $"Username: {user.Username}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Red;
+                if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                {
+                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                    await(channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task UserJoinedEvent(SocketGuildUser user)
+        {
+            if (GuildConfig.Load(user.Guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("User Joined", $"Username: {user.Username}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Green;
+                if (GuildConfig.Load(user.Guild.Id).EventChannel != 0)
+                {
+                    var channel = user.Guild.GetChannel(GuildConfig.Load(user.Guild.Id).EventChannel);
+                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        private async Task UserLeftEvent(SocketGuildUser user)
+        {
+            if (GuildConfig.Load(user.Guild.Id).EventLogging)
+            {
+                var embed = new EmbedBuilder();
+                embed.AddField("User Left", $"Username: {user.Username}");
+                embed.WithFooter(x =>
+                {
+                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                });
+                embed.Color = Color.Red;
+                if (GuildConfig.Load(user.Guild.Id).EventChannel != 0)
+                {
+                    var channel = user.Guild.GetChannel(GuildConfig.Load(user.Guild.Id).EventChannel);
+                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                }
+            }
         }
 
         private async Task _client_UserLeft(SocketGuildUser user)
@@ -44,11 +254,19 @@ namespace PassiveBOT.Handlers
             if (gchan != 0)
             {
                 var channel = user.Guild.GetTextChannel(gchan);
-                await channel.SendMessageAsync($"{user.Mention}: {gmessage}");
+                //await channel.SendMessageAsync($"{user.Mention}: {gmessage}");
+
+                var embed = new EmbedBuilder();
+                embed.AddField($"Goodbye {user.Username}", $"{gmessage}");
+                //var channel = user.Guild.GetTextChannel(gchan);
+                await channel.SendMessageAsync($"", false, embed.Build());
             }
             else
             {
-                await user.Guild.DefaultChannel.SendMessageAsync($"{user.Mention}: {gmessage}");
+                var embed = new EmbedBuilder();
+                embed.AddField($"Goodbye {user.Username}", $"{gmessage}");
+                //await channel.SendMessageAsync($"", false, embed.Build());
+                await user.Guild.DefaultChannel.SendMessageAsync($"", false, embed.Build());
             }
         }
 
@@ -92,55 +310,48 @@ namespace PassiveBOT.Handlers
                 return;
 
             if (message.Content.Contains("discord.gg"))
-            {
                 try
                 {
                     if (context.Channel is IGuildChannel)
-                    {
-                        if (GuildConfig.Load(context.Guild.Id).Invite && !(context.User as SocketGuildUser).GuildPermissions.Administrator)
+                        if (GuildConfig.Load(context.Guild.Id).Invite &&
+                            !(context.User as SocketGuildUser).GuildPermissions.Administrator)
                         {
-                           await message.DeleteAsync();
-                           await context.Channel.SendMessageAsync(
-                               $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry");
+                            await message.DeleteAsync();
+                            await context.Channel.SendMessageAsync(
+                                $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry");
                         }
-                    }
                 }
                 catch
                 {
                     //
                 }
-            }
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
-            {
                 try
                 {
                     if (context.Channel is IGuildChannel)
-                    {
-                        if (GuildConfig.Load(context.Guild.Id).MentionAll && !(context.User as SocketGuildUser).GuildPermissions.Administrator)
+                        if (GuildConfig.Load(context.Guild.Id).MentionAll &&
+                            !(context.User as SocketGuildUser).GuildPermissions.Administrator)
                         {
                             await message.DeleteAsync();
 
                             var rnd = new Random();
-                            var res = rnd.Next(0, strings.FunStr.Everyone.Length);
+                            var res = rnd.Next(0, FunStr.Everyone.Length);
                             var emb = new EmbedBuilder
                             {
                                 Title = $"{context.User} - the admins might get angry",
-                                ImageUrl = strings.FunStr.Everyone[res]
+                                ImageUrl = FunStr.Everyone[res]
                             };
                             await context.Channel.SendMessageAsync("", false, emb.Build());
-                            
-
                         }
-                    }
                 }
                 catch
                 {
                     //
                 }
-            }
             try
             {
-                if (GuildConfig.Load(context.Guild.Id).Blacklist.Any(b => context.Message.Content.Contains(b)) && !(context.User as IGuildUser).GuildPermissions.Administrator)
+                if (GuildConfig.Load(context.Guild.Id).Blacklist.Any(b => context.Message.Content.Contains(b)) &&
+                    !(context.User as IGuildUser).GuildPermissions.Administrator)
                 {
                     await message.DeleteAsync();
                     var r = await context.Channel.SendMessageAsync("Passive Police say NO!");
@@ -153,14 +364,11 @@ namespace PassiveBOT.Handlers
             {
                 //
             }
-            
+
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
                   message.HasStringPrefix(Load.Pre, ref argPos))) return;
             if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
-
-
-
 
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
@@ -198,7 +406,7 @@ namespace PassiveBOT.Handlers
             {
                 await ColourLog.In3(
                     $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}",
-                    Color.Teal); //if there is no error log normally
+                    System.Drawing.Color.Teal); //if there is no error log normally
             }
         }
 
@@ -227,12 +435,16 @@ namespace PassiveBOT.Handlers
             var wmessage = GuildConfig.Load(id).WelcomeMessage;
             if (wchan != 0)
             {
+                var embed = new EmbedBuilder();
+                embed.AddField($"Welcome {user.Mention}", $"{wmessage}");
                 var channel = user.Guild.GetTextChannel(wchan);
-                await channel.SendMessageAsync($"{user.Mention}: {wmessage}");
+                await channel.SendMessageAsync($"", false, embed.Build());
             }
             else
             {
-                await user.Guild.DefaultChannel.SendMessageAsync($"{user.Mention}: {wmessage}");
+                var embed = new EmbedBuilder();
+                embed.AddField($"Welcome {user.Mention}", $"{wmessage}");
+                await user.Guild.DefaultChannel.SendMessageAsync($"", false, embed.Build());
             }
         }
     }

@@ -32,10 +32,12 @@ namespace PassiveBOT.Configuration
 
         public bool GoodbyeEvent { get; set; } = false;
         public string GoodbyeMessage { get; set; } = "Has Left the Server :(";
-        public ulong GoodByeChannel { get; set; }
-        public bool WelcomeEvent { get; set; } = false;// toggles welcome messages for new users
+        public ulong GoodByeChannel { get; set; } = 0;
+        public bool WelcomeEvent { get; set; } = false; // toggles welcome messages for new users
         public string WelcomeMessage { get; set; } = "Welcome to Our Server!!!"; // the welcome message
-        public ulong WelcomeChannel { get; set; } // welcome messages in a channel
+        public ulong WelcomeChannel { get; set; } = 0; // welcome messages in a channel
+        public bool EventLogging { get; set; } = false;
+        public ulong EventChannel { get; set; }
 
         public void Save(ulong id)
         {

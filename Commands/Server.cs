@@ -83,6 +83,40 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
+        [Command("Emotes")]
+        [Summary("Emoted")]
+        [Remarks("Displays a list of the servers emotes")]
+        public async Task Emotes()
+        {
+            var embed = new EmbedBuilder();
+
+            var emotelist = "";
+            var emotelist2 = "";
+            foreach (var emote in Context.Guild.Emotes)
+            {
+                if (emotelist.Length > 1000)
+                {
+                    emotelist2 += $"<:{emote.Name}:{emote.Id}>";
+                }
+                else
+                {
+                    emotelist += $"<:{emote.Name}:{emote.Id}>";
+                }
+                
+            }
+            if (emotelist != "")
+            {
+                embed.AddField("Emotes", emotelist);
+                if (emotelist2 != "")
+                {
+                    embed.AddField("Emotes 2", emotelist2);
+                }
+
+                await ReplyAsync("", false, embed.Build());
+            }
+
+        }
+
         [Command("subrole")]
         [Alias("setrole", "joinrole")]
         [Summary("subrole @role")]

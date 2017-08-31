@@ -62,7 +62,8 @@ namespace PassiveBOT
 
             Client = new DiscordSocketClient(new DiscordSocketConfig
             {
-                LogLevel = ll
+                LogLevel = ll,
+                MessageCacheSize = 500
             });
 
             try
@@ -136,7 +137,7 @@ namespace PassiveBOT
         public static Task LogMessageInfo(LogMessage message)
         {
             var messagestr = message.ToString();
-            if (message.ToString().StartsWith("Unknown OpCode (8)"))
+            if (message.ToString().StartsWith("Unknown OpCode (8)") || message.ToString().Contains("VOICE_STATE_UPDATE"))
                 return Task.CompletedTask;
             var msg = messagestr.Substring(21, messagestr.Length - 21);
             ColourLog.In2("PassiveBOT", '?', $"{msg}", Color.Chartreuse);

@@ -296,6 +296,36 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("EventLogging")]
+        [Summary("EventLogging <True/False>")]
+        [Remarks("Enables the ability for events to be logged in a specific channel")]
+        public async Task EventToggle(bool status)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            if (File.Exists(file))
+            {
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                jsonObj.EventLogging = status;
+                jsonObj.EventChannel = Context.Channel.Id;
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+
+                if (status)
+                {
+                    await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
+                }
+                else
+                {
+                    await ReplyAsync("Events will no longer be logged");
+                }
+            }
+            else
+            {
+                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+            }
+        }
+
+
         [Command("NoInvite")]
         [Summary("NoInvite <true/false>")]
         [Remarks("disables/enables the sending of invites in a server from regular members")]
