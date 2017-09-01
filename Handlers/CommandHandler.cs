@@ -52,9 +52,9 @@ namespace PassiveBOT.Handlers
         }
 
         private async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
-            ISocketMessageChannel Channel)
+            ISocketMessageChannel cchannel)
         {
-            var guild = (Channel as SocketGuildChannel).Guild;
+            var guild = (cchannel as SocketGuildChannel).Guild;
             if (messageNew.Author.IsBot) return;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
@@ -443,6 +443,7 @@ namespace PassiveBOT.Handlers
             {
                 var channel = user.Guild.GetTextChannel(wchan);
                 await channel.SendMessageAsync($"**Welcome {user.Mention}**: {wmessage}");
+
             }
             else
             {

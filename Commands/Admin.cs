@@ -8,12 +8,13 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
+using Discord.Addons.Interactive;
 
 namespace PassiveBOT.Commands
 {
     [RequireUserPermission(GuildPermission.Administrator)]
     [RequireContext(ContextType.Guild)]
-    public class Admin : ModuleBase
+    public class Admin :  InteractiveBase
     {
         [Command("prune")]
         [Summary("prune <no. of messages>")]
@@ -35,6 +36,180 @@ namespace PassiveBOT.Commands
                 var enumerable = await Context.Channel.GetMessagesAsync(limit).Flatten().ConfigureAwait(false);
                 await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
                 await ReplyAsync($"Cleared **{count}** Messages");
+            }
+        }
+
+        [Command("EmbedBuilder", RunMode = RunMode.Async)]
+        [Summary("EmbedBuilder")]
+        [Remarks("Create an embedded message")]
+        public async Task BuildEmbed()
+        {
+            var embed = new EmbedBuilder();
+            var embedbuilt = await ReplyAsync("", false, embed.Build());
+
+            await ReplyAndDeleteAsync("```\n" +
+                             "Reply addon you would like to perform\n" +
+                             "[1] Set the Title\n" +
+                             "[2] Set the Description\n" +
+                             "[3] Add a Field\n" +
+                             "[4] Finish\n" +
+                             "```");
+            var n1 = await NextMessageAsync();
+            if (n1.Content.StartsWith("1"))
+            {
+                await ReplyAndDeleteAsync("In the next message you send please specify the embed title");
+                var ntitle = await NextMessageAsync();
+                embed.WithTitle(ntitle.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await ntitle.DeleteAsync();
+            }
+            else if (n1.Content.StartsWith("2"))
+            {
+                await ReplyAndDeleteAsync("In the next message you send please specify the embed description");
+                var ndesc = await NextMessageAsync();
+                embed.WithDescription(ndesc.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await ndesc.DeleteAsync();
+            }
+            else if (n1.Content.StartsWith("3"))
+            {
+                await ReplyAndDeleteAsync("In the next message, specify the field title");
+                var nfieldtitle = await NextMessageAsync();
+                await ReplyAndDeleteAsync("In the next message, specify the field description");
+                var nfielddesc = await NextMessageAsync();
+                embed.AddField(nfieldtitle.Content, nfielddesc.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await nfielddesc.DeleteAsync();
+                await nfieldtitle.DeleteAsync();
+            }
+            else if (n1.Content.StartsWith("4"))
+            {
+                return;
+            }
+            else
+            {
+                await ReplyAsync("Invalid number... exiting");
+                return;
+            }
+
+
+            await ReplyAsync("```\n" +
+                             "Reply addon you would like to perform\n" +
+                             "[1] Set the Title\n" +
+                             "[2] Set the Description\n" +
+                             "[3] Add a Field\n" +
+                             "[4] Finish\n" +
+                             "```");
+            var n2 = await NextMessageAsync();
+
+            if (n2.Content.StartsWith("1"))
+            {
+                await ReplyAndDeleteAsync("In the next message you send please specify the embed title");
+                var ntitle = await NextMessageAsync();
+                embed.WithTitle(ntitle.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await ntitle.DeleteAsync();
+            }
+            else if (n2.Content.StartsWith("2"))
+            {
+                await ReplyAndDeleteAsync("In the next message you send please specify the embed description");
+                var ndesc = await NextMessageAsync();
+                embed.WithDescription(ndesc.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await ndesc.DeleteAsync();
+            }
+            else if (n2.Content.StartsWith("3"))
+            {
+                await ReplyAndDeleteAsync("In the next message, specify the field title");
+                var nfieldtitle = await NextMessageAsync();
+                await ReplyAndDeleteAsync("In the next message, specify the field description");
+                var nfielddesc = await NextMessageAsync();
+                embed.AddField(nfieldtitle.Content, nfielddesc.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await nfieldtitle.DeleteAsync();
+                await nfielddesc.DeleteAsync();
+            }
+            else if (n2.Content.StartsWith("4"))
+            {
+                return;
+            }
+            else
+            {
+                await ReplyAsync("Invalid number... exiting");
+                return;
+            }
+
+            await ReplyAsync("```\n" +
+                             "Reply addon you would like to perform\n" +
+                             "[1] Set the Title\n" +
+                             "[2] Set the Description\n" +
+                             "[3] Add a Field\n" +
+                             "[4] Finish\n" +
+                             "```");
+            var n3 = await NextMessageAsync();
+
+            if (n3.Content.StartsWith("1"))
+            {
+                await ReplyAsync("In the next message you send please specify the embed title");
+                var ntitle = await NextMessageAsync();
+                embed.WithTitle(ntitle.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await ntitle.DeleteAsync();
+            }
+            else if (n3.Content.StartsWith("2"))
+            {
+                await ReplyAsync("In the next message you send please specify the embed description");
+                var ndesc = await NextMessageAsync();
+                embed.WithDescription(ndesc.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await ndesc.DeleteAsync();
+            }
+            else if (n3.Content.StartsWith("3"))
+            {
+                await ReplyAndDeleteAsync("In the next message, specify the field title");
+                var nfieldtitle = await NextMessageAsync();
+                await ReplyAndDeleteAsync("In the next message, specify the field description");
+                var nfielddesc = await NextMessageAsync();
+                embed.AddField(nfieldtitle.Content, nfielddesc.Content);
+                await embedbuilt.ModifyAsync(x =>
+                {
+                    x.Embed = embed.Build();
+                });
+                await nfielddesc.DeleteAsync();
+                await nfieldtitle.DeleteAsync();
+            }
+            else if (n3.Content.StartsWith("4"))
+            {
+                return;
+            }
+            else
+            {
+                await ReplyAsync("Invalid number... exiting");
+                return;
             }
         }
 
@@ -124,7 +299,7 @@ namespace PassiveBOT.Commands
                     string username;
                     try
                     {
-                        var user = await Context.Guild.GetUserAsync(group.UserId);
+                        var user = await ((IGuild) Context.Guild).GetUserAsync(group.UserId);
                         username = user.Username;
                     }
                     catch
@@ -236,7 +411,7 @@ namespace PassiveBOT.Commands
                     string username;
                     try
                     {
-                        var user = await Context.Guild.GetUserAsync(group.UserId);
+                        var user = await ((IGuild) Context.Guild).GetUserAsync(group.UserId);
                         username = user.Username;
                     }
                     catch
@@ -337,7 +512,7 @@ namespace PassiveBOT.Commands
                     string username;
                     try
                     {
-                        var user = await Context.Guild.GetUserAsync(group.UserId);
+                        var user = await ((IGuild) Context.Guild).GetUserAsync(group.UserId);
                         username = user.Username;
                     }
                     catch
