@@ -28,7 +28,7 @@ namespace PassiveBOT.Commands
         {
             await ReplyAsync("Working....");
             var purged = 0;
-            foreach (var config in Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "setup/server/")))
+            foreach (var config in Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "setup/")))
             {
                 var c = Convert.ToUInt64(config.Substring(config.Length - 18, 18));
                 try
@@ -38,7 +38,7 @@ namespace PassiveBOT.Commands
                 }
                 catch
                 {
-                    Directory.Delete(config, true);
+                    File.Delete(config);
                     purged++;
                 }
 
@@ -46,6 +46,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("Guilds Purged.\n" +
                              $"Purged: {purged}");
         }
+
 
 
         [Command("help+", RunMode = RunMode.Async)]

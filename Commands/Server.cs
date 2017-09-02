@@ -113,7 +113,7 @@ namespace PassiveBOT.Commands
         [Remarks("Joins/Leaves the specified(subscribable) role")]
         public async Task JoinRole(IRole role = null)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (role == null)
             {
                 if (File.Exists(file))

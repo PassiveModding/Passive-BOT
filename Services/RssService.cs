@@ -20,7 +20,7 @@ namespace PassiveBOT.Services
             if (urlin == null)
             {
                 Guild.TryRemove(channel.Id, out Timer _);
-                GuildConfig.RssSet(channel.Guild.Id, channel.Id, null, false);
+                GuildConfig.RssSet(channel.Guild, channel.Id, null, false);
                 await (channel as ITextChannel).SendMessageAsync(
                     "Rss Config has been updated! Updates will no longer be posted");
             }

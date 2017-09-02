@@ -295,7 +295,7 @@ namespace PassiveBOT.Handlers
             //if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/")))
             //    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/"));
 
-            var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}/config.json");
+            var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}.json");
             if (!File.Exists(config))
                 GuildConfig.Setup(guild);
 

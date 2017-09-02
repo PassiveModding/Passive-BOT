@@ -47,7 +47,7 @@ namespace PassiveBOT.Commands
             }
             else if (n.Content == "3")
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
                 {
                     File.Delete(file);
@@ -251,25 +251,25 @@ namespace PassiveBOT.Commands
                 await ReplyAsync(
                     "Please reply with the welcome message you want to be sent when a user joins the server ie. `Welcome to Our Server!!`");
                 var next2 = await NextMessageAsync();
-                GuildConfig.SetWMessage(Context.Guild.Id, next2.Content);
-                GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
+                GuildConfig.SetWMessage(Context.Guild, next2.Content);
+                GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
                 await ReplyAsync("The Welcome Message for this server has been set to:\n" +
                                  $"**{next2.Content}**\n" +
                                  $"In the channel **{Context.Channel.Name}**");
             }
             else if (next.Content == "2")
             {
-                GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
+                GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
                 await ReplyAsync($"Welcome Events will be sent in the channel: **{Context.Channel.Name}**");
             }
             else if (next.Content == "3")
             {
-                GuildConfig.SetWelcomeStatus(Context.Guild.Id, true);
+                GuildConfig.SetWelcomeStatus(Context.Guild, true);
                 await ReplyAsync("Welcome Messageing for this server has been set to: true");
             }
             else if (next.Content == "4")
             {
-                GuildConfig.SetWelcomeStatus(Context.Guild.Id, false);
+                GuildConfig.SetWelcomeStatus(Context.Guild, false);
                 await ReplyAsync("Welcome Messageing for this server has been set to: false");
             }
             else if (next.Content == "5")
@@ -311,7 +311,7 @@ namespace PassiveBOT.Commands
                              "```");
 
             var next = await NextMessageAsync();
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -321,8 +321,6 @@ namespace PassiveBOT.Commands
                     await ReplyAsync(
                         "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
                     var next2 = await NextMessageAsync();
-                    //GuildConfig.SetWMessage(Context.Guild.Id, next2.Content);
-                    //GuildConfig.SetWChannel(Context.Guild.Id, Context.Channel.Id);
                     jsonObj.GoodbyeMessage = next2.Content;
                     jsonObj.GoodByeChannel = Context.Channel.Id;
                     GuildConfig.SaveServer(jsonObj, Context.Guild);
@@ -377,7 +375,7 @@ namespace PassiveBOT.Commands
         [Remarks("Enables the ability for events to be logged in a specific channel")]
         public async Task EventToggle(bool status)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -403,7 +401,7 @@ namespace PassiveBOT.Commands
         [Remarks("disables/enables the sending of invites in a server from regular members")]
         public async Task NoInvite(bool status)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -427,7 +425,7 @@ namespace PassiveBOT.Commands
         [Remarks("disables/enables the use of @ everyone and @ here in a server from regular members")]
         public async Task NoMention(bool status)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -451,7 +449,7 @@ namespace PassiveBOT.Commands
         [Remarks("Sets the DJ role")]
         public async Task Dj([Remainder] IRole role)
         {
-            GuildConfig.SetDj(Context.Guild.Id, role.Id);
+            GuildConfig.SetDj(Context.Guild, role.Id);
             await ReplyAsync($"The DJ Role has been set to: {role.Name}");
         }
 
@@ -460,7 +458,7 @@ namespace PassiveBOT.Commands
         [Remarks("Toggles Error Status")]
         public async Task Errors(bool status)
         {
-            GuildConfig.SetError(Context.Guild.Id, status);
+            GuildConfig.SetError(Context.Guild, status);
             if (status)
                 await ReplyAsync("Errors will now be Logged");
             else
@@ -472,7 +470,7 @@ namespace PassiveBOT.Commands
         [Remarks("adds a subscribable role")]
         public async Task Arole(IRole role)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -503,7 +501,7 @@ namespace PassiveBOT.Commands
         [Remarks("removes the subscribable role")]
         public async Task Drole(IRole role)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -535,10 +533,10 @@ namespace PassiveBOT.Commands
         {
             if (url1 != null)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
                 {
-                    GuildConfig.RssSet(Context.Guild.Id, Context.Channel.Id, url1, true);
+                    GuildConfig.RssSet(Context.Guild, Context.Channel.Id, url1, true);
                     await ReplyAsync("Rss Config has been updated!\n" +
                                      $"Updates will be posted in: {Context.Channel.Name}\n" +
                                      $"Url: {url1}");
@@ -565,7 +563,7 @@ namespace PassiveBOT.Commands
             [Remarks("displays the blacklist for 5 seconds")]
             public async Task B()
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
                 {
                     var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -598,7 +596,7 @@ namespace PassiveBOT.Commands
             [Remarks("adds a word to the blacklist")]
             public async Task Ab(string keyword)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
                 {
                     var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -631,7 +629,7 @@ namespace PassiveBOT.Commands
             [Remarks("removes a word from the blacklist")]
             public async Task Db(string keyword)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
                 {
                     var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -664,7 +662,7 @@ namespace PassiveBOT.Commands
             [Remarks("clears the blacklist")]
             public async Task Clear()
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
                 {
                     var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));

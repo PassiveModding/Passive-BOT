@@ -25,7 +25,7 @@ namespace PassiveBOT.Commands
                 Content = tagmessage,
                 Creator = Context.User.Id
             };
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             var jsononb = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
             try
@@ -58,7 +58,7 @@ namespace PassiveBOT.Commands
         [Remarks("Removes a tag from the server")]
         public async Task Tagdel(string tagname)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             var jsononb = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
             try

@@ -216,7 +216,7 @@ namespace PassiveBOT.Commands
         [Remarks("Kicks the specified user (requires Admin Permissions)")]
         public async Task Kickuser(SocketGuildUser user, [Remainder] string reason = null)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -277,7 +277,7 @@ namespace PassiveBOT.Commands
         [Remarks("view all kicks for the current server")]
         public async Task Kicks()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -326,7 +326,7 @@ namespace PassiveBOT.Commands
         [Remarks("Bans the specified user (requires Admin Permissions)")]
         public async Task BanUser(SocketGuildUser user, [Remainder] string reason = null)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -389,7 +389,7 @@ namespace PassiveBOT.Commands
         [Remarks("view all Bans for the current server")]
         public async Task Bans()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -438,7 +438,7 @@ namespace PassiveBOT.Commands
         [Remarks("Warns the specified user (requires Admin Permissions)")]
         public async Task WarnUser(SocketGuildUser user, [Remainder] string reason = null)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -490,7 +490,7 @@ namespace PassiveBOT.Commands
         [Remarks("view all Warns for the current server")]
         public async Task Warns()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -539,7 +539,7 @@ namespace PassiveBOT.Commands
         [Remarks("Clears warnings for the specified user")]
         public async Task ClearWarn(SocketGuildUser removeuser)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -571,7 +571,7 @@ namespace PassiveBOT.Commands
         [Remarks("Clears Kicks for the specified user")]
         public async Task ClearKick(SocketGuildUser removeuser)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
@@ -603,7 +603,7 @@ namespace PassiveBOT.Commands
         [Remarks("Clears Bans for the specified user")]
         public async Task ClearBan(SocketGuildUser removeuser)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/config.json");
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (File.Exists(file))
             {
                 var embed = new EmbedBuilder();
