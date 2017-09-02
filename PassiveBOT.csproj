@@ -212,7 +212,6 @@
     <Compile Include="Commands\Info.cs" />
     <Compile Include="Strings\MEMEString.cs" />
     <Compile Include="Strings\FUNString.cs" />
-    <Compile Include="Preconditions\ServerName.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Configuration\Config.cs" />
