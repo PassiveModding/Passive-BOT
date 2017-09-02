@@ -35,12 +35,9 @@ namespace PassiveBOT.Handlers
 
         public async Task _client_Ready()
         {
-            var config = Path.Combine(AppContext.BaseDirectory + "setup/server");
-            var dirs = Directory.GetDirectories(config);
-            var list = dirs.Select(d => Convert.ToUInt64(Path.GetFileName(d))).ToList();
-
-            foreach (var guild in list)
+            foreach (var guildd in _client.Guilds)
             {
+                var guild = guildd.Id;
                 var server = _client.GetGuild(guild);
                 try
                 {
