@@ -28,12 +28,13 @@ namespace PassiveBOT.Commands
         {
             await ReplyAsync("Working....");
             var purged = 0;
-            foreach (var config in Directory.GetDirectories(Path.Combine(AppContext.BaseDirectory, "setup/")))
+            foreach (var config in Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "setup/server/")))
             {
-                var c = Convert.ToUInt64(config.Substring(config.Length - 18, 18));
+                var p = Path.GetFileNameWithoutExtension(config);
+                Console.WriteLine(p);
                 try
                 {
-                    var trythis = ((DiscordSocketClient) Context.Client).GetGuild(c);
+                    var trythis = ((DiscordSocketClient) Context.Client).GetGuild(Convert.ToUInt64(p));
                     Console.WriteLine(trythis.Name);
                 }
                 catch
