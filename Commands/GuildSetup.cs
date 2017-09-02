@@ -70,47 +70,62 @@ namespace PassiveBOT.Commands
         {
             var embed = new EmbedBuilder();
             var l = GuildConfig.Load(Context.Guild.Id);
+            string djstring;
+            string guildstring;
+            string errorLogString;
+            string subrolelist;
+            string rss;
+            string tags;
+            string welcome;
+            string goodbye;
+            string nomention;
+            string noinvite;
+            string eventlogging;
+            string admincommands;
+            string blacklist;
+
 
             try
             {
-                embed.AddField("DJ Role", $"Role: {Context.Guild.GetRole(l.DjRoleId).Name}");
-            }
-            catch
-            {
-                //
-            }
-
-            
-
-            try
-            {
-                embed.AddField("Guild ID & Name", $"{l.GuildName}, {l.GuildId}");
-            }
-            catch
-            {
-                //
-            }
-
-            embed.AddField("Error logging", $"Status: {l.ErrorLog}");
-
-            try
-            {
-                var list = "";
+                subrolelist = "";
                 foreach (var role in l.Roles)
-                    list += $"{Context.Guild.GetRole(role).Name}\n";
-                embed.AddField("SubRoles", $"Role: {list}");
+                    subrolelist += $"{Context.Guild.GetRole(role).Name}\n";
             }
             catch
             {
-                //
+                subrolelist = "There are no joinable roles";
             }
             try
             {
-                embed.AddField("RSS URL/Channel", $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel).Name}");
+                djstring = Context.Guild.GetRole(l.DjRoleId).Name;
             }
             catch
             {
-                //
+                djstring = "There is no DJ role configured";
+            }
+            try
+            {
+                guildstring = $"{l.GuildName}, {l.GuildId}";
+            }
+            catch
+            {
+                guildstring = $"{Context.Guild.Name}, {Context.Guild.Id}";
+            }
+            try
+            {
+                errorLogString = l.ErrorLog ? "Status: On" : "Status: Off";
+            }
+            catch
+            {
+                errorLogString = "Status: Off";
+            }
+            try
+            {
+                rss = $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel).Name}";
+            }
+            catch
+            {
+                rss = "Status: Disabled";
             }
             try
             {
@@ -119,49 +134,97 @@ namespace PassiveBOT.Commands
                 foreach (var tagging in dict)
                     list += $"{tagging.Tagname}, ";
 
-                var res = list.Substring(0, list.Length - 2);
-                embed.AddField("Tags", $"Tags: {res}");
+                tags = list.Substring(0, list.Length - 2);
             }
             catch
             {
-                //
+                tags = "there are none yet....";
             }
             try
             {
-                embed.AddField("Welcome", $"Status: {l.WelcomeEvent}\n" +
-                                          $"Channel: {Context.Guild.GetChannel(l.WelcomeChannel).Name}\n" +
-                                          $"Message: {l.WelcomeMessage}");
+                var status = l.WelcomeEvent ? "On" : "Off";
+                welcome = $"Status: {status}\n" +
+                          $"Channel: {Context.Guild.GetChannel(l.WelcomeChannel).Name}\n" +
+                          $"Message: {l.WelcomeMessage}";
             }
             catch
             {
-                //
+                welcome = "Status: Disabled";
             }
             try
             {
-                embed.AddField("Goodbye", $"Status: {l.GoodbyeEvent}\n" +
-                                          $"Channel: {Context.Guild.GetChannel(l.GoodByeChannel).Name}\n" +
-                                          $"Message: {l.GoodbyeMessage}");
+                var status = l.GoodbyeEvent ? "On" : "Off";
+                goodbye = $"Status: {status}\n" +
+                          $"Channel: {Context.Guild.GetChannel(l.GoodByeChannel).Name}\n" +
+                          $"Message: {l.GoodbyeMessage}";
             }
             catch
             {
-                //
+                goodbye = "Status: Disabled";
             }
-            embed.AddField("NoMention", $"Status: {l.MentionAll}");
-            embed.AddField("NoInvite", $"Status: {l.Invite}");
             try
             {
-                embed.AddField("EventLogging", $"Status: {l.EventLogging}\n" +
-                                               $"Channel: {Context.Guild.GetChannel(l.EventChannel).Name}");
+                nomention = l.MentionAll ? "Status: On" : "Status: Off";
             }
             catch
             {
-                //
+                nomention = "Status: Off";
             }
-            embed.AddField("Admin Uses", $"Warnings: {l.Warnings.Count}\n" +
-                                         $"Kicks: {l.Kicking.Count}\n" +
-                                         $"Bans: {l.Banning.Count}");
-            embed.AddField("Blacklisted Word Count", $"{l.Blacklist.Count}");
+            try
+            {
+                noinvite = l.Invite ? "Status: On" : "Status: Off";
+            }
+            catch
+            {
+                noinvite = "Status: Off";
+            }
+            try
+            {
+                if (l.EventLogging)
+                    eventlogging = $"Status: On\n" +
+                                   $"Channel: {Context.Guild.GetChannel(l.EventChannel).Name}";
+                else
+                    eventlogging = "Status: Off";
+            }
+            catch
+            {
+                eventlogging = "Disabled";
+            }
+            try
+            {
+                admincommands = $"Warnings: {l.Warnings.Count}\n" +
+                                $"Kicks: {l.Kicking.Count}\n" +
+                                $"Bans: {l.Banning.Count}";
+            }
+            catch
+            {
+                admincommands = "Warnings: 0\n" +
+                                "Kicks: 0\n" +
+                                "Bans: 0";
+            }
+            try
+            {
+                blacklist = $"{l.Blacklist.Count}";
+            }
+            catch
+            {
+                blacklist = $"0";
+            }
 
+
+            embed.AddField("DJ Role", $"Role: {djstring}");
+            embed.AddField("Guild Name & ID", guildstring);
+            embed.AddField("Error logging", $"Status: {errorLogString}");
+            embed.AddField("SubRoles", $"Role: {subrolelist}");
+            embed.AddField("RSS URL/Channel", $"{rss}");
+            embed.AddField("Tags", $"{tags}");
+            embed.AddField("Welcome", $"{welcome}");
+            embed.AddField("Goodbye", $"{goodbye}");
+            embed.AddField("NoMention", $"{nomention}");
+            embed.AddField("NoInvite", $"Status: {noinvite}");
+            embed.AddField("EventLogging", eventlogging);
+            embed.AddField("Admin Uses", admincommands);
+            embed.AddField("Blacklisted Word Count", blacklist);
 
 
             await ReplyAsync("", false, embed.Build());
