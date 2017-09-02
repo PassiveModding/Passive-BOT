@@ -15,12 +15,12 @@ namespace PassiveBOT.Configuration
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
 
-        public ulong DjRoleId { get; set; } = 0; // restrict the music module to a specific role
+        public ulong DjRoleId { get; set; } // restrict the music module to a specific role
 
         public List<ulong> Roles { get; set; } = new List<ulong>(); // a list of roles that users can join via command
 
         public string Rss { get; set; } = "0"; // rss feed url
-        public ulong RssChannel { get; set; } = 0; // channel to post custom rss feeds to
+        public ulong RssChannel { get; set; } // channel to post custom rss feeds to
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
@@ -33,9 +33,9 @@ namespace PassiveBOT.Configuration
         public bool GoodbyeEvent { get; set; } = false;
         public string GoodbyeMessage { get; set; } = "Has Left the Server :(";
         public ulong GoodByeChannel { get; set; } = 0;
-        public bool WelcomeEvent { get; set; } = false; // toggles welcome messages for new users
+        public bool WelcomeEvent { get; set; } // toggles welcome messages for new users
         public string WelcomeMessage { get; set; } = "Welcome to Our Server!!!"; // the welcome message
-        public ulong WelcomeChannel { get; set; } = 0; // welcome messages in a channel
+        public ulong WelcomeChannel { get; set; } // welcome messages in a channel
         public bool EventLogging { get; set; } = false;
         public ulong EventChannel { get; set; } = 0;
 
@@ -70,21 +70,17 @@ namespace PassiveBOT.Configuration
 
         public static void Setup(IGuild guild)
         {
-            var id = guild.Id;
-            var name = guild.Name;
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{id}")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{id}"));
+            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}")))
+                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}"));
 
-            if (File.Exists(Path.Combine(Appdir, $"setup/server/{id}/config.json"))) return;
+            if (File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}/config.json"))) return;
             var cfg = new GuildConfig
             {
-                GuildId = id,
-                GuildName = name,
-                WelcomeMessage = "Welcome to Our Server!!",
-                ErrorLog = false
+                GuildId = guild.Id,
+                GuildName = guild.Name
             };
 
-            cfg.Save(id);
+            cfg.Save(guild.Id);
         }
 
         public static string SetWMessage(ulong id, string input)
@@ -92,7 +88,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 jsonObj.WelcomeMessage = input;
                 jsonObj.WelcomeEvent = true;
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
@@ -110,7 +106,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 jsonObj.WelcomeChannel = channel;
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                 File.WriteAllText(file, output);
@@ -127,7 +123,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 jsonObj.ErrorLog = status;
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                 File.WriteAllText(file, output);
@@ -145,7 +141,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 jsonObj.WelcomeEvent = status;
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                 File.WriteAllText(file, output);
@@ -162,33 +158,8 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 jsonObj.DjRoleId = role;
-                string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
-            }
-            else
-            {
-                return "please run the setup command before using configuration commands";
-            }
-            return null;
-        }
-
-        public static string Subrole(ulong id, ulong role, bool add)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
-            if (File.Exists(file))
-            {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                var list = new List<ulong>();
-
-                if (add)
-                    list.Add(role);
-
-                if (list.Count == 1)
-                    jsonObj.Roles = role;
-                else if (list.Count == 0)
-                    jsonObj.Roles = 0;
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                 File.WriteAllText(file, output);
             }
@@ -204,7 +175,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{id}/config.json");
             if (File.Exists(file))
             {
-                dynamic jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
                 if (add)
                 {
@@ -213,7 +184,7 @@ namespace PassiveBOT.Configuration
                 }
                 else
                 {
-                    jsonObj.Rss = 0;
+                    jsonObj.Rss = "0";
                 }
 
                 string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);

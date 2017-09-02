@@ -18,7 +18,6 @@ namespace PassiveBOT
     public class Program
     {
         private CommandHandler _handler;
-        private EventHandler _eventHandler;
         public DiscordSocketClient Client;
 
         public static void Main(string[] args)
@@ -85,7 +84,7 @@ namespace PassiveBOT
 
             var serviceProvider = ConfigureServices();
             _handler = new CommandHandler(serviceProvider);
-            _eventHandler = new EventHandler(serviceProvider);
+            new EventHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
             //checks if the user wants to log debug info or not

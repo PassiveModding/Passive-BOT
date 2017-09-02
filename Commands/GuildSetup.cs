@@ -265,12 +265,12 @@ namespace PassiveBOT.Commands
             else if (next.Content == "3")
             {
                 GuildConfig.SetWelcomeStatus(Context.Guild.Id, true);
-                await ReplyAsync($"Welcome Messageing for this server has been set to: true");
+                await ReplyAsync("Welcome Messageing for this server has been set to: true");
             }
             else if (next.Content == "4")
             {
                 GuildConfig.SetWelcomeStatus(Context.Guild.Id, false);
-                await ReplyAsync($"Welcome Messageing for this server has been set to: false");
+                await ReplyAsync("Welcome Messageing for this server has been set to: false");
             }
             else if (next.Content == "5")
             {

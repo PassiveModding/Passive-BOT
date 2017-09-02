@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
-using PassiveBOT.strings;
-using PassiveBOT.Services;
 
 namespace PassiveBOT.Handlers
 {
