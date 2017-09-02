@@ -53,7 +53,7 @@ namespace PassiveBOT.Configuration
         public static void SaveServer(GuildConfig config, IGuild guild)
         {
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}/config.json");
-            var output = JsonConvert.SerializeObject(config);
+            var output = JsonConvert.SerializeObject(config, Formatting.Indented);
             File.WriteAllText(file, output);
         }
 
