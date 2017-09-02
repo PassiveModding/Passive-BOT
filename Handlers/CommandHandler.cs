@@ -64,6 +64,7 @@ namespace PassiveBOT.Handlers
 
         public async Task DoCommand(SocketMessage parameterMessage)
         {
+            Load.Messages++;
             var message = parameterMessage as SocketUserMessage;
             if (message == null) return;
             var argPos = 0;

@@ -85,7 +85,7 @@ namespace PassiveBOT.Commands
                     $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
                 {
-                    x.WithText("PassiveBOT");
+                    x.WithText($"PassiveBOT || Messages Recieved Since Last Reboot: {Load.Messages}");
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
 

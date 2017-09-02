@@ -15,6 +15,7 @@ using EventHandler = PassiveBOT.Handlers.EventHandler;
 
 namespace PassiveBOT
 {
+
     public class Program
     {
         private CommandHandler _handler;
