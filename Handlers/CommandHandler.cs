@@ -157,7 +157,11 @@ namespace PassiveBOT.Handlers
             {
                 try
                 {
-                    if (result.ErrorReason != "Unknown command.")
+                    if (!(result.ErrorReason == "Unknown command." ||
+                          result.ErrorReason == "The input text has too many parameters." ||
+                          result.ErrorReason == "The input text has too few parameters." ||
+                          result.ErrorReason == "Timeout" || 
+                          result.ErrorReason == "This command may only be invoked in an NSFW channel."))
                     {
                         var s = Homeserver.Load().Error;
                         var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
