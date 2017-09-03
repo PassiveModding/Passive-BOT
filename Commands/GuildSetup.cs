@@ -88,7 +88,7 @@ namespace PassiveBOT.Commands
             try
             {
                 subrolelist = "";
-                foreach (var role in l.Roles)
+                foreach (var role in l.RoleList)
                     subrolelist += $"{Context.Guild.GetRole(role).Name}\n";
             }
             catch
@@ -313,9 +313,7 @@ namespace PassiveBOT.Commands
             var next = await NextMessageAsync();
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
             if (next.Content == "1")
@@ -378,9 +376,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
             jsonObj.EventLogging = status;
             jsonObj.EventChannel = Context.Channel.Id;
@@ -391,7 +387,6 @@ namespace PassiveBOT.Commands
                 await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
             else
                 await ReplyAsync("Events will no longer be logged");
-
         }
 
 
@@ -402,9 +397,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
             jsonObj.Invite = status;
             var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
@@ -423,9 +416,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
             jsonObj.MentionAll = status;
             var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
@@ -435,7 +426,6 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Mass Mentions will now be deleted!");
             else
                 await ReplyAsync("Mass Mentions are now allowed to be sent");
-
         }
 
         [Command("SetDj")]
@@ -466,15 +456,13 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-            if (jsonObj.Roles == null)
-                jsonObj.Roles = new List<ulong>();
-            if (!jsonObj.Roles.Contains(role.Id))
+            if (jsonObj.RoleList == null)
+                jsonObj.RoleList = new List<ulong>();
+            if (!jsonObj.RoleList.Contains(role.Id))
             {
-                jsonObj.Roles.Add(role.Id);
+                jsonObj.RoleList.Add(role.Id);
                 await ReplyAsync($"{role.Name} is now joinable");
             }
             else
@@ -485,7 +473,6 @@ namespace PassiveBOT.Commands
 
             var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
             File.WriteAllText(file, output);
-
         }
 
         [Command("delrole")]
@@ -495,14 +482,12 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-            if (jsonObj.Roles.Contains(role.Id))
+            if (jsonObj.RoleList.Contains(role.Id))
             {
-                jsonObj.Roles.Remove(role.Id);
+                jsonObj.RoleList.Remove(role.Id);
                 await ReplyAsync($"{role.Name} is has been removed from the subscribable roles list");
             }
             else
@@ -513,7 +498,6 @@ namespace PassiveBOT.Commands
 
             var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
             File.WriteAllText(file, output);
-
         }
 
         [Command("rss", RunMode = RunMode.Async)]
@@ -525,9 +509,7 @@ namespace PassiveBOT.Commands
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (!File.Exists(file))
-                {
                     GuildConfig.Setup(Context.Guild);
-                }
                 GuildConfig.RssSet(Context.Guild, Context.Channel.Id, url1, true);
                 await ReplyAsync("Rss Config has been updated!\n" +
                                  $"Updates will be posted in: {Context.Channel.Name}\n" +
@@ -542,6 +524,39 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("prefix")]
+        [Summary("prefix <newprefix>")]
+        [Remarks("change the bots prefix")]
+        public async Task Prefix([Remainder] string newpre = null)
+        {
+            if (newpre == null)
+            {
+                await ReplyAsync("Please supply a prefix to use.");
+                return;
+            }
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+
+            if (newpre.StartsWith("(") && newpre.EndsWith(")"))
+            {
+                newpre = newpre.TrimStart('(');
+                newpre = newpre.TrimEnd(')');
+            }
+
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            jsonObj.Prefix = newpre;
+
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
+
+            await ReplyAsync($"the prefix has been updated to `{newpre}`\n" +
+                             $"NOTE: the Default prefix `{Load.Pre}` and @mentions will still work\n" +
+                             $"NOTE: if you want to have any spaces in the prefix enclose your new prefix in brackets, ie.\n" +
+                             $"`(newprefix)`");
+        }
+
         [Group("blacklist")]
         public class Blacklist : InteractiveBase
         {
@@ -552,9 +567,7 @@ namespace PassiveBOT.Commands
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (!File.Exists(file))
-                {
                     GuildConfig.Setup(Context.Guild);
-                }
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 if (jsonObj.Blacklist == null)
                     jsonObj.Blacklist = new List<string>();
@@ -582,9 +595,7 @@ namespace PassiveBOT.Commands
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (!File.Exists(file))
-                {
                     GuildConfig.Setup(Context.Guild);
-                }
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 if (jsonObj.Blacklist == null)
                     jsonObj.Blacklist = new List<string>();
@@ -603,7 +614,6 @@ namespace PassiveBOT.Commands
 
                 var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                 File.WriteAllText(file, output);
-
             }
 
             [Command("del")]
@@ -613,9 +623,7 @@ namespace PassiveBOT.Commands
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (!File.Exists(file))
-                {
                     GuildConfig.Setup(Context.Guild);
-                }
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
                 if (jsonObj.Blacklist == null)
@@ -643,9 +651,7 @@ namespace PassiveBOT.Commands
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (!File.Exists(file))
-                {
                     GuildConfig.Setup(Context.Guild);
-                }
                 var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                 jsonObj.Blacklist = new List<string>();
 
@@ -653,43 +659,7 @@ namespace PassiveBOT.Commands
                 File.WriteAllText(file, output);
 
                 await ReplyAsync("The blacklist has been cleared.");
-
             }
-        }
-
-        [Command("prefix")]
-        [Summary("prefix <newprefix>")]
-        [Remarks("change the bots prefix")]
-        public async Task Prefix([Remainder]string newpre = null)
-        {
-            if (newpre == null)
-            {
-                await ReplyAsync("Please supply a prefix to use.");
-                return;
-            }
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-
-            if (!File.Exists(file))
-            {
-                GuildConfig.Setup(Context.Guild);
-            }
-
-            if (newpre.StartsWith("(") && newpre.EndsWith(")"))
-            {
-                newpre = newpre.TrimStart('(');
-                newpre = newpre.TrimEnd(')');
-            }
-
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-            jsonObj.Prefix = newpre;
-
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
-
-            await ReplyAsync($"the prefix has been updated to `{newpre}`\n" +
-                             $"NOTE: the Default prefix `{Load.Pre}` and @mentions will still work\n" +
-                             $"NOTE: if you want to have any spaces in the prefix enclose your new prefix in brackets, ie.\n" +
-                             $"`(newprefix)`");
         }
     }
 }

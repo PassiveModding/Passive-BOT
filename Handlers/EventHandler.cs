@@ -12,7 +12,6 @@ namespace PassiveBOT.Handlers
     public class EventHandler
     {
         private DateTime _delay; //NOTE THIS IS NOT GUILD SPECIFIC YET!
-        public IServiceProvider Provider { get; }
 
         public EventHandler(IServiceProvider provider)
         {
@@ -24,7 +23,7 @@ namespace PassiveBOT.Handlers
 
             client.UserJoined += WelcomeMessage;
             client.UserLeft += GoodbyeMessage;
-            
+
             //user
             client.UserLeft += UserLeftEvent;
             client.UserJoined += UserJoinedEvent;
@@ -38,6 +37,8 @@ namespace PassiveBOT.Handlers
             client.ChannelDestroyed += ChannelDeletedEvent;
             client.ChannelUpdated += ChannelUpdatedEvent;
         }
+
+        public IServiceProvider Provider { get; }
 
         public async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
             ISocketMessageChannel cchannel)
@@ -249,12 +250,10 @@ namespace PassiveBOT.Handlers
             if (wchan != 0)
             {
                 var channel = user.Guild.GetTextChannel(wchan);
-                
+
                 embed.AddField($"Welcome {user.Username}", wmessage);
                 embed.WithColor(Color.Blue);
                 await channel.SendMessageAsync($"{user.Mention}", false, embed.Build());
-
-
             }
             else
             {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -53,14 +52,10 @@ namespace PassiveBOT.Commands
         [Remarks("all help commands")]
         public async Task HelpAsync([Remainder] string modulearg = null)
         {
-
             string isserver;
             if (Context.Channel is IPrivateChannel)
-            {
                 isserver = Load.Pre;
-            }
             else
-            {
                 try
                 {
                     isserver = GuildConfig.Load(Context.Guild.Id).Prefix;
@@ -69,52 +64,44 @@ namespace PassiveBOT.Commands
                 {
                     isserver = Load.Pre;
                 }
-                
-            }
             var embed = new EmbedBuilder
-                {
-                    Color = new Color(114, 137, 218),
-                    Title = $"PassiveBOT | Commands | Prefix: {isserver}"
-                };
+            {
+                Color = new Color(114, 137, 218),
+                Title = $"PassiveBOT | Commands | Prefix: {isserver}"
+            };
             if (modulearg == null) //ShortHelp
             {
-
                 foreach (var module in _service.Modules)
                 {
                     var list = module.Commands.Select(command => command.Name).ToList();
                     if (module.Commands.Count > 0)
-                            embed.AddField(x =>
-                            {
-                                x.Name = module.Name;
-                                x.Value = string.Join(", ", list);
-                            });
+                        embed.AddField(x =>
+                        {
+                            x.Name = module.Name;
+                            x.Value = string.Join(", ", list);
+                        });
                 }
-                embed.AddField("\n\n**NOTE**", $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
-                                           $"Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
+                embed.AddField("\n\n**NOTE**",
+                    $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
+                    $"Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
             }
             else
             {
                 foreach (var module in _service.Modules)
-                {
                     if (module.Name.ToLower() == modulearg.ToLower())
                     {
                         var list = new List<string>();
                         foreach (var command in module.Commands)
-                        {
                             list.Add(
                                 $"{isserver}{command.Summary} - {command.Remarks}");
-                        }
                         embed.AddField(module.Name, string.Join("\n", list));
                     }
-                }
                 if (embed.Fields.Count == 0)
                 {
                     embed.AddField("Error", $"{modulearg} is not a module");
                     var list = _service.Modules.Select(module => module.Name).ToList();
                     embed.AddField("Modules", string.Join("\n", list));
                 }
-
-                
             }
             await ReplyAsync("", false, embed.Build());
         }
@@ -150,21 +137,15 @@ namespace PassiveBOT.Commands
         public async Task Suggest([Remainder] string suggestion = null)
         {
             if (suggestion == null)
-            {
                 await ReplyAsync("Please suggest something lol...");
-            }
             else
-            {
                 try
                 {
                     var s = Homeserver.Load().Suggestion;
                     var c = await Context.Client.GetChannelAsync(s);
                     var embed = new EmbedBuilder();
                     embed.AddField($"Suggestion from {Context.User.Username}", suggestion);
-                    embed.WithFooter(x =>
-                    {
-                        x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}";
-                    });
+                    embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
                     embed.Color = Color.Blue;
                     await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
                     await ReplyAsync("Suggestion Sent!!");
@@ -173,8 +154,6 @@ namespace PassiveBOT.Commands
                 {
                     await ReplyAsync("The bots owner has not yet configured the suggestion channel");
                 }
-
-            }
         }
 
         [Command("Bug")]
@@ -183,21 +162,15 @@ namespace PassiveBOT.Commands
         public async Task Bug([Remainder] string bug = null)
         {
             if (bug == null)
-            {
                 await ReplyAsync("report a bug please.");
-            }
             else
-            {
                 try
                 {
                     var s = Homeserver.Load().Suggestion;
                     var c = await Context.Client.GetChannelAsync(s);
                     var embed = new EmbedBuilder();
                     embed.AddField($"BugReport from {Context.User.Username}", bug);
-                    embed.WithFooter(x =>
-                    {
-                        x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}";
-                    });
+                    embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
                     embed.Color = Color.Red;
                     await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
                     await ReplyAsync("Bug Report Sent!!");
@@ -206,8 +179,6 @@ namespace PassiveBOT.Commands
                 {
                     await ReplyAsync("The bots owner has not yet configured the Bug channel");
                 }
-
-            }
         }
 
         /*

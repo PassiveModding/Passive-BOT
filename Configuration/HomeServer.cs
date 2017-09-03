@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using Discord;
 using Newtonsoft.Json;
-using PassiveBOT.Commands;
 
 namespace PassiveBOT.Configuration
 {
-
     public class Homeserver
     {
         [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;

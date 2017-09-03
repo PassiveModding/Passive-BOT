@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -128,7 +127,7 @@ namespace PassiveBOT.Handlers
 
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
-                  message.HasStringPrefix(Load.Pre, ref argPos) || 
+                  message.HasStringPrefix(Load.Pre, ref argPos) ||
                   message.HasStringPrefix(GuildConfig.Load(context.Guild.Id).Prefix, ref argPos))) return;
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
@@ -160,19 +159,15 @@ namespace PassiveBOT.Handlers
                 {
                     if (result.ErrorReason != "Unknown command.")
                     {
-                                            var s = Homeserver.Load().Error;
-                    var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
-                    var embed = new EmbedBuilder();
-                    embed.AddField($"ERROR", context.Message);
-                    embed.AddField("Reason", result.ErrorReason);
-                    embed.WithFooter(x =>
-                    {
-                        x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}";
-                    });
+                        var s = Homeserver.Load().Error;
+                        var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
+                        var embed = new EmbedBuilder();
+                        embed.AddField($"ERROR", context.Message);
+                        embed.AddField("Reason", result.ErrorReason);
+                        embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
                         embed.Color = Color.Red;
-                    await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                        await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
                     }
-
                 }
                 catch
                 {

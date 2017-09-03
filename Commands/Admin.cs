@@ -52,7 +52,6 @@ namespace PassiveBOT.Commands
         }
 
 
-
         [Command("EmbedBuilder", RunMode = RunMode.Async)]
         [Summary("EmbedBuilder")]
         [Remarks("Create an embedded message")]
@@ -62,22 +61,19 @@ namespace PassiveBOT.Commands
             var embedbuilt = await ReplyAsync("", false, embed.Build());
 
             await ReplyAndDeleteAsync("```\n" +
-                             "Reply addon you would like to perform\n" +
-                             "[1] Set the Title\n" +
-                             "[2] Set the Description\n" +
-                             "[3] Add a Field\n" +
-                             "[4] Finish\n" +
-                             "```");
+                                      "Reply addon you would like to perform\n" +
+                                      "[1] Set the Title\n" +
+                                      "[2] Set the Description\n" +
+                                      "[3] Add a Field\n" +
+                                      "[4] Finish\n" +
+                                      "```");
             var n1 = await NextMessageAsync();
             if (n1.Content.StartsWith("1"))
             {
                 await ReplyAndDeleteAsync("In the next message you send please specify the embed title");
                 var ntitle = await NextMessageAsync();
                 embed.WithTitle(ntitle.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await ntitle.DeleteAsync();
             }
             else if (n1.Content.StartsWith("2"))
@@ -85,10 +81,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("In the next message you send please specify the embed description");
                 var ndesc = await NextMessageAsync();
                 embed.WithDescription(ndesc.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await ndesc.DeleteAsync();
             }
             else if (n1.Content.StartsWith("3"))
@@ -98,10 +91,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("In the next message, specify the field description");
                 var nfielddesc = await NextMessageAsync();
                 embed.AddField(nfieldtitle.Content, nfielddesc.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await nfielddesc.DeleteAsync();
                 await nfieldtitle.DeleteAsync();
             }
@@ -130,10 +120,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("In the next message you send please specify the embed title");
                 var ntitle = await NextMessageAsync();
                 embed.WithTitle(ntitle.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await ntitle.DeleteAsync();
             }
             else if (n2.Content.StartsWith("2"))
@@ -141,10 +128,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("In the next message you send please specify the embed description");
                 var ndesc = await NextMessageAsync();
                 embed.WithDescription(ndesc.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await ndesc.DeleteAsync();
             }
             else if (n2.Content.StartsWith("3"))
@@ -154,10 +138,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("In the next message, specify the field description");
                 var nfielddesc = await NextMessageAsync();
                 embed.AddField(nfieldtitle.Content, nfielddesc.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await nfieldtitle.DeleteAsync();
                 await nfielddesc.DeleteAsync();
             }
@@ -185,10 +166,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("In the next message you send please specify the embed title");
                 var ntitle = await NextMessageAsync();
                 embed.WithTitle(ntitle.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await ntitle.DeleteAsync();
             }
             else if (n3.Content.StartsWith("2"))
@@ -196,10 +174,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("In the next message you send please specify the embed description");
                 var ndesc = await NextMessageAsync();
                 embed.WithDescription(ndesc.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await ndesc.DeleteAsync();
             }
             else if (n3.Content.StartsWith("3"))
@@ -209,10 +184,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("In the next message, specify the field description");
                 var nfielddesc = await NextMessageAsync();
                 embed.AddField(nfieldtitle.Content, nfielddesc.Content);
-                await embedbuilt.ModifyAsync(x =>
-                {
-                    x.Embed = embed.Build();
-                });
+                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
                 await nfielddesc.DeleteAsync();
                 await nfieldtitle.DeleteAsync();
             }
@@ -232,9 +204,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
 
             var embed = new EmbedBuilder();
 
@@ -293,9 +263,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             embed.WithTitle("Kicks");
             var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -313,7 +281,7 @@ namespace PassiveBOT.Commands
                 string username;
                 try
                 {
-                    var user = await ((IGuild)Context.Guild).GetUserAsync(group.UserId);
+                    var user = await ((IGuild) Context.Guild).GetUserAsync(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -343,9 +311,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             if (reason == null)
             {
@@ -402,9 +368,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
 
             var embed = new EmbedBuilder();
             embed.WithTitle("Bans");
@@ -423,7 +387,7 @@ namespace PassiveBOT.Commands
                 string username;
                 try
                 {
-                    var user = await ((IGuild)Context.Guild).GetUserAsync(group.UserId);
+                    var user = await ((IGuild) Context.Guild).GetUserAsync(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -453,9 +417,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             if (reason == null)
             {
@@ -501,9 +463,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             embed.WithTitle("Warns");
             var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -521,7 +481,7 @@ namespace PassiveBOT.Commands
                 string username;
                 try
                 {
-                    var user = await ((IGuild)Context.Guild).GetUserAsync(group.UserId);
+                    var user = await ((IGuild) Context.Guild).GetUserAsync(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -551,9 +511,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             embed.WithTitle("Warns Removed");
             var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -584,9 +542,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             embed.WithTitle("Kicks Removed");
             var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -617,9 +573,7 @@ namespace PassiveBOT.Commands
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
-            {
                 GuildConfig.Setup(Context.Guild);
-            }
             var embed = new EmbedBuilder();
             embed.WithTitle("Bans Removed");
             var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));

@@ -27,58 +27,216 @@ namespace PassiveBOT.Commands
             var s = (SocketGuild) Context.Guild;
             var g = Context.Guild;
 
-            embed.AddInlineField("Server Name", g.Name);
-            embed.AddInlineField("Owner", s.Owner);
-            embed.AddInlineField("Owner ID", s.OwnerId);
-            embed.AddInlineField("Voice Region", s.VoiceRegionId);
-            embed.AddInlineField("Verification Level", s.VerificationLevel);
-            if (s.SplashUrl == null)
-                embed.AddInlineField("Splash Url", "null");
-            else
-                embed.AddInlineField("Splash Url", s.SplashUrl);
-            embed.AddField("Creation Date", s.CreatedAt);
-
-
-            //
-            if (s.Features.Count > 0)
+            try
             {
-                embed.AddField("--------------", "**Features**");
-                var i = 0;
-                foreach (var feature in s.Features.ToList())
+                embed.AddInlineField("Server Name", g.Name);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Owner", s.Owner);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Owner ID", s.OwnerId);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Voice Region", s.VoiceRegionId);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Verification Level", s.VerificationLevel);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                if (s.SplashUrl == null)
+                    embed.AddInlineField("Splash Url", "null");
+                else
+                    embed.AddInlineField("Splash Url", s.SplashUrl);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("Creation Date", s.CreatedAt);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                if (s.Features.Count > 0)
                 {
-                    i++;
-                    embed.AddField($"{i}", feature);
+                    embed.AddField("--------------", "**Features**");
+                    var i = 0;
+                    foreach (var feature in s.Features.ToList())
+                    {
+                        i++;
+                        embed.AddField($"{i}", feature);
+                    }
                 }
             }
-
-
-            //
-            embed.AddField("--------------", "**Defaults**");
-            embed.AddInlineField("Default Channel", s.DefaultChannel.Name);
-            embed.AddInlineField("Default Notifications", s.DefaultMessageNotifications);
-            embed.AddInlineField("AFK Channel", s.AFKChannel);
-            embed.AddInlineField("AFK Timeout", s.AFKTimeout);
-            embed.AddInlineField("Available", g.Available);
-            embed.AddInlineField("MFA Status", g.MfaLevel);
-
-            //
-            embed.AddField("--------------", "**User Counts**");
-            embed.AddInlineField(":busts_in_silhouette: Total Members", mem);
-            embed.AddInlineField(":robot: Total Bots", botlist);
-            embed.AddInlineField(":man_in_tuxedo: Total Users", guildusers);
-            embed.AddInlineField(":newspaper2: Total Channels", s.Channels.Count);
-            embed.AddInlineField(":microphone: Text/Voice Channels",
-                $"{s.TextChannels.Count}/{s.VoiceChannels.Count}");
-            embed.AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count);
-
-            //
-            embed.AddField("Links",
-                $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");
-            embed.WithFooter(x =>
+            catch
             {
-                x.WithText("PassiveBOT");
-                x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-            });
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Default Notifications", s.DefaultMessageNotifications);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("--------------", "**Defaults**");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Default Channel", s.DefaultChannel.Name);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("AFK Channel", s.AFKChannel);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("AFK Timeout", s.AFKTimeout);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("Available", g.Available);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField("MFA Status", g.MfaLevel);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("--------------", "**User Counts**");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField(":busts_in_silhouette: Total Members", mem);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField(":robot: Total Bots", botlist);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField(":man_in_tuxedo: Total Users", guildusers);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField(":newspaper2: Total Channels", s.Channels.Count);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField(":microphone: Text/Voice Channels",
+                    $"{s.TextChannels.Count}/{s.VoiceChannels.Count}");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count);
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.AddField("Links",
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");
+            }
+            catch
+            {
+                //
+            }
+            try
+            {
+                embed.WithFooter(x =>
+                {
+                    x.WithText("PassiveBOT");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
+            }
+            catch
+            {
+                //
+            }
 
             await ReplyAsync("", false, embed.Build());
         }
@@ -121,7 +279,7 @@ namespace PassiveBOT.Commands
                     var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                     var embed = new EmbedBuilder();
                     var roles = "";
-                    foreach (var roleid in jsonObj.Roles)
+                    foreach (var roleid in jsonObj.RoleList)
                         try
                         {
                             roles += $"{Context.Guild.GetRole(roleid).Name}\n";
@@ -141,7 +299,7 @@ namespace PassiveBOT.Commands
                 {
                     var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
                     var embed = new EmbedBuilder();
-                    if (jsonObj.Roles.Contains(role.Id))
+                    if (jsonObj.RoleList.Contains(role.Id))
                     {
                         var u = Context.User as IGuildUser;
                         if (u.RoleIds.Contains(role.Id))

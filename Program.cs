@@ -15,7 +15,6 @@ using EventHandler = PassiveBOT.Handlers.EventHandler;
 
 namespace PassiveBOT
 {
-
     public class Program
     {
         private CommandHandler _handler;
@@ -47,9 +46,7 @@ namespace PassiveBOT
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/server/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/server/"));
             if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")))
-            {
                 File.Create(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")).Dispose();
-            }
             Config.CheckExistence();
             var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug.ToUpper();

@@ -43,7 +43,6 @@ namespace PassiveBOT.Commands
                     File.Delete(config);
                     purged++;
                 }
-
             }
             await ReplyAsync("Guilds Purged.\n" +
                              $"Purged: {purged}");

@@ -18,7 +18,10 @@ namespace PassiveBOT.Configuration
 
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
 
-        public List<ulong> Roles { get; set; } = new List<ulong>(); // a list of roles that users can join via command
+        public List<ulong> RoleList { get; set; } =
+            new List<ulong>(); // a list of roles that users can join via command
+
+        //public string Roles { get; set; } //Unnecessary data as this was converted to the above list.
 
         public string Rss { get; set; } = "0"; // rss feed url
         public ulong RssChannel { get; set; } // channel to post custom rss feeds to
