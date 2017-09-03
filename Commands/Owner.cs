@@ -31,7 +31,7 @@ namespace PassiveBOT.Commands
             foreach (var config in Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "setup/server/")))
             {
                 var p = Path.GetFileNameWithoutExtension(config);
-                Console.WriteLine(p);
+                //Console.WriteLine(p);
                 try
                 {
                     var trythis = ((DiscordSocketClient) Context.Client).GetGuild(Convert.ToUInt64(p));

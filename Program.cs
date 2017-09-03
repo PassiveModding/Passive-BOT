@@ -85,6 +85,7 @@ namespace PassiveBOT
 
             var serviceProvider = ConfigureServices();
             _handler = new CommandHandler(serviceProvider);
+            // ReSharper disable once ObjectCreationAsStatement
             new EventHandler(serviceProvider);
             await _handler.ConfigureAsync();
 

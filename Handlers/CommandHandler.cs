@@ -128,9 +128,8 @@ namespace PassiveBOT.Handlers
 
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
-                  message.HasStringPrefix(Load.Pre, ref argPos))) return;
-            if (message.HasStringPrefix(Load.Pre + Load.Pre, ref argPos) || message.ToString() == Load.Pre) return;
-
+                  message.HasStringPrefix(Load.Pre, ref argPos) || 
+                  message.HasStringPrefix(GuildConfig.Load(context.Guild.Id).Prefix, ref argPos))) return;
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 

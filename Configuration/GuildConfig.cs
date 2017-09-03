@@ -14,6 +14,7 @@ namespace PassiveBOT.Configuration
 
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
+        public string Prefix { get; set; } = Configuration.Load.Pre; //
 
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
 
@@ -70,9 +71,6 @@ namespace PassiveBOT.Configuration
 
         public static void Setup(IGuild guild)
         {
-            if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}")))
-                Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}"));
-
             if (File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) return;
             var cfg = new GuildConfig
             {

@@ -39,6 +39,20 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("prune")]
+        [Summary("prune <user>")]
+        [Remarks("removes most recent messages from a user")]
+        public async Task Prune(IUser user)
+        {
+            await Context.Message.DeleteAsync().ConfigureAwait(false);
+            var enumerable = await Context.Channel.GetMessagesAsync().Flatten().ConfigureAwait(false);
+            var newlist = enumerable.Where(x => x.Author == user).ToList();
+            await Context.Channel.DeleteMessagesAsync(newlist).ConfigureAwait(false);
+            await ReplyAsync($"Cleared **{user.Username}'s** Messages (Count = {newlist.Count})");
+        }
+
+
+
         [Command("EmbedBuilder", RunMode = RunMode.Async)]
         [Summary("EmbedBuilder")]
         [Remarks("Create an embedded message")]

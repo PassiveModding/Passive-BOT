@@ -312,61 +312,62 @@ namespace PassiveBOT.Commands
 
             var next = await NextMessageAsync();
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (File.Exists(file))
+            if (!File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                GuildConfig.Setup(Context.Guild);
+            }
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-                if (next.Content == "1")
+            if (next.Content == "1")
+            {
+                await ReplyAsync(
+                    "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
+                var next2 = await NextMessageAsync();
+                jsonObj.GoodbyeMessage = next2.Content;
+                jsonObj.GoodByeChannel = Context.Channel.Id;
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
+
+                await ReplyAsync("The Goodbye Message for this server has been set to:\n" +
+                                 $"**{next2.Content}**\n" +
+                                 $"In the channel **{Context.Channel.Name}**");
+            }
+            else if (next.Content == "2")
+            {
+                jsonObj.GoodByeChannel = Context.Channel.Id;
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
+                await ReplyAsync($"Goodbye Events will be sent in the channel: **{Context.Channel.Name}**");
+            }
+            else if (next.Content == "3")
+            {
+                jsonObj.GoodbyeEvent = true;
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
+                await ReplyAsync("GoodBye Messaging for this server has been set to: On");
+            }
+            else if (next.Content == "4")
+            {
+                jsonObj.GoodbyeEvent = false;
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
+                await ReplyAsync("GoodBye Messaging for this server has been set to: Off");
+            }
+            else if (next.Content == "5")
+            {
+                var embed = new EmbedBuilder();
+                try
+                {
+                    embed.AddField("Message", jsonObj.GoodbyeMessage);
+                    embed.AddField("Channel", Context.Guild.GetChannel(jsonObj.GoodByeChannel).Name);
+                    embed.AddField("Status", jsonObj.GoodbyeEvent ? "On" : "Off");
+                    await ReplyAsync("", false, embed.Build());
+                }
+                catch
                 {
                     await ReplyAsync(
-                        "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
-                    var next2 = await NextMessageAsync();
-                    jsonObj.GoodbyeMessage = next2.Content;
-                    jsonObj.GoodByeChannel = Context.Channel.Id;
-                    GuildConfig.SaveServer(jsonObj, Context.Guild);
-
-                    await ReplyAsync("The Goodbye Message for this server has been set to:\n" +
-                                     $"**{next2.Content}**\n" +
-                                     $"In the channel **{Context.Channel.Name}**");
+                        "Error, this guilds Goodbye config is not fully set up yet, please consider using options 1 thru 4 first");
                 }
-                else if (next.Content == "2")
-                {
-                    jsonObj.GoodByeChannel = Context.Channel.Id;
-                    GuildConfig.SaveServer(jsonObj, Context.Guild);
-                    await ReplyAsync($"Goodbye Events will be sent in the channel: **{Context.Channel.Name}**");
-                }
-                else if (next.Content == "3")
-                {
-                    jsonObj.GoodbyeEvent = true;
-                    GuildConfig.SaveServer(jsonObj, Context.Guild);
-                    await ReplyAsync("GoodBye Messaging for this server has been set to: On");
-                }
-                else if (next.Content == "4")
-                {
-                    jsonObj.GoodbyeEvent = false;
-                    GuildConfig.SaveServer(jsonObj, Context.Guild);
-                    await ReplyAsync("GoodBye Messaging for this server has been set to: Off");
-                }
-                else if (next.Content == "5")
-                {
-                    var embed = new EmbedBuilder();
-                    try
-                    {
-                        embed.AddField("Message", jsonObj.GoodbyeMessage);
-                        embed.AddField("Channel", Context.Guild.GetChannel(jsonObj.GoodByeChannel).Name);
-                        embed.AddField("Status", jsonObj.GoodbyeEvent ? "On" : "Off");
-                        await ReplyAsync("", false, embed.Build());
-                    }
-                    catch
-                    {
-                        await ReplyAsync(
-                            "Error, this guilds Goodbye config is not fully set up yet, please consider using options 1 thru 4 first");
-                    }
-                }
-                else
-                {
-                    await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
-                }
+            }
+            else
+            {
+                await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
             }
         }
 
@@ -376,23 +377,21 @@ namespace PassiveBOT.Commands
         public async Task EventToggle(bool status)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (File.Exists(file))
+            if (!File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                jsonObj.EventLogging = status;
-                jsonObj.EventChannel = Context.Channel.Id;
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.Setup(Context.Guild);
+            }
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            jsonObj.EventLogging = status;
+            jsonObj.EventChannel = Context.Channel.Id;
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
 
-                if (status)
-                    await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
-                else
-                    await ReplyAsync("Events will no longer be logged");
-            }
+            if (status)
+                await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
             else
-            {
-                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-            }
+                await ReplyAsync("Events will no longer be logged");
+
         }
 
 
@@ -402,22 +401,19 @@ namespace PassiveBOT.Commands
         public async Task NoInvite(bool status)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (File.Exists(file))
+            if (!File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                jsonObj.Invite = status;
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.Setup(Context.Guild);
+            }
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            jsonObj.Invite = status;
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
 
-                if (status)
-                    await ReplyAsync("Invite links will now be deleted!");
-                else
-                    await ReplyAsync("Invite links are now allowed to be sent");
-            }
+            if (status)
+                await ReplyAsync("Invite links will now be deleted!");
             else
-            {
-                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-            }
+                await ReplyAsync("Invite links are now allowed to be sent");
         }
 
         [Command("NoMention")]
@@ -426,22 +422,20 @@ namespace PassiveBOT.Commands
         public async Task NoMention(bool status)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (File.Exists(file))
+            if (!File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                jsonObj.MentionAll = status;
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.Setup(Context.Guild);
+            }
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            jsonObj.MentionAll = status;
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
 
-                if (status)
-                    await ReplyAsync("Mass Mentions will now be deleted!");
-                else
-                    await ReplyAsync("Mass Mentions are now allowed to be sent");
-            }
+            if (status)
+                await ReplyAsync("Mass Mentions will now be deleted!");
             else
-            {
-                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-            }
+                await ReplyAsync("Mass Mentions are now allowed to be sent");
+
         }
 
         [Command("SetDj")]
@@ -471,29 +465,27 @@ namespace PassiveBOT.Commands
         public async Task Arole(IRole role)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (File.Exists(file))
+            if (!File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                if (jsonObj.Roles == null)
-                    jsonObj.Roles = new List<ulong>();
-                if (!jsonObj.Roles.Contains(role.Id))
-                {
-                    jsonObj.Roles.Add(role.Id);
-                    await ReplyAsync($"{role.Name} has been added to the subscribable roles list");
-                }
-                else
-                {
-                    await ReplyAsync($"{role.Name} is already subscribable");
-                    return;
-                }
-
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.Setup(Context.Guild);
+            }
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            if (jsonObj.Roles == null)
+                jsonObj.Roles = new List<ulong>();
+            if (!jsonObj.Roles.Contains(role.Id))
+            {
+                jsonObj.Roles.Add(role.Id);
+                await ReplyAsync($"{role.Name} is now joinable");
             }
             else
             {
-                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                await ReplyAsync($"{role.Name} is already joinable");
+                return;
             }
+
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
+
         }
 
         [Command("delrole")]
@@ -502,28 +494,26 @@ namespace PassiveBOT.Commands
         public async Task Drole(IRole role)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (File.Exists(file))
+            if (!File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                GuildConfig.Setup(Context.Guild);
+            }
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-                if (jsonObj.Roles.Contains(role.Id))
-                {
-                    jsonObj.Roles.Remove(role.Id);
-                    await ReplyAsync($"{role.Name} is has been removed from the subscribable roles list");
-                }
-                else
-                {
-                    await ReplyAsync($"{role.Name} is not a subscribable role");
-                    return;
-                }
-
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+            if (jsonObj.Roles.Contains(role.Id))
+            {
+                jsonObj.Roles.Remove(role.Id);
+                await ReplyAsync($"{role.Name} is has been removed from the subscribable roles list");
             }
             else
             {
-                await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                await ReplyAsync($"{role.Name} is not a subscribable role");
+                return;
             }
+
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
+
         }
 
         [Command("rss", RunMode = RunMode.Async)]
@@ -534,17 +524,14 @@ namespace PassiveBOT.Commands
             if (url1 != null)
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (File.Exists(file))
+                if (!File.Exists(file))
                 {
-                    GuildConfig.RssSet(Context.Guild, Context.Channel.Id, url1, true);
-                    await ReplyAsync("Rss Config has been updated!\n" +
-                                     $"Updates will be posted in: {Context.Channel.Name}\n" +
-                                     $"Url: {url1}");
+                    GuildConfig.Setup(Context.Guild);
                 }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
+                GuildConfig.RssSet(Context.Guild, Context.Channel.Id, url1, true);
+                await ReplyAsync("Rss Config has been updated!\n" +
+                                 $"Updates will be posted in: {Context.Channel.Name}\n" +
+                                 $"Url: {url1}");
 
                 await _rss.Rss(url1, Context.Channel as IGuildChannel);
             }
@@ -564,31 +551,28 @@ namespace PassiveBOT.Commands
             public async Task B()
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (File.Exists(file))
+                if (!File.Exists(file))
                 {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                    if (jsonObj.Blacklist == null)
-                        jsonObj.Blacklist = new List<string>();
-                    var embed = new EmbedBuilder();
-                    var blackl = "";
-                    foreach (var word in jsonObj.Blacklist)
-                        blackl += $"{word} \n";
-                    try
-                    {
-                        embed.AddField("Blacklisted Words", blackl);
-                    }
-                    catch
-                    {
-                        //
-                    }
-                    embed.AddField("Timeout", "This message self destructs after 5 seconds.");
+                    GuildConfig.Setup(Context.Guild);
+                }
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                if (jsonObj.Blacklist == null)
+                    jsonObj.Blacklist = new List<string>();
+                var embed = new EmbedBuilder();
+                var blackl = "";
+                foreach (var word in jsonObj.Blacklist)
+                    blackl += $"{word} \n";
+                try
+                {
+                    embed.AddField("Blacklisted Words", blackl);
+                }
+                catch
+                {
+                    //
+                }
+                embed.AddField("Timeout", "This message self destructs after 5 seconds.");
 
-                    await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
-                }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
+                await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
             }
 
             [Command("add")]
@@ -597,31 +581,29 @@ namespace PassiveBOT.Commands
             public async Task Ab(string keyword)
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (File.Exists(file))
+                if (!File.Exists(file))
                 {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                    if (jsonObj.Blacklist == null)
-                        jsonObj.Blacklist = new List<string>();
-                    if (!jsonObj.Blacklist.Contains(keyword))
-                    {
-                        jsonObj.Blacklist.Add(keyword);
-                        await Context.Message.DeleteAsync();
-                        await ReplyAsync("Added to the Blacklist");
-                    }
-                    else
-                    {
-                        await Context.Message.DeleteAsync();
-                        await ReplyAsync("Keyword is already in the blacklist");
-                        return;
-                    }
-
-                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                    File.WriteAllText(file, output);
+                    GuildConfig.Setup(Context.Guild);
+                }
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                if (jsonObj.Blacklist == null)
+                    jsonObj.Blacklist = new List<string>();
+                if (!jsonObj.Blacklist.Contains(keyword))
+                {
+                    jsonObj.Blacklist.Add(keyword);
+                    await Context.Message.DeleteAsync();
+                    await ReplyAsync("Added to the Blacklist");
                 }
                 else
                 {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                    await Context.Message.DeleteAsync();
+                    await ReplyAsync("Keyword is already in the blacklist");
+                    return;
                 }
+
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+
             }
 
             [Command("del")]
@@ -630,31 +612,28 @@ namespace PassiveBOT.Commands
             public async Task Db(string keyword)
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (File.Exists(file))
+                if (!File.Exists(file))
                 {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    GuildConfig.Setup(Context.Guild);
+                }
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
 
-                    if (jsonObj.Blacklist == null)
-                        jsonObj.Blacklist = new List<string>();
+                if (jsonObj.Blacklist == null)
+                    jsonObj.Blacklist = new List<string>();
 
-                    if (jsonObj.Blacklist.Contains(keyword))
-                    {
-                        jsonObj.Blacklist.Remove(keyword);
-                        await ReplyAsync($"{keyword} is has been removed from the blacklist");
-                    }
-                    else
-                    {
-                        await ReplyAsync($"{keyword} is not in the blacklist");
-                        return;
-                    }
-
-                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                    File.WriteAllText(file, output);
+                if (jsonObj.Blacklist.Contains(keyword))
+                {
+                    jsonObj.Blacklist.Remove(keyword);
+                    await ReplyAsync($"{keyword} is has been removed from the blacklist");
                 }
                 else
                 {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
+                    await ReplyAsync($"{keyword} is not in the blacklist");
+                    return;
                 }
+
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
             }
 
             [Command("clear")]
@@ -663,21 +642,54 @@ namespace PassiveBOT.Commands
             public async Task Clear()
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (File.Exists(file))
+                if (!File.Exists(file))
                 {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-                    jsonObj.Blacklist = new List<string>();
-
-                    var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                    File.WriteAllText(file, output);
-
-                    await ReplyAsync("The blacklist has been cleared.");
+                    GuildConfig.Setup(Context.Guild);
                 }
-                else
-                {
-                    await ReplyAsync($"The config file does not exist, please type `{Load.Pre}setup` to initialise it");
-                }
+                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                jsonObj.Blacklist = new List<string>();
+
+                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+                File.WriteAllText(file, output);
+
+                await ReplyAsync("The blacklist has been cleared.");
+
             }
+        }
+
+        [Command("prefix")]
+        [Summary("prefix <newprefix>")]
+        [Remarks("change the bots prefix")]
+        public async Task Prefix([Remainder]string newpre = null)
+        {
+            if (newpre == null)
+            {
+                await ReplyAsync("Please supply a prefix to use.");
+                return;
+            }
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+
+            if (!File.Exists(file))
+            {
+                GuildConfig.Setup(Context.Guild);
+            }
+
+            if (newpre.StartsWith("(") && newpre.EndsWith(")"))
+            {
+                newpre = newpre.TrimStart('(');
+                newpre = newpre.TrimEnd(')');
+            }
+
+            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            jsonObj.Prefix = newpre;
+
+            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(file, output);
+
+            await ReplyAsync($"the prefix has been updated to `{newpre}`\n" +
+                             $"NOTE: the Default prefix `{Load.Pre}` and @mentions will still work\n" +
+                             $"NOTE: if you want to have any spaces in the prefix enclose your new prefix in brackets, ie.\n" +
+                             $"`(newprefix)`");
         }
     }
 }
