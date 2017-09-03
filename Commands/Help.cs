@@ -53,11 +53,7 @@ namespace PassiveBOT.Commands
         [Remarks("all help commands")]
         public async Task HelpAsync([Remainder] string modulearg = null)
         {
-            var embed = new EmbedBuilder
-                {
-                    Color = new Color(114, 137, 218),
-                    Title = "PassiveBOT | Commands"
-                };
+
             string isserver;
             if (Context.Channel is IPrivateChannel)
             {
@@ -65,8 +61,21 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                isserver = GuildConfig.Load(Context.Guild.Id).Prefix;
+                try
+                {
+                    isserver = GuildConfig.Load(Context.Guild.Id).Prefix;
+                }
+                catch
+                {
+                    isserver = Load.Pre;
+                }
+                
             }
+            var embed = new EmbedBuilder
+                {
+                    Color = new Color(114, 137, 218),
+                    Title = $"PassiveBOT | Commands | Prefix: {isserver}"
+                };
             if (modulearg == null) //ShortHelp
             {
 
