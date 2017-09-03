@@ -21,30 +21,40 @@ namespace PassiveBOT.Commands
         [Remarks("all help commands")]
         public async Task CommandAsync([Remainder] string command = null)
         {
-            var result = _service.Search(Context, command);
+           
 
             if (command == null)
             {
-                await ReplyAsync($"Please specify a command, ie '{Load.Pre}command kick'");
+                await ReplyAsync($"Please specify a command, ie `{Load.Pre}command kick`");
                 return;
             }
-
-            if (!result.IsSuccess)
-                await ReplyAsync($"**Command Name:** {command}\n**Error:** Not Found!\n**Reason:** Wubbalubbadubdub!");
-            var builder = new EmbedBuilder
+            try
             {
-                Color = new Color(179, 56, 216)
-            };
+                var result = _service.Search(Context, command)
+                    ;
+                var builder = new EmbedBuilder
+                {
+                    Color = new Color(179, 56, 216)
+                };
 
-            foreach (var match in result.Commands)
-            {
-                var cmd = match.Command;
-                builder.Title = cmd.Name.ToUpper();
-                builder.Description =
-                    $"**Aliases:** {string.Join(", ", cmd.Aliases)}\n**Parameters:** {string.Join(", ", cmd.Parameters.Select(p => p.Name))}\n" +
-                    $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Load.Pre}{cmd.Summary}`";
+                foreach (var match in result.Commands)
+                {
+                    var cmd = match.Command;
+                    builder.Title = cmd.Name.ToUpper();
+                    builder.Description =
+                        $"**Aliases:** {string.Join(", ", cmd.Aliases)}\n**Parameters:** {string.Join(", ", cmd.Parameters.Select(p => p.Name))}\n" +
+                        $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Load.Pre}{cmd.Summary}`";
+                }
+                await ReplyAsync("", false, builder.Build());
             }
-            await ReplyAsync("", false, builder.Build());
+            catch
+            {
+                await ReplyAsync($"**Command Name:** {command}\n**Error:** Not Found!");
+            }
+            
+                
+
+            
         }
 
         [Command("help")]
