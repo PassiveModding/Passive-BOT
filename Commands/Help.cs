@@ -135,6 +135,72 @@ namespace PassiveBOT.Commands
             );
         }
 
+        [Command("Suggest")]
+        [Summary("suggest <suggestion>")]
+        [Remarks("Suggest a feature or improvement etc.")]
+        public async Task Suggest([Remainder] string suggestion = null)
+        {
+            if (suggestion == null)
+            {
+                await ReplyAsync("Please suggest something lol...");
+            }
+            else
+            {
+                try
+                {
+                    var s = Homeserver.Load().Suggestion;
+                    var c = await Context.Client.GetChannelAsync(s);
+                    var embed = new EmbedBuilder();
+                    embed.AddField($"Suggestion from {Context.User.Username}", suggestion);
+                    embed.WithFooter(x =>
+                    {
+                        x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}";
+                    });
+                    embed.Color = Color.Blue;
+                    await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ReplyAsync("Suggestion Sent!!");
+                }
+                catch
+                {
+                    await ReplyAsync("The bots owner has not yet configured the suggestion channel");
+                }
+
+            }
+        }
+
+        [Command("Bug")]
+        [Summary("Bug <bug>")]
+        [Remarks("Report a bug.")]
+        public async Task Bug([Remainder] string bug = null)
+        {
+            if (bug == null)
+            {
+                await ReplyAsync("report a bug please.");
+            }
+            else
+            {
+                try
+                {
+                    var s = Homeserver.Load().Suggestion;
+                    var c = await Context.Client.GetChannelAsync(s);
+                    var embed = new EmbedBuilder();
+                    embed.AddField($"BugReport from {Context.User.Username}", bug);
+                    embed.WithFooter(x =>
+                    {
+                        x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}";
+                    });
+                    embed.Color = Color.Red;
+                    await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ReplyAsync("Bug Report Sent!!");
+                }
+                catch
+                {
+                    await ReplyAsync("The bots owner has not yet configured the Bug channel");
+                }
+
+            }
+        }
+
         /*
         [Command("nottest")]
         public async Task NotTest()

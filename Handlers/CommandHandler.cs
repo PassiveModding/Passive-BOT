@@ -156,6 +156,28 @@ namespace PassiveBOT.Handlers
 
             if (!commandsuccess)
             {
+                try
+                {
+                    if (result.ErrorReason != "Unknown command.")
+                    {
+                                            var s = Homeserver.Load().Error;
+                    var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
+                    var embed = new EmbedBuilder();
+                    embed.AddField($"ERROR", context.Message);
+                    embed.AddField("Reason", result.ErrorReason);
+                    embed.WithFooter(x =>
+                    {
+                        x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}";
+                    });
+                        embed.Color = Color.Red;
+                    await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    }
+
+                }
+                catch
+                {
+                    //
+                }
                 if (errlog)
                     await context.Channel.SendMessageAsync(
                         $"​**COMMAND: **{context.Message} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error

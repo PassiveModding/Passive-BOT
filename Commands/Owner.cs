@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.preconditions;
 
@@ -48,6 +49,45 @@ namespace PassiveBOT.Commands
                              $"Purged: {purged}");
         }
 
+
+        [Command("sethome+", RunMode = RunMode.Async)]
+        [Summary("sethome+")]
+        [Remarks("set the owner server")]
+        [Ratelimit(1, 15, Measure.Seconds)]
+        public async Task HomeAsync()
+        {
+            var homes = new Homeserver
+            {
+                GuildId = Context.Guild.Id,
+                GuildName = Context.Guild.Name
+            };
+            Homeserver.SaveHome(homes);
+            await ReplyAsync("Done");
+        }
+
+        [Command("setsuggest+")]
+        [Summary("setsuggest+")]
+        [Remarks("set the suggestion channel")]
+        public async Task Suggest()
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/config/home.json");
+            var home = JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
+            home.Suggestion = Context.Channel.Id;
+            Homeserver.SaveHome(home);
+            await ReplyAsync("Done");
+        }
+
+        [Command("seterror+")]
+        [Summary("seterror+")]
+        [Remarks("set the suggestion channel")]
+        public async Task Error()
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/config/home.json");
+            var home = JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
+            home.Error = Context.Channel.Id;
+            Homeserver.SaveHome(home);
+            await ReplyAsync("Done");
+        }
 
 
         [Command("help+", RunMode = RunMode.Async)]
