@@ -45,12 +45,6 @@ namespace PassiveBOT.Configuration
         public List<Bans> Banning { get; set; } = new List<Bans>();
 
 
-        public void Save(ulong id)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{id}.json");
-            File.WriteAllText(file, ToJson());
-        }
-
         public static void SaveServer(GuildConfig config, IGuild guild)
         {
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
@@ -64,11 +58,6 @@ namespace PassiveBOT.Configuration
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
         }
 
-        public string ToJson()
-        {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
-        }
-
         public static void Setup(IGuild guild)
         {
             if (File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) return;
@@ -78,7 +67,7 @@ namespace PassiveBOT.Configuration
                 GuildName = guild.Name
             };
 
-            cfg.Save(guild.Id);
+            SaveServer(cfg, guild);
         }
 
         public static string SetWMessage(IGuild guild, string input)

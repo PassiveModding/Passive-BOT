@@ -11,9 +11,9 @@ namespace PassiveBOT.Configuration
 
         public static string ConfigPath = Path.Combine(AppContext.BaseDirectory, "setup/config/config.json");
 
-        public string Prefix { get; set; } = "";
-        public string Token { get; set; } = "";
-        public string Debug { get; set; } = "";
+        public string Prefix { get; set; } = ".p ";
+        public string Token { get; set; } = "Token";
+        public string Debug { get; set; } = "N";
         public bool AutoRun { get; set; }
 
         public void Save(string dir = "setup/config/config.json")

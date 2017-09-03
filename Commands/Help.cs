@@ -20,7 +20,7 @@ namespace PassiveBOT.Commands
         [Command("command")]
         [Summary("command <command name>")]
         [Remarks("all help commands")]
-        public async Task HelpAsync([Remainder] string command = null)
+        public async Task CommandAsync([Remainder] string command = null)
         {
             var result = _service.Search(Context, command);
 
@@ -51,94 +51,63 @@ namespace PassiveBOT.Commands
         [Command("help")]
         [Summary("help")]
         [Remarks("all help commands")]
-        public async Task Help2Async(string modulename = null)
+        public async Task HelpAsync([Remainder] string modulearg = null)
         {
-            if (modulename == null)
-            {
-                var builder = new EmbedBuilder
+            var embed = new EmbedBuilder
                 {
                     Color = new Color(114, 137, 218),
-                    Title = $"I am PassiveBOT Created By {Load.Owner}"
+                    Title = "PassiveBOT | Commands"
                 };
-                var list = new List<string>();
-                foreach (var module in _service.Modules)
-                    list.Add(module.Name);
-                builder.AddField("Modules", string.Join("\n", list.ToArray()));
-                builder.AddField("Commands",
-                    $"Type `{Load.Pre}help <modulename>` to see a list of commands in each module\n" +
-                    $"or type `{Load.Pre}help all` in a direct message for all commands");
-                await ReplyAsync("", false, builder.Build());
-            }
-            else if (modulename.ToLower() == "all")
+            string isserver;
+            if (Context.Channel is IPrivateChannel)
             {
-                var builder = new EmbedBuilder
-                {
-                    Color = new Color(114, 137, 218),
-                    Title = $"I am PassiveBOT Created By {Load.Owner} <{Load.Siteurl}>, Here are my commands:"
-                };
-                foreach (var module in _service.Modules)
-                {
-                    string description = null;
-                    foreach (var cmd in module.Commands)
-                    {
-                        var result = module.Name;
-                        if (result != "Owner")
-                            description = description + $"{Load.Pre}{cmd.Aliases.First()} - {cmd.Remarks}\n";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(description))
-                        builder.AddField(x =>
-                        {
-                            x.Name = module.Name;
-                            x.Value = description;
-                        });
-                }
-                if (!(Context.Channel is IDMChannel))
-                    await ReplyAsync(
-                        $"Hey {Context.User.Mention}, I have sent my full command list to you in a direct message! <3");
-                await Context.User.SendMessageAsync("", false, builder.Build());
+                isserver = Load.Pre;
             }
             else
             {
-                var builder = new EmbedBuilder
-                {
-                    Color = new Color(114, 137, 218),
-                    Title = $"I am PassiveBOT Created By {Load.Owner}\nHere are my commands:"
-                };
-                var list = new List<string>();
+                isserver = GuildConfig.Load(Context.Guild.Id).Prefix;
+            }
+            if (modulearg == null) //ShortHelp
+            {
 
                 foreach (var module in _service.Modules)
                 {
-                    if (string.Equals(module.Name, modulename, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        var description = module.Commands.Select(cmd => $"{Load.Pre}{cmd.Summary} - {cmd.Remarks}")
-                            .ToList();
-                        if (description.ToString() != "")
-                            builder.AddField(x =>
+                    var list = module.Commands.Select(command => command.Name).ToList();
+                    if (module.Commands.Count > 0)
+                            embed.AddField(x =>
                             {
                                 x.Name = module.Name;
-                                x.Value = string.Join("\n", description.ToArray());
+                                x.Value = string.Join(", ", list);
                             });
-                    }
-                    list.Add(module.Name);
                 }
-                if (builder.Fields.Count == 0)
-                {
-                    var embed = new EmbedBuilder
-                    {
-                        Color = new Color(114, 137, 218),
-                        Title = $"I am PassiveBOT Created By {Load.Owner}"
-                    };
-                    embed.AddField("Error", $"The Module **{modulename}** does not exist\n" +
-                                            $"Type `{Load.Pre}help <modulename>` using one of the modules below for a list of those commands\n" +
-                                            $"or type `{Load.Pre}help all` for a list of all commands to be sent to your DMs");
-                    embed.AddField("Modules", string.Join("\n", list.ToArray()));
-                    await ReplyAsync("", false, embed.Build());
-                    return;
-                }
-                builder.AddField("Other Modules", string.Join("\n", list.ToArray()));
-                await ReplyAsync("", false, builder.Build());
+                embed.AddField("\n\n**NOTE**", $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
+                                           $"Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
             }
+            else
+            {
+                foreach (var module in _service.Modules)
+                {
+                    if (module.Name.ToLower() == modulearg.ToLower())
+                    {
+                        var list = new List<string>();
+                        foreach (var command in module.Commands)
+                        {
+                            list.Add(
+                                $"{isserver}{command.Summary} - {command.Remarks}");
+                        }
+                        embed.AddField(module.Name, string.Join("\n", list));
+                    }
+                }
+                if (embed.Fields.Count == 0)
+                {
+                    embed.AddField("Error", $"{modulearg} is not a module");
+                    var list = _service.Modules.Select(module => module.Name).ToList();
+                    embed.AddField("Modules", string.Join("\n", list));
+                }
+
+                
+            }
+            await ReplyAsync("", false, embed.Build());
         }
 
 

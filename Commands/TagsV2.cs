@@ -11,7 +11,7 @@ using PassiveBOT.Configuration;
 namespace PassiveBOT.Commands
 {
     [RequireContext(ContextType.Guild)]
-    [Group("tag")]
+    [Group("Tag")]
     public class Tags : ModuleBase
     {
         [Command("add")]

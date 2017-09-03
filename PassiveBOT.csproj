@@ -186,7 +186,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\GuildSetup.cs" />
-    <Compile Include="Commands\Invite.cs" />
     <Compile Include="Commands\Random.cs" />
     <Compile Include="Commands\Server.cs" />
     <Compile Include="Commands\TagsV2.cs" />
