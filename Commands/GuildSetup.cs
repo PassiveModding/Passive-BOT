@@ -311,10 +311,8 @@ namespace PassiveBOT.Commands
                              "```");
 
             var next = await NextMessageAsync();
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
 
             if (next.Content == "1")
             {
@@ -374,14 +372,10 @@ namespace PassiveBOT.Commands
         [Remarks("Enables the ability for events to be logged in a specific channel")]
         public async Task EventToggle(bool status)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.EventLogging = status;
             jsonObj.EventChannel = Context.Channel.Id;
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             if (status)
                 await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
@@ -395,13 +389,9 @@ namespace PassiveBOT.Commands
         [Remarks("disables/enables the sending of invites in a server from regular members")]
         public async Task NoInvite(bool status)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.Invite = status;
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
+            GuildConfig.SaveServer(jsonObj, Context.Guild); 
 
             if (status)
                 await ReplyAsync("Invite links will now be deleted!");
@@ -414,13 +404,9 @@ namespace PassiveBOT.Commands
         [Remarks("disables/enables the use of @ everyone and @ here in a server from regular members")]
         public async Task NoMention(bool status)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.MentionAll = status;
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             if (status)
                 await ReplyAsync("Mass Mentions will now be deleted!");
@@ -454,10 +440,7 @@ namespace PassiveBOT.Commands
         [Remarks("adds a subscribable role")]
         public async Task Arole(IRole role)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
             if (jsonObj.RoleList == null)
                 jsonObj.RoleList = new List<ulong>();
             if (!jsonObj.RoleList.Contains(role.Id))
@@ -471,8 +454,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
         [Command("delrole")]
@@ -480,10 +462,7 @@ namespace PassiveBOT.Commands
         [Remarks("removes the subscribable role")]
         public async Task Drole(IRole role)
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
 
             if (jsonObj.RoleList.Contains(role.Id))
             {
@@ -496,8 +475,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
         [Command("rss", RunMode = RunMode.Async)]
@@ -507,9 +485,7 @@ namespace PassiveBOT.Commands
         {
             if (url1 != null)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (!File.Exists(file))
-                    GuildConfig.Setup(Context.Guild);
+                GuildConfig.GetServer(Context.Guild);
                 GuildConfig.RssSet(Context.Guild, Context.Channel.Id, url1, true);
                 await ReplyAsync("Rss Config has been updated!\n" +
                                  $"Updates will be posted in: {Context.Channel.Name}\n" +
@@ -534,10 +510,6 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Please supply a prefix to use.");
                 return;
             }
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
 
             if (newpre.StartsWith("(") && newpre.EndsWith(")"))
             {
@@ -545,11 +517,10 @@ namespace PassiveBOT.Commands
                 newpre = newpre.TrimEnd(')');
             }
 
-            var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.Prefix = newpre;
 
-            var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(file, output);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             await ReplyAsync($"the prefix has been updated to `{newpre}`\n" +
                              $"NOTE: the Default prefix `{Load.Pre}` and @mentions will still work\n" +
@@ -565,10 +536,8 @@ namespace PassiveBOT.Commands
             [Remarks("displays the blacklist for 5 seconds")]
             public async Task B()
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (!File.Exists(file))
-                    GuildConfig.Setup(Context.Guild);
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
                 if (jsonObj.Blacklist == null)
                     jsonObj.Blacklist = new List<string>();
                 var embed = new EmbedBuilder();
@@ -593,10 +562,7 @@ namespace PassiveBOT.Commands
             [Remarks("adds a word to the blacklist")]
             public async Task Ab(string keyword)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (!File.Exists(file))
-                    GuildConfig.Setup(Context.Guild);
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
                 if (jsonObj.Blacklist == null)
                     jsonObj.Blacklist = new List<string>();
                 if (!jsonObj.Blacklist.Contains(keyword))
@@ -611,9 +577,7 @@ namespace PassiveBOT.Commands
                     await ReplyAsync("Keyword is already in the blacklist");
                     return;
                 }
-
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
             }
 
             [Command("del")]
@@ -621,10 +585,7 @@ namespace PassiveBOT.Commands
             [Remarks("removes a word from the blacklist")]
             public async Task Db(string keyword)
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (!File.Exists(file))
-                    GuildConfig.Setup(Context.Guild);
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
 
                 if (jsonObj.Blacklist == null)
                     jsonObj.Blacklist = new List<string>();
@@ -640,8 +601,7 @@ namespace PassiveBOT.Commands
                     return;
                 }
 
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
             }
 
             [Command("clear")]
@@ -649,14 +609,24 @@ namespace PassiveBOT.Commands
             [Remarks("clears the blacklist")]
             public async Task Clear()
             {
-                var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-                if (!File.Exists(file))
-                    GuildConfig.Setup(Context.Guild);
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
                 jsonObj.Blacklist = new List<string>();
 
-                var output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                File.WriteAllText(file, output);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
+
+                await ReplyAsync("The blacklist has been cleared.");
+            }
+
+            [Command("setmessage")]
+            [Summary("setmessage <message>")]
+            [Remarks("set the blaklist message")]
+            public async Task BlMessage([Remainder] string blmess = null)
+            {
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+                jsonObj.BlacklistMessage = blmess ?? "";
+
+
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
 
                 await ReplyAsync("The blacklist has been cleared.");
             }

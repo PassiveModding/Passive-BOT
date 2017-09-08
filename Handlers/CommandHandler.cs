@@ -110,14 +110,26 @@ namespace PassiveBOT.Handlers
                 }
             try
             {
-                if (GuildConfig.Load(context.Guild.Id).Blacklist.Any(b => context.Message.Content.Contains(b)) &&
+                if (GuildConfig.Load(context.Guild.Id).Blacklist.Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
                     !(context.User as IGuildUser).GuildPermissions.Administrator)
                 {
                     await message.DeleteAsync();
-                    var r = await context.Channel.SendMessageAsync("Passive Police say NO!");
+                    var blmessage = "";
+                    try
+                    {
+                        blmessage = GuildConfig.Load(context.Guild.Id).BlacklistMessage;
+                    }
+                    catch
+                    {
+                        //
+                    }
+                    if (blmessage != "")
+                    {
+                       var r = await context.Channel.SendMessageAsync(blmessage);
+                        await Task.Delay(5000);
+                        await r.DeleteAsync();
+                    }
 
-                    await Task.Delay(5000);
-                    await r.DeleteAsync();
                 }
             }
             catch

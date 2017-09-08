@@ -276,7 +276,7 @@ namespace PassiveBOT.Commands
             {
                 if (File.Exists(file))
                 {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    var jsonObj = GuildConfig.GetServer(Context.Guild);
                     var embed = new EmbedBuilder();
                     var roles = "";
                     foreach (var roleid in jsonObj.RoleList)
@@ -295,9 +295,7 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                if (File.Exists(file))
-                {
-                    var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                    var jsonObj = GuildConfig.GetServer(Context.Guild);
                     var embed = new EmbedBuilder();
                     if (jsonObj.RoleList.Contains(role.Id))
                     {
@@ -318,7 +316,6 @@ namespace PassiveBOT.Commands
                         embed.AddField("Failed", $"{role.Name} is not a subscribable role");
                     }
                     await ReplyAsync("", false, embed.Build());
-                }
             }
         }
 

@@ -29,6 +29,7 @@ namespace PassiveBOT.Configuration
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
         public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
+        public string BlacklistMessage { get; set; } = "";
         public bool Invite { get; set; } = false; // blacklist for discord invites
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
 
@@ -73,12 +74,30 @@ namespace PassiveBOT.Configuration
             SaveServer(cfg, guild);
         }
 
+        public static GuildConfig GetServer(IGuild guild)
+        {
+            if (!File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json")))
+            {
+                var cfg = new GuildConfig
+                {
+                    GuildId = guild.Id,
+                    GuildName = guild.Name
+                };
+
+                SaveServer(cfg, guild); 
+            }
+
+            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
+            return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+
+        }
+
         public static string SetWMessage(IGuild guild, string input)
         {
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(guild);
                 jsonObj.WelcomeMessage = input;
                 jsonObj.WelcomeEvent = true;
                 SaveServer(jsonObj, guild);
@@ -95,7 +114,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GetServer(guild);
                 jsonObj.WelcomeChannel = channel;
                 SaveServer(jsonObj, guild);
             }
@@ -111,7 +130,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(guild);
                 jsonObj.ErrorLog = status;
                 SaveServer(jsonObj, guild);
             }
@@ -128,7 +147,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(guild);
                 jsonObj.WelcomeEvent = status;
                 SaveServer(jsonObj, guild);
             }
@@ -144,7 +163,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(guild);
                 jsonObj.DjRoleId = role;
                 SaveServer(jsonObj, guild);
             }
@@ -160,7 +179,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
             {
-                var jsonObj = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+                var jsonObj = GuildConfig.GetServer(guild);
 
                 if (add)
                 {

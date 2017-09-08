@@ -224,7 +224,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
 
             var add = new GuildConfig.Kicks
             {
@@ -266,7 +266,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var embed = new EmbedBuilder();
             embed.WithTitle("Kicks");
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config =  GuildConfig.GetServer(Context.Guild);
 
             var groupedlist = config.Kicking.GroupBy(x => x.UserId)
                 .Select(group => new
@@ -320,7 +320,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
 
             var add = new GuildConfig.Bans
             {
@@ -372,7 +372,7 @@ namespace PassiveBOT.Commands
 
             var embed = new EmbedBuilder();
             embed.WithTitle("Bans");
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
 
             var groupedlist = config.Banning.GroupBy(x => x.UserId)
                 .Select(group => new
@@ -426,7 +426,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
 
             var add = new GuildConfig.Warns
             {
@@ -466,7 +466,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var embed = new EmbedBuilder();
             embed.WithTitle("Warns");
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
 
             var groupedlist = config.Warnings.GroupBy(x => x.UserId)
                 .Select(group => new
@@ -514,7 +514,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var embed = new EmbedBuilder();
             embed.WithTitle("Warns Removed");
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
             var list = "";
             var newconfig = new List<GuildConfig.Warns>();
             foreach (var group in config.Warnings)
@@ -545,7 +545,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var embed = new EmbedBuilder();
             embed.WithTitle("Kicks Removed");
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
             var list = "";
             var newconfig = new List<GuildConfig.Kicks>();
             foreach (var group in config.Kicking)
@@ -576,7 +576,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var embed = new EmbedBuilder();
             embed.WithTitle("Bans Removed");
-            var config = JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
+            var config = GuildConfig.GetServer(Context.Guild);
             var list = "";
             var newconfig = new List<GuildConfig.Bans>();
             foreach (var group in config.Banning)
