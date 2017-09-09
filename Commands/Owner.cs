@@ -117,7 +117,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("LeaveServer+")]
-        [Summary("Leave+ <guild ID> [Optional]<reason>")]
+        [Summary("LeaveServer+ <guild ID> [Optional]<reason>")]
         [Remarks("Makes the bot leave the specified guild")]
         public async Task LeaveAsync(ulong id, [Remainder] string reason = "No reason provided by the owner.")
         {
@@ -130,6 +130,62 @@ namespace PassiveBOT.Commands
             await Task.Delay(5000);
             await gld.LeaveAsync();
             await ReplyAsync("Message has been sent and I've left the guild!");
+        }
+
+
+        [Command("GetInvite+")]
+        [Summary("GetInvite+ <guild ID>")]
+        [Remarks("Makes the bot leave the specified guild")]
+        public async Task GetAsync(ulong id)
+        {
+            if (id <= 0)
+                await ReplyAsync("Please enter a valid Guild ID");
+
+            foreach (var guild in (Context.Client as DiscordSocketClient).Guilds)
+            {
+                if (guild.Id == id)
+                {
+                    foreach (var channel in guild.Channels)
+                    {
+                        try
+                        {
+                            var inv = channel.CreateInviteAsync().Result.Url;
+                            await ReplyAsync(inv);
+                            return;
+                        }
+                        catch
+                        {
+                            //
+                        }
+                    }
+                }
+            }
+
+            await ReplyAsync("No Invites able to be created.");
+        }
+        [Command("GetServer+")]
+        [Summary("Getserver+ <string>")]
+        [Remarks("Makes the bot leave the specified guild")]
+        public async Task GetAsync(string s)
+        {
+            var s2 = "";
+            foreach (var guild in (Context.Client as DiscordSocketClient).Guilds)
+            {
+                if (guild.Name.ToLower().Contains(s.ToLower()))
+                {
+                    s2 += $"{guild.Name} : {guild.Id}\n";
+                }
+            }
+            if (s2 != "")
+            {
+                await ReplyAsync(s2);
+            }
+            else
+            {
+                await ReplyAsync("No Servers containing the provided string available.");
+            }
+
+            
         }
 
         [Command("Username+")]
