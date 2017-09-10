@@ -135,7 +135,7 @@ namespace PassiveBOT.Commands
 
         [Command("GetInvite+")]
         [Summary("GetInvite+ <guild ID>")]
-        [Remarks("Makes the bot leave the specified guild")]
+        [Remarks("Creat an invite to the specified server")]
         public async Task GetAsync(ulong id)
         {
             if (id <= 0)
@@ -165,7 +165,7 @@ namespace PassiveBOT.Commands
         }
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
-        [Remarks("Makes the bot leave the specified guild")]
+        [Remarks("Get servers containing the privided string")]
         public async Task GetAsync(string s)
         {
             var s2 = "";
