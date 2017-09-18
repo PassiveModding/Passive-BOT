@@ -45,6 +45,8 @@ namespace PassiveBOT.Handlers
         {
             var guild = (cchannel as SocketGuildChannel).Guild;
             if (messageNew.Author.IsBot) return;
+            if (messageOld.Value.Content == messageNew.Content)
+                return;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
                 var embed = new EmbedBuilder();
