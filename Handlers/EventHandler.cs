@@ -45,7 +45,9 @@ namespace PassiveBOT.Handlers
         {
             var guild = (cchannel as SocketGuildChannel).Guild;
             if (messageNew.Author.IsBot) return;
-            if (messageOld.Value.Content == messageNew.Content)
+            if (string.Equals(messageOld.Value.Content, messageNew.Content, StringComparison.CurrentCultureIgnoreCase))
+                return;
+            if (messageOld.Value.Embeds.Count == 0 && messageNew.Embeds.Count == 1)
                 return;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
