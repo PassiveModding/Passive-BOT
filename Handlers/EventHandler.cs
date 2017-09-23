@@ -67,12 +67,16 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task ChannelUpdatedEvent(SocketChannel sChannel1, SocketChannel sChannel2)
+        public async Task ChannelUpdatedEvent(SocketChannel s1, SocketChannel s2)
         {
-            var guild = (sChannel1 as SocketGuildChannel).Guild;
-            var gChannel = sChannel1 as SocketGuildChannel;
+            var sChannel1 = s1 as SocketGuildChannel;
+            var sChannel2 = s2 as SocketGuildChannel;
+            var guild = sChannel1.Guild;
+            var gChannel = sChannel1;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
+                if (sChannel1.Position != sChannel2.Position)
+                    return;
                 var embed = new EmbedBuilder();
                 embed.AddField("Channel Updated", $"{gChannel.Name}");
                 embed.WithFooter(x =>
