@@ -190,9 +190,11 @@ namespace PassiveBOT.Handlers
                 {
                     //
                 }
-                if (errlog)
-                    await context.Channel.SendMessageAsync(
-                        $"​**COMMAND: **{context.Message} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
+                var errmessage = await context.Channel.SendMessageAsync(
+                    $"​**COMMAND: **{context.Message} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
+                await Task.Delay(5000);
+                await errmessage.DeleteAsync();
+                await context.Message.DeleteAsync();
                 await ColourLog.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E',
                     $"{result.ErrorReason}"); // log errors as arrors
             }

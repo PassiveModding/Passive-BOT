@@ -44,6 +44,9 @@ namespace PassiveBOT.Configuration
         public bool EventLogging { get; set; } = false;
         public ulong EventChannel { get; set; } = 0;
 
+
+        public ulong Starboard { get; set; } = 0;
+
         public List<Warns> Warnings { get; set; } = new List<Warns>();
         public List<Kicks> Kicking { get; set; } = new List<Kicks>();
         public List<Bans> Banning { get; set; } = new List<Bans>();

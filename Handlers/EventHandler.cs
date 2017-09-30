@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
+using System.Linq;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
@@ -36,6 +37,55 @@ namespace PassiveBOT.Handlers
             client.ChannelCreated += ChannelCreatedEvent;
             client.ChannelDestroyed += ChannelDeletedEvent;
             client.ChannelUpdated += ChannelUpdatedEvent;
+
+            client.ReactionAdded += Client_ReactionAdded;
+        }
+
+        private async Task Client_ReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)
+        {
+            if (arg3.Emote.Name == "⭐")
+            {
+                var guild = (arg3.Channel as IGuildChannel).Guild;
+                var starchannelid = GuildConfig.Load(guild.Id).Starboard;
+                if (starchannelid != 0)
+                {
+                    try
+                    {
+                        if (arg1.Value.Embeds.Any())
+                        {
+                            return;
+                        }
+
+                        var channel = await guild.GetTextChannelAsync(starchannelid);
+                        var embed = new EmbedBuilder();
+                        embed.WithAuthor(x =>
+                        {
+                            x.Name = arg1.Value.Author.Username;
+                            try
+                            {
+                                x.IconUrl = arg1.Value.Author.GetAvatarUrl();
+                            }
+                            catch
+                            {
+                                //
+                            }
+                        });
+                        if (arg1.Value.Attachments.Count > 0)
+                        {
+                            var x = arg1.Value.Attachments.First();
+                            embed.ImageUrl = x.Url;
+                        }
+                        embed.Description = $"{arg1.Value.Content}";
+
+                        await channel.SendMessageAsync($"⭐{arg1.Value.Reactions.First(x => x.Key.Name == "⭐").Value.ReactionCount} <#{arg2.Id}>", false, embed.Build());
+
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                }
+            }
         }
 
         public IServiceProvider Provider { get; }

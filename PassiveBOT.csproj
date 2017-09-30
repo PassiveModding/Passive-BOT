@@ -195,6 +195,7 @@
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Preconditions\ChannelTopic.cs" />
     <Compile Include="Preconditions\CheckDJ.cs" />
+    <Compile Include="Preconditions\NSFW.cs" />
     <Compile Include="Services\AudioService.cs" />
     <Compile Include="Services\RssService.cs" />
     <Compile Include="Services\Search.cs" />

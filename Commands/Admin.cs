@@ -596,5 +596,29 @@ namespace PassiveBOT.Commands
             GuildConfig.SaveServer(config, Context.Guild);
             await ReplyAsync($"Warnings for the user {removeuser} have been cleared", false, embed.Build());
         }
+
+        [Command("Starboard")]
+        [Summary("Starboard")]
+        [Remarks("Set the current channel as the starboard.")]
+        public async Task Starboard([Remainder] string x = null)
+        {
+
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            if (x == null)
+            {
+                config.Starboard = Context.Channel.Id;
+                GuildConfig.SaveServer(config, Context.Guild);
+                await ReplyAsync("Starred posts will now be posted in this channel.");
+            }
+            else
+            {
+                config.Starboard = 0;
+                GuildConfig.SaveServer(config, Context.Guild);
+                await ReplyAsync("Starred posts will no longer be shown.");
+            }
+        }
     }
 }

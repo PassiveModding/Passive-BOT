@@ -141,7 +141,7 @@ namespace PassiveBOT.Commands
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
 
-            foreach (var guild in (Context.Client as DiscordSocketClient).Guilds)
+            foreach (var guild in ((DiscordSocketClient) Context.Client).Guilds)
             {
                 if (guild.Id == id)
                 {
@@ -166,10 +166,10 @@ namespace PassiveBOT.Commands
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
         [Remarks("Get servers containing the privided string")]
-        public async Task GetAsync(string s)
+        public async Task GetAsync([Remainder]string s)
         {
             var s2 = "";
-            foreach (var guild in (Context.Client as DiscordSocketClient).Guilds)
+            foreach (var guild in ((DiscordSocketClient) Context.Client).Guilds)
             {
                 if (guild.Name.ToLower().Contains(s.ToLower()))
                 {
