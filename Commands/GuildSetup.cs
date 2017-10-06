@@ -82,6 +82,7 @@ namespace PassiveBOT.Commands
             string eventlogging;
             string admincommands;
             string blacklist;
+            string modRole;
 
 
             try
@@ -93,6 +94,23 @@ namespace PassiveBOT.Commands
             catch
             {
                 subrolelist = "There are no joinable roles";
+            }
+            try
+            {
+                if (l.ModeratorRoleId == 0)
+                {
+                    modRole = "N/A";
+                }
+                else
+                {
+                    var mrole = Context.Guild.GetRole(l.ModeratorRoleId);
+                    modRole = mrole.Name;                    
+                }
+
+            }
+            catch
+            {
+                modRole = $"@deleted-role <{l.ModeratorRoleId}>";
             }
             try
             {
@@ -224,6 +242,7 @@ namespace PassiveBOT.Commands
             embed.AddField("EventLogging", eventlogging);
             embed.AddField("Admin Uses", admincommands);
             embed.AddField("Blacklisted Word Count", blacklist);
+            embed.AddField("Moderator Role", modRole);
 
 
             await ReplyAsync("", false, embed.Build());
