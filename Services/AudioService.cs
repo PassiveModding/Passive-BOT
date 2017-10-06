@@ -34,7 +34,7 @@ namespace PassiveBOT.Services
 
         public async Task LeaveAudio(IGuild guild)
         {
-            if (_connectedChannels.TryRemove(guild.Id, out IAudioClient client))
+            if (_connectedChannels.TryRemove(guild.Id, out var client))
                 await client.StopAsync();
         }
 
@@ -77,7 +77,7 @@ namespace PassiveBOT.Services
                 }
             }
 
-            if (_connectedChannels.TryGetValue(guild.Id, out IAudioClient audioClient))
+            if (_connectedChannels.TryGetValue(guild.Id, out var audioClient))
             {
                 await channel.SendMessageAsync($"Now Playing: **{title}**");
                 var discordStream = audioClient.CreatePCMStream(AudioApplication.Music);

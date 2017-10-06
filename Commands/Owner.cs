@@ -142,11 +142,8 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Please enter a valid Guild ID");
 
             foreach (var guild in ((DiscordSocketClient) Context.Client).Guilds)
-            {
                 if (guild.Id == id)
-                {
                     foreach (var channel in guild.Channels)
-                    {
                         try
                         {
                             var inv = channel.CreateInviteAsync().Result.Url;
@@ -157,35 +154,23 @@ namespace PassiveBOT.Commands
                         {
                             //
                         }
-                    }
-                }
-            }
 
             await ReplyAsync("No Invites able to be created.");
         }
+
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
         [Remarks("Get servers containing the privided string")]
-        public async Task GetAsync([Remainder]string s)
+        public async Task GetAsync([Remainder] string s)
         {
             var s2 = "";
             foreach (var guild in ((DiscordSocketClient) Context.Client).Guilds)
-            {
                 if (guild.Name.ToLower().Contains(s.ToLower()))
-                {
                     s2 += $"{guild.Name} : {guild.Id}\n";
-                }
-            }
             if (s2 != "")
-            {
                 await ReplyAsync(s2);
-            }
             else
-            {
                 await ReplyAsync("No Servers containing the provided string available.");
-            }
-
-            
         }
 
         [Command("Username+")]

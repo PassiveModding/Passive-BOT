@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
@@ -295,27 +294,27 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                    var jsonObj = GuildConfig.GetServer(Context.Guild);
-                    var embed = new EmbedBuilder();
-                    if (jsonObj.RoleList.Contains(role.Id))
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+                var embed = new EmbedBuilder();
+                if (jsonObj.RoleList.Contains(role.Id))
+                {
+                    var u = Context.User as IGuildUser;
+                    if (u.RoleIds.Contains(role.Id))
                     {
-                        var u = Context.User as IGuildUser;
-                        if (u.RoleIds.Contains(role.Id))
-                        {
-                            await (Context.User as IGuildUser).RemoveRoleAsync(role);
-                            embed.AddField("Success", $"You have been removed from the role {role.Name}");
-                        }
-                        else
-                        {
-                            await (Context.User as IGuildUser).AddRoleAsync(role);
-                            embed.AddField("Success", $"You have been added to the role {role.Name}");
-                        }
+                        await (Context.User as IGuildUser).RemoveRoleAsync(role);
+                        embed.AddField("Success", $"You have been removed from the role {role.Name}");
                     }
                     else
                     {
-                        embed.AddField("Failed", $"{role.Name} is not a subscribable role");
+                        await (Context.User as IGuildUser).AddRoleAsync(role);
+                        embed.AddField("Success", $"You have been added to the role {role.Name}");
                     }
-                    await ReplyAsync("", false, embed.Build());
+                }
+                else
+                {
+                    embed.AddField("Failed", $"{role.Name} is not a subscribable role");
+                }
+                await ReplyAsync("", false, embed.Build());
             }
         }
 

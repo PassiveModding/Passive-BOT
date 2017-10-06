@@ -110,7 +110,8 @@ namespace PassiveBOT.Handlers
                 }
             try
             {
-                if (GuildConfig.Load(context.Guild.Id).Blacklist.Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
+                if (GuildConfig.Load(context.Guild.Id).Blacklist
+                        .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
                     !(context.User as IGuildUser).GuildPermissions.Administrator)
                 {
                     await message.DeleteAsync();
@@ -125,11 +126,10 @@ namespace PassiveBOT.Handlers
                     }
                     if (blmessage != "")
                     {
-                       var r = await context.Channel.SendMessageAsync(blmessage);
+                        var r = await context.Channel.SendMessageAsync(blmessage);
                         await Task.Delay(5000);
                         await r.DeleteAsync();
                     }
-
                 }
             }
             catch
@@ -172,7 +172,7 @@ namespace PassiveBOT.Handlers
                     if (!(result.ErrorReason == "Unknown command." ||
                           result.ErrorReason == "The input text has too many parameters." ||
                           result.ErrorReason == "The input text has too few parameters." ||
-                          result.ErrorReason == "Timeout" || 
+                          result.ErrorReason == "Timeout" ||
                           result.ErrorReason == "This command may only be invoked in an NSFW channel." ||
                           result.ErrorReason == "Command can only be run by the owner of the bot"))
                     {

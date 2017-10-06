@@ -21,8 +21,6 @@ namespace PassiveBOT.Commands
         [Remarks("all help commands")]
         public async Task CommandAsync([Remainder] string command = null)
         {
-           
-
             if (command == null)
             {
                 await ReplyAsync($"Please specify a command, ie `{Load.Pre}command kick`");
@@ -51,10 +49,6 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync($"**Command Name:** {command}\n**Error:** Not Found!");
             }
-            
-                
-
-            
         }
 
         [Command("help")]

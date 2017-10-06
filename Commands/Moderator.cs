@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -136,7 +134,7 @@ namespace PassiveBOT.Commands
                 string username;
                 try
                 {
-                    var user = await ((IGuild)Context.Guild).GetUserAsync(group.UserId);
+                    var user = await Context.Guild.GetUserAsync(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -184,7 +182,7 @@ namespace PassiveBOT.Commands
                 string username;
                 try
                 {
-                    var user = await ((IGuild)Context.Guild).GetUserAsync(group.UserId);
+                    var user = await Context.Guild.GetUserAsync(group.UserId);
                     username = user.Username;
                 }
                 catch
