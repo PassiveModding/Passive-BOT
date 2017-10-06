@@ -527,11 +527,7 @@ namespace PassiveBOT.Commands
                              $"NOTE: if you want to have any spaces in the prefix enclose your new prefix in brackets, ie.\n" +
                              $"`(newprefix)`");
         }
-
-        [Group("blacklist")]
-        public class Blacklist : InteractiveBase
-        {
-            [Command]
+            [Command("blacklist")]
             [Summary("blacklist")]
             [Remarks("displays the blacklist for 5 seconds")]
             public async Task B()
@@ -557,7 +553,7 @@ namespace PassiveBOT.Commands
                 await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
             }
 
-            [Command("add")]
+            [Command("blacklist add")]
             [Summary("blacklist add <word>")]
             [Remarks("adds a word to the blacklist")]
             public async Task Ab(string keyword)
@@ -580,7 +576,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.SaveServer(jsonObj, Context.Guild);
             }
 
-            [Command("del")]
+            [Command("blacklist del")]
             [Summary("blacklist del <word>")]
             [Remarks("removes a word from the blacklist")]
             public async Task Db(string keyword)
@@ -604,8 +600,8 @@ namespace PassiveBOT.Commands
                 GuildConfig.SaveServer(jsonObj, Context.Guild);
             }
 
-            [Command("clear")]
-            [Summary("clear")]
+            [Command("blacklist clear")]
+            [Summary("blacklist clear")]
             [Remarks("clears the blacklist")]
             public async Task Clear()
             {
@@ -617,8 +613,8 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("The blacklist has been cleared.");
             }
 
-            [Command("setmessage")]
-            [Summary("setmessage <message>")]
+            [Command("blacklist message")]
+            [Summary("blacklist message <message>")]
             [Remarks("set the blaklist message")]
             public async Task BlMessage([Remainder] string blmess = null)
             {
@@ -630,6 +626,20 @@ namespace PassiveBOT.Commands
 
                 await ReplyAsync("The blacklist has been cleared.");
             }
+
+
+        [Command("SetMod")]
+        [Summary("SetMod <@role>")]
+        [Remarks("Set the Moderator Role For your server")]
+        public async Task SetMod(IRole modRole)
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.ModeratorRoleId = modRole.Id;
+
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
+
+            await ReplyAsync($"ModRole has been set as {modRole.Mention}");
         }
     }
-}
+    }
