@@ -97,7 +97,7 @@ namespace PassiveBOT.Commands
 
         [Command("nsfwvid")]
         [Summary("nsfwvid")]
-        [Remarks("Porhub + Bots = win?")]
+        [Remarks("Pornhub + Bots = win?")]
         public async Task Nsfwvid()
         {
             var str = NsfwStr.Nsfwvid;
