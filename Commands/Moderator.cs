@@ -157,6 +157,52 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("There are no kicks in the server...");
         }
 
+        [Command("Warn")]
+        [Summary("Warn <@user> <reason>")]
+        [Remarks("Warns the specified user (requires Admin Permissions)")]
+        public async Task WarnUser(SocketGuildUser user, [Remainder] string reason = null)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var embed = new EmbedBuilder();
+            if (reason == null)
+            {
+                embed.AddField("Error", "Please Specify a reason for warning the user, ie\n" +
+                                        "`.warn @noobnoob being a noob");
+                await ReplyAsync("", false, embed.Build());
+                return;
+            }
+            var config = GuildConfig.GetServer(Context.Guild);
+
+            var add = new GuildConfig.Warns
+            {
+                Moderator = Context.User.Username,
+                Reason = reason,
+                User = user.Username,
+                UserId = user.Id
+            };
+
+            try
+            {
+                await user.SendMessageAsync($"You have been warned in {Context.Guild.Name} for:\n" +
+                                            $"`{reason}`");
+            }
+            catch
+            {
+                //
+            }
+
+            config.Warnings.Add(add);
+            GuildConfig.SaveServer(config, Context.Guild);
+
+            embed.AddField("User Warned", $"User: {user.Username}\n" +
+                                          $"UserID: {user.Id}\n" +
+                                          $"Moderator: {Context.User.Username}\n" +
+                                          $"Reason: {reason}");
+            await ReplyAsync("", false, embed.Build());
+        }
+
         [Command("Warns")]
         [Summary("Warns")]
         [Remarks("view all Warns for the current server")]
