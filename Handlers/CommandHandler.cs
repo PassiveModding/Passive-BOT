@@ -174,7 +174,8 @@ namespace PassiveBOT.Handlers
                           result.ErrorReason == "The input text has too few parameters." ||
                           result.ErrorReason == "Timeout" ||
                           result.ErrorReason == "This command may only be invoked in an NSFW channel." ||
-                          result.ErrorReason == "Command can only be run by the owner of the bot"))
+                          result.ErrorReason == "Command can only be run by the owner of the bot"||
+                          result.ErrorReason == "This command is locked to NSFW Channels. Pervert."))
                     {
                         var s = Homeserver.Load().Error;
                         var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
