@@ -15,7 +15,7 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class Admin : InteractiveBase
     {
-        [Command("EmbedBuilder", RunMode = RunMode.Async)]
+        /*[Command("EmbedBuilder", RunMode = RunMode.Async)]
         [Summary("EmbedBuilder")]
         [Remarks("Create an embedded message")]
         public async Task BuildEmbed()
@@ -158,7 +158,7 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync("Invalid number... exiting");
             }
-        }
+        }*/
 
         [Command("ClearWarn")]
         [Summary("ClearWarn <@user>")]
