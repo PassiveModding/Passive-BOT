@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Services;
@@ -19,6 +21,7 @@ namespace PassiveBOT
     {
         private CommandHandler _handler;
         public DiscordSocketClient Client;
+        public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
         {
@@ -130,6 +133,11 @@ namespace PassiveBOT
             var application = await Client.GetApplicationInfoAsync();
             await ColourLog.In1Run(
                 $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
+
+            var k = JsonConvert.DeserializeObject<List<string>>(
+                File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")));
+            if (k.Count > 0)
+                Keys = k;
         }
 
         private IServiceProvider ConfigureServices()

@@ -20,6 +20,11 @@ namespace PassiveBOT.Configuration
         public ulong MutedRole { get; set; } = 0;
         public ulong ModeratorRoleId { get; set; } = 0;
         
+        //TRANSLATION
+        public bool Premium { get; set; } = false;
+        public DateTime TimeOffset { get; set; }
+        public int Characters { get; set; } = 0;
+
 
         public List<ulong> RoleList { get; set; } =
             new List<ulong>(); // a list of roles that users can join via command

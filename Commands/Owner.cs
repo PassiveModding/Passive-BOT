@@ -158,6 +158,51 @@ namespace PassiveBOT.Commands
             await ReplyAsync("No Invites able to be created.");
         }
 
+        [Command("addpremium+")]
+        [Summary("addpremium+")]
+        [Remarks("Bot Creator Command")]
+        public async Task Addpremium(params string[] keys)
+        {
+            try
+            {
+                var i = 0;
+                var duplicates = "Dupes:\n";
+                if (Program.Keys == null)
+                {
+                    Program.Keys = keys.ToList();
+                    await ReplyAsync("list replaced.");
+                    var obj1 = JsonConvert.SerializeObject(Program.Keys, Formatting.Indented);
+                    File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json"), obj1);
+                    return;
+                }
+                foreach (var key in keys)
+                {
+                    var dupe = false;
+                    foreach (var k in Program.Keys)
+                        if (k == key)
+                            dupe = true;
+                    if (!dupe)
+                    {
+                        i++;
+                        Program.Keys.Add(key); //NO DUPES
+                    }
+                    else
+                    {
+                        duplicates += $"{key}\n";
+                    }
+                }
+                await ReplyAsync($"{keys.Length} Supplied\n" +
+                                 $"{i} Added\n" +
+                                 $"{duplicates}");
+                var obj = JsonConvert.SerializeObject(Program.Keys, Formatting.Indented);
+                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json"), obj);
+            }
+            catch (Exception e)
+            {
+                await ReplyAsync(e.ToString());
+            }
+        }
+
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
         [Remarks("Get servers containing the privided string")]
