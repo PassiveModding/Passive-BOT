@@ -15,7 +15,7 @@ using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands
 {
-    [Ratelimit(1, 2, Measure.Seconds)]
+    [Ratelimit(1, 5, Measure.Seconds)]
     public class Translate : ModuleBase
     {
         [Command("freetranslate")]
@@ -57,6 +57,8 @@ namespace PassiveBOT.Commands
         }
 
         [Command("premium")]
+        [Summary("premium <serial>")]
+        [Remarks("set the current server up for Premium discord translate commands.")]
         public async Task Premium([Remainder]string key = null)
         {
             if (key == null)
@@ -151,7 +153,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("t-list")]
-        [Remarks("A list of available languages codes to convert between")]
+        [Remarks("A list of available languages codes to convert between for premium")]
         [Summary("t-list")]
         public async Task Tlist()
         {
