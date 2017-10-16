@@ -185,6 +185,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Audio.cs" />
     <Compile Include="Commands\GuildSetup.cs" />
     <Compile Include="Commands\Moderator.cs" />
     <Compile Include="Commands\Random.cs" />
@@ -195,6 +196,7 @@
     <Compile Include="Handlers\EventHandler.cs" />
     <Compile Include="Handlers\LogHandler.cs" />
     <Compile Include="Preconditions\ChannelTopic.cs" />
+    <Compile Include="Preconditions\ServerOwner.cs" />
     <Compile Include="Preconditions\CheckRole.cs" />
     <Compile Include="Preconditions\NSFW.cs" />
     <Compile Include="Services\AudioService.cs" />

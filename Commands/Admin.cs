@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands
 {
@@ -15,150 +15,6 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class Admin : InteractiveBase
     {
-        /*[Command("EmbedBuilder", RunMode = RunMode.Async)]
-        [Summary("EmbedBuilder")]
-        [Remarks("Create an embedded message")]
-        public async Task BuildEmbed()
-        {
-            var embed = new EmbedBuilder();
-            var embedbuilt = await ReplyAsync("", false, embed.Build());
-
-            await ReplyAndDeleteAsync("```\n" +
-                                      "Reply addon you would like to perform\n" +
-                                      "[1] Set the Title\n" +
-                                      "[2] Set the Description\n" +
-                                      "[3] Add a Field\n" +
-                                      "[4] Finish\n" +
-                                      "```");
-            var n1 = await NextMessageAsync();
-            if (n1.Content.StartsWith("1"))
-            {
-                await ReplyAndDeleteAsync("In the next message you send please specify the embed title");
-                var ntitle = await NextMessageAsync();
-                embed.WithTitle(ntitle.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await ntitle.DeleteAsync();
-            }
-            else if (n1.Content.StartsWith("2"))
-            {
-                await ReplyAndDeleteAsync("In the next message you send please specify the embed description");
-                var ndesc = await NextMessageAsync();
-                embed.WithDescription(ndesc.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await ndesc.DeleteAsync();
-            }
-            else if (n1.Content.StartsWith("3"))
-            {
-                await ReplyAndDeleteAsync("In the next message, specify the field title");
-                var nfieldtitle = await NextMessageAsync();
-                await ReplyAndDeleteAsync("In the next message, specify the field description");
-                var nfielddesc = await NextMessageAsync();
-                embed.AddField(nfieldtitle.Content, nfielddesc.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await nfielddesc.DeleteAsync();
-                await nfieldtitle.DeleteAsync();
-            }
-            else if (n1.Content.StartsWith("4"))
-            {
-                return;
-            }
-            else
-            {
-                await ReplyAsync("Invalid number... exiting");
-                return;
-            }
-
-
-            await ReplyAsync("```\n" +
-                             "Reply addon you would like to perform\n" +
-                             "[1] Set the Title\n" +
-                             "[2] Set the Description\n" +
-                             "[3] Add a Field\n" +
-                             "[4] Finish\n" +
-                             "```");
-            var n2 = await NextMessageAsync();
-
-            if (n2.Content.StartsWith("1"))
-            {
-                await ReplyAndDeleteAsync("In the next message you send please specify the embed title");
-                var ntitle = await NextMessageAsync();
-                embed.WithTitle(ntitle.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await ntitle.DeleteAsync();
-            }
-            else if (n2.Content.StartsWith("2"))
-            {
-                await ReplyAndDeleteAsync("In the next message you send please specify the embed description");
-                var ndesc = await NextMessageAsync();
-                embed.WithDescription(ndesc.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await ndesc.DeleteAsync();
-            }
-            else if (n2.Content.StartsWith("3"))
-            {
-                await ReplyAndDeleteAsync("In the next message, specify the field title");
-                var nfieldtitle = await NextMessageAsync();
-                await ReplyAndDeleteAsync("In the next message, specify the field description");
-                var nfielddesc = await NextMessageAsync();
-                embed.AddField(nfieldtitle.Content, nfielddesc.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await nfieldtitle.DeleteAsync();
-                await nfielddesc.DeleteAsync();
-            }
-            else if (n2.Content.StartsWith("4"))
-            {
-                return;
-            }
-            else
-            {
-                await ReplyAsync("Invalid number... exiting");
-                return;
-            }
-
-            await ReplyAsync("```\n" +
-                             "Reply addon you would like to perform\n" +
-                             "[1] Set the Title\n" +
-                             "[2] Set the Description\n" +
-                             "[3] Add a Field\n" +
-                             "[4] Finish\n" +
-                             "```");
-            var n3 = await NextMessageAsync();
-
-            if (n3.Content.StartsWith("1"))
-            {
-                await ReplyAsync("In the next message you send please specify the embed title");
-                var ntitle = await NextMessageAsync();
-                embed.WithTitle(ntitle.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await ntitle.DeleteAsync();
-            }
-            else if (n3.Content.StartsWith("2"))
-            {
-                await ReplyAsync("In the next message you send please specify the embed description");
-                var ndesc = await NextMessageAsync();
-                embed.WithDescription(ndesc.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await ndesc.DeleteAsync();
-            }
-            else if (n3.Content.StartsWith("3"))
-            {
-                await ReplyAndDeleteAsync("In the next message, specify the field title");
-                var nfieldtitle = await NextMessageAsync();
-                await ReplyAndDeleteAsync("In the next message, specify the field description");
-                var nfielddesc = await NextMessageAsync();
-                embed.AddField(nfieldtitle.Content, nfielddesc.Content);
-                await embedbuilt.ModifyAsync(x => { x.Embed = embed.Build(); });
-                await nfielddesc.DeleteAsync();
-                await nfieldtitle.DeleteAsync();
-            }
-            else if (n3.Content.StartsWith("4"))
-            {
-            }
-            else
-            {
-                await ReplyAsync("Invalid number... exiting");
-            }
-        }*/
 
         [Command("ClearWarn")]
         [Summary("ClearWarn <@user>")]
@@ -394,28 +250,193 @@ namespace PassiveBOT.Commands
             }
         }
 
-        /*[Command("Starboard")]
-        [Summary("Starboard")]
-        [Remarks("Set the current channel as the starboard.")]
-        public async Task Starboard([Remainder] string x = null)
+        [Command("ResetBans")]
+        [Summary("ResetBans")]
+        [Remarks("Clears all bans logged in the server")]
+        [ServerOwner]
+        public async Task ResetBan()
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            config.Banning = new List<GuildConfig.Bans>();
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"All server bans have been cleared.");
+        }
+
+        [Command("ResetWarns")]
+        [Summary("ResetWarns")]
+        [Remarks("Clears all warnings logged in the server")]
+        [ServerOwner]
+        public async Task ResetWarn()
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            config.Warnings = new List<GuildConfig.Warns>();
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"All server warnings have been cleared.");
+        }
+
+        [Command("ResetKicks")]
+        [Summary("ResetKicks")]
+        [Remarks("Clears all kicks logged in the server")]
+        [ServerOwner]
+        public async Task ResetKick()
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            config.Kicking = new List<GuildConfig.Kicks>();
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"All server kicks have been cleared.");
+        }
+
+        [Command("InviteExcempt")]
+        [Summary("InviteExcempt <@role>")]
+        [Remarks("Set roles that are excempt from the Invite Block command")]
+        public async Task InvExcempt(IRole role = null)
         {
 
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
             var config = GuildConfig.GetServer(Context.Guild);
-            if (x == null)
+            if (role == null)
             {
-                config.Starboard = Context.Channel.Id;
-                GuildConfig.SaveServer(config, Context.Guild);
-                await ReplyAsync("Starred posts will now be posted in this channel.");
+                var embed = new EmbedBuilder();
+                foreach (var r in config.InviteExcempt)
+                {
+                    try
+                    {
+                        var rol = Context.Guild.GetRole(r);
+                        embed.Description += $"{rol.Name}\n";
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+                embed.Title = "Roles Excempt from Invite Block";
+                await ReplyAsync("", false, embed.Build());
+                return;
             }
-            else
+
+            config.InviteExcempt.Add(role.Id);
+
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"{role.Mention} has been added to those excempt from the Invite Blocker");
+        }
+
+        [Command("RemoveInviteExcempt")]
+        [Summary("RemoveInviteExcempt <@role>")]
+        [Remarks("Remove roles that are excempt from the Invite Block command")]
+        public async Task UndoInvExcempt(IRole role = null)
+        {
+
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            if (role == null)
             {
-                config.Starboard = 0;
-                GuildConfig.SaveServer(config, Context.Guild);
-                await ReplyAsync("Starred posts will no longer be shown.");
+                var embed = new EmbedBuilder();
+                foreach (var r in config.InviteExcempt)
+                {
+                    try
+                    {
+                        var rol = Context.Guild.GetRole(r);
+                        embed.Description += $"{rol.Name}\n";
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+                embed.Title = "Roles Excempt from Invite Block";
+                await ReplyAsync("", false, embed.Build());
+                return;
             }
-        }*/
+
+            config.InviteExcempt.Remove(role.Id);
+
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"{role.Mention} has been removed from those excempt from the Invite Blocker");
+        }
+
+        [Command("MentionExcempt")]
+        [Summary("MentionExcempt <@role>")]
+        [Remarks("Set roles that are excempt from the Mention Block command")]
+        public async Task MentionExcempt(IRole role = null)
+        {
+
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            if (role == null)
+            {
+                var embed = new EmbedBuilder();
+                foreach (var r in config.InviteExcempt)
+                {
+                    try
+                    {
+                        var rol = Context.Guild.GetRole(r);
+                        embed.Description += $"{rol.Name}\n";
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+                embed.Title = "Roles Excempt from Mention Blocker";
+                await ReplyAsync("", false, embed.Build());
+                return;
+            }
+
+            config.InviteExcempt.Add(role.Id);
+
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"{role.Mention} has been added to those excempt from the Mention Blocker");
+        }
+
+        [Command("RemoveInviteExcempt")]
+        [Summary("RemoveInviteExcempt <@role>")]
+        [Remarks("Remove roles that are excempt from the Mention Blocker command")]
+        public async Task UndoMentionExcempt(IRole role = null)
+        {
+
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+            if (role == null)
+            {
+                var embed = new EmbedBuilder();
+                foreach (var r in config.InviteExcempt)
+                {
+                    try
+                    {
+                        var rol = Context.Guild.GetRole(r);
+                        embed.Description += $"{rol.Name}\n";
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+                embed.Title = "Roles Excempt from Mention Blocker";
+                await ReplyAsync("", false, embed.Build());
+                return;
+            }
+
+            config.InviteExcempt.Remove(role.Id);
+
+            GuildConfig.SaveServer(config, Context.Guild);
+            await ReplyAsync($"{role.Mention} has been removed from those excempt from the Mention Blocker");
+        }
     }
 }

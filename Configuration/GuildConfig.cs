@@ -17,7 +17,9 @@ namespace PassiveBOT.Configuration
         public string Prefix { get; set; } = Configuration.Load.Pre; //
 
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
+        public ulong MutedRole { get; set; } = 0;
         public ulong ModeratorRoleId { get; set; } = 0;
+        
 
         public List<ulong> RoleList { get; set; } =
             new List<ulong>(); // a list of roles that users can join via command
@@ -32,7 +34,9 @@ namespace PassiveBOT.Configuration
         public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
         public string BlacklistMessage { get; set; } = "";
         public bool Invite { get; set; } = false; // blacklist for discord invites
+        public  List<ulong> InviteExcempt { get; set; } = new List<ulong>();
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
+        public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
 
         public bool ErrorLog { get; set; } // allows for responses with errors 
 

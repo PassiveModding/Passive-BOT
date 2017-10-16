@@ -344,7 +344,7 @@ namespace PassiveBOT.Commands
                 string username;
                 try
                 {
-                    var user = await ((IGuild)Context.Guild).GetUserAsync(group.UserId);
+                    var user = await Context.Guild.GetUserAsync(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -370,6 +370,74 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("", false, embed.Build());
             else
                 await ReplyAsync("There are no bans in the server...");
+        }
+
+        [Command("Mute")]
+        [Summary("Mute <@user>")]
+        [Remarks("Mute a user from all chats")]
+        public async Task Mute(IGuildUser user)
+        {
+            // 1. Check the user isnt an admin or moderator
+            // 2. Try to get the muted role
+            // 3. If the muted role is not setup, unavailable or does not exist, return.
+            // 4. Try to mute the user.
+
+            if (user.RoleIds.Contains(GuildConfig.Load(Context.Guild.Id).ModeratorRoleId) || user.GuildPermissions.Administrator)
+            {
+                await ReplyAsync("ERROR: User is a moderator or administrator");
+                return;
+            }
+
+            IRole mutedrole;
+            try
+            {
+                var mrole = GuildConfig.Load(Context.Guild.Id).MutedRole;
+                if (mrole == 0)
+                {
+                    await ReplyAsync("The servers muted role is not setup");
+                    return;
+                }
+                mutedrole = Context.Guild.GetRole(mrole);
+            }
+            catch
+            {
+                await ReplyAsync("Muted Role has been deleted or could not be found. ERROR");
+                return;
+            }
+            
+
+            if (mutedrole == null)
+            {
+                await ReplyAsync("Muted Role has been deleted or could not be found. ERROR");
+                return;
+            }
+
+            try
+            {
+                await user.AddRoleAsync(mutedrole);
+                await ReplyAsync($"SUCCESS. The user has been muted and added to the muted role: {mutedrole.Mention}");
+            }
+            catch
+            {
+                await ReplyAsync("Use role unable to be modified. ERROR");
+            }
+        }
+
+        [Command("Unmute")]
+        [Summary("Unmute <@user>")]
+        [Remarks("Unmute a user")]
+        public async Task Unmute(IGuildUser user)
+        {
+            var muteId = GuildConfig.Load(Context.Guild.Id).MutedRole;
+            var muterole = Context.Guild.GetRole(muteId);
+            if (user.RoleIds.Contains(muteId))
+            {
+                await user.RemoveRoleAsync(muterole);
+                await ReplyAsync("SUCCESS! User unmuted.");
+                return;
+            }
+
+            await ReplyAsync("User was not muted to begin with.");
         }
     }
 }

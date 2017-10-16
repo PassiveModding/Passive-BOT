@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -43,54 +42,10 @@ namespace PassiveBOT.Handlers
 
         public IServiceProvider Provider { get; }
 
-        private async Task Client_ReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2,
-            SocketReaction arg3)
-        {
-            if (arg3.Emote.Name == "⭐")
-            {
-                var guild = (arg3.Channel as IGuildChannel).Guild;
-                var starchannelid = GuildConfig.Load(guild.Id).Starboard;
-                if (starchannelid != 0)
-                    try
-                    {
-                        if (arg1.Value.Embeds.Any())
-                            return;
-
-                        var channel = await guild.GetTextChannelAsync(starchannelid);
-                        var embed = new EmbedBuilder();
-                        embed.WithAuthor(x =>
-                        {
-                            x.Name = arg1.Value.Author.Username;
-                            try
-                            {
-                                x.IconUrl = arg1.Value.Author.GetAvatarUrl();
-                            }
-                            catch
-                            {
-                                //
-                            }
-                        });
-                        if (arg1.Value.Attachments.Count > 0)
-                        {
-                            var x = arg1.Value.Attachments.First();
-                            embed.ImageUrl = x.Url;
-                        }
-                        embed.Description = $"{arg1.Value.Content}";
-
-                        await channel.SendMessageAsync(
-                            $"⭐{arg1.Value.Reactions.First(x => x.Key.Name == "⭐").Value.ReactionCount} <#{arg2.Id}>",
-                            false, embed.Build());
-                    }
-                    catch
-                    {
-                    }
-            }
-        }
-
         public async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
             ISocketMessageChannel cchannel)
         {
-            var guild = (cchannel as SocketGuildChannel).Guild;
+            var guild = ((SocketGuildChannel) cchannel).Guild;
             if (messageNew.Author.IsBot) return;
             if (string.Equals(messageOld.Value.Content, messageNew.Content, StringComparison.CurrentCultureIgnoreCase))
                 return;
@@ -111,7 +66,7 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(guild.Id).EventChannel != 0)
                 {
                     var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }
@@ -120,36 +75,39 @@ namespace PassiveBOT.Handlers
         {
             var sChannel1 = s1 as SocketGuildChannel;
             var sChannel2 = s2 as SocketGuildChannel;
-            var guild = sChannel1.Guild;
-            var gChannel = sChannel1;
-            if (GuildConfig.Load(guild.Id).EventLogging)
+            if (sChannel1 != null)
             {
-                if (sChannel1.Position != sChannel2.Position)
-                    return;
-                var embed = new EmbedBuilder();
-                embed.AddField("Channel Updated", $"{gChannel.Name}");
-                embed.WithFooter(x =>
+                var guild = sChannel1.Guild;
+                var gChannel = sChannel1;
+                if (GuildConfig.Load(guild.Id).EventLogging)
                 {
-                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
-                });
-                embed.Color = Color.Blue;
+                    if (sChannel2 != null && sChannel1.Position != sChannel2.Position)
+                        return;
+                    var embed = new EmbedBuilder();
+                    embed.AddField("Channel Updated", $"{gChannel.Name}");
+                    embed.WithFooter(x =>
+                    {
+                        x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
+                    });
+                    embed.Color = Color.Blue;
 
-                if (GuildConfig.Load(guild.Id).EventChannel != 0)
-                {
-                    var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    if (GuildConfig.Load(guild.Id).EventChannel != 0)
+                    {
+                        var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
+                        await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
+                    }
                 }
             }
         }
 
         public async Task ChannelDeletedEvent(SocketChannel sChannel)
         {
-            var guild = (sChannel as SocketGuildChannel).Guild;
-            var gChannel = sChannel as SocketGuildChannel;
+            var guild = ((SocketGuildChannel) sChannel).Guild;
+            var gChannel = (SocketGuildChannel) sChannel;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
                 var embed = new EmbedBuilder();
-                embed.AddField("Channel Deleted", $"{gChannel.Name}");
+                embed.AddField("Channel Deleted", $"{gChannel?.Name}");
                 embed.WithFooter(x =>
                 {
                     x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
@@ -159,15 +117,15 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(guild.Id).EventChannel != 0)
                 {
                     var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }
 
         public async Task ChannelCreatedEvent(SocketChannel sChannel)
         {
-            var guild = (sChannel as SocketGuildChannel).Guild;
-            var gChannel = sChannel as SocketGuildChannel;
+            var guild = ((SocketGuildChannel) sChannel).Guild;
+            var gChannel = (SocketGuildChannel) sChannel;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
                 var embed = new EmbedBuilder();
@@ -181,14 +139,14 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(guild.Id).EventChannel != 0)
                 {
                     var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }
 
         public async Task MessageDeletedEvent(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
         {
-            var guild = (channel as SocketGuildChannel).Guild;
+            var guild = ((SocketGuildChannel) channel).Guild;
             if (GuildConfig.Load(guild.Id).EventLogging)
             {
                 if (_delay > DateTime.UtcNow)
@@ -214,7 +172,7 @@ namespace PassiveBOT.Handlers
                 });
                 embed.Color = Color.Green;
                 var cchannel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                await (cchannel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                await ((ITextChannel) cchannel).SendMessageAsync("", false, embed.Build());
             }
         }
 
@@ -232,7 +190,7 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(guild.Id).EventChannel != 0)
                 {
                     var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }
@@ -251,7 +209,7 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(guild.Id).EventChannel != 0)
                 {
                     var channel = guild.GetChannel(GuildConfig.Load(guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }
@@ -270,7 +228,7 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(user.Guild.Id).EventChannel != 0)
                 {
                     var channel = user.Guild.GetChannel(GuildConfig.Load(user.Guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }
@@ -289,7 +247,7 @@ namespace PassiveBOT.Handlers
                 if (GuildConfig.Load(user.Guild.Id).EventChannel != 0)
                 {
                     var channel = user.Guild.GetChannel(GuildConfig.Load(user.Guild.Id).EventChannel);
-                    await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
             }
         }

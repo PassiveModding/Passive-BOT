@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
+using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Services;
 
@@ -71,7 +72,7 @@ namespace PassiveBOT.Commands
             var l = GuildConfig.Load(Context.Guild.Id);
             string djstring;
             string guildstring;
-            string errorLogString;
+            //string errorLogString;
             string subrolelist;
             string rss;
             string tags;
@@ -128,14 +129,14 @@ namespace PassiveBOT.Commands
             {
                 guildstring = $"{Context.Guild.Name}, {Context.Guild.Id}";
             }
-            try
+            /*try
             {
                 errorLogString = l.ErrorLog ? "Status: On" : "Status: Off";
             }
             catch
             {
                 errorLogString = "Status: Off";
-            }
+            }*/
             try
             {
                 rss = $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel).Name}";
@@ -231,7 +232,7 @@ namespace PassiveBOT.Commands
 
             embed.AddField("DJ Role", $"Role: {djstring}");
             embed.AddField("Guild Name & ID", guildstring);
-            embed.AddField("Error logging", $"Status: {errorLogString}");
+            //embed.AddField("Error logging", $"Status: {errorLogString}");
             embed.AddField("SubRoles", $"Role: {subrolelist}");
             embed.AddField("RSS URL/Channel", $"{rss}");
             embed.AddField("Tags", $"{tags}");
@@ -441,7 +442,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync($"The DJ Role has been set to: {role.Name}");
         }
 
-        [Command("Errors")]
+        /*[Command("Errors")]
         [Summary("Errors <true/false>")]
         [Remarks("Toggles Error Status")]
         public async Task Errors(bool status)
@@ -451,7 +452,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Errors will now be Logged");
             else
                 await ReplyAsync("Errors will no longer be logged");
-        }
+        }*/
 
         [Command("addrole")]
         [Summary("addrole @role")]
@@ -658,6 +659,50 @@ namespace PassiveBOT.Commands
             GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             await ReplyAsync($"ModRole has been set as {modRole.Mention}");
+        }
+
+        [Command("SetMuted")]
+        [Summary("SetMuted <@role>")]
+        [Remarks("Set the Mute Role For your server NOTE: Will try to reset all permissions for that role!")]
+        public async Task SetMute(SocketRole muteRole)
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.MutedRole = muteRole.Id;
+            string perms;
+            var channels = "";
+            try
+            {
+                var unverifiedPerms = new OverwritePermissions(sendMessages: PermValue.Deny, addReactions: PermValue.Deny);
+                foreach (var channel in Context.Guild.TextChannels)
+                {
+                    try
+                    {
+                        await channel.AddPermissionOverwriteAsync(muteRole, unverifiedPerms);
+                        channels += $"`#{channel.Name}` Perms Modified\n";
+                    }
+                    catch
+                    {
+                        channels += $"`#{channel.Name}` Perms Not Modified\n";
+                    }
+                    
+                }
+                
+                perms = "Role Can No longer Send Messages, or Add Reactions";
+            }
+            catch
+            {
+                perms = "Role Unable to be modified, ask an administrator to do this manually.";
+            }
+            
+
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
+
+
+
+            await ReplyAsync($"ModRole has been set as {muteRole.Mention}\n" +
+                             $"{perms}\n" +
+                             $"{channels}");
         }
     }
 }

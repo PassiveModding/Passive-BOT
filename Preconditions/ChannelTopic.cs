@@ -18,7 +18,7 @@ namespace PassiveBOT.preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider prov)
         {
-            var t = context.Channel as ITextChannel;
+            var t = (ITextChannel) context.Channel;
             if (t.Topic.Contains($"[{_name}]") || context.Channel is IDMChannel)
                 return Task.FromResult(PreconditionResult.FromSuccess());
             return Task.FromResult(
@@ -40,7 +40,7 @@ namespace PassiveBOT.preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider prov)
         {
-            var t = context.Channel as ITextChannel;
+            var t = (ITextChannel) context.Channel;
             return Task.FromResult(t.Topic.Contains($"[{_name}]")
                 ? PreconditionResult.FromError(
                     $"Command is disabled in channels containing `[{_name}]` within their topic")

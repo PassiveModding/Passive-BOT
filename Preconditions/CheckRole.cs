@@ -18,7 +18,7 @@ namespace PassiveBOT.Preconditions
             if (role == 0)
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
-            if ((context.User as IGuildUser).RoleIds.Contains(role))
+            if (((IGuildUser) context.User).RoleIds.Contains(role))
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
             return Task.FromResult(PreconditionResult.FromError("User is Not DJ"));
@@ -35,12 +35,12 @@ namespace PassiveBOT.Preconditions
             var role = GuildConfig.Load(id).ModeratorRoleId;
             if (role == 0)
             {
-                if ((context.User as IGuildUser).GuildPermissions.Administrator)
+                if (((IGuildUser) context.User).GuildPermissions.Administrator)
                     return Task.FromResult(PreconditionResult.FromSuccess());
             }
             else
             {
-                if ((context.User as IGuildUser).RoleIds.Contains(role))
+                if (((IGuildUser) context.User).RoleIds.Contains(role))
                     return Task.FromResult(PreconditionResult.FromSuccess());
             }
 

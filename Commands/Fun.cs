@@ -18,19 +18,21 @@ namespace PassiveBOT.Commands
         [Remarks("Measures gateway ping and response time")]
         public async Task PingAsync()
         {
-            var client = Context.Client as DiscordSocketClient;
-            var gateway = client.Latency;
-            var descrption =
-                $"**Server Speed:** {gateway} ms\n" +
-                "Wow, super fast!\n" +
-                "PassiveBOT is amazing isnt it?";
-            var embed = new EmbedBuilder
+            if (Context.Client is DiscordSocketClient client)
             {
-                Title = "🏓 PassiveBOT 🏓",
-                Description = descrption,
-                ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
-            };
-            await ReplyAsync("", false, embed.Build());
+                var gateway = client.Latency;
+                var descrption =
+                    $"**Server Speed:** {gateway} ms\n" +
+                    "Wow, super fast!\n" +
+                    "PassiveBOT is amazing isnt it?";
+                var embed = new EmbedBuilder
+                {
+                    Title = "🏓 PassiveBOT 🏓",
+                    Description = descrption,
+                    ThumbnailUrl = Context.Client.CurrentUser.GetAvatarUrl()
+                };
+                await ReplyAsync("", false, embed.Build());
+            }
         }
 
         [Command("8ball")]

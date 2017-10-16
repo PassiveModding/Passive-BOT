@@ -61,8 +61,7 @@ namespace PassiveBOT.Handlers
         public async Task DoCommand(SocketMessage parameterMessage)
         {
             Load.Messages++;
-            var message = parameterMessage as SocketUserMessage;
-            if (message == null) return;
+            if (!(parameterMessage is SocketUserMessage message)) return;
             var argPos = 0;
             var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
 
@@ -74,11 +73,19 @@ namespace PassiveBOT.Handlers
                 {
                     if (context.Channel is IGuildChannel)
                         if (GuildConfig.Load(context.Guild.Id).Invite &&
-                            !(context.User as SocketGuildUser).GuildPermissions.Administrator)
+                            !((SocketGuildUser)context.User).GuildPermissions.Administrator)
                         {
-                            await message.DeleteAsync();
-                            await context.Channel.SendMessageAsync(
-                                $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry");
+                            if (!((IGuildUser) context.User).RoleIds
+                                .Intersect(GuildConfig.Load(context.Guild.Id).InviteExcempt).Any())
+                            {
+                                await message.DeleteAsync();
+                                await context.Channel.SendMessageAsync(
+                                    $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry");
+                                //if
+                                // 1. The server Has Invite Deletions turned on
+                                // 2. The user is not an admin
+                                // 3. The user does not have one of the invite excempt roles
+                            }
                         }
                 }
                 catch
@@ -90,18 +97,26 @@ namespace PassiveBOT.Handlers
                 {
                     if (context.Channel is IGuildChannel)
                         if (GuildConfig.Load(context.Guild.Id).MentionAll &&
-                            !(context.User as SocketGuildUser).GuildPermissions.Administrator)
+                            !((SocketGuildUser)context.User).GuildPermissions.Administrator)
                         {
-                            await message.DeleteAsync();
-
-                            var rnd = new Random();
-                            var res = rnd.Next(0, FunStr.Everyone.Length);
-                            var emb = new EmbedBuilder
+                            if (!((IGuildUser)context.User).RoleIds
+                                .Intersect(GuildConfig.Load(context.Guild.Id).InviteExcempt).Any())
                             {
-                                Title = $"{context.User} - the admins might get angry",
-                                ImageUrl = FunStr.Everyone[res]
-                            };
-                            await context.Channel.SendMessageAsync("", false, emb.Build());
+                                await message.DeleteAsync();
+
+                                var rnd = new Random();
+                                var res = rnd.Next(0, FunStr.Everyone.Length);
+                                var emb = new EmbedBuilder
+                                {
+                                    Title = $"{context.User} - the admins might get angry",
+                                    ImageUrl = FunStr.Everyone[res]
+                                };
+                                await context.Channel.SendMessageAsync("", false, emb.Build());
+                                //if
+                                // 1. The server Has Mention Deletions turned on
+                                // 2. The user is not an admin
+                                // 3. The user does not have one of the mention excempt roles
+                            }
                         }
                 }
                 catch
@@ -112,7 +127,7 @@ namespace PassiveBOT.Handlers
             {
                 if (GuildConfig.Load(context.Guild.Id).Blacklist
                         .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
-                    !(context.User as IGuildUser).GuildPermissions.Administrator)
+                    !((IGuildUser) context.User).GuildPermissions.Administrator)
                 {
                     await message.DeleteAsync();
                     var blmessage = "";
@@ -146,17 +161,6 @@ namespace PassiveBOT.Handlers
 
             var commandsuccess = result.IsSuccess;
 
-            bool errlog;
-
-            try
-            {
-                errlog = GuildConfig.Load(context.Guild.Id).ErrorLog;
-            }
-            catch
-            {
-                errlog = false;
-            }
-
 
             string server;
             if (context.Channel is IPrivateChannel)
@@ -180,11 +184,11 @@ namespace PassiveBOT.Handlers
                         var s = Homeserver.Load().Error;
                         var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
                         var embed = new EmbedBuilder();
-                        embed.AddField($"ERROR", context.Message);
+                        embed.AddField("ERROR", context.Message);
                         embed.AddField("Reason", result.ErrorReason);
                         embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
                         embed.Color = Color.Red;
-                        await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                        await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
                     }
                 }
                 catch
@@ -204,6 +208,8 @@ namespace PassiveBOT.Handlers
                 await ColourLog.In3(
                     $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}",
                     System.Drawing.Color.Teal); //if there is no error log normally
+
+                Load.Commands++;
             }
         }
     }

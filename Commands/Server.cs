@@ -298,15 +298,15 @@ namespace PassiveBOT.Commands
                 var embed = new EmbedBuilder();
                 if (jsonObj.RoleList.Contains(role.Id))
                 {
-                    var u = Context.User as IGuildUser;
+                    var u = (IGuildUser)Context.User;
                     if (u.RoleIds.Contains(role.Id))
                     {
-                        await (Context.User as IGuildUser).RemoveRoleAsync(role);
+                        await u.RemoveRoleAsync(role);
                         embed.AddField("Success", $"You have been removed from the role {role.Name}");
                     }
                     else
                     {
-                        await (Context.User as IGuildUser).AddRoleAsync(role);
+                        await u.AddRoleAsync(role);
                         embed.AddField("Success", $"You have been added to the role {role.Name}");
                     }
                 }
@@ -325,7 +325,7 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task RoleInfoAsync(IRole role)
         {
-            var srole = (role as SocketRole).Permissions;
+            var srole = ((SocketRole) role).Permissions;
             var l = new List<string>();
             if (srole.AddReactions)
                 l.Add("Can Add Reactions");
@@ -465,12 +465,13 @@ namespace PassiveBOT.Commands
             var id = role.Id;
             var guild = Context.Guild as SocketGuild;
             var members = new List<string>();
-            foreach (var user in guild.Users)
-                if (user.Roles.Contains(Context.Guild.GetRole(id)))
-                    if (type == "username")
-                        members.Add(user.Username);
-                    else
-                        members.Add(user.Nickname ?? user.Username);
+            if (guild != null)
+                foreach (var user in guild.Users)
+                    if (user.Roles.Contains(Context.Guild.GetRole(id)))
+                        if (type == "username")
+                            members.Add(user.Username);
+                        else
+                            members.Add(user.Nickname ?? user.Username);
             var embed = new EmbedBuilder()
                 .WithTitle($"Here is a list of Members with the role {role}")
                 .WithDescription(string.Join(" \n", members))

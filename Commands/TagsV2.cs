@@ -68,7 +68,7 @@ namespace PassiveBOT.Commands
                 foreach (var tagging in dict)
                     if (tagging.Tagname.ToLower() == tagname.ToLower())
                     {
-                        if ((Context.User as SocketGuildUser).GuildPermissions.Administrator)
+                        if (((SocketGuildUser) Context.User).GuildPermissions.Administrator)
                         {
                             dict.Remove(tagging);
                             await ReplyAsync("Tag Deleted using Admin Permissions");

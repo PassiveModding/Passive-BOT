@@ -21,7 +21,7 @@ namespace PassiveBOT.Services
             {
                 Guild.TryRemove(channel.Id, out Timer _);
                 GuildConfig.RssSet(channel.Guild, channel.Id, null, false);
-                await (channel as ITextChannel).SendMessageAsync(
+                await ((ITextChannel) channel).SendMessageAsync(
                     "Rss Config has been updated! Updates will no longer be posted");
             }
             else
@@ -47,7 +47,7 @@ namespace PassiveBOT.Services
                             }
                             catch
                             {
-                                await (channel as ITextChannel).SendMessageAsync($"Error loading Rss URL! {url}\n" +
+                                await ((ITextChannel) channel).SendMessageAsync($"Error loading Rss URL! {url}\n" +
                                                                                  "Ending Feed");
                                 Guild.TryRemove(channel.Id, out Timer _);
                                 return;
@@ -59,7 +59,7 @@ namespace PassiveBOT.Services
                                 var now = DateTime.UtcNow;
                                 if (i == 4)
                                 {
-                                    await (channel as ITextChannel).SendMessageAsync(
+                                    await ((ITextChannel) channel).SendMessageAsync(
                                         $"The Maximum PPC(post per cycle) has been hit, Limiting updates for {minutes} min(s).");
                                     return;
                                 }
@@ -75,11 +75,11 @@ namespace PassiveBOT.Services
 
                                     try
                                     {
-                                        await (channel as ITextChannel).SendMessageAsync("", false, embed.Build());
+                                        await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                                     }
                                     catch
                                     {
-                                        await (channel as ITextChannel).SendMessageAsync($"New Post: **{subject}**\n" +
+                                        await ((ITextChannel) channel).SendMessageAsync($"New Post: **{subject}**\n" +
                                                                                          $"Link: {link}");
                                     }
                                     await ColourLog.In3("RSS", 'R', channel.Guild.Name, 'L', link, Color.Teal);

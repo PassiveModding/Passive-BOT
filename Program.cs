@@ -116,6 +116,7 @@ namespace PassiveBOT
                     Color.GreenYellow);
                 await Task.Delay(3600000);
             }
+            // ReSharper disable once FunctionNeverReturns
         }
 
         private static string GetHeapSize()

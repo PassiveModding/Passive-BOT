@@ -74,7 +74,7 @@ namespace PassiveBOT.Configuration
                 ColourLog.In1Run("Would you like to log debug?");
                 Console.Write("Yes or No: ");
                 var type = Console.ReadLine();
-                if (type.StartsWith("y") || type.StartsWith("Y"))
+                if (type != null && (type.StartsWith("y") || type.StartsWith("Y")))
                     type = "Y";
                 else
                     type = "N";
@@ -87,7 +87,7 @@ namespace PassiveBOT.Configuration
 
                 ColourLog.In1Run("Would you like to AutoRun the bot from now on? Y/N");
                 var type2 = Console.ReadLine();
-                if (type2.StartsWith("y") || type2.StartsWith("Y"))
+                if (type2 != null && (type2.StartsWith("y") || type2.StartsWith("Y")))
                     cfg.AutoRun = true;
                 else
                     cfg.AutoRun = false;

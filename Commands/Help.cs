@@ -96,9 +96,18 @@ namespace PassiveBOT.Commands
                     {
                         var list = new List<string>();
                         foreach (var command in module.Commands)
+                        {
                             list.Add(
-                                $"{isserver}{command.Summary} - {command.Remarks}");
+                                $"`{isserver}{command.Summary}` - {command.Remarks}");
+                            if (string.Join("\n", list).Length > 800)
+                            {
+                                embed.AddField(module.Name, string.Join("\n", list));
+                                list = new List<string>();
+                            }
+                        }
+
                         embed.AddField(module.Name, string.Join("\n", list));
+
                     }
                 if (embed.Fields.Count == 0)
                 {
@@ -109,18 +118,6 @@ namespace PassiveBOT.Commands
             }
             await ReplyAsync("", false, embed.Build());
         }
-
-
-        [Command("faq")]
-        [Alias("helpme")]
-        [Summary("helpme")]
-        [Remarks("Used for the FAQ link for PassiveBOT")]
-        public async Task Helpme()
-        {
-            await ReplyAsync(
-                $"For the FAQ section, please check out the FAQ page on our site: {Load.Faq} \nalso please feel free to ask additional questions here");
-        }
-
 
         [Command("donate")]
         [Summary("donate")]
@@ -151,7 +148,7 @@ namespace PassiveBOT.Commands
                     embed.AddField($"Suggestion from {Context.User.Username}", suggestion);
                     embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
                     embed.Color = Color.Blue;
-                    await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
                     await ReplyAsync("Suggestion Sent!!");
                 }
                 catch
@@ -176,7 +173,7 @@ namespace PassiveBOT.Commands
                     embed.AddField($"BugReport from {Context.User.Username}", bug);
                     embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
                     embed.Color = Color.Red;
-                    await (c as ITextChannel).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
                     await ReplyAsync("Bug Report Sent!!");
                 }
                 catch
@@ -184,24 +181,5 @@ namespace PassiveBOT.Commands
                     await ReplyAsync("The bots owner has not yet configured the Bug channel");
                 }
         }
-
-        /*
-        [Command("nottest")]
-        public async Task NotTest()
-        {
-            await ReplyAsync(".test");
-        }
-
-        [Command("test")]
-        public async Task Test()
-        {
-            await ReplyAsync($"Author: {Context.Message.Author.Id} Me: {Context.Client.CurrentUser.Id}");
-            if (Context.Message.Author.Id == Context.Client.CurrentUser.Id)
-            {
-                await ReplyAsync("this was sent by me");
-            }
-            else
-                await ReplyAsync("this was not sent by me");
-        }*/
     }
 }

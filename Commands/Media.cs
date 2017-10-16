@@ -82,9 +82,9 @@ namespace PassiveBOT.Commands
             var xDoc = JsonConvert.DeserializeXNode(await new HttpClient().GetStringAsync("http://random.cat/meow"),
                 "root");
             var embed = new EmbedBuilder()
-                .WithImageUrl(xDoc.Element("root").Element("file").Value)
+                .WithImageUrl(xDoc.Element("root")?.Element("file")?.Value)
                 .WithTitle("Meow")
-                .WithUrl(xDoc.Element("root").Element("file").Value)
+                .WithUrl(xDoc.Element("root")?.Element("file")?.Value)
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");
