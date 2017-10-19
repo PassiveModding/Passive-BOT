@@ -16,7 +16,8 @@ namespace PassiveBOT.preconditions
                 return Task.FromResult(PreconditionResult.FromSuccess());
             return Task.FromResult(
                 PreconditionResult.FromError(
-                    $"This command is locked to NSFW Channels. Pervert."));
+                    $"This command is locked to NSFW Channels. Pervert.\n" +
+                    $"A nsfw channel is either `#nsfw` or starts with `#nsfw-`"));
         }
     }
 }

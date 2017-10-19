@@ -69,8 +69,14 @@ namespace PassiveBOT.Commands
             }
             if (Program.Keys.Contains(key))
             {
-                Program.Keys.Remove(key);
+                
                 var g = GuildConfig.GetServer(Context.Guild);
+                if (g.Premium)
+                {
+                    await ReplyAsync("Server is already premium. Save this key for later!");
+                    return;
+                }
+                Program.Keys.Remove(key);
                 g.Premium = true;
                 g.TimeOffset = DateTime.UtcNow.AddDays(28);
                 GuildConfig.SaveServer(g, Context.Guild);
