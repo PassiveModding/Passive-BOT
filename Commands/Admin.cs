@@ -380,7 +380,7 @@ namespace PassiveBOT.Commands
             if (role == null)
             {
                 var embed = new EmbedBuilder();
-                foreach (var r in config.InviteExcempt)
+                foreach (var r in config.MentionallExcempt)
                 {
                     try
                     {
@@ -397,14 +397,14 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            config.InviteExcempt.Add(role.Id);
+            config.MentionallExcempt.Add(role.Id);
 
             GuildConfig.SaveServer(config, Context.Guild);
             await ReplyAsync($"{role.Mention} has been added to those excempt from the Mention Blocker");
         }
 
-        [Command("RemoveInviteExcempt")]
-        [Summary("RemoveInviteExcempt <@role>")]
+        [Command("RemoveMentionExcempt")]
+        [Summary("RemoveMentionExcempt <@role>")]
         [Remarks("Remove roles that are excempt from the Mention Blocker command")]
         public async Task UndoMentionExcempt(IRole role = null)
         {
@@ -416,7 +416,7 @@ namespace PassiveBOT.Commands
             if (role == null)
             {
                 var embed = new EmbedBuilder();
-                foreach (var r in config.InviteExcempt)
+                foreach (var r in config.MentionallExcempt)
                 {
                     try
                     {
@@ -433,7 +433,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            config.InviteExcempt.Remove(role.Id);
+            config.MentionallExcempt.Remove(role.Id);
 
             GuildConfig.SaveServer(config, Context.Guild);
             await ReplyAsync($"{role.Mention} has been removed from those excempt from the Mention Blocker");
