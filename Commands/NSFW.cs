@@ -28,7 +28,9 @@ namespace PassiveBOT.Commands
             var builder = new EmbedBuilder
             {
                 ImageUrl = $"http://media.oboobs.ru/{obj["preview"]}",
-                Description = $"Tits Database Size: 10229\n Image Number: {rnd}"
+                Description = $"Tits Database Size: 10229\n Image Number: {rnd}",
+                Title = "Tits",
+                Url = $"http://adult.passivenation.com/18217229/http://media.oboobs.ru/{obj["preview"]}"
             };
 
 
@@ -49,7 +51,9 @@ namespace PassiveBOT.Commands
             var builder = new EmbedBuilder
             {
                 ImageUrl = $"http://media.obutts.ru/{obj["preview"]}",
-                Description = $"Ass Database Size: 4222\n Image Number: {rnd}"
+                Description = $"Ass Database Size: 4222\n Image Number: {rnd}",
+                Title = "Ass",
+                Url = $"http://adult.passivenation.com/18217229/http://media.obutts.ru/{obj["preview"]}/"
             };
             await ReplyAsync("", false, builder.Build());
         }
@@ -65,6 +69,8 @@ namespace PassiveBOT.Commands
             var result = rnd.Next(0, str.Length);
 
             var builder = new EmbedBuilder()
+                .WithTitle("NSFW")
+                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}/")
                 .WithImageUrl(str[result])
                 .WithFooter(x =>
                 {
@@ -85,6 +91,8 @@ namespace PassiveBOT.Commands
             var result = rnd.Next(0, str.Length);
 
             var builder = new EmbedBuilder()
+                .WithTitle("SFW")
+                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}/")
                 .WithImageUrl(str[result])
                 .WithFooter(x =>
                 {
@@ -105,7 +113,8 @@ namespace PassiveBOT.Commands
             var result = rnd.Next(0, str.Length);
 
             var builder = new EmbedBuilder()
-                .WithDescription($"{str[result]}")
+                .WithTitle("Click for Random Video")
+                .WithUrl("http://adult.passivenation.com/18217229/{str[result]}/")
                 .WithFooter(x =>
                 {
                     x.WithText($"PassiveBOT | {result}/{str.Length}");
@@ -125,7 +134,8 @@ namespace PassiveBOT.Commands
             var result = rnd.Next(0, str.Length);
 
             var builder = new EmbedBuilder()
-                .WithImageUrl(str[result])
+                .WithTitle("Pussy")
+                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}/")
                 .WithFooter(x =>
                 {
                     x.WithText($"PassiveBOT | {result}/{str.Length}");
@@ -133,6 +143,7 @@ namespace PassiveBOT.Commands
                 });
 
             await ReplyAsync("", false, builder.Build());
+            await ReplyAsync(str[result]);
         }
 
         [Command("nsfwgif")]
@@ -143,6 +154,18 @@ namespace PassiveBOT.Commands
             var str = NsfwStr.Nsfwgif;
             var rnd = new Random();
             var result = rnd.Next(0, str.Length);
+
+            var builder = new EmbedBuilder()
+                .WithTitle("NSFW GIF")
+                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}/")
+                .WithFooter(x =>
+                {
+                    x.WithText($"PassiveBOT | {result}/{str.Length}");
+                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+                });
+
+            await ReplyAsync("", false, builder.Build());
+
             await ReplyAsync(str[result]);
         }
     }

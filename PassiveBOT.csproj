@@ -209,6 +209,12 @@
     <Reference Include="TNX.ResolveIT, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\TnxResolveIT.1.0.1\lib\TNX.ResolveIT.dll</HintPath>
     </Reference>
+    <Reference Include="TwitchLib, Version=1.5.7.36364, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TwitchLib.1.5.7\lib\net45\TwitchLib.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp, Version=1.0.2.32519, Culture=neutral, PublicKeyToken=5660b08a1845a91e, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebSocketSharp-NonPreRelease.1.0.0\lib\net35\websocket-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="YoutubeExplode, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\YoutubeExplode.3.0.2\lib\net45\YoutubeExplode.dll</HintPath>
     </Reference>
@@ -221,6 +227,7 @@
     <Compile Include="Commands\Server.cs" />
     <Compile Include="Commands\TagsV2.cs" />
     <Compile Include="Commands\Translate.cs" />
+    <Compile Include="Commands\Twitchcs.cs" />
     <Compile Include="Configuration\GuildConfig.cs" />
     <Compile Include="Configuration\HomeServer.cs" />
     <Compile Include="Handlers\EventHandler.cs" />

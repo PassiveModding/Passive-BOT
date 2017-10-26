@@ -48,7 +48,7 @@ namespace PassiveBOT.Services
                             catch
                             {
                                 await ((ITextChannel) channel).SendMessageAsync($"Error loading Rss URL! {url}\n" +
-                                                                                 "Ending Feed");
+                                                                                "Ending Feed");
                                 Guild.TryRemove(channel.Id, out Timer _);
                                 return;
                             }
@@ -80,7 +80,7 @@ namespace PassiveBOT.Services
                                     catch
                                     {
                                         await ((ITextChannel) channel).SendMessageAsync($"New Post: **{subject}**\n" +
-                                                                                         $"Link: {link}");
+                                                                                        $"Link: {link}");
                                     }
                                     await ColourLog.In3("RSS", 'R', channel.Guild.Name, 'L', link, Color.Teal);
                                     i++;

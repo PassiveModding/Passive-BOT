@@ -107,7 +107,6 @@ namespace PassiveBOT.Commands
                         }
 
                         embed.AddField(module.Name, string.Join("\n", list));
-
                     }
                 if (embed.Fields.Count == 0)
                 {

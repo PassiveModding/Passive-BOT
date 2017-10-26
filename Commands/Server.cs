@@ -298,7 +298,7 @@ namespace PassiveBOT.Commands
                 var embed = new EmbedBuilder();
                 if (jsonObj.RoleList.Contains(role.Id))
                 {
-                    var u = (IGuildUser)Context.User;
+                    var u = (IGuildUser) Context.User;
                     if (u.RoleIds.Contains(role.Id))
                     {
                         await u.RemoveRoleAsync(role);

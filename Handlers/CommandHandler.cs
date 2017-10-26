@@ -73,8 +73,7 @@ namespace PassiveBOT.Handlers
                 {
                     if (context.Channel is IGuildChannel)
                         if (GuildConfig.Load(context.Guild.Id).Invite &&
-                            !((SocketGuildUser)context.User).GuildPermissions.Administrator)
-                        {
+                            !((SocketGuildUser) context.User).GuildPermissions.Administrator)
                             if (!((IGuildUser) context.User).RoleIds
                                 .Intersect(GuildConfig.Load(context.Guild.Id).InviteExcempt).Any())
                             {
@@ -86,7 +85,6 @@ namespace PassiveBOT.Handlers
                                 // 2. The user is not an admin
                                 // 3. The user does not have one of the invite excempt roles
                             }
-                        }
                 }
                 catch
                 {
@@ -97,9 +95,8 @@ namespace PassiveBOT.Handlers
                 {
                     if (context.Channel is IGuildChannel)
                         if (GuildConfig.Load(context.Guild.Id).MentionAll &&
-                            !((SocketGuildUser)context.User).GuildPermissions.Administrator)
-                        {
-                            if (!((IGuildUser)context.User).RoleIds
+                            !((SocketGuildUser) context.User).GuildPermissions.Administrator)
+                            if (!((IGuildUser) context.User).RoleIds
                                 .Intersect(GuildConfig.Load(context.Guild.Id).InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
@@ -117,7 +114,6 @@ namespace PassiveBOT.Handlers
                                 // 2. The user is not an admin
                                 // 3. The user does not have one of the mention excempt roles
                             }
-                        }
                 }
                 catch
                 {
@@ -178,7 +174,7 @@ namespace PassiveBOT.Handlers
                           result.ErrorReason == "The input text has too few parameters." ||
                           result.ErrorReason == "Timeout" ||
                           result.ErrorReason == "This command may only be invoked in an NSFW channel." ||
-                          result.ErrorReason == "Command can only be run by the owner of the bot"||
+                          result.ErrorReason == "Command can only be run by the owner of the bot" ||
                           result.ErrorReason == "This command is locked to NSFW Channels. Pervert."))
                     {
                         var s = Homeserver.Load().Error;

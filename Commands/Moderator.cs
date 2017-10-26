@@ -382,7 +382,8 @@ namespace PassiveBOT.Commands
             // 3. If the muted role is not setup, unavailable or does not exist, return.
             // 4. Try to mute the user.
 
-            if (user.RoleIds.Contains(GuildConfig.Load(Context.Guild.Id).ModeratorRoleId) || user.GuildPermissions.Administrator)
+            if (user.RoleIds.Contains(GuildConfig.Load(Context.Guild.Id).ModeratorRoleId) ||
+                user.GuildPermissions.Administrator)
             {
                 await ReplyAsync("ERROR: User is a moderator or administrator");
                 return;
@@ -404,7 +405,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Muted Role has been deleted or could not be found. ERROR");
                 return;
             }
-            
+
 
             if (mutedrole == null)
             {

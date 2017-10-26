@@ -25,6 +25,40 @@ namespace PassiveBOT.Commands
                 $"A user with `MANAGE_SERVER` can invite me to your server here: <https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591>");
         }
 
+        [Command("Activity", RunMode = RunMode.Async)]
+        [Summary("Activity <@user>")]
+        [Remarks("Rank the most recent users based on activity in the last 1k messages")]
+        public async Task Activity(IUser user)
+        {
+            var k = 1000;
+            var messages = Context.Channel.GetMessagesAsync(k, CacheMode.AllowDownload).Flatten().Result;
+            var ranks = messages.GroupBy(x => x.Author.Id).OrderBy(x => x.Count()).Reverse();
+            var i = 0;
+            var str = "`RANK :MSG(s) - USER`\n";
+            foreach (var x in ranks)
+            {
+                i++;
+                var pt1 = $"{i}     ".Substring(0, 4);
+                var pt2 = $"{x.Count()}     ".Substring(0, 5);
+
+                if (x.First().Author.Id == user.Id)
+                    str += $"`#{pt1} : {pt2}` - {x.First().Author.Username} `<--`\n";
+                else
+                    str += $"`#{pt1} : {pt2}` - {x.First().Author.Username}\n";
+            }
+
+            if (str.Length > 1900)
+            {
+                var numLines = str.Split('\n').Length;
+                if (numLines > 30)
+                {
+                    var b = str.Split('\n').Take(31);
+                    str = string.Join("\n", b);
+                }
+            }
+            await ReplyAsync(str);
+        }
+
         [Command("user")]
         [Summary("user [Optional]<@user>")]
         [Alias("whois", "userinfo")]
@@ -96,9 +130,9 @@ namespace PassiveBOT.Commands
                 {
                     dynamic result = JArray.Parse(await response.Content.ReadAsStringAsync());
                     changes =
-                        $"[{((string)result[0].sha).Substring(0, 7)}]({result[0].html_url}) {result[0].commit.message}\n" +
-                        $"[{((string)result[1].sha).Substring(0, 7)}]({result[1].html_url}) {result[1].commit.message}\n" +
-                        $"[{((string)result[2].sha).Substring(0, 7)}]({result[2].html_url}) {result[2].commit.message}";
+                        $"[{((string) result[0].sha).Substring(0, 7)}]({result[0].html_url}) {result[0].commit.message}\n" +
+                        $"[{((string) result[1].sha).Substring(0, 7)}]({result[1].html_url}) {result[1].commit.message}\n" +
+                        $"[{((string) result[2].sha).Substring(0, 7)}]({result[2].html_url}) {result[2].commit.message}";
                 }
                 response.Dispose();
             }

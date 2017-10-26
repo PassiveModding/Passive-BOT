@@ -15,6 +15,7 @@ namespace PassiveBOT.Configuration
         public string Token { get; set; } = "Token";
         public string Debug { get; set; } = "N";
         public bool AutoRun { get; set; }
+        public string twitchtoken { get; set; } = null;
 
         public void Save(string dir = "setup/config/config.json")
         {
@@ -81,9 +82,15 @@ namespace PassiveBOT.Configuration
                 cfg.Debug = type;
 
                 ColourLog.In1Run(
+                    @"To enable the twitch commands, please enter a twitch api token, otherwise hit enter to continue");
+                Console.Write("Token: ");
+                cfg.twitchtoken = Console.ReadLine();
+
+                ColourLog.In1Run(
                     @"After you input your token, a config will be generated at 'setup/config/config.json'");
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
+
 
                 ColourLog.In1Run("Would you like to AutoRun the bot from now on? Y/N");
                 var type2 = Console.ReadLine();

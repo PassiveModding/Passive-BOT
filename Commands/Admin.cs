@@ -15,7 +15,6 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class Admin : InteractiveBase
     {
-
         [Command("ClearWarn")]
         [Summary("ClearWarn <@user>")]
         [Remarks("Clears warnings for the specified user")]
@@ -300,7 +299,6 @@ namespace PassiveBOT.Commands
         [Remarks("Set roles that are excempt from the Invite Block command")]
         public async Task InvExcempt(IRole role = null)
         {
-
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
@@ -309,7 +307,6 @@ namespace PassiveBOT.Commands
             {
                 var embed = new EmbedBuilder();
                 foreach (var r in config.InviteExcempt)
-                {
                     try
                     {
                         var rol = Context.Guild.GetRole(r);
@@ -319,7 +316,6 @@ namespace PassiveBOT.Commands
                     {
                         //
                     }
-                }
                 embed.Title = "Roles Excempt from Invite Block";
                 await ReplyAsync("", false, embed.Build());
                 return;
@@ -336,7 +332,6 @@ namespace PassiveBOT.Commands
         [Remarks("Remove roles that are excempt from the Invite Block command")]
         public async Task UndoInvExcempt(IRole role = null)
         {
-
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
@@ -345,7 +340,6 @@ namespace PassiveBOT.Commands
             {
                 var embed = new EmbedBuilder();
                 foreach (var r in config.InviteExcempt)
-                {
                     try
                     {
                         var rol = Context.Guild.GetRole(r);
@@ -355,7 +349,6 @@ namespace PassiveBOT.Commands
                     {
                         //
                     }
-                }
                 embed.Title = "Roles Excempt from Invite Block";
                 await ReplyAsync("", false, embed.Build());
                 return;
@@ -372,7 +365,6 @@ namespace PassiveBOT.Commands
         [Remarks("Set roles that are excempt from the Mention Block command")]
         public async Task MentionExcempt(IRole role = null)
         {
-
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
@@ -381,7 +373,6 @@ namespace PassiveBOT.Commands
             {
                 var embed = new EmbedBuilder();
                 foreach (var r in config.MentionallExcempt)
-                {
                     try
                     {
                         var rol = Context.Guild.GetRole(r);
@@ -391,7 +382,6 @@ namespace PassiveBOT.Commands
                     {
                         //
                     }
-                }
                 embed.Title = "Roles Excempt from Mention Blocker";
                 await ReplyAsync("", false, embed.Build());
                 return;
@@ -408,7 +398,6 @@ namespace PassiveBOT.Commands
         [Remarks("Remove roles that are excempt from the Mention Blocker command")]
         public async Task UndoMentionExcempt(IRole role = null)
         {
-
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
@@ -417,7 +406,6 @@ namespace PassiveBOT.Commands
             {
                 var embed = new EmbedBuilder();
                 foreach (var r in config.MentionallExcempt)
-                {
                     try
                     {
                         var rol = Context.Guild.GetRole(r);
@@ -427,7 +415,6 @@ namespace PassiveBOT.Commands
                     {
                         //
                     }
-                }
                 embed.Title = "Roles Excempt from Mention Blocker";
                 await ReplyAsync("", false, embed.Build());
                 return;

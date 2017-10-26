@@ -105,9 +105,8 @@ namespace PassiveBOT.Commands
                 else
                 {
                     var mrole = Context.Guild.GetRole(l.ModeratorRoleId);
-                    modRole = mrole.Name;                    
+                    modRole = mrole.Name;
                 }
-
             }
             catch
             {
@@ -673,9 +672,9 @@ namespace PassiveBOT.Commands
             var channels = "";
             try
             {
-                var unverifiedPerms = new OverwritePermissions(sendMessages: PermValue.Deny, addReactions: PermValue.Deny);
+                var unverifiedPerms =
+                    new OverwritePermissions(sendMessages: PermValue.Deny, addReactions: PermValue.Deny);
                 foreach (var channel in Context.Guild.TextChannels)
-                {
                     try
                     {
                         await channel.AddPermissionOverwriteAsync(muteRole, unverifiedPerms);
@@ -685,19 +684,16 @@ namespace PassiveBOT.Commands
                     {
                         channels += $"`#{channel.Name}` Perms Not Modified\n";
                     }
-                    
-                }
-                
+
                 perms = "Role Can No longer Send Messages, or Add Reactions";
             }
             catch
             {
                 perms = "Role Unable to be modified, ask an administrator to do this manually.";
             }
-            
+
 
             GuildConfig.SaveServer(jsonObj, Context.Guild);
-
 
 
             await ReplyAsync($"ModRole has been set as {muteRole.Mention}\n" +

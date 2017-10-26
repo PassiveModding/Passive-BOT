@@ -86,10 +86,8 @@ namespace PassiveBOT.Commands
 
                 Queue.Remove(Context.Guild.Id);
                 Queue.Add(Context.Guild.Id, list);
-                if (list.Count() == 1)
-                {
+                if (list.Count == 1)
                     await PlayQueue();
-                }
 
                 await ReplyAsync(
                     $"**{linkOrSearchTerm}** has been added to the end of the queue. \n" +

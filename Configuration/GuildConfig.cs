@@ -19,9 +19,10 @@ namespace PassiveBOT.Configuration
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
         public ulong MutedRole { get; set; } = 0;
         public ulong ModeratorRoleId { get; set; } = 0;
-        
+
         //TRANSLATION
         public bool Premium { get; set; } = false;
+
         public DateTime TimeOffset { get; set; }
         public int Characters { get; set; } = 0;
 
@@ -39,7 +40,7 @@ namespace PassiveBOT.Configuration
         public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
         public string BlacklistMessage { get; set; } = "";
         public bool Invite { get; set; } = false; // blacklist for discord invites
-        public  List<ulong> InviteExcempt { get; set; } = new List<ulong>();
+        public List<ulong> InviteExcempt { get; set; } = new List<ulong>();
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
         public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
 
