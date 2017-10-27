@@ -26,9 +26,8 @@ namespace PassiveBOT.Commands
             _service = service;
         }
 
-        [Command("queue", RunMode = RunMode.Async)]
-        [Alias("q")]
-        [Summary("q")]
+        [Command("music queue", RunMode = RunMode.Async)]
+        [Summary("music queue")]
         [Remarks("Lists all songs in the queue")]
         public async Task QueueList(int page = 0)
         {
@@ -66,38 +65,8 @@ namespace PassiveBOT.Commands
             }
         }
 
-
-        [Command("q add", RunMode = RunMode.Async)]
-        [Alias("queue add", "play")]
-        [Summary("q add  <song name or YT URL>")]
-        [Remarks("Adds a song to the queue")]
-        [CheckDj]
-        public async Task QueueSong([Remainder] string linkOrSearchTerm)
-        {
-            if (string.IsNullOrWhiteSpace(linkOrSearchTerm))
-                return;
-
-            var list = new List<string>();
-            if (Queue.ContainsKey(Context.Guild.Id))
-                Queue.TryGetValue(Context.Guild.Id, out list);
-            if (list != null)
-            {
-                list.Add(linkOrSearchTerm); //adds the given item to the queue, if its a URL it will be converted to a song later on
-
-                Queue.Remove(Context.Guild.Id);
-                Queue.Add(Context.Guild.Id, list);
-                if (list.Count == 1)
-                    await PlayQueue();
-
-                await ReplyAsync(
-                    $"**{linkOrSearchTerm}** has been added to the end of the queue. \n" +
-                    $"Queue Length: **{list.Count}**");
-            }
-        }
-
-        [Command("q pl", RunMode = RunMode.Async)]
-        [Alias("q playlist", "queue playlist", "queue pl")]
-        [Summary("q pl <Playlist URL>")]
+        [Command("music add playlist", RunMode = RunMode.Async)]
+        [Summary("music add playlist <Playlist URL>")]
         [Remarks("Adds the given YT playlist to the Queue")]
         [CheckDj]
         public async Task PlaylistCmd([Remainder] string playlistLink)
@@ -136,41 +105,8 @@ namespace PassiveBOT.Commands
                     $"**{playListInfo.Title}** has been added to the end of the queue. \nQueue Length: **{list.Count}**");
         }
 
-        [Command("q all", RunMode = RunMode.Async)]
-        [Alias("queue all")]
-        [Summary("q all")]
-        [Remarks("Plays all downloaded songs")]
-        [CheckDj]
-        public async Task Pall()
-        {
-            var list = new List<string>();
-            if (Queue.ContainsKey(Context.Guild.Id))
-                Queue.TryGetValue(Context.Guild.Id, out list);
-
-            //similar to the .songs command, this gets the current guilds list, adds all downloaded songs to it and plays
-            var dir = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/music/");
-
-            if (Directory.Exists(dir))
-            {
-                var d = new DirectoryInfo(dir);
-                var music = d.GetFiles("*.*");
-                if (list != null)
-                {
-                    list.AddRange(music.Select(sng => Path.GetFileNameWithoutExtension(sng.Name)));
-                    Queue.Remove(Context.Guild.Id);
-                    Queue.Add(Context.Guild.Id, list);
-                }
-                await PlayQueue();
-            }
-            else
-            {
-                await ReplyAsync("There are no songs downloaded in this server yet");
-            }
-        }
-
-        [Command("q skip", RunMode = RunMode.Async)]
-        [Alias("queue skip")]
-        [Summary("q skip")]
+        [Command("music next", RunMode = RunMode.Async)]
+        [Summary("music next")]
         [Remarks("Skips the current song")]
         [CheckDj]
         public async Task SkipSong()
@@ -189,9 +125,8 @@ namespace PassiveBOT.Commands
             await PlayQueue();
         }
 
-        [Command("q del", RunMode = RunMode.Async)]
-        [Alias("queue del", "q delete", "queue delete")]
-        [Summary("q del <songnumber>")]
+        [Command("music remove", RunMode = RunMode.Async)]
+        [Summary("music remove <songnumber>")]
         [Remarks("Removes the given song from the queue")]
         [CheckDj]
         public async Task Qdel(int x)
@@ -210,9 +145,8 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("q clear", RunMode = RunMode.Async)]
-        [Alias("queue clear")]
-        [Summary("q clear")]
+        [Command("music clear", RunMode = RunMode.Async)]
+        [Summary("music clear")]
         [Remarks("Empties the queue")]
         [CheckDj]
         public async Task ClearQue()
@@ -232,12 +166,38 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("q play", RunMode = RunMode.Async)]
-        [Alias("queue play")]
-        [Summary("q play")]
+        [Command("music add", RunMode = RunMode.Async)]
+        [Summary("music add <song name or YT URL>")]
+        [Remarks("Adds a song to the queue")]
+        [CheckDj]
+        public async Task QueueSong([Remainder] string linkOrSearchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(linkOrSearchTerm))
+                return;
+
+            var list = new List<string>();
+            if (Queue.ContainsKey(Context.Guild.Id))
+                Queue.TryGetValue(Context.Guild.Id, out list);
+            if (list != null)
+            {
+                list.Add(linkOrSearchTerm); //adds the given item to the queue, if its a URL it will be converted to a song later on
+
+                Queue.Remove(Context.Guild.Id);
+                Queue.Add(Context.Guild.Id, list);
+                if (list.Count == 1)
+                    await PlayQueue();
+
+                await ReplyAsync(
+                    $"**{linkOrSearchTerm}** has been added to the end of the queue. \n" +
+                    $"Queue Length: **{list.Count}**");
+            }
+        }
+
+        [Command("music play", RunMode = RunMode.Async)]
+        [Summary("music play <song>")]
         [Remarks("Plays the queue")]
         [CheckDj]
-        public async Task PlayQueue(string song = null)
+        public async Task PlayQueue([Remainder]string song = null)
         {
             if (string.IsNullOrWhiteSpace(song))
                 song = null;
@@ -251,10 +211,7 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                await ReplyAsync("This guilds queue is empty. Please add some songs first before playing!\n" +
-                                 $"`{Load.Pre}q add` - adds a song to the queue\n" +
-                                 $"`{Load.Pre}q pl 'playlist URL'` - adds the first ten songs form a youtube playlist to the queue\n" +
-                                 $"`{Load.Pre}q all` - adds all songs previously downloaded in your server to the queue");
+                await ReplyAsync("This guilds queue is empty. Please add some songs first before playing!");
                 return;
                 //if the queue is empty instruct the user to add songs to it
             }
@@ -288,7 +245,7 @@ namespace PassiveBOT.Commands
             }
             if (list != null && list.Count == 0)
                 await ReplyAsync(
-                    $"Sorry, the queue is empty, `{Load.Pre}play 'song'` (or `{Load.Pre}q add 'song'`) to add more!");
+                    $"Queue is empty!");
 
 
             await _service.LeaveAudio(Context.Guild);
@@ -296,8 +253,8 @@ namespace PassiveBOT.Commands
         }
 
 
-        [Command("songs", RunMode = RunMode.Async)]
-        [Summary("songs")]
+        [Command("music list", RunMode = RunMode.Async)]
+        [Summary("music list")]
         [Remarks("Lists all songs downloaded in your server")]
         public async Task SongList(int page = 0)
         {
@@ -343,8 +300,8 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("delete")]
-        [Summary("delete <songnumber>")]
+        [Command("music delete")]
+        [Summary("music delete <songnumber>")]
         [Remarks("deletes the given song number's file from the servers folder")]
         [CheckDj]
         public async Task DeleteTask(int song)
@@ -364,8 +321,8 @@ namespace PassiveBOT.Commands
             if (song <= i)
                 try
                 {
-                    await ReplyAsync($"**Deleted song: **{songname[song]}");
                     File.Delete(songpath[song]);
+                    await ReplyAsync($"**Deleted song: **{songname[song]}");
                 }
                 catch
                 {
@@ -375,10 +332,10 @@ namespace PassiveBOT.Commands
                 await ReplyAsync($"Unable to delete song number **{song}** from the songs directory");
         }
 
-        [Command("delete all", RunMode = RunMode.Async)]
-        [Summary("delete all")]
+        [Command("music delete all", RunMode = RunMode.Async)]
+        [Summary("music delete all")]
         [Remarks("Deletes all downloaded song files from the servers folder (ADMIN)")]
-        [RequireUserPermission(GuildPermission.Administrator)]
+        [CheckModerator]
         public async Task DeleteAllTask()
         {
             var dir = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}/music/");
@@ -397,8 +354,8 @@ namespace PassiveBOT.Commands
         }
 
         //connection commands
-        [Command("reconnect", RunMode = RunMode.Async)]
-        [Summary("reconnect")]
+        [Command("music reconnect", RunMode = RunMode.Async)]
+        [Summary("music reconnect")]
         [Remarks("reconnects to the voice channel")]
         [CheckDj]
         public async Task ReconnectTask()
@@ -417,8 +374,8 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("join", RunMode = RunMode.Async)]
-        [Summary("join")]
+        [Command("music join", RunMode = RunMode.Async)]
+        [Summary("music join")]
         [Remarks("Joins your Voice Channel")]
         [CheckDj]
         public async Task JoinCmd()
@@ -429,14 +386,28 @@ namespace PassiveBOT.Commands
             await _service.JoinAudio(Context.Guild, ((IVoiceState) Context.User).VoiceChannel);
         }
 
-        [Command("leave", RunMode = RunMode.Async)]
-        [Summary("leave")]
+        [Command("music leave", RunMode = RunMode.Async)]
+        [Summary("music leave")]
         [Remarks("Leaves your Voice Channel")]
         [CheckDj]
         public async Task LeaveCmd()
         {
             await _service.LeaveAudio(Context.Guild);
             await ReplyAsync("Leaving Audio Channel");
+
+            var list = new List<string>();
+            if (Queue.ContainsKey(Context.Guild.Id))
+                Queue.TryGetValue(Context.Guild.Id, out list);
+
+            //if the queue isn't empty, clears all items from the queue
+
+            if (list != null && list.Count > 0)
+            {
+                list.Clear();
+                await ReplyAsync("Queue has been cleared");
+                Queue.Remove(Context.Guild.Id);
+                Queue.Add(Context.Guild.Id, list);
+            }
         }
     }
 }

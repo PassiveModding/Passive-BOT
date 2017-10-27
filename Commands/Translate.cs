@@ -99,9 +99,9 @@ namespace PassiveBOT.Commands
         [Remarks("Translate from one language to another")]
         public async Task Translate2(string target, [Remainder] string message)
         {
-            if (message.Length > 100)
+            if (message.Length > 500)
             {
-                await ReplyAsync($"Message length too long. {message.Length}/100");
+                await ReplyAsync($"Message length too long. {message.Length}/500");
                 return;
             }
             if (!GuildConfig.Load(Context.Guild.Id).Premium)
