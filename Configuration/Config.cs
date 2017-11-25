@@ -16,6 +16,7 @@ namespace PassiveBOT.Configuration
         public string Debug { get; set; } = "N";
         public bool AutoRun { get; set; }
         public string twitchtoken { get; set; } = null;
+        public string dialogueflow { get; set; } = null;
 
         public void Save(string dir = "setup/config/config.json")
         {

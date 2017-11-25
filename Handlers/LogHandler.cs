@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Threading.Tasks;
-using Console = Colorful.Console;
+using Serilog;
 
 namespace PassiveBOT.Handlers
 {
@@ -23,9 +23,8 @@ namespace PassiveBOT.Handlers
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
             server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
 
-            Console.WriteLine(
-                $"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {command} | {type}: {server} | {res}: {user}",
-                Color.Red);
+            LogInfo(
+                $"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {command} | {type}: {server} | {res}: {user}");
             return Task.CompletedTask;
         }
 
@@ -33,7 +32,7 @@ namespace PassiveBOT.Handlers
         {
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
 
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server}", colour);
+            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server}");
             return Task.CompletedTask;
         }
 
@@ -41,13 +40,13 @@ namespace PassiveBOT.Handlers
         {
             one = $"{one}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
 
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {one} | {type}: {error}", Color.Red);
+            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {one} | {type}: {error}");
             return Task.CompletedTask;
         }
 
         public static Task In1Run(string one)
         {
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Run]   {one}", Color.Gold);
+            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Run]   {one}");
             return Task.CompletedTask;
         }
 
@@ -56,9 +55,24 @@ namespace PassiveBOT.Handlers
             message = message.Replace("\n", " ");
             var msg = message.Substring(21, message.Length - 21);
 
-            Console.WriteLine($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}",
-                Color.GreenYellow);
+           LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}");
             return Task.CompletedTask;
+        }
+
+        public static void LogInfo(string message)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            Log.Information($"{message}");
+        }
+
+        public static void LogError(string message)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            Log.Error($"{message}");
         }
     }
 }

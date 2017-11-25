@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Translation.V2;
+//using Google.Apis.Auth.OAuth2;
+//using Google.Cloud.Translation.V2;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.preconditions;
@@ -58,7 +58,7 @@ namespace PassiveBOT.Commands
             File.Delete(Path.Combine(AppContext.BaseDirectory, $"{Context.Message.Id}.txt"));
         }
 
-        [Command("premium")]
+        /*[Command("premium")]
         [Summary("premium <serial>")]
         [Remarks("set the current server up for Premium discord translate commands.")]
         public async Task Premium([Remainder] string key = null)
@@ -301,6 +301,6 @@ namespace PassiveBOT.Commands
                 "Zulu zu\n");
             await Context.User.SendMessageAsync("", false, embed2.Build());
             await ReplyAsync("DM Sent.");
-        }
+        }*/
     }
 }

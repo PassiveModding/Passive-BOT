@@ -15,12 +15,6 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class GuildSetup : InteractiveBase
     {
-        private readonly RssService _rss;
-
-        public GuildSetup(RssService rss)
-        {
-            _rss = rss;
-        }
 
 
         [Command("Setup", RunMode = RunMode.Async)]
@@ -496,7 +490,7 @@ namespace PassiveBOT.Commands
             GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
-        [Command("rss", RunMode = RunMode.Async)]
+        /*[Command("rss", RunMode = RunMode.Async)]
         [Summary("rss <feed url>")]
         [Remarks("adds an rss feed")]
         public async Task Rss(string url1 = null)
@@ -516,7 +510,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("The RSS Feed has been removed (null input)");
                 await _rss.Rss(null, Context.Channel as IGuildChannel);
             }
-        }
+        }*/
 
         [Command("prefix")]
         [Summary("prefix <newprefix>")]

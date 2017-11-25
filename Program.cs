@@ -12,7 +12,9 @@ using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Services;
+using TwitchLib;
 using Color = System.Drawing.Color;
+using Config = PassiveBOT.Configuration.Config;
 using EventHandler = PassiveBOT.Handlers.EventHandler;
 
 namespace PassiveBOT
@@ -144,9 +146,8 @@ namespace PassiveBOT
         {
             var services = new ServiceCollection()
                 .AddSingleton(Client)
-                .AddSingleton(new AudioService())
-                .AddSingleton(new RssService())
                 .AddSingleton<InteractiveService>()
+                .AddSingleton(new TwitchAPI())
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();

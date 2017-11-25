@@ -34,6 +34,15 @@ namespace PassiveBOT.Configuration
 
         public string Rss { get; set; } = "0"; // rss feed url
         public ulong RssChannel { get; set; } // channel to post custom rss feeds to
+        public List<Twitch> TwitchChannels { get; set; } = new List<Twitch>();
+        public ulong TwitchPostChannel { get; set; } = 0;
+
+        public class Twitch
+        {
+            public string Username { get; set; }
+            public bool LastCheckedStatus { get; set; } = false;
+        }
+
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
@@ -54,6 +63,15 @@ namespace PassiveBOT.Configuration
         public ulong WelcomeChannel { get; set; } // welcome messages in a channel
         public bool EventLogging { get; set; } = false;
         public ulong EventChannel { get; set; } = 0;
+
+        public GiveAway Comp { get; set; } = new GiveAway();
+
+        public class GiveAway
+        {
+            public string Message { get; set; }
+            public List<ulong> Users { get; set; } = new List<ulong>();
+            public ulong Creator { get; set; }
+        }
 
 
         public ulong Starboard { get; set; } = 0;

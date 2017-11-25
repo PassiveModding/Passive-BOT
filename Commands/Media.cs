@@ -16,7 +16,7 @@ namespace PassiveBOT.Commands
     [Ratelimit(1, 2, Measure.Seconds)]
     public class Media : ModuleBase
     {
-        [Command("youtube", RunMode = RunMode.Async)]
+        /*[Command("youtube", RunMode = RunMode.Async)]
         [Summary("youtube <search>")]
         [Alias("yt")]
         [Remarks("Gives the first youtube result from the given search terms")]
@@ -34,7 +34,7 @@ namespace PassiveBOT.Commands
                 embed.AddField(video.Title, $"https://www.youtube.com/watch?v={video.Id}");
             }
             await ReplyAsync("", false, embed.Build());
-        }
+        }*/
 
         [Command("meme")]
         [Summary("meme")]

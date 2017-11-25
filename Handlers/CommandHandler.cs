@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
 using PassiveBOT.strings;
 using PassiveBOT.Services;
+using ApiAiSDK;
+using ApiAiSDK.Model;
+using System.Text.RegularExpressions;
 
 namespace PassiveBOT.Handlers
 {
@@ -16,40 +19,21 @@ namespace PassiveBOT.Handlers
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-        private readonly RssService _rss;
+        private readonly ApiAi _apiAi;
 
         public IServiceProvider Provider;
 
         public CommandHandler(IServiceProvider provider)
         {
             Provider = provider;
-            _rss = Provider.GetService<RssService>();
             _client = Provider.GetService<DiscordSocketClient>();
             _commands = new CommandService();
 
-
-            _client.Ready += _client_Ready;
+            
+            var config = new AIConfiguration(Config.Load().dialogueflow, SupportedLanguage.English);
+            _apiAi = new ApiAi(config);
+            
             _client.MessageReceived += DoCommand;
-        }
-
-        public async Task _client_Ready()
-        {
-            foreach (var guildd in _client.Guilds)
-            {
-                var guild = guildd.Id;
-                var server = _client.GetGuild(guild);
-                try
-                {
-                    var channel = GuildConfig.Load(guild).RssChannel;
-                    var chan = server.GetTextChannel(channel);
-                    var feed = GuildConfig.Load(guild).Rss;
-                    await _rss.Rss(feed, chan);
-                }
-                catch
-                {
-                    //
-                }
-            }
         }
 
         public async Task ConfigureAsync()
@@ -153,6 +137,17 @@ namespace PassiveBOT.Handlers
                   message.HasStringPrefix(Load.Pre, ref argPos) ||
                   message.HasStringPrefix(GuildConfig.Load(context.Guild.Id).Prefix, ref argPos))) return;
 
+            if (message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            {
+                var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "", RegexOptions.Multiline);
+                var response = _apiAi.TextRequest(newmessage);
+                if (response.Result.Fulfillment.Speech != "")
+                {
+                    await context.Channel.SendMessageAsync(response.Result.Fulfillment.Speech);
+                }
+                return;
+            }
+
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 
             var commandsuccess = result.IsSuccess;
@@ -162,7 +157,7 @@ namespace PassiveBOT.Handlers
             if (context.Channel is IPrivateChannel)
                 server = "Direct Message "; //because direct messages have no guild name define it as Direct Message
             else
-                server = context.Guild.ToString();
+                server = context.Guild.Name;
 
 
             if (!commandsuccess)
