@@ -4,7 +4,7 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PassiveBOT.Services
+namespace PassiveBOT.Handlers
 {
     public enum RequestHttpMethod
     {

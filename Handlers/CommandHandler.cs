@@ -1,38 +1,36 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ApiAiSDK;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
 using PassiveBOT.strings;
-using PassiveBOT.Services;
-using ApiAiSDK;
-using ApiAiSDK.Model;
-using System.Text.RegularExpressions;
 
 namespace PassiveBOT.Handlers
 {
     public class CommandHandler
     {
-        private readonly DiscordSocketClient _client;
-        private readonly CommandService _commands;
         private readonly ApiAi _apiAi;
+        private readonly DiscordShardedClient _client;
+        private readonly CommandService _commands;
 
         public IServiceProvider Provider;
 
         public CommandHandler(IServiceProvider provider)
         {
             Provider = provider;
-            _client = Provider.GetService<DiscordSocketClient>();
+            _client = Provider.GetService<DiscordShardedClient>();
             _commands = new CommandService();
 
-            
+
             var config = new AIConfiguration(Config.Load().dialogueflow, SupportedLanguage.English);
             _apiAi = new ApiAi(config);
-            
+
             _client.MessageReceived += DoCommand;
         }
 
@@ -47,7 +45,7 @@ namespace PassiveBOT.Handlers
             Load.Messages++;
             if (!(parameterMessage is SocketUserMessage message)) return;
             var argPos = 0;
-            var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
+            var context = new ShardedCommandContext(_client, message); //new CommandContext(_client, message);
 
             if (context.User.IsBot)
                 return;
@@ -139,17 +137,16 @@ namespace PassiveBOT.Handlers
 
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
-                var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "", RegexOptions.Multiline);
+                var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "",
+                    RegexOptions.Multiline);
                 var response = _apiAi.TextRequest(newmessage);
                 if (response.Result.Fulfillment.Speech != "")
-                {
                     await context.Channel.SendMessageAsync(response.Result.Fulfillment.Speech);
-                }
                 return;
             }
 
-            var result = await _commands.ExecuteAsync(context, argPos, Provider);
 
+            var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var commandsuccess = result.IsSuccess;
 
 

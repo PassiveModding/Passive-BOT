@@ -3,9 +3,6 @@ using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 using TwitchLib;
-using System.Linq;
-using PassiveBOT.Services;
-using Discord.WebSocket;
 
 namespace PassiveBOT.Commands
 {
@@ -18,6 +15,7 @@ namespace PassiveBOT.Commands
             api_.Settings.ClientId = Config.Load().twitchtoken;
             api = api_;
         }
+
         [Command("TwitchStatus", RunMode = RunMode.Async)]
         [Summary("TwitchStatus <username>")]
         [Remarks("Check if a twitch streamer is online")]
@@ -100,7 +98,7 @@ namespace PassiveBOT.Commands
 
             await ReplyAsync("Success");
 
-            await TwitchService.Update((DiscordSocketClient)Context.Client);
+            await TwitchService.Update((DiscordShardedClient)Context.Client);
         }*/
     }
 }

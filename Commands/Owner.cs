@@ -15,7 +15,7 @@ namespace PassiveBOT.Commands
     public class Owner : ModuleBase
     {
         public readonly CommandService Service;
-        public DiscordSocketClient Client;
+        public DiscordShardedClient Client;
 
         public Owner(CommandService service)
         {
@@ -35,7 +35,7 @@ namespace PassiveBOT.Commands
                 //Console.WriteLine(p);
                 try
                 {
-                    var trythis = ((DiscordSocketClient) Context.Client).GetGuild(Convert.ToUInt64(p));
+                    var trythis = ((DiscordShardedClient) Context.Client).GetGuild(Convert.ToUInt64(p));
                     Console.WriteLine(trythis.Name);
                 }
                 catch
@@ -141,7 +141,7 @@ namespace PassiveBOT.Commands
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
 
-            foreach (var guild in ((DiscordSocketClient) Context.Client).Guilds)
+            foreach (var guild in ((DiscordShardedClient) Context.Client).Guilds)
                 if (guild.Id == id)
                     foreach (var channel in guild.Channels)
                         try
@@ -209,7 +209,7 @@ namespace PassiveBOT.Commands
         public async Task GetAsync([Remainder] string s)
         {
             var s2 = "";
-            foreach (var guild in ((DiscordSocketClient) Context.Client).Guilds)
+            foreach (var guild in ((DiscordShardedClient) Context.Client).Guilds)
                 if (guild.Name.ToLower().Contains(s.ToLower()))
                     s2 += $"{guild.Name} : {guild.Id}\n";
             if (s2 != "")

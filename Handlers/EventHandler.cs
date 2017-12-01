@@ -16,7 +16,7 @@ namespace PassiveBOT.Handlers
         public EventHandler(IServiceProvider provider)
         {
             Provider = provider;
-            var client = Provider.GetService<DiscordSocketClient>();
+            var client = Provider.GetService<DiscordShardedClient>();
 
             client.JoinedGuild += NewGuildMessage;
 

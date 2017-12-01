@@ -37,12 +37,6 @@ namespace PassiveBOT.Configuration
         public List<Twitch> TwitchChannels { get; set; } = new List<Twitch>();
         public ulong TwitchPostChannel { get; set; } = 0;
 
-        public class Twitch
-        {
-            public string Username { get; set; }
-            public bool LastCheckedStatus { get; set; } = false;
-        }
-
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
@@ -65,13 +59,6 @@ namespace PassiveBOT.Configuration
         public ulong EventChannel { get; set; } = 0;
 
         public GiveAway Comp { get; set; } = new GiveAway();
-
-        public class GiveAway
-        {
-            public string Message { get; set; }
-            public List<ulong> Users { get; set; } = new List<ulong>();
-            public ulong Creator { get; set; }
-        }
 
 
         public ulong Starboard { get; set; } = 0;
@@ -229,6 +216,19 @@ namespace PassiveBOT.Configuration
                 return "please run the setup command before using configuration commands";
             }
             return null;
+        }
+
+        public class Twitch
+        {
+            public string Username { get; set; }
+            public bool LastCheckedStatus { get; set; } = false;
+        }
+
+        public class GiveAway
+        {
+            public string Message { get; set; }
+            public List<ulong> Users { get; set; } = new List<ulong>();
+            public ulong Creator { get; set; }
         }
 
         public class Warns

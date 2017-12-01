@@ -7,7 +7,6 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
-using PassiveBOT.Services;
 
 namespace PassiveBOT.Commands
 {
@@ -15,8 +14,6 @@ namespace PassiveBOT.Commands
     [RequireContext(ContextType.Guild)]
     public class GuildSetup : InteractiveBase
     {
-
-
         [Command("Setup", RunMode = RunMode.Async)]
         [Summary("Setup")]
         [Remarks("Initialises the servers configuration file")]

@@ -55,7 +55,7 @@ namespace PassiveBOT.Handlers
             message = message.Replace("\n", " ");
             var msg = message.Substring(21, message.Length - 21);
 
-           LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}");
+            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}");
             return Task.CompletedTask;
         }
 

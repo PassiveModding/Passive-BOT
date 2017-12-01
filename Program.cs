@@ -11,10 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
-using PassiveBOT.Services;
-using TwitchLib;
 using Color = System.Drawing.Color;
-using Config = PassiveBOT.Configuration.Config;
 using EventHandler = PassiveBOT.Handlers.EventHandler;
 
 namespace PassiveBOT
@@ -22,7 +19,7 @@ namespace PassiveBOT
     public class Program
     {
         private CommandHandler _handler;
-        public DiscordSocketClient Client;
+        public DiscordShardedClient Client;
         public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
@@ -72,7 +69,7 @@ namespace PassiveBOT
             }
 
 
-            Client = new DiscordSocketClient(new DiscordSocketConfig
+            Client = new DiscordShardedClient(new DiscordSocketConfig
             {
                 LogLevel = ll,
                 MessageCacheSize = 500
@@ -101,7 +98,17 @@ namespace PassiveBOT
             else
                 Client.Log += LogMessageInfo;
 
-            Client.Ready += Client_Ready;
+            var application = await Client.GetApplicationInfoAsync();
+            await ColourLog.In1Run(
+                $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
+            if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")))
+            {
+                 var k = JsonConvert.DeserializeObject<List<string>>(
+                    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")));
+                if (k.Count > 0)
+                    Keys = k;               
+            }
+
 
             //setgame loop
             await Task.Delay(5000);
@@ -129,25 +136,11 @@ namespace PassiveBOT
             return Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString(CultureInfo.InvariantCulture);
         }
 
-
-        private async Task Client_Ready()
-        {
-            var application = await Client.GetApplicationInfoAsync();
-            await ColourLog.In1Run(
-                $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
-
-            var k = JsonConvert.DeserializeObject<List<string>>(
-                File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")));
-            if (k.Count > 0)
-                Keys = k;
-        }
-
         private IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection()
                 .AddSingleton(Client)
-                .AddSingleton<InteractiveService>()
-                .AddSingleton(new TwitchAPI())
+                //.AddSingleton(new InteractiveService(Client))
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();

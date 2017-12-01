@@ -31,7 +31,7 @@ namespace PassiveBOT.Commands
         public async Task Activity(IUser user)
         {
             var k = 1000;
-            var messages = Context.Channel.GetMessagesAsync(k, CacheMode.AllowDownload).Flatten().Result;
+            var messages = Context.Channel.GetMessagesAsync(k).Flatten().Result;
             var ranks = messages.GroupBy(x => x.Author.Id).OrderBy(x => x.Count()).Reverse();
             var i = 0;
             var str = "`RANK :MSG(s) - USER`\n";
@@ -114,7 +114,7 @@ namespace PassiveBOT.Commands
         [Remarks("Bot Info and Stats")]
         public async Task Info()
         {
-            var client = Context.Client as DiscordSocketClient;
+            var client = Context.Client as DiscordShardedClient;
             var hClient = new HttpClient();
             string changes;
             hClient.DefaultRequestHeaders.Add("User-Agent",
@@ -198,9 +198,9 @@ namespace PassiveBOT.Commands
             embed.AddInlineField("Author", Load.Owner);
             embed.AddInlineField("Uptime", GetUptime());
             embed.AddInlineField("Heap", $"{GetHeapSize()}MB");
-            embed.AddInlineField("Guilds", ((DiscordSocketClient) Context.Client).Guilds.Count);
-            embed.AddInlineField("Channels", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.Channels.Count));
-            embed.AddInlineField("Users", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.MemberCount));
+            embed.AddInlineField("Guilds", ((DiscordShardedClient) Context.Client).Guilds.Count);
+            embed.AddInlineField("Channels", ((DiscordShardedClient) Context.Client).Guilds.Sum(g => g.Channels.Count));
+            embed.AddInlineField("Users", ((DiscordShardedClient) Context.Client).Guilds.Sum(g => g.MemberCount));
 
             embed.AddField("Links",
                 $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");

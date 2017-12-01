@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -18,8 +15,7 @@ namespace PassiveBOT.Commands
         public async Task CreateGiveaway([Remainder] string description)
         {
             var server = GuildConfig.GetServer(Context.Guild);
-            //if (server.Comp == new GuildConfig.GiveAway())
-            {
+
                 var comp = new GuildConfig().Comp;
                 comp.Message = description;
                 comp.Users = new List<ulong>();
@@ -27,11 +23,8 @@ namespace PassiveBOT.Commands
                 server.Comp = comp;
 
                 GuildConfig.SaveServer(server, Context.Guild);
-            }
-            //else
-            {
-            //    await ReplyAsync("ERROR, there is already a competition underway!");
-            }
+
+            await ReplyAsync("GiveAway Created.");
         }
 
         [Command("GiveAway")]
@@ -66,7 +59,6 @@ namespace PassiveBOT.Commands
         {
             var server = GuildConfig.GetServer(Context.Guild);
             if (server.Comp != new GuildConfig.GiveAway())
-            {
                 if (server.Comp.Users.Contains(Context.User.Id))
                 {
                     await ReplyAsync("ERROR, you have already enetred the giveaway");
@@ -79,11 +71,8 @@ namespace PassiveBOT.Commands
                     await ReplyAsync($"**[{server.Comp.Users.Count}] Success, added to the giveaway**\n" +
                                      $"{server.Comp.Message}");
                 }
-            }
             else
-            {
                 await ReplyAsync("ERROR, there is no competition currently");
-            }
         }
 
         [Command("LeaveGiveAway")]
@@ -93,7 +82,6 @@ namespace PassiveBOT.Commands
         {
             var server = GuildConfig.GetServer(Context.Guild);
             if (server.Comp != new GuildConfig.GiveAway())
-            {
                 if (server.Comp.Users.Contains(Context.User.Id))
                 {
                     server.Comp.Users.Remove(Context.User.Id);
@@ -106,11 +94,8 @@ namespace PassiveBOT.Commands
                 {
                     await ReplyAsync("ERROR, not in the giveaway");
                 }
-            }
             else
-            {
                 await ReplyAsync("ERROR, there is no competition currently");
-            }
         }
 
         [Command("PickGiveAway")]
@@ -125,7 +110,7 @@ namespace PassiveBOT.Commands
                 {
                     var rnd = new Random().Next(0, server.Comp.Users.Count);
                     var winner = await Context.Guild.GetUserAsync(server.Comp.Users[rnd]);
-                    
+
                     if (winner == null)
                     {
                         await ReplyAsync("ERROR, Winner is Unavailable");
