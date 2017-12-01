@@ -140,7 +140,7 @@ namespace PassiveBOT
         {
             var services = new ServiceCollection()
                 .AddSingleton(Client)
-                //.AddSingleton(new InteractiveService(Client))
+                .AddSingleton(new InteractiveService(Client))
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();
