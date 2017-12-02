@@ -20,7 +20,7 @@ namespace PassiveBOT
     {
         private CommandHandler _handler;
         public DiscordShardedClient Client;
-        public static List<string> Keys { get; set; }
+        //public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
         {
@@ -101,13 +101,14 @@ namespace PassiveBOT
             var application = await Client.GetApplicationInfoAsync();
             await ColourLog.In1Run(
                 $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
-            if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")))
+
+            /*if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")))
             {
                  var k = JsonConvert.DeserializeObject<List<string>>(
                     File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")));
                 if (k.Count > 0)
                     Keys = k;               
-            }
+            }*/
 
 
             //setgame loop

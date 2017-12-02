@@ -158,7 +158,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("No Invites able to be created.");
         }
 
-        [Command("addpremium+")]
+        /*[Command("addpremium+")]
         [Summary("addpremium+")]
         [Remarks("Bot Creator Command")]
         public async Task Addpremium(params string[] keys)
@@ -201,7 +201,7 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync(e.ToString());
             }
-        }
+        }*/
 
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
