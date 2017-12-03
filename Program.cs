@@ -88,8 +88,7 @@ namespace PassiveBOT
 
             var serviceProvider = ConfigureServices();
             _handler = new CommandHandler(serviceProvider);
-            // ReSharper disable once ObjectCreationAsStatement
-            new EventHandler(serviceProvider);
+            var _ = new EventHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
             //checks if the user wants to log debug info or not
@@ -98,9 +97,9 @@ namespace PassiveBOT
             else
                 Client.Log += LogMessageInfo;
 
-            var application = await Client.GetApplicationInfoAsync();
-            await ColourLog.In1Run(
-                $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
+            //var application = await Client.GetApplicationInfoAsync();
+            //await ColourLog.In1Run(
+            //    $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
 
             /*if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")))
             {
