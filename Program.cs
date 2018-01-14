@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
@@ -29,7 +28,7 @@ namespace PassiveBOT
 
         public async Task Start()
         {
-            Console.Title = $"PassiveBOT v{Load.Version}";
+            Console.Title = $"PassiveBOT";
             Console.WriteLine(
                 "██████╗  █████╗ ███████╗███████╗██╗██╗   ██╗███████╗██████╗  ██████╗ ████████╗\n" +
                 "██╔══██╗██╔══██╗██╔════╝██╔════╝██║██║   ██║██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝\n" +
@@ -72,7 +71,7 @@ namespace PassiveBOT
             Client = new DiscordShardedClient(new DiscordSocketConfig
             {
                 LogLevel = ll,
-                MessageCacheSize = 500
+                //MessageCacheSize = 500
             });
 
             try
@@ -88,7 +87,7 @@ namespace PassiveBOT
 
             var serviceProvider = ConfigureServices();
             _handler = new CommandHandler(serviceProvider);
-            var _ = new EventHandler(serviceProvider);
+            //var _ = new EventHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
             //checks if the user wants to log debug info or not
@@ -97,43 +96,11 @@ namespace PassiveBOT
             else
                 Client.Log += LogMessageInfo;
 
-            //var application = await Client.GetApplicationInfoAsync();
-            //await ColourLog.In1Run(
-            //    $"Invite: https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591");
-
-            /*if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")))
-            {
-                 var k = JsonConvert.DeserializeObject<List<string>>(
-                    File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json")));
-                if (k.Count > 0)
-                    Keys = k;               
-            }*/
-
 
             //setgame loop
             await Task.Delay(5000);
-            string[] gametitle =
-            {
-                $"{prefix}help / Heap: {GetHeapSize()}MB",
-                $"{prefix}help / {Load.Gamesite}",
-                $"{prefix}help / v{Load.Version}"
-            };
-            while (true)
-            {
-                var rnd = new Random();
-                var result = rnd.Next(0, gametitle.Length);
-                await Client.SetGameAsync($"{gametitle[result]}");
-
-                await ColourLog.In3("PassiveBOT", 'B', "SetGame", 'R', $"{gametitle[result]}",
-                    Color.GreenYellow);
-                await Task.Delay(3600000);
-            }
-            // ReSharper disable once FunctionNeverReturns
-        }
-
-        private static string GetHeapSize()
-        {
-            return Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString(CultureInfo.InvariantCulture);
+            await Client.SetGameAsync($"{prefix}help / {Load.Gamesite}");
+            await Task.Delay(-1);
         }
 
         private IServiceProvider ConfigureServices()

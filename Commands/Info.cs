@@ -25,7 +25,7 @@ namespace PassiveBOT.Commands
                 $"A user with `MANAGE_SERVER` can invite me to your server here: <https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591>");
         }
 
-        [Command("Activity", RunMode = RunMode.Async)]
+        /*[Command("Activity", RunMode = RunMode.Async)]
         [Summary("Activity <@user>")]
         [Remarks("Rank the most recent users based on activity in the last 1k messages")]
         public async Task Activity(IUser user)
@@ -57,7 +57,7 @@ namespace PassiveBOT.Commands
                 }
             }
             await ReplyAsync(str);
-        }
+        }*/
 
         [Command("user")]
         [Summary("user [Optional]<@user>")]

@@ -116,7 +116,7 @@ namespace PassiveBOT.Commands
             Environment.Exit(0);
         }
 
-        [Command("LeaveServer+")]
+        [Command("LeaveServer+", RunMode = RunMode.Async)]
         [Summary("LeaveServer+ <guild ID> [Optional]<reason>")]
         [Remarks("Makes the bot leave the specified guild")]
         public async Task LeaveAsync(ulong id, [Remainder] string reason = "No reason provided by the owner.")
@@ -124,12 +124,23 @@ namespace PassiveBOT.Commands
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
             var gld = await Context.Client.GetGuildAsync(id);
-            var ch = await gld.GetDefaultChannelAsync();
-
-            await ch.SendMessageAsync($"haha fuck this shit I'm out... `{reason}`");
-            await Task.Delay(5000);
+            //var ch = await gld.GetDefaultChannelAsync();
+            foreach (var channel in ((SocketGuild)gld).TextChannels)
+            {
+                try
+                {
+                    await channel.SendMessageAsync($"Goodbye. `{reason}`");
+                    break;
+                }
+                catch
+                {
+                    //
+                }
+            }
+            
+            //await Task.Delay(500);
             await gld.LeaveAsync();
-            await ReplyAsync("Message has been sent and I've left the guild!");
+            //await ReplyAsync("Message has been sent and I've left the guild!");
         }
 
 
@@ -156,6 +167,27 @@ namespace PassiveBOT.Commands
                         }
 
             await ReplyAsync("No Invites able to be created.");
+        }
+
+        [Command("ReduceServers+", RunMode = RunMode.Async)]
+        [Summary("ReduceServers+")]
+        [Remarks("Reduce the amount of servers the bot is in.")]
+        public async Task ReduceAsync()
+        {
+            var i = 0;
+            await ReplyAsync("Leaving all servers with less than 15 members.");
+            foreach (var guild in ((DiscordShardedClient) Context.Client).Guilds)
+            {
+                if (guild.MemberCount < 15)
+                {
+                    await LeaveAsync(guild.Id,
+                        "PassiveBOT is leaving this server due to low usercount. Please feel free to invite it back by going to our dev server and using the invite command:\n" +
+                        "https://discord.gg/ZKXqt2a");
+                    i++;
+                }
+            }
+
+            await ReplyAsync($"{i} servers left.");
         }
 
         /*[Command("addpremium+")]
