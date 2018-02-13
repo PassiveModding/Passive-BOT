@@ -71,7 +71,7 @@ namespace PassiveBOT
             Client = new DiscordShardedClient(new DiscordSocketConfig
             {
                 LogLevel = ll,
-                //MessageCacheSize = 500
+                MessageCacheSize = 50
             });
 
             try
@@ -87,7 +87,7 @@ namespace PassiveBOT
 
             var serviceProvider = ConfigureServices();
             _handler = new CommandHandler(serviceProvider);
-            //var _ = new EventHandler(serviceProvider);
+            var _ = new EventHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
             //checks if the user wants to log debug info or not

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 
 namespace PassiveBOT.Preconditions
@@ -10,6 +11,12 @@ namespace PassiveBOT.Preconditions
         public override async Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider prov)
         {
+            if (context.Channel is IDMChannel)
+            {
+                return await Task.FromResult(PreconditionResult.FromSuccess());
+            }
+
+
             if (context.Guild.OwnerId == context.User.Id)
                 return await Task.FromResult(PreconditionResult.FromSuccess());
 

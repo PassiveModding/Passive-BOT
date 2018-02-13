@@ -13,6 +13,11 @@ namespace PassiveBOT.Preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider services)
         {
+            if (context.Channel is IDMChannel)
+            {
+                return Task.FromResult(PreconditionResult.FromSuccess());
+            }
+
             var id = context.Guild.Id;
             var role = GuildConfig.Load(id).DjRoleId;
             if (role == 0)
@@ -31,6 +36,12 @@ namespace PassiveBOT.Preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider services)
         {
+
+            if (context.Channel is IDMChannel)
+            {
+                return Task.FromResult(PreconditionResult.FromSuccess());
+            }
+
             var id = context.Guild.Id;
             var role = GuildConfig.Load(id).ModeratorRoleId;
             if (role == 0)

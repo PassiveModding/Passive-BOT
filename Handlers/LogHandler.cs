@@ -8,13 +8,13 @@ namespace PassiveBOT.Handlers
     //Replaced loghandler with colourlog cause thats sexy!
     public class ColourLog
     {
-        public static Task In3(string command, char type, string server, char res, string user, Color colour)
+        public static Task In3(string command, char type, string server, char res, string user)
         {
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
             server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
 
-            Console.WriteLine(
-                $"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server} | {res}: {user}", colour);
+            LogInfo(
+                $"{command} | {type}: {server} | {res}: {user}");
             return Task.CompletedTask;
         }
 
@@ -23,8 +23,8 @@ namespace PassiveBOT.Handlers
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
             server = $"{server}                          ".Substring(0, 20); //trim param2 to 15
 
-            LogInfo(
-                $"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {command} | {type}: {server} | {res}: {user}");
+            LogError(
+                $"{command} | {type}: {server} | {res}: {user}");
             return Task.CompletedTask;
         }
 
@@ -32,7 +32,7 @@ namespace PassiveBOT.Handlers
         {
             command = $"{command}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
 
-            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Info]  {command} | {type}: {server}");
+            LogInfo($"{command} | {type}: {server}");
             return Task.CompletedTask;
         }
 
@@ -40,13 +40,13 @@ namespace PassiveBOT.Handlers
         {
             one = $"{one}                         ".Substring(0, 20).Replace("\n", " "); //trim param 1 to 20
 
-            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Error] {one} | {type}: {error}");
+            LogError($"{one} | {type}: {error}");
             return Task.CompletedTask;
         }
 
         public static Task In1Run(string one)
         {
-            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Run]   {one}");
+            LogDebug($"{one}");
             return Task.CompletedTask;
         }
 
@@ -55,9 +55,10 @@ namespace PassiveBOT.Handlers
             message = message.Replace("\n", " ");
             var msg = message.Substring(21, message.Length - 21);
 
-            LogInfo($"{DateTime.Now:dd/MM/yyyy hh:mm:ss tt} [Debug] PassiveBOT           | {msg}");
+            LogDebug($"PassiveBOT           | {msg}");
             return Task.CompletedTask;
         }
+
 
         public static void LogInfo(string message)
         {
@@ -65,6 +66,16 @@ namespace PassiveBOT.Handlers
                 .WriteTo.Console()
                 .CreateLogger();
             Log.Information($"{message}");
+            Log.CloseAndFlush();
+        }
+
+        public static void LogDebug(string message)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateLogger();
+            Log.Information($"{message}");
+            Log.CloseAndFlush();
         }
 
         public static void LogError(string message)
@@ -73,6 +84,7 @@ namespace PassiveBOT.Handlers
                 .WriteTo.Console()
                 .CreateLogger();
             Log.Error($"{message}");
+            Log.CloseAndFlush();
         }
     }
 }

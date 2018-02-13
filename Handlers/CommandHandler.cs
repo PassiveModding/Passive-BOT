@@ -194,8 +194,7 @@ namespace PassiveBOT.Handlers
             else
             {
                 await ColourLog.In3(
-                    $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}",
-                    System.Drawing.Color.Teal); //if there is no error log normally
+                    $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}"); //if there is no error log normally
 
                 Load.Commands++;
             }
