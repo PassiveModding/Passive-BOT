@@ -260,18 +260,18 @@ namespace PassiveBOT.Handlers
             var wchan = GuildConfig.Load(id).WelcomeChannel;
             var wmessage = GuildConfig.Load(id).WelcomeMessage;
             var embed = new EmbedBuilder();
+            embed.AddField($"Welcome {user.Username}", wmessage);
+            embed.WithColor(Color.Blue);
+            embed.WithFooter($"{user.Guild.MemberCount}");
             if (wchan != 0)
             {
                 var channel = user.Guild.GetTextChannel(wchan);
 
-                embed.AddField($"Welcome {user.Username}", wmessage);
-                embed.WithColor(Color.Blue);
+
                 await channel.SendMessageAsync($"{user.Mention}", false, embed.Build());
             }
             else
             {
-                embed.AddField($"Welcome {user.Username}", wmessage);
-                embed.WithColor(Color.Blue);
                 await user.Guild.DefaultChannel.SendMessageAsync($"{user.Mention}", false, embed.Build());
             }
         }
