@@ -418,9 +418,11 @@ namespace PassiveBOT.Commands
                 await user.AddRoleAsync(mutedrole);
                 await ReplyAsync($"SUCCESS. The user has been muted and added to the muted role: {mutedrole.Mention}");
             }
-            catch
+            catch (Exception e)
             {
-                await ReplyAsync("Use role unable to be modified. ERROR");
+
+                await ReplyAsync($"Use role unable to be modified. ERROR\n" +
+                                 $"{e}");
             }
         }
 
