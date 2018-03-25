@@ -17,6 +17,7 @@ namespace PassiveBOT.Configuration
         public bool AutoRun { get; set; }
         public string twitchtoken { get; set; }
         public string dialogueflow { get; set; } = null;
+        public string DBLtoken { get; set; } = null;
 
         public void Save(string dir = "setup/config/config.json")
         {
@@ -86,6 +87,11 @@ namespace PassiveBOT.Configuration
                     @"To enable the twitch commands, please enter a twitch api token, otherwise hit enter to continue");
                 Console.Write("Token: ");
                 cfg.twitchtoken = Console.ReadLine();
+
+                ColourLog.In1Run(
+                    @"To ServerCount on DiscordBots.org, please enter your api token, otherwise hit enter to continue");
+                Console.Write("Token: ");
+                cfg.DBLtoken = Console.ReadLine();
 
                 ColourLog.In1Run(
                     @"After you input your token, a config will be generated at 'setup/config/config.json'");

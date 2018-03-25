@@ -39,6 +39,13 @@ namespace PassiveBOT.Handlers
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
+        public class NoSpam
+        {
+            public ulong ID { get; set; }
+            public string LastMessage { get; set; }
+            public DateTime LastMessageDate { get; set; }
+        }
+
 
         public async Task DoCommand(SocketMessage parameterMessage)
         {

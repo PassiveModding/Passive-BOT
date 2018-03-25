@@ -4,6 +4,8 @@ using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using DiscordBotsList.Api;
+using DiscordBotsList.Api.Extensions.DiscordNet;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
 
@@ -12,11 +14,12 @@ namespace PassiveBOT.Handlers
     public class EventHandler
     {
         private DateTime _delay; //NOTE THIS IS NOT GUILD SPECIFIC YET!
+        private readonly DiscordShardedClient client;
 
         public EventHandler(IServiceProvider provider)
         {
             Provider = provider;
-            var client = Provider.GetService<DiscordShardedClient>();
+            client = Provider.GetService<DiscordShardedClient>();
 
             client.JoinedGuild += NewGuildMessage;
 
@@ -314,6 +317,17 @@ namespace PassiveBOT.Handlers
             await guild.DefaultChannel.SendMessageAsync(
                 $"Hi, I'm PassiveBOT. To see a list of my commands type `{Load.Pre}help` and for some statistics about me type `{Load.Pre}info`\n" +
                 "I am able to do music, tags, moderation, memes & more!!!!!");
+
+            try
+            {
+                var DblApi = new DiscordNetDblApi(client, Config.Load().DBLtoken);
+                var me = await DblApi.GetMeAsync();
+                await me.UpdateStatsAsync(client.Guilds.Count);
+            }
+            catch
+            {
+                //
+            }
         }
     }
 }

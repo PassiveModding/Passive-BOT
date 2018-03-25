@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using DiscordBotsList.Api;
+using DiscordBotsList.Api.Adapter.DiscordNet;
+using DiscordBotsList.Api.Extensions.DiscordNet;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.preconditions;
@@ -20,6 +23,47 @@ namespace PassiveBOT.Commands
         public Owner(CommandService service)
         {
             Service = service;
+        }
+
+        [Command("UpdateStats+")]
+        [Summary("UpdateStats+")]
+        [Remarks("Update the Bots Stats on DiscordBots.org")]
+        public async Task UpdateStats()
+        {
+            try
+            {
+                var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);
+                var me = await DblApi.GetMeAsync();
+                await me.UpdateStatsAsync(Context.Client.GetGuildsAsync().Result.Count);
+            }
+            catch
+            {
+                //
+            }
+        }
+
+        [Command("GlobalBan+", RunMode = RunMode.Async)]
+        [Summary("GlobalBan+")]
+        [Remarks("For those who dont seem to go away")]
+        public async Task GlobalBan(ulong ID)
+        {
+            foreach (var server in ((DiscordSocketClient) Context.Client).Guilds)
+            {
+                if (server.Users.Any(x => x.Id == ID))
+                {
+                    try
+                    {
+                        await server.AddBanAsync(ID);
+                        await ReplyAsync($"Banned User in {server.Name}");
+                    }
+                    catch (Exception e)
+                    {
+                        await ReplyAsync($"Failed to Ban User in {server.Name}");
+                    }
+                }
+            }
+
+            await ReplyAsync("Complete");
         }
 
         [Command("PurgeServers+", RunMode = RunMode.Async)]
