@@ -265,7 +265,7 @@ namespace PassiveBOT.Handlers
             var embed = new EmbedBuilder();
             embed.AddField($"Welcome {user.Username}", wmessage);
             embed.WithColor(Color.Blue);
-            embed.WithFooter($"{user.Guild.MemberCount}");
+            embed.WithFooter($"Users: {user.Guild.MemberCount}");
             if (wchan != 0)
             {
                 var channel = user.Guild.GetTextChannel(wchan);
@@ -289,7 +289,6 @@ namespace PassiveBOT.Handlers
             if (gchan != 0)
             {
                 var channel = user.Guild.GetTextChannel(gchan);
-                //await channel.SendMessageAsync($"{user.Mention}: {gmessage}");
 
                 var embed = new EmbedBuilder();
                 embed.AddField($"Goodbye {user.Username}", $"{gmessage}");
@@ -300,16 +299,12 @@ namespace PassiveBOT.Handlers
             {
                 var embed = new EmbedBuilder();
                 embed.AddField($"Goodbye {user.Username}", $"{gmessage}");
-                //await channel.SendMessageAsync($"", false, embed.Build());
                 await user.Guild.DefaultChannel.SendMessageAsync($"", false, embed.Build());
             }
         }
 
         public async Task NewGuildMessage(SocketGuild guild)
         {
-            //if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/")))
-            //    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, $"setup/server/{guild.Id}/music/"));
-
             var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}.json");
             if (!File.Exists(config))
                 GuildConfig.Setup(guild);
