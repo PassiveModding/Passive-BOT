@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ApiAiSDK;
@@ -18,6 +21,7 @@ namespace PassiveBOT.Handlers
         private readonly ApiAi _apiAi;
         private readonly DiscordShardedClient _client;
         private readonly CommandService _commands;
+
 
         public IServiceProvider Provider;
 
@@ -135,6 +139,36 @@ namespace PassiveBOT.Handlers
             catch
             {
                 //
+            }
+
+            try
+            {
+                if (!(context.Channel is IDMChannel))
+                {
+                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) && GuildConfig.Load(context.Guild.Id).AutoMessage.Any(x => x.channelID == context.Channel.Id))
+                    {
+                        var serverobj = GuildConfig.Load(context.Guild.Id);
+                        var chan = serverobj.AutoMessage.First(x => x.channelID == context.Channel.Id);
+                        if (chan.enabled)
+                        {
+                            chan.messages++;
+                            if (chan.messages >= chan.sendlimit)
+                            {
+                                var embed = new EmbedBuilder();
+                                embed.AddField("AutoMessage", chan.automessage);
+                                embed.Color = Color.Green;
+                                await context.Channel.SendMessageAsync("", false, embed.Build());
+                                chan.messages = 0;
+                            }
+                            GuildConfig.SaveServer(serverobj, context.Guild);
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
 
 

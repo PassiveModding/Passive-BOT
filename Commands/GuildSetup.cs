@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
@@ -17,26 +19,29 @@ namespace PassiveBOT.Commands
         [Command("Setup", RunMode = RunMode.Async)]
         [Summary("Setup")]
         [Remarks("Initialises the servers configuration file")]
-        public async Task Setup()
+        public async Task Setup(int i = 0)
         {
-            await ReplyAsync("```\n" +
-                             "Reply with the command you would like to perform\n" +
-                             "[1] Initialise the config file\n" +
-                             "[2] Read the config file\n" +
-                             "[3] Delete the config file\n" +
-                             "" +
-                             "```");
-            var n = await NextMessageAsync();
-            if (n.Content == "1")
+            if (i == 0)
+            {
+                await ReplyAsync("```\n" +
+                                 "Reply with the command you would like to perform\n" +
+                                 "[1] Initialise the config file\n" +
+                                 "[2] Read the config file\n" +
+                                 "[3] Delete the config file\n" +
+                                 "" +
+                                 "```");
+                return;
+            }
+            if (i == 1)
             {
                 GuildConfig.Setup(Context.Guild);
                 await ConfigInfo();
             }
-            else if (n.Content == "2")
+            else if (i == 2)
             {
                 await ConfigInfo();
             }
-            else if (n.Content == "3")
+            else if (i== 3)
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
@@ -259,7 +264,7 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync(
                     "Please reply with the welcome message you want to be sent when a user joins the server ie. `Welcome to Our Server!!`");
-                var next2 = await NextMessageAsync();
+                var next2 = await NextMessageAsync(timeout: TimeSpan.FromSeconds(30));
                 GuildConfig.SetWMessage(Context.Guild, next2.Content);
                 GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
                 await ReplyAsync("The Welcome Message for this server has been set to:\n" +
@@ -327,7 +332,7 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync(
                     "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
-                var next2 = await NextMessageAsync();
+                var next2 = await NextMessageAsync(timeout: TimeSpan.FromSeconds(30));
                 jsonObj.GoodbyeMessage = next2.Content;
                 jsonObj.GoodByeChannel = Context.Channel.Id;
                 GuildConfig.SaveServer(jsonObj, Context.Guild);
@@ -390,6 +395,95 @@ namespace PassiveBOT.Commands
                 await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
             else
                 await ReplyAsync("Events will no longer be logged");
+        }
+
+        [Command("AutoMessage", RunMode = RunMode.Async)]
+        [Summary("AutoMessage")]
+        [Remarks("Enable to use of automatic bot messages in channels")]
+        public async Task AutoMessage()
+        {
+            await ReplyAsync("```\n" +
+                             "Reply with the command you would like to perform\n" +
+                             "[1] Set the auto message for this channel\n" +
+                             "[2] Set amount of messages before automessaging\n" +
+                             "[3] Enable Automessaging in this channel\n" +
+                             "[4] Disable AutoMessaging\n" +
+                             "[5] View AutoMessage Info" +
+                             "" +
+                             "```");
+            var serverobj = GuildConfig.Load(Context.Guild.Id);
+            if (serverobj.AutoMessage.All(x => x.channelID != Context.Channel.Id))
+            {
+                serverobj.AutoMessage.Add(new GuildConfig.autochannels
+                {
+                    automessage = "AutoMessage",
+                    channelID = Context.Channel.Id,
+                    enabled = false,
+                    messages = 0,
+                    sendlimit = 50
+                });
+            }
+            var chan = serverobj.AutoMessage.First(x => x.channelID == Context.Channel.Id);
+            var next = await NextMessageAsync();
+            if (next.Content == "1")
+            {
+                await ReplyAsync(
+                    "Please reply with the message you would like to auto-send in this channel");
+                var next2 = await NextMessageAsync();
+                chan.automessage = next2.Content;
+                await ReplyAsync(
+                    "The auto-message for this channel will now be:\n" +
+                    "`-----`\n" +
+                    $"{chan.automessage}\n" +
+                    $"`-----`");
+            }
+            else if (next.Content == "2")
+            {
+                await ReplyAsync($"Please reply with the amount of messages you would like in between automessages");
+                var next2 = await NextMessageAsync();
+                if (Int32.TryParse(next2.Content, out var result))
+                {
+                    chan.sendlimit = result;
+                    await ReplyAsync($"Automessages will now be sent every {result} messages in this channel");
+                }
+                else
+                {
+                    await ReplyAsync("Error: Not an integer");
+                }
+            }
+            else if (next.Content == "3")
+            {
+                chan.enabled = true;
+                await ReplyAsync($"Automessages will now be sent in this channel");
+            }
+            else if (next.Content == "4")
+            {
+                chan.enabled = false;
+                await ReplyAsync($"Automessages will no longer be sent  in this channel");
+            }
+            else if (next.Content == "5")
+            {
+                var embed = new EmbedBuilder();
+                foreach (var channel in serverobj.AutoMessage)
+                {
+                    if (Context.Guild.TextChannels.Any(x => x.Id == channel.channelID))
+                    {
+                        embed.AddField(Context.Guild.TextChannels.First(x => x.Id == channel.channelID).Name, $"Message: {channel.automessage}\n" +
+                                                     $"Message Count: {channel.messages}\n" +
+                                                     $"Enabled: {channel.enabled}\n" +
+                                                     $"Msg/AutoMessage: {channel.sendlimit}");
+                    }
+
+                }
+
+                await Context.Channel.SendMessageAsync("", false, embed.Build());
+                await ReplyAsync("Done");
+            }
+            else
+            {
+                await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
+            }
+            GuildConfig.SaveServer(serverobj, Context.Guild);
         }
 
 

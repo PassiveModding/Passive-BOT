@@ -66,7 +66,15 @@ namespace PassiveBOT.Configuration
         public List<Warns> Warnings { get; set; } = new List<Warns>();
         public List<Kicks> Kicking { get; set; } = new List<Kicks>();
         public List<Bans> Banning { get; set; } = new List<Bans>();
-
+        public List<autochannels> AutoMessage { get; set; } = new List<autochannels>();
+        public class autochannels
+        {
+            public bool enabled { get; set; } = false;
+            public ulong channelID { get; set; }
+            public int messages { get; set; } = 0;
+            public string automessage { get; set; } = "PassiveBOT";
+            public int sendlimit { get; set; } = 50;
+        }
 
         public static void SaveServer(GuildConfig config, IGuild guild)
         {
