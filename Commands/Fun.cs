@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using DiscordBotsList.Api.Extensions.DiscordNet;
+using PassiveBOT.Configuration;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 
@@ -12,6 +14,91 @@ namespace PassiveBOT.Commands
     [Ratelimit(1, 2, Measure.Seconds)]
     public class Fun : ModuleBase
     {
+        /*
+        [Command("GetUpvoters")]
+        [Summary("GetUpvoters")]
+        [Remarks("Get a list of people who have upvoted the bot recently!")]
+        public async Task GetUpvoters()
+        {
+            if (Config.Load().DBLtoken == null)
+            {
+                await ReplyAsync("Bot Not Configured for DiscordBots.org");
+                return;
+            }
+            try
+            {
+                var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);
+                var users = DblApi.GetVotersAsync(1).Result;
+                var embed = new EmbedBuilder();
+                var desc = "";
+                foreach (var user in users)
+                {
+                    desc += $"{user.Username} <{user.Id}>\n";
+                }
+
+                desc += "You Can go vote for this bot here:\n" +
+                        $"{Load.DBLLink}\n" +
+                        $"Type: `{Config.Load().Prefix} Claim` for a prize once you've voted.";
+                embed.Description = desc;
+                embed.Title = "Voters for the Last 24H";
+                await ReplyAsync("", false, embed.Build());
+            }
+            catch
+            {
+                //
+            }
+        }
+
+        [Command("Claim")]
+        [Summary("Claim")]
+        [Remarks("Claim a prize for getting voting!")]
+        public async Task ClaimPrize()
+        {
+            if (Config.Load().DBLtoken == null)
+            {
+                await ReplyAsync("Bot Not Configured for DiscordBots.org");
+                return;
+            }
+            try
+            {
+                var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);
+                var users = DblApi.GetVoterIdsAsync(1).Result;
+                
+                if (users.Contains(Context.User.Id))
+                {
+                    var embed = new EmbedBuilder {Title = "Prize Claimed", Color = Color.Green};
+                    var rnd = new Random().Next(0, 2);
+                    var desc = "";
+                    switch (rnd)
+                    {
+                        case 0:
+                            desc = "REEEEEEE You won nothing :/ Better luck tomorrow";
+                            break;
+                        case 1:
+                            desc = "You Get a sexy crown! :crown:";
+                            await ((IGuildUser)Context.User).ModifyAsync(x =>
+                               x.Nickname =
+                                   $":crown: {(x.Nickname.IsSpecified ? x.Nickname : Context.User.Username)}");
+                            break;
+                        case 2:
+                            desc = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+                            break;
+                        default:
+                            desc = "REEEEEEE You won nothing :/ Better luck tomorrow";
+                            break;
+                    }
+
+                    embed.Description = desc;
+                    await ReplyAsync("", false, embed.Build());
+                }
+
+            }
+            catch
+            {
+                //
+            }
+        }*/
+
         [Command("Ping", RunMode = RunMode.Async)]
         [Alias("pong")]
         [Summary("ping")]

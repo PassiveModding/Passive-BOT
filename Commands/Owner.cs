@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -30,6 +31,11 @@ namespace PassiveBOT.Commands
         [Remarks("Update the Bots Stats on DiscordBots.org")]
         public async Task UpdateStats()
         {
+            if (Config.Load().DBLtoken == null)
+            {
+                await ReplyAsync("Bot Not Configured for DiscordBots.org");
+                return;
+            }
             try
             {
                 var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);

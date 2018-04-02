@@ -9,7 +9,7 @@
         public static string Pre;
         public static int Messages;
         public static int Commands;
-
+        public static string DBLLink = "https://discordbots.org/bot/303710071387324416";
         public static string Invite =
             "https://discordapp.com/oauth2/authorize?client_id=303710071387324416&scope=bot&permissions=2146958591";
 
