@@ -19,6 +19,7 @@ namespace PassiveBOT.Configuration
         public string dialogueflow { get; set; } = null;
         public string DBLtoken { get; set; } = null;
         public string DBLLink { get; set; } = null;
+        public string SupportServer { get; set; } = null;
 
         public void Save(string dir = "setup/config/config.json")
         {
@@ -98,6 +99,11 @@ namespace PassiveBOT.Configuration
                     @"Enter your discordbots.org url, otherwise hit enter to continue");
                 Console.Write("Link: ");
                 cfg.DBLLink = Console.ReadLine();
+
+                ColourLog.In1Run(
+                    @"Enter your Support Server Invite url, otherwise hit enter to continue");
+                Console.Write("Support Server: ");
+                cfg.SupportServer = Console.ReadLine();
 
                 ColourLog.In1Run(
                     @"After you input your token, a config will be generated at 'setup/config/config.json'");
