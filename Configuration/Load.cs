@@ -8,7 +8,7 @@ namespace PassiveBOT.Configuration
         public static string Siteurl = "http://passivenation.com/";
         public static string Owner = "PassiveModding";
         public static string Version = "7.1";
-        public static string Pre;
+        public static string Pre = Config.Load().Prefix;
         public static int Messages;
         public static int Commands;
         public static string DBLLink = Config.Load().DBLLink;

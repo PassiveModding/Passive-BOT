@@ -74,7 +74,7 @@ namespace PassiveBOT.Configuration
                     @"Please enter a prefix for the bot eg. '+' (do not include the '' outside of the prefix)");
                 Console.Write("Prefix: ");
                 cfg.Prefix = Console.ReadLine();
-                Configuration.Load.Pre = cfg.Prefix;
+                //Configuration.Load.Pre = cfg.Prefix;
 
                 ColourLog.In1Run("Would you like to log debug?");
                 Console.Write("Yes or No: ");
