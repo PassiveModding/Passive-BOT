@@ -163,7 +163,7 @@ namespace PassiveBOT.Commands
                     $"Text: {client.Guilds.Sum(x => x.TextChannels.Count)}\n" +
                     $"Voice: {client.Guilds.Sum(x => x.VoiceChannels.Count)}\n" +
                     $"Total: {client.Guilds.Sum(x => x.Channels.Count)}", true);
-                embed.AddField("Guilds", $"{client.Guilds.Count}\n[Support Guild](https://discord.gg/ZKXqt2a)",
+                embed.AddField("Guilds", $"{client.Guilds.Count}\n[Support Guild]({Load.Server})",
                     true);
             }
             embed.AddField(":space_invader:",

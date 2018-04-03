@@ -232,7 +232,7 @@ namespace PassiveBOT.Commands
                 {
                     await LeaveAsync(guild.Id,
                         "PassiveBOT is leaving this server due to low usercount. Please feel free to invite it back by going to our dev server and using the invite command:\n" +
-                        "https://discord.gg/ZKXqt2a");
+                        $"{Load.Server}");
                     i++;
                 }
             }
