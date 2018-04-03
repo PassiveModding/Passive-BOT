@@ -18,6 +18,7 @@ namespace PassiveBOT.Configuration
         public string twitchtoken { get; set; }
         public string dialogueflow { get; set; } = null;
         public string DBLtoken { get; set; } = null;
+        public string DBLLink { get; set; } = null;
 
         public void Save(string dir = "setup/config/config.json")
         {
@@ -92,6 +93,11 @@ namespace PassiveBOT.Configuration
                     @"To ServerCount on DiscordBots.org, please enter your api token, otherwise hit enter to continue");
                 Console.Write("Token: ");
                 cfg.DBLtoken = Console.ReadLine();
+
+                ColourLog.In1Run(
+                    @"Enter your discordbots.org url, otherwise hit enter to continue");
+                Console.Write("Link: ");
+                cfg.DBLLink = Console.ReadLine();
 
                 ColourLog.In1Run(
                     @"After you input your token, a config will be generated at 'setup/config/config.json'");

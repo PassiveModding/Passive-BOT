@@ -18,7 +18,7 @@ namespace PassiveBOT
     public class Program
     {
         private CommandHandler _handler;
-        public DiscordShardedClient Client;
+        public static DiscordShardedClient Client;
         //public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
