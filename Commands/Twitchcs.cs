@@ -94,11 +94,11 @@ namespace PassiveBOT.Commands
 
             server.TwitchChannels.Add(chan);
 
-            GuildConfig.SaveServer(server);
+            GuildConfig.SaveServer(server, Context.Guild);
 
             await ReplyAsync("Success");
 
-            await TwitchService.Update((DiscordSocketClient)Context.Client);
+            await TwitchService.Update((DiscordShardedClient)Context.Client);
         }*/
     }
 }

@@ -22,7 +22,7 @@ namespace PassiveBOT.Commands
                 comp.Creator = Context.User.Id;
                 server.Comp = comp;
 
-                GuildConfig.SaveServer(server);
+                GuildConfig.SaveServer(server, Context.Guild);
 
             await ReplyAsync("GiveAway Created.");
         }
@@ -66,7 +66,7 @@ namespace PassiveBOT.Commands
                 else
                 {
                     server.Comp.Users.Add(Context.User.Id);
-                    GuildConfig.SaveServer(server);
+                    GuildConfig.SaveServer(server, Context.Guild);
 
                     await ReplyAsync($"**[{server.Comp.Users.Count}] Success, added to the giveaway**\n" +
                                      $"{server.Comp.Message}");
@@ -88,7 +88,7 @@ namespace PassiveBOT.Commands
                     await ReplyAsync($"**[{server.Comp.Users.Count}] Success, removed from the giveaway**\n" +
                                      $"{server.Comp.Message}");
 
-                    GuildConfig.SaveServer(server);
+                    GuildConfig.SaveServer(server, Context.Guild);
                 }
                 else
                 {
@@ -129,7 +129,7 @@ namespace PassiveBOT.Commands
                         await ReplyAsync("", false, embed.Build());
 
                         server.Comp = new GuildConfig.GiveAway();
-                        GuildConfig.SaveServer(server);
+                        GuildConfig.SaveServer(server, Context.Guild);
                     }
                 }
             }

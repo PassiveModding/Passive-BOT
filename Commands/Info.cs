@@ -25,18 +25,6 @@ namespace PassiveBOT.Commands
                 $"A user with `MANAGE_SERVER` can invite me to your server here: <https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591>");
         }
 
-        [Command("discrim")]
-        [Summary("discrim")]
-        [Remarks("Get all users with a particular discriminator")]
-        public async Task Discrim(ushort disc = 0)
-        {
-            var usermatches = ((SocketGuild) Context.Guild).Users.Where(x => x.DiscriminatorValue == disc);
-            var embed = new EmbedBuilder();
-            embed.AddField($"Users with Discriminator {disc}",
-                $"{string.Join("\n", usermatches.Select(x => $"{x.Username}#{x.DiscriminatorValue}"))}");
-            await ReplyAsync("", false, embed.Build());
-        }
-
         /*[Command("Activity", RunMode = RunMode.Async)]
         [Summary("Activity <@user>")]
         [Remarks("Rank the most recent users based on activity in the last 1k messages")]
@@ -126,7 +114,7 @@ namespace PassiveBOT.Commands
         [Remarks("Bot Info and Stats")]
         public async Task Info()
         {
-            var client = Context.Client as DiscordSocketClient;
+            var client = Context.Client as DiscordShardedClient;
             var hClient = new HttpClient();
             string changes;
             hClient.DefaultRequestHeaders.Add("User-Agent",
@@ -210,9 +198,9 @@ namespace PassiveBOT.Commands
             embed.AddInlineField("Author", Load.Owner);
             embed.AddInlineField("Uptime", GetUptime());
             embed.AddInlineField("Heap", $"{GetHeapSize()}MB");
-            embed.AddInlineField("Guilds", ((DiscordSocketClient) Context.Client).Guilds.Count);
-            embed.AddInlineField("Channels", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.Channels.Count));
-            embed.AddInlineField("Users", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.MemberCount));
+            embed.AddInlineField("Guilds", ((DiscordShardedClient) Context.Client).Guilds.Count);
+            embed.AddInlineField("Channels", ((DiscordShardedClient) Context.Client).Guilds.Sum(g => g.Channels.Count));
+            embed.AddInlineField("Users", ((DiscordShardedClient) Context.Client).Guilds.Sum(g => g.MemberCount));
 
             embed.AddField("Links",
                 $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");

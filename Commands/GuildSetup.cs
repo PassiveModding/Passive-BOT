@@ -65,7 +65,7 @@ namespace PassiveBOT.Commands
         public async Task ConfigInfo()
         {
             var embed = new EmbedBuilder();
-            var l = GuildConfig.GetServer(Context.Guild);
+            var l = GuildConfig.Load(Context.Guild.Id);
             string djstring;
             string guildstring;
             //string errorLogString;
@@ -142,7 +142,7 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                var dict = GuildConfig.GetServer(Context.Guild).Dict;
+                var dict = GuildConfig.Load(Context.Guild.Id).Dict;
                 var list = "";
                 foreach (var tagging in dict)
                     list += $"{tagging.Tagname}, ";
@@ -288,7 +288,7 @@ namespace PassiveBOT.Commands
             }
             else if (next.Content == "5")
             {
-                var l = GuildConfig.GetServer(Context.Guild);
+                var l = GuildConfig.Load(Context.Guild.Id);
                 var embed = new EmbedBuilder();
                 try
                 {
@@ -335,7 +335,7 @@ namespace PassiveBOT.Commands
                 var next2 = await NextMessageAsync(timeout: TimeSpan.FromSeconds(30));
                 jsonObj.GoodbyeMessage = next2.Content;
                 jsonObj.GoodByeChannel = Context.Channel.Id;
-                GuildConfig.SaveServer(jsonObj);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
 
                 await ReplyAsync("The Goodbye Message for this server has been set to:\n" +
                                  $"**{next2.Content}**\n" +
@@ -344,19 +344,19 @@ namespace PassiveBOT.Commands
             else if (next.Content == "2")
             {
                 jsonObj.GoodByeChannel = Context.Channel.Id;
-                GuildConfig.SaveServer(jsonObj);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
                 await ReplyAsync($"Goodbye Events will be sent in the channel: **{Context.Channel.Name}**");
             }
             else if (next.Content == "3")
             {
                 jsonObj.GoodbyeEvent = true;
-                GuildConfig.SaveServer(jsonObj);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
                 await ReplyAsync("GoodBye Messaging for this server has been set to: On");
             }
             else if (next.Content == "4")
             {
                 jsonObj.GoodbyeEvent = false;
-                GuildConfig.SaveServer(jsonObj);
+                GuildConfig.SaveServer(jsonObj, Context.Guild);
                 await ReplyAsync("GoodBye Messaging for this server has been set to: Off");
             }
             else if (next.Content == "5")
@@ -389,7 +389,7 @@ namespace PassiveBOT.Commands
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.EventLogging = status;
             jsonObj.EventChannel = Context.Channel.Id;
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             if (status)
                 await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
@@ -411,7 +411,7 @@ namespace PassiveBOT.Commands
                              "[5] View AutoMessage Info" +
                              "" +
                              "```");
-            var serverobj = GuildConfig.GetServer(Context.Guild);
+            var serverobj = GuildConfig.Load(Context.Guild.Id);
             if (serverobj.AutoMessage.All(x => x.channelID != Context.Channel.Id))
             {
                 serverobj.AutoMessage.Add(new GuildConfig.autochannels
@@ -483,7 +483,7 @@ namespace PassiveBOT.Commands
             {
                 await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
             }
-            GuildConfig.SaveServer(serverobj);
+            GuildConfig.SaveServer(serverobj, Context.Guild);
         }
 
 
@@ -494,7 +494,7 @@ namespace PassiveBOT.Commands
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.Invite = status;
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             if (status)
                 await ReplyAsync("Invite links will now be deleted!");
@@ -509,7 +509,7 @@ namespace PassiveBOT.Commands
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.MentionAll = status;
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             if (status)
                 await ReplyAsync("Mass Mentions will now be deleted!");
@@ -557,7 +557,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
         [Command("delrole")]
@@ -578,7 +578,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
         /*[Command("rss", RunMode = RunMode.Async)]
@@ -623,7 +623,7 @@ namespace PassiveBOT.Commands
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.Prefix = newpre;
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             await ReplyAsync($"the prefix has been updated to `{newpre}`\n" +
                              $"NOTE: the Default prefix `{Load.Pre}` and @mentions will still work\n" +
@@ -676,7 +676,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Keyword is already in the blacklist");
                 return;
             }
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
         [Command("blacklist del")]
@@ -700,7 +700,7 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
         }
 
         [Command("blacklist clear")]
@@ -711,7 +711,7 @@ namespace PassiveBOT.Commands
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.Blacklist = new List<string>();
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             await ReplyAsync("The blacklist has been cleared.");
         }
@@ -725,7 +725,7 @@ namespace PassiveBOT.Commands
             jsonObj.BlacklistMessage = blmess ?? "";
 
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             await ReplyAsync("The blacklist has been cleared.");
         }
@@ -740,7 +740,7 @@ namespace PassiveBOT.Commands
 
             jsonObj.ModeratorRoleId = modRole.Id;
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
             await ReplyAsync($"ModRole has been set as {modRole.Mention}");
         }
@@ -778,7 +778,7 @@ namespace PassiveBOT.Commands
             }
 
 
-            GuildConfig.SaveServer(jsonObj);
+            GuildConfig.SaveServer(jsonObj, Context.Guild);
 
 
             await ReplyAsync($"ModRole has been set as {muteRole.Mention}\n" +

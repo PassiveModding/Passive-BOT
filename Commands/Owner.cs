@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBotsList.Api;
@@ -13,16 +11,15 @@ using DiscordBotsList.Api.Adapter.DiscordNet;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
-using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands
 {
     [RequireOwner]
-    public class Owner : InteractiveBase
+    public class Owner : ModuleBase
     {
         public readonly CommandService Service;
-        //public DiscordSocketClient Client;
+        public DiscordShardedClient Client;
 
         public Owner(CommandService service)
         {
@@ -43,115 +40,11 @@ namespace PassiveBOT.Commands
             {
                 var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);
                 var me = await DblApi.GetMeAsync();
-                await me.UpdateStatsAsync(Context.Client.Guilds.Count);
+                await me.UpdateStatsAsync(Context.Client.GetGuildsAsync().Result.Count);
             }
             catch
             {
                 //
-            }
-        }
-
-        [Command("BanPartner+")]
-        [Summary("BanPartner+ <guildID>")]
-        [Remarks("Ban a partner from the partners program")]
-        public async Task BanPartner(ulong GuildId = 0)
-        {
-            if (GuildId == 0)
-            {
-                var pages = new List<string>();
-                var currentpage = "";
-                //await ReplyAsync(string.Join("\n", TimerService.AcceptedServers));
-                foreach (var guild in TimerService.AcceptedServers)
-                {
-                    if (Context.Client.GetGuild(guild) is SocketGuild guildfull)
-                    {
-                        var guildobj = GuildConfig.GetServer(guildfull);
-                        if (currentpage.Length > 2000)
-                        {
-                            pages.Add(currentpage);
-                            currentpage = "";
-                        }
-
-                        currentpage += $"`{guildobj.GuildId}`" +
-                                        $"\n" +
-                                        $"{guildobj.PartnerSetup.Message}" +
-                                        $"\n-----\n";
-                    }
-
-
-
-
-                }
-                pages.Add(currentpage);
-                pages.Add("PassiveBOT <3");
-                var msg = new PaginatedMessage
-                {
-                    Title = "Partner Messages",
-                    Pages = pages,
-                    Color = new Color(114, 137, 218)
-                };
-
-                await PagedReplyAsync(msg);
-            }
-            else
-            {
-                var guildobj = GuildConfig.GetServer(Context.Client.GetGuild(GuildId));
-                guildobj.PartnerSetup.banned = true;
-                GuildConfig.SaveServer(guildobj);
-                await ReplyAsync("Guild Partnership Banned for:\n" +
-                                 $"{guildobj.PartnerSetup.Message}");
-            }
-        }
-
-        [Command("UnbanPartner+")]
-        [Summary("UnbanPartner+ <guildID>")]
-        [Remarks("Ban a partner from the partners program")]
-        public async Task UnBanPartner(ulong GuildId = 0)
-        {
-            if (GuildId == 0)
-            {
-                var pages = new List<string>();
-                var currentpage = "";
-                //await ReplyAsync(string.Join("\n", TimerService.AcceptedServers));
-                foreach (var guild in TimerService.AcceptedServers)
-                {
-                    if (Context.Client.GetGuild(guild) is SocketGuild guildfull)
-                    {
-                        var guildobj = GuildConfig.GetServer(guildfull);
-                        if (currentpage.Length > 2000)
-                        {
-                            pages.Add(currentpage);
-                            currentpage = "";
-                        }
-
-                        currentpage += $"`{guildobj.GuildId}`" +
-                                       $"\n" +
-                                       $"{guildobj.PartnerSetup.Message}" +
-                                       $"\n-----\n";
-                    }
-
-
-
-
-                }
-                pages.Add(currentpage);
-                pages.Add("PassiveBOT <3");
-                var msg = new PaginatedMessage
-                {
-                    Title = "Partner Messages",
-                    Pages = pages,
-                    Color = new Color(114, 137, 218)
-                };
-
-                await PagedReplyAsync(msg);
-            }
-            else
-            {
-                var guildobj = GuildConfig.GetServer(Context.Client.GetGuild(GuildId));
-                guildobj.PartnerSetup.banned = false;
-                guildobj.PartnerSetup.Message = "";
-                GuildConfig.SaveServer(guildobj);
-                await ReplyAsync("Guild Partnership Unbanned. Message has been reset");
             }
         }
 
@@ -160,7 +53,7 @@ namespace PassiveBOT.Commands
         [Remarks("For those who dont seem to go away")]
         public async Task GlobalBan(ulong ID)
         {
-            foreach (var server in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var server in ((DiscordSocketClient) Context.Client).Guilds)
             {
                 if (server.Users.Any(x => x.Id == ID))
                 {
@@ -169,7 +62,7 @@ namespace PassiveBOT.Commands
                         await server.AddBanAsync(ID);
                         await ReplyAsync($"Banned User in {server.Name}");
                     }
-                    catch
+                    catch (Exception e)
                     {
                         await ReplyAsync($"Failed to Ban User in {server.Name}");
                     }
@@ -192,7 +85,7 @@ namespace PassiveBOT.Commands
                 //Console.WriteLine(p);
                 try
                 {
-                    var trythis = ((DiscordSocketClient)Context.Client).GetGuild(Convert.ToUInt64(p));
+                    var trythis = ((DiscordShardedClient) Context.Client).GetGuild(Convert.ToUInt64(p));
                     Console.WriteLine(trythis.Name);
                 }
                 catch
@@ -280,7 +173,7 @@ namespace PassiveBOT.Commands
         {
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
-            var gld = Context.Client.GetGuild(id);
+            var gld = await Context.Client.GetGuildAsync(id);
             //var ch = await gld.GetDefaultChannelAsync();
             foreach (var channel in ((SocketGuild)gld).TextChannels)
             {
@@ -294,7 +187,7 @@ namespace PassiveBOT.Commands
                     //
                 }
             }
-
+            
             //await Task.Delay(500);
             await gld.LeaveAsync();
             //await ReplyAsync("Message has been sent and I've left the guild!");
@@ -309,7 +202,7 @@ namespace PassiveBOT.Commands
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
 
-            foreach (var guild in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var guild in ((DiscordShardedClient) Context.Client).Guilds)
                 if (guild.Id == id)
                     foreach (var channel in guild.Channels)
                         try
@@ -333,7 +226,7 @@ namespace PassiveBOT.Commands
         {
             var i = 0;
             await ReplyAsync("Leaving all servers with less than 15 members.");
-            foreach (var guild in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var guild in ((DiscordShardedClient) Context.Client).Guilds)
             {
                 if (guild.MemberCount < 15)
                 {
@@ -398,7 +291,7 @@ namespace PassiveBOT.Commands
         public async Task GetAsync([Remainder] string s)
         {
             var s2 = "";
-            foreach (var guild in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var guild in ((DiscordShardedClient) Context.Client).Guilds)
                 if (guild.Name.ToLower().Contains(s.ToLower()))
                     s2 += $"{guild.Name} : {guild.Id}\n";
             if (s2 != "")

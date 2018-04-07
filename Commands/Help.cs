@@ -62,7 +62,7 @@ namespace PassiveBOT.Commands
             else
                 try
                 {
-                    isserver = GuildConfig.GetServer(Context.Guild).Prefix;
+                    isserver = GuildConfig.Load(Context.Guild.Id).Prefix;
                 }
                 catch
                 {

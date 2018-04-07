@@ -30,7 +30,7 @@ namespace PassiveBOT.Commands
 
             try
             {
-                var d =GuildConfig.GetServer(Context.Guild).Dict;
+                var d = GuildConfig.Load(Context.Guild.Id).Dict;
                 foreach (var tagging in d)
                     if (tagging.Tagname == tagname)
                     {
@@ -63,7 +63,7 @@ namespace PassiveBOT.Commands
 
             try
             {
-                var dict =GuildConfig.GetServer(Context.Guild).Dict;
+                var dict = GuildConfig.Load(Context.Guild.Id).Dict;
 
                 foreach (var tagging in dict)
                     if (tagging.Tagname.ToLower() == tagname.ToLower())
@@ -106,7 +106,7 @@ namespace PassiveBOT.Commands
             if (tagname == null)
                 try
                 {
-                    var dict =GuildConfig.GetServer(Context.Guild).Dict;
+                    var dict = GuildConfig.Load(Context.Guild.Id).Dict;
                     var list = "";
                     foreach (var tagging in dict)
                         list += $"{tagging.Tagname}, ";
@@ -121,7 +121,7 @@ namespace PassiveBOT.Commands
             else
                 try
                 {
-                    var dict =GuildConfig.GetServer(Context.Guild).Dict;
+                    var dict = GuildConfig.Load(Context.Guild.Id).Dict;
                     var embed = new EmbedBuilder();
                     foreach (var tagging in dict)
                         if (tagging.Tagname.ToLower() == tagname.ToLower())

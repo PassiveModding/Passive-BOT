@@ -105,7 +105,7 @@ namespace PassiveBOT.Commands
         [Remarks("Measures gateway ping and response time")]
         public async Task PingAsync()
         {
-            if (Context.Client is DiscordSocketClient client)
+            if (Context.Client is DiscordShardedClient client)
             {
                 var gateway = client.Latency;
                 var descrption =

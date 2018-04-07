@@ -18,21 +18,12 @@ namespace PassiveBOT
     public class Program
     {
         private CommandHandler _handler;
-        public static DiscordSocketClient Client;
+        public static DiscordShardedClient Client;
         //public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
         {
-            try
-            {
-                new Program().Start().GetAwaiter().GetResult();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                Console.ReadKey();
-            }
-            
+            new Program().Start().GetAwaiter().GetResult();
         }
 
         public async Task Start()
@@ -77,7 +68,7 @@ namespace PassiveBOT
             }
 
 
-            Client = new DiscordSocketClient(new DiscordSocketConfig
+            Client = new DiscordShardedClient(new DiscordSocketConfig
             {
                 LogLevel = ll,
                 MessageCacheSize = 50
@@ -117,7 +108,6 @@ namespace PassiveBOT
             var services = new ServiceCollection()
                 .AddSingleton(Client)
                 .AddSingleton(new InteractiveService(Client))
-                .AddSingleton(new TimerService(Client))
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();
