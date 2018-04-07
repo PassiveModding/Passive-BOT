@@ -16,7 +16,7 @@ namespace PassiveBOT.Commands
     [Ratelimit(1, 3, Measure.Seconds)]
     public class Media : ModuleBase
     {
-        [Command("GetRedditPost")]
+        [Command("GetRedditPost", RunMode = RunMode.Async)]
         [Summary("GetRedditPost <sub>")]
         [Remarks("Get a random post from first 25 in hot of a sub")]
         public async Task RedditTask(string subreddit = null)
