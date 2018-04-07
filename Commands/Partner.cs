@@ -125,6 +125,22 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Profanity Detected, unable to set message!");
                 return;
             }
+
+            if (Context.Message.MentionedRoleIds.Any() || Context.Message.MentionedUserIds.Any() ||
+                Context.Message.MentionedChannelIds.Any() || Context.Message.Content.Contains("@everyone")
+                || Context.Message.Content.Contains("@here"))
+            {
+                await ReplyAsync("There is no need to mention roles, users or channels in the partner " +
+                                 "program as it shares to other servers which may not have access" +
+                                 "to them!");
+                return;
+            }
+
+            if (!input.Contains("discord.gg") && !input.Contains("discord.me"))
+            {
+                await ReplyAsync("You should include an invite link to your server in the Partner Message too!");
+                return;
+            }
             
             var guild = GuildConfig.GetServer(Context.Guild);
             guild.PartnerSetup.Message = input;
