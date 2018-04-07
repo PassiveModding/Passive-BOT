@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json.Linq;
+using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 
@@ -16,6 +18,74 @@ namespace PassiveBOT.Commands
     [CheckNsfw]
     public class Nsfw : ModuleBase
     {
+        [Command("RedditNSFW", RunMode = RunMode.Async)]
+        [Summary("RedditNSFW <sub>")]
+        [Remarks("Get a random post from first 25 in hot of a sub")]
+        public async Task RedditNSFW(string subreddit = null)
+        {
+            if (subreddit == null)
+            {
+                await ReplyAsync("Please give a subreddit to browse.");
+            }
+            if (subreddit == null)
+            {
+                await ReplyAsync("Please give a subreddit to browse.");
+            }
+            var rnd = new Random();
+            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x => String.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+            if (checkcache != null)
+            {
+                if (checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(1))
+                {
+                    var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
+                    var objx = RedditHelper.isimage(imgx.Url.ToString());
+                    var embedx = new EmbedBuilder
+                    {
+                        Title = imgx.Title,
+                        Url = $"https://reddit.com{imgx.Permalink}",
+                        Footer = new EmbedFooterBuilder
+                        {
+                            Text = objx.extension
+                        }
+                    };
+                    await ReplyAsync(objx.url); await ReplyAsync("", false, embedx.Build());
+                }
+            }
+            else
+            {
+                var r = new RedditSharp.Reddit();
+                var sub = r.GetSubreddit(subreddit);
+
+                if (sub.NSFW)
+                {
+                    await ReplyAsync("Please use the NSFW Reddit command for NSFW Images");
+                    return;
+                }
+
+                var num1 = sub.Hot.GetListing(250).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
+                var img = num1[rnd.Next(num1.Count)];
+                var obj = RedditHelper.isimage(img.Url.ToString());
+                var embed = new EmbedBuilder
+                {
+                    Title = img.Title,
+                    Url = $"https://reddit.com{img.Permalink}",
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = obj.extension
+                    }
+                };
+                await ReplyAsync(obj.url); await ReplyAsync("", false, embed.Build());
+
+                CommandHandler.SubReddits.RemoveAll(x => string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
+                {
+                    title = subreddit,
+                    LastUpdate = DateTime.UtcNow,
+                    Posts = num1
+                });
+            }
+        }
+
         [Command("tits")]
         [Summary("tits")]
         [Alias("boobs", "rack")]

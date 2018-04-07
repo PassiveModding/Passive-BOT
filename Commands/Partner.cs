@@ -1,11 +1,11 @@
-﻿using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
-using PassiveBOT.preconditions;
 using PassiveBOT.Preconditions;
 using PassiveBOT.strings;
 
@@ -37,6 +37,20 @@ namespace PassiveBOT.Commands
                     TimerService.AcceptedServers.Remove(Context.Guild.Id);
                 }
             }
+
+            var home = Homeserver.Load().PartnerUpdates;
+            var chan = await Context.Client.GetChannelAsync(home);
+            if (chan is IMessageChannel channel)
+            {
+                var embed = new EmbedBuilder
+                {
+                    Title = "Partner Toggled",
+                    Description = $"{Context.Guild.Name}\n" +
+                                  $"`{Context.Guild.Id}`\n" +
+                                  $"Status: {guild.PartnerSetup.IsPartner}"
+                };
+                await channel.SendMessageAsync("", false, embed.Build());
+            }
         }
 
         [Command("PartnerChannel")]
@@ -48,6 +62,20 @@ namespace PassiveBOT.Commands
             guild.PartnerSetup.PartherChannel = Context.Channel.Id;
             GuildConfig.SaveServer(guild);
             await ReplyAsync($"Partner Channel set to {Context.Channel.Name}");
+
+            var home = Homeserver.Load().PartnerUpdates;
+            var chan = await Context.Client.GetChannelAsync(home);
+            if (chan is IMessageChannel channel)
+            {
+                var embed = new EmbedBuilder
+                {
+                    Title = "Partner Channel Set",
+                    Description = $"{Context.Guild.Name}\n" +
+                                  $"`{Context.Guild.Id}`\n" +
+                                  $"Channel: {Context.Channel.Name}"
+                };
+                await channel.SendMessageAsync("", false, embed.Build());
+            }
         }
 
         [Command("PartnerReport")]
@@ -92,11 +120,12 @@ namespace PassiveBOT.Commands
                 return;
             }
 
-            if (NsfwStr.Profanity.Any(x => input.ToLower().Contains(x.ToLower())))
+            if (NsfwStr.Profanity.Any(x => doreplacements(RemoveDiacritics(input.ToLower())).ToLower().Contains(x.ToLower())))
             {
                 await ReplyAsync("Profanity Detected, unable to set message!");
                 return;
             }
+            
             var guild = GuildConfig.GetServer(Context.Guild);
             guild.PartnerSetup.Message = input;
             GuildConfig.SaveServer(guild);
@@ -109,6 +138,50 @@ namespace PassiveBOT.Commands
             };
             
             await ReplyAsync("Success, here is your Partner Message:", false, embed.Build());
+
+            var home = Homeserver.Load().PartnerUpdates;
+            var chan = await Context.Client.GetChannelAsync(home);
+            if (chan is IMessageChannel channel)
+            {
+                var embed2 = new EmbedBuilder
+                {
+                    Title = "Partner Msg. Updated",
+                    Description = $"{Context.Guild.Name}\n" +
+                                  $"`{Context.Guild.Id}`\n" +
+                                  $"{guild.PartnerSetup.Message}"
+                };
+                await channel.SendMessageAsync("", false, embed2.Build());
+            }
+        }
+
+        static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        static string doreplacements(string text)
+        {
+            var toremove = new[]
+            {
+                "-", "_", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "{", "}", "\"", "'", "+", "=","<",">", "?","/", "|", "\\","[", "]", " "
+            };
+            text = toremove.Aggregate(text, (current, str) => current.Replace(str, ""));
+
+            text = text.Replace("1", "i").Replace("3", "e").Replace("4", "a").Replace("5", "s").Replace("6", "g")
+                .Replace("8", "b").Replace("9", "g");
+            return text;
         }
 
         [Command("PartnerInfo")]

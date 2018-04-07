@@ -13,6 +13,7 @@ namespace PassiveBOT.Configuration
         public string GuildName { get; set; } //
         public ulong Suggestion { get; set; } = 0;
         public ulong Error { get; set; } = 0;
+        public ulong PartnerUpdates { get; set; } = 0;
 
         public static void SaveHome(Homeserver config)
         {

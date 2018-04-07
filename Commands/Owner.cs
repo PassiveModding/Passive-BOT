@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
-using DiscordBotsList.Api;
-using DiscordBotsList.Api.Adapter.DiscordNet;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
@@ -51,6 +48,17 @@ namespace PassiveBOT.Commands
             }
         }
 
+        [Command("PartnerUpdates+")]
+        [Summary("PartnerUpdates+")]
+        [Remarks("Set the PartnerUpdatesChannel")]
+        public async Task PupDates()
+        {
+            var home = Homeserver.Load();
+            home.PartnerUpdates = Context.Channel.Id;
+            Homeserver.SaveHome(home);
+            await ReplyAsync("PartnerUpdates will now be posted here!");
+        }
+
         [Command("BanPartner+")]
         [Summary("BanPartner+ <guildID>")]
         [Remarks("Ban a partner from the partners program")]
@@ -72,10 +80,10 @@ namespace PassiveBOT.Commands
                             currentpage = "";
                         }
 
-                        currentpage += $"`{guildobj.GuildId}`" +
-                                        $"\n" +
+                        currentpage += $"`{guildobj.GuildId} - {(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`" +
+                                        "\n" +
                                         $"{guildobj.PartnerSetup.Message}" +
-                                        $"\n-----\n";
+                                        "\n-----\n";
                     }
 
 
@@ -125,9 +133,9 @@ namespace PassiveBOT.Commands
                         }
 
                         currentpage += $"`{guildobj.GuildId}`" +
-                                       $"\n" +
+                                       "\n" +
                                        $"{guildobj.PartnerSetup.Message}" +
-                                       $"\n-----\n";
+                                       "\n-----\n";
                     }
 
 
@@ -160,7 +168,7 @@ namespace PassiveBOT.Commands
         [Remarks("For those who dont seem to go away")]
         public async Task GlobalBan(ulong ID)
         {
-            foreach (var server in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var server in Context.Client.Guilds)
             {
                 if (server.Users.Any(x => x.Id == ID))
                 {
@@ -192,7 +200,7 @@ namespace PassiveBOT.Commands
                 //Console.WriteLine(p);
                 try
                 {
-                    var trythis = ((DiscordSocketClient)Context.Client).GetGuild(Convert.ToUInt64(p));
+                    var trythis = Context.Client.GetGuild(Convert.ToUInt64(p));
                     Console.WriteLine(trythis.Name);
                 }
                 catch
@@ -226,7 +234,7 @@ namespace PassiveBOT.Commands
         [Remarks("set the suggestion channel")]
         public async Task Suggest()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/config/home.json");
+            var file = Path.Combine(AppContext.BaseDirectory, "setup/config/home.json");
             var home = JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
             home.Suggestion = Context.Channel.Id;
             Homeserver.SaveHome(home);
@@ -238,7 +246,7 @@ namespace PassiveBOT.Commands
         [Remarks("set the suggestion channel")]
         public async Task Error()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/config/home.json");
+            var file = Path.Combine(AppContext.BaseDirectory, "setup/config/home.json");
             var home = JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
             home.Error = Context.Channel.Id;
             Homeserver.SaveHome(home);
@@ -282,7 +290,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("Please enter a valid Guild ID");
             var gld = Context.Client.GetGuild(id);
             //var ch = await gld.GetDefaultChannelAsync();
-            foreach (var channel in ((SocketGuild)gld).TextChannels)
+            foreach (var channel in gld.TextChannels)
             {
                 try
                 {
@@ -309,7 +317,7 @@ namespace PassiveBOT.Commands
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
 
-            foreach (var guild in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var guild in Context.Client.Guilds)
                 if (guild.Id == id)
                     foreach (var channel in guild.Channels)
                         try
@@ -333,7 +341,7 @@ namespace PassiveBOT.Commands
         {
             var i = 0;
             await ReplyAsync("Leaving all servers with less than 15 members.");
-            foreach (var guild in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var guild in Context.Client.Guilds)
             {
                 if (guild.MemberCount < 15)
                 {
@@ -398,7 +406,7 @@ namespace PassiveBOT.Commands
         public async Task GetAsync([Remainder] string s)
         {
             var s2 = "";
-            foreach (var guild in ((DiscordSocketClient)Context.Client).Guilds)
+            foreach (var guild in Context.Client.Guilds)
                 if (guild.Name.ToLower().Contains(s.ToLower()))
                     s2 += $"{guild.Name} : {guild.Id}\n";
             if (s2 != "")
