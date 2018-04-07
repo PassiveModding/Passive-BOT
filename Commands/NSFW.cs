@@ -33,23 +33,20 @@ namespace PassiveBOT.Commands
             }
             var rnd = new Random();
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x => String.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
-            if (checkcache != null)
+            if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
-                if (checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(1))
+                var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
+                var objx = RedditHelper.isimage(imgx.Url.ToString());
+                var embedx = new EmbedBuilder
                 {
-                    var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
-                    var objx = RedditHelper.isimage(imgx.Url.ToString());
-                    var embedx = new EmbedBuilder
+                    Title = imgx.Title,
+                    Url = $"https://reddit.com{imgx.Permalink}",
+                    Footer = new EmbedFooterBuilder
                     {
-                        Title = imgx.Title,
-                        Url = $"https://reddit.com{imgx.Permalink}",
-                        Footer = new EmbedFooterBuilder
-                        {
-                            Text = objx.extension
-                        }
-                    };
-                    await ReplyAsync(objx.url); await ReplyAsync("", false, embedx.Build());
-                }
+                        Text = objx.extension
+                    }
+                };
+                await ReplyAsync(objx.url); await ReplyAsync("", false, embedx.Build());
             }
             else
             {
@@ -62,7 +59,7 @@ namespace PassiveBOT.Commands
                     return;
                 }
 
-                var num1 = sub.Hot.GetListing(250).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
+                var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
                 var img = num1[rnd.Next(num1.Count)];
                 var obj = RedditHelper.isimage(img.Url.ToString());
                 var embed = new EmbedBuilder
