@@ -14,13 +14,13 @@ namespace PassiveBOT.Handlers
     {
         public static List<ulong> AcceptedServers = new List<ulong>();
         private readonly Timer _timer;
-
+        public Random rndshuffle = new Random();
         public TimerService(DiscordSocketClient client)
         {
             _timer = new Timer(async _ =>
                 {
                     var newlist = AcceptedServers.ToList();
-                    foreach (var guildid in AcceptedServers)
+                    foreach (var guildid in AcceptedServers.OrderBy(x => rndshuffle.Next()))
                     {
                         var guildobj = GuildConfig.GetServer(client.GetGuild(guildid));
                         if (!guildobj.PartnerSetup.IsPartner) continue;
