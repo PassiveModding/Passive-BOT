@@ -73,11 +73,12 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
+        /*
         [Command("cat")]
         [Summary("Gets a random dog image from random.cat")]
         public async Task Kitty2()
         {
-            var xDoc = JsonConvert.DeserializeXNode(await new HttpClient().GetStringAsync("http://random.cat/meow"),
+            var xDoc = JsonConvert.DeserializeXNode(await new HttpClient().GetStringAsync("http://aws.random.cat/meow"),
                 "root");
             var embed = new EmbedBuilder()
                 .WithImageUrl(xDoc.Element("root")?.Element("file")?.Value)
@@ -91,7 +92,7 @@ namespace PassiveBOT.Commands
 
             await ReplyAsync("", false, embed.Build());
         }
-
+        */
         [Command("salt")]
         [Summary("salt <@user>")]
         [Alias("salty")]
