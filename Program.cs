@@ -105,7 +105,6 @@ namespace PassiveBOT
             else
                 Client.Log += LogMessageInfo;
 
-
             //setgame loop
             await Task.Delay(5000);
             await Client.SetGameAsync($"{prefix}help / {Load.Gamesite}");

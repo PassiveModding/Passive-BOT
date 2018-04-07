@@ -34,6 +34,15 @@ namespace PassiveBOT.Handlers
             _apiAi = new ApiAi(config);
 
             _client.MessageReceived += DoCommand;
+            _client.Ready += _client_Ready;
+        }
+
+        private Task _client_Ready()
+        {
+            var inv =
+                $"https://discordapp.com/oauth2/authorize?client_id={_client.CurrentUser.Id}&scope=bot&permissions=2146958591";
+            ColourLog.LogInfo($"Invite: {inv}");
+            return Task.CompletedTask;
         }
 
         public async Task ConfigureAsync()
@@ -48,62 +57,50 @@ namespace PassiveBOT.Handlers
             public DateTime LastMessageDate { get; set; }
         }*/
 
+        public async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
+        {
+            try
+            {
+                if (!(context.Channel is IDMChannel))
+                {
+                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) && GuildConfig.GetServer(context.Guild).AutoMessage.Any(x => x.channelID == context.Channel.Id))
+                    {
+                        var serverobj = GuildConfig.GetServer(context.Guild);
+                        var chan = serverobj.AutoMessage.First(x => x.channelID == context.Channel.Id);
+                        if (chan.enabled)
+                        {
+                            chan.messages++;
+                            if (chan.messages >= chan.sendlimit)
+                            {
+                                var embed = new EmbedBuilder();
+                                embed.AddField("AutoMessage", chan.automessage);
+                                embed.Color = Color.Green;
+                                await context.Channel.SendMessageAsync("", false, embed.Build());
+                                chan.messages = 0;
+                            }
+                            GuildConfig.SaveServer(serverobj);
+                        }
 
-        public async Task DoCommand(SocketMessage parameterMessage)
+                    }
+                }
+            }
+            catch
+            {
+                //
+            }
+
+        }
+
+        public async Task CheckMessage (SocketUserMessage message, SocketCommandContext context)
         {
 
-
-            Load.Messages++;
-            if (!(parameterMessage is SocketUserMessage message)) return;
-            var argPos = 0;
-            var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
-
-            if (context.User.IsBot)
-                return;
-            
-            if (!DoOnce)
-            {
-                try
-                {
-                        foreach (var guild in _client.Guilds)
-                        {
-                            try
-                            {
-                                //GuildConfig.Setup(guild);
-                                var guildconfig = GuildConfig.GetServer(guild);
-                                if (guildconfig.PartnerSetup.PartherChannel != 0)
-                                {
-                                    if (guildconfig.PartnerSetup.IsPartner &&
-                                        _client.GetChannel(guildconfig.PartnerSetup.PartherChannel) is IMessageChannel)
-                                    {
-                                        TimerService.AcceptedServers.Add(guild.Id);
-                                    }
-                                }
-
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                            }
-                        }
-                    _service.Restart();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-
-                DoOnce = true;
-            }
-            
             if (message.Content.Contains("discord.gg"))
                 try
                 {
                     if (context.Channel is IGuildChannel)
                         if (GuildConfig.GetServer(context.Guild).Invite &&
-                            !((SocketGuildUser) context.User).GuildPermissions.Administrator)
-                            if (!((IGuildUser) context.User).RoleIds
+                            !((SocketGuildUser)context.User).GuildPermissions.Administrator)
+                            if (!((IGuildUser)context.User).RoleIds
                                 .Intersect(GuildConfig.GetServer(context.Guild).InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
@@ -124,8 +121,8 @@ namespace PassiveBOT.Handlers
                 {
                     if (context.Channel is IGuildChannel)
                         if (GuildConfig.GetServer(context.Guild).MentionAll &&
-                            !((SocketGuildUser) context.User).GuildPermissions.Administrator)
-                            if (!((IGuildUser) context.User).RoleIds
+                            !((SocketGuildUser)context.User).GuildPermissions.Administrator)
+                            if (!((IGuildUser)context.User).RoleIds
                                 .Intersect(GuildConfig.GetServer(context.Guild).InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
@@ -152,7 +149,7 @@ namespace PassiveBOT.Handlers
             {
                 if (GuildConfig.GetServer(context.Guild).Blacklist
                         .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
-                    !((IGuildUser) context.User).GuildPermissions.Administrator)
+                    !((IGuildUser)context.User).GuildPermissions.Administrator)
                 {
                     await message.DeleteAsync();
                     var blmessage = "";
@@ -176,60 +173,82 @@ namespace PassiveBOT.Handlers
             {
                 //
             }
+        }
 
+        public void InitialisePartnerProgram()
+        {
+            if (DoOnce) return;
             try
             {
-                if (!(context.Channel is IDMChannel))
+                foreach (var guild in _client.Guilds)
                 {
-                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) && GuildConfig.GetServer(context.Guild).AutoMessage.Any(x => x.channelID == context.Channel.Id))
+                    try
                     {
-                        var serverobj = GuildConfig.GetServer(context.Guild);
-                        var chan = serverobj.AutoMessage.First(x => x.channelID == context.Channel.Id);
-                        if (chan.enabled)
+                        //GuildConfig.Setup(guild);
+                        var guildconfig = GuildConfig.GetServer(guild);
+                        if (guildconfig.PartnerSetup.PartherChannel != 0)
                         {
-                            chan.messages++;
-                            if (chan.messages >= chan.sendlimit)
+                            if (guildconfig.PartnerSetup.IsPartner &&
+                                _client.GetChannel(guildconfig.PartnerSetup.PartherChannel) is IMessageChannel)
                             {
-                                var embed = new EmbedBuilder();
-                                embed.AddField("AutoMessage", chan.automessage);
-                                embed.Color = Color.Green;
-                                await context.Channel.SendMessageAsync("", false, embed.Build());
-                                chan.messages = 0;
+                                TimerService.AcceptedServers.Add(guild.Id);
                             }
-                            GuildConfig.SaveServer(serverobj);
                         }
 
                     }
+                    catch //(Exception e)
+                    {
+                        //Console.WriteLine(e);
+                    }
                 }
+                _service.Restart();
             }
-            catch (Exception e)
+            catch //(Exception e)
             {
-                Console.WriteLine(e);
+                //Console.WriteLine(e);
             }
 
+            DoOnce = true;
+        }
 
-            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
-                  message.HasStringPrefix(Load.Pre, ref argPos) ||
-                  message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))) return;
+        public async Task DoCommand(SocketMessage parameterMessage)
+        {
+            Load.Messages++;
+            if (!(parameterMessage is SocketUserMessage message)) return;
+            var argPos = 0;
+            var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
+            if (context.User.IsBot) return;
+
+            InitialisePartnerProgram();
+            await CheckMessage(message, context);
+            await AutoMessage(message, context);
 
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "",
                     RegexOptions.Multiline);
-                var response = _apiAi.TextRequest(newmessage);
-                if (response.Result.Fulfillment.Speech != "")
-                    await context.Channel.SendMessageAsync(response.Result.Fulfillment.Speech);
+                try
+                {
+                    var response = _apiAi.TextRequest(newmessage);
+                    if (response.Result.Fulfillment.Speech != "")
+                        await context.Channel.SendMessageAsync(response.Result.Fulfillment.Speech);
+                }
+                catch
+                {
+                    //
+                }
                 return;
             }
 
-
+            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
+                  message.HasStringPrefix(Load.Pre, ref argPos) ||
+                  message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))) return;
+            
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var commandsuccess = result.IsSuccess;
-
-
+            
             var server = context.Channel is IPrivateChannel ? "Direct Message " : context.Guild.Name;
-
-
+            
             if (!commandsuccess)
             {
                 try
@@ -243,8 +262,13 @@ namespace PassiveBOT.Handlers
                           result.ErrorReason == "This command is locked to NSFW Channels. Pervert."))
                     {
                         var s = Homeserver.Load().Error;
-                        var c = await (context.Client as IDiscordClient).GetChannelAsync(s);
-                        var embed = new EmbedBuilder();
+                        var c = context.Client.GetChannel(s);
+                        var embed = new EmbedBuilder
+                        {
+                            Title = $"ERROR: {context.Message}",
+                            Description = $"Reason:\n" +
+                                          $"{result.ErrorReason}"
+                        };
                         embed.AddField("ERROR", context.Message);
                         embed.AddField("Reason", result.ErrorReason);
                         embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
