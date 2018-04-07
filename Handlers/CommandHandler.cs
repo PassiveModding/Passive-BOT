@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ApiAiSDK;
@@ -19,18 +17,18 @@ namespace PassiveBOT.Handlers
     public class CommandHandler
     {
         private readonly ApiAi _apiAi;
-        private readonly DiscordShardedClient _client;
+        private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-
-
+        private bool DoOnce = false;
+        private readonly TimerService _service;
         public IServiceProvider Provider;
 
         public CommandHandler(IServiceProvider provider)
         {
             Provider = provider;
-            _client = Provider.GetService<DiscordShardedClient>();
+            _client = Provider.GetService<DiscordSocketClient>();
             _commands = new CommandService();
-
+            _service = provider.GetService<TimerService>();
 
             var config = new AIConfiguration(Config.Load().dialogueflow, SupportedLanguage.English);
             _apiAi = new ApiAi(config);
@@ -43,32 +41,70 @@ namespace PassiveBOT.Handlers
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        public class NoSpam
+        /*public class NoSpam
         {
             public ulong ID { get; set; }
             public string LastMessage { get; set; }
             public DateTime LastMessageDate { get; set; }
-        }
+        }*/
 
 
         public async Task DoCommand(SocketMessage parameterMessage)
         {
+
+
             Load.Messages++;
             if (!(parameterMessage is SocketUserMessage message)) return;
             var argPos = 0;
-            var context = new ShardedCommandContext(_client, message); //new CommandContext(_client, message);
+            var context = new SocketCommandContext(_client, message); //new CommandContext(_client, message);
 
             if (context.User.IsBot)
                 return;
+            
+            if (!DoOnce)
+            {
+                try
+                {
+                        foreach (var guild in _client.Guilds)
+                        {
+                            try
+                            {
+                                //GuildConfig.Setup(guild);
+                                var guildconfig = GuildConfig.GetServer(guild);
+                                if (guildconfig.PartnerSetup.PartherChannel != 0)
+                                {
+                                    if (guildconfig.PartnerSetup.IsPartner &&
+                                        _client.GetChannel(guildconfig.PartnerSetup.PartherChannel) is IMessageChannel)
+                                    {
+                                        TimerService.AcceptedServers.Add(guild.Id);
+                                    }
+                                }
 
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+                        }
+                    _service.Restart();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+
+                DoOnce = true;
+            }
+            
             if (message.Content.Contains("discord.gg"))
                 try
                 {
                     if (context.Channel is IGuildChannel)
-                        if (GuildConfig.Load(context.Guild.Id).Invite &&
+                        if (GuildConfig.GetServer(context.Guild).Invite &&
                             !((SocketGuildUser) context.User).GuildPermissions.Administrator)
                             if (!((IGuildUser) context.User).RoleIds
-                                .Intersect(GuildConfig.Load(context.Guild.Id).InviteExcempt).Any())
+                                .Intersect(GuildConfig.GetServer(context.Guild).InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
                                 await context.Channel.SendMessageAsync(
@@ -87,10 +123,10 @@ namespace PassiveBOT.Handlers
                 try
                 {
                     if (context.Channel is IGuildChannel)
-                        if (GuildConfig.Load(context.Guild.Id).MentionAll &&
+                        if (GuildConfig.GetServer(context.Guild).MentionAll &&
                             !((SocketGuildUser) context.User).GuildPermissions.Administrator)
                             if (!((IGuildUser) context.User).RoleIds
-                                .Intersect(GuildConfig.Load(context.Guild.Id).InviteExcempt).Any())
+                                .Intersect(GuildConfig.GetServer(context.Guild).InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
 
@@ -114,7 +150,7 @@ namespace PassiveBOT.Handlers
                 }
             try
             {
-                if (GuildConfig.Load(context.Guild.Id).Blacklist
+                if (GuildConfig.GetServer(context.Guild).Blacklist
                         .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
                     !((IGuildUser) context.User).GuildPermissions.Administrator)
                 {
@@ -122,7 +158,7 @@ namespace PassiveBOT.Handlers
                     var blmessage = "";
                     try
                     {
-                        blmessage = GuildConfig.Load(context.Guild.Id).BlacklistMessage;
+                        blmessage = GuildConfig.GetServer(context.Guild).BlacklistMessage;
                     }
                     catch
                     {
@@ -145,9 +181,9 @@ namespace PassiveBOT.Handlers
             {
                 if (!(context.Channel is IDMChannel))
                 {
-                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) && GuildConfig.Load(context.Guild.Id).AutoMessage.Any(x => x.channelID == context.Channel.Id))
+                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) && GuildConfig.GetServer(context.Guild).AutoMessage.Any(x => x.channelID == context.Channel.Id))
                     {
-                        var serverobj = GuildConfig.Load(context.Guild.Id);
+                        var serverobj = GuildConfig.GetServer(context.Guild);
                         var chan = serverobj.AutoMessage.First(x => x.channelID == context.Channel.Id);
                         if (chan.enabled)
                         {
@@ -160,7 +196,7 @@ namespace PassiveBOT.Handlers
                                 await context.Channel.SendMessageAsync("", false, embed.Build());
                                 chan.messages = 0;
                             }
-                            GuildConfig.SaveServer(serverobj, context.Guild);
+                            GuildConfig.SaveServer(serverobj);
                         }
 
                     }
@@ -174,7 +210,7 @@ namespace PassiveBOT.Handlers
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
                   message.HasStringPrefix(Load.Pre, ref argPos) ||
-                  message.HasStringPrefix(GuildConfig.Load(context.Guild.Id).Prefix, ref argPos))) return;
+                  message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))) return;
 
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
@@ -191,11 +227,7 @@ namespace PassiveBOT.Handlers
             var commandsuccess = result.IsSuccess;
 
 
-            string server;
-            if (context.Channel is IPrivateChannel)
-                server = "Direct Message "; //because direct messages have no guild name define it as Direct Message
-            else
-                server = context.Guild.Name;
+            var server = context.Channel is IPrivateChannel ? "Direct Message " : context.Guild.Name;
 
 
             if (!commandsuccess)
@@ -228,7 +260,15 @@ namespace PassiveBOT.Handlers
                     $"​**COMMAND: **{context.Message} \n**ERROR: **{result.ErrorReason}"); //if in server error responses are enabled reply on error
                 await Task.Delay(5000);
                 await errmessage.DeleteAsync();
-                await context.Message.DeleteAsync();
+                try
+                {
+                    await context.Message.DeleteAsync();
+                }
+                catch
+                {
+                    //
+                }
+                
                 await ColourLog.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E',
                     $"{result.ErrorReason}"); // log errors as arrors
             }

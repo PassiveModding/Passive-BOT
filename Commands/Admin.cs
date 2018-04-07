@@ -42,7 +42,7 @@ namespace PassiveBOT.Commands
                 }
             config.Warnings = newconfig;
             embed.WithDescription(list);
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"Warnings for the user {removeuser} have been cleared");
             try
             {
@@ -81,7 +81,7 @@ namespace PassiveBOT.Commands
                 }
             embed.WithDescription(list);
             config.Kicking = newconfig;
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"Kicks for the user {removeuser} have been cleared");
             try
             {
@@ -120,7 +120,7 @@ namespace PassiveBOT.Commands
                 }
             config.Banning = newconfig;
             embed.WithDescription(list);
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"Warnings for the user {removeuser} have been cleared");
             try
             {
@@ -159,7 +159,7 @@ namespace PassiveBOT.Commands
                 }
             config.Warnings = newconfig;
             embed.WithDescription(list);
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"Warnings for the user with the id {userId} have been cleared");
             try
             {
@@ -198,7 +198,7 @@ namespace PassiveBOT.Commands
                 }
             embed.WithDescription(list);
             config.Kicking = newconfig;
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"Kicks for the user with the id {userId} have been cleared");
             try
             {
@@ -237,7 +237,7 @@ namespace PassiveBOT.Commands
                 }
             config.Banning = newconfig;
             embed.WithDescription(list);
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"Warnings for the user with the id {userId} have been cleared");
             try
             {
@@ -260,7 +260,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var config = GuildConfig.GetServer(Context.Guild);
             config.Banning = new List<GuildConfig.Bans>();
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"All server bans have been cleared.");
         }
 
@@ -275,7 +275,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var config = GuildConfig.GetServer(Context.Guild);
             config.Warnings = new List<GuildConfig.Warns>();
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"All server warnings have been cleared.");
         }
 
@@ -290,7 +290,7 @@ namespace PassiveBOT.Commands
                 GuildConfig.Setup(Context.Guild);
             var config = GuildConfig.GetServer(Context.Guild);
             config.Kicking = new List<GuildConfig.Kicks>();
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"All server kicks have been cleared.");
         }
 
@@ -323,7 +323,7 @@ namespace PassiveBOT.Commands
 
             config.InviteExcempt.Add(role.Id);
 
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"{role.Mention} has been added to those excempt from the Invite Blocker");
         }
 
@@ -356,7 +356,7 @@ namespace PassiveBOT.Commands
 
             config.InviteExcempt.Remove(role.Id);
 
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"{role.Mention} has been removed from those excempt from the Invite Blocker");
         }
 
@@ -389,7 +389,7 @@ namespace PassiveBOT.Commands
 
             config.MentionallExcempt.Add(role.Id);
 
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"{role.Mention} has been added to those excempt from the Mention Blocker");
         }
 
@@ -422,7 +422,7 @@ namespace PassiveBOT.Commands
 
             config.MentionallExcempt.Remove(role.Id);
 
-            GuildConfig.SaveServer(config, Context.Guild);
+            GuildConfig.SaveServer(config);
             await ReplyAsync($"{role.Mention} has been removed from those excempt from the Mention Blocker");
         }
     }

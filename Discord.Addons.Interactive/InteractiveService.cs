@@ -11,7 +11,7 @@ namespace Discord.Addons.Interactive
         private readonly Dictionary<ulong, IReactionCallback> _callbacks;
         private readonly TimeSpan _defaultTimeout;
 
-        public InteractiveService(DiscordShardedClient discord, TimeSpan? defaultTimeout = null)
+        public InteractiveService(DiscordSocketClient discord, TimeSpan? defaultTimeout = null)
         {
             Discord = discord;
             Discord.ReactionAdded += HandleReactionAsync;
@@ -20,7 +20,7 @@ namespace Discord.Addons.Interactive
             _defaultTimeout = defaultTimeout ?? TimeSpan.FromSeconds(15);
         }
 
-        public DiscordShardedClient Discord { get; }
+        public DiscordSocketClient Discord { get; }
 
         public void Dispose()
         {
