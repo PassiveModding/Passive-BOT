@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,14 @@ namespace PassiveBOT.Handlers
         private bool DoOnce = false;
         private readonly TimerService _service;
         public IServiceProvider Provider;
+
+        public static List<SubReddit> SubReddits = new List<SubReddit>();
+        public class SubReddit
+        {
+            public string title { get; set; }
+            public List<RedditSharp.Things.Post> Posts { get; set; }
+            public DateTime LastUpdate { get; set; }
+        }
 
         public CommandHandler(IServiceProvider provider)
         {

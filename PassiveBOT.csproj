@@ -10,6 +10,7 @@
     <PackageReference Include="Discord.Net" Version="1.0.2" />
     <PackageReference Include="DiscordBotsList.Api" Version="1.1.0" />
     <PackageReference Include="DiscordBotsList.Api.Adapter.Discord.Net" Version="1.0.0" />
+    <PackageReference Include="RedditSharp" Version="1.1.14" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="TwitchLib" Version="1.5.9" />
   </ItemGroup>

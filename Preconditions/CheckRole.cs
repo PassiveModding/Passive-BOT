@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Preconditions
@@ -42,7 +43,10 @@ namespace PassiveBOT.Preconditions
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
 
-            var id = context.Guild.Id;
+            var own = context.Client.GetApplicationInfoAsync();
+            if (own.Result.Owner.Id == context.User.Id)
+                return Task.FromResult(PreconditionResult.FromSuccess());
+
             var role = GuildConfig.GetServer(context.Guild).ModeratorRoleId;
             if (role == 0)
             {

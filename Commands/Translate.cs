@@ -54,6 +54,7 @@ namespace PassiveBOT.Commands
             var content = reader.ReadToEnd();
 
             await ReplyAsync(content);
+            client.Dispose();
         }
         [Command("t list")]
         [Remarks("A list of available languages codes to convert between")]

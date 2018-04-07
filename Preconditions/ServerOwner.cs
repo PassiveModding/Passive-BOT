@@ -16,6 +16,9 @@ namespace PassiveBOT.Preconditions
                 return await Task.FromResult(PreconditionResult.FromSuccess());
             }
 
+            var own = context.Client.GetApplicationInfoAsync();
+            if (own.Result.Owner.Id == context.User.Id)
+                return await Task.FromResult(PreconditionResult.FromSuccess());
 
             if (context.Guild.OwnerId == context.User.Id)
                 return await Task.FromResult(PreconditionResult.FromSuccess());
