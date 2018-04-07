@@ -19,7 +19,7 @@ namespace PassiveBOT.Preconditions
             }
 
             var id = context.Guild.Id;
-            var role = GuildConfig.Load(id).DjRoleId;
+            var role = GuildConfig.GetServer(context.Guild).DjRoleId;
             if (role == 0)
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
@@ -43,7 +43,7 @@ namespace PassiveBOT.Preconditions
             }
 
             var id = context.Guild.Id;
-            var role = GuildConfig.Load(id).ModeratorRoleId;
+            var role = GuildConfig.GetServer(context.Guild).ModeratorRoleId;
             if (role == 0)
             {
                 if (((IGuildUser) context.User).GuildPermissions.Administrator)

@@ -19,6 +19,14 @@ namespace PassiveBOT.Configuration
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
         public ulong MutedRole { get; set; } = 0;
         public ulong ModeratorRoleId { get; set; } = 0;
+        public PartnerShip PartnerSetup { get; set; } = new PartnerShip();
+        public class PartnerShip
+        {
+            public bool IsPartner { get; set; } = false;
+            public ulong PartherChannel { get; set; }
+            public string Message { get; set; }
+            public bool banned { get; set; } = false;
+        }
 
         //TRANSLATION
         public bool Premium { get; set; } = false;
@@ -29,8 +37,7 @@ namespace PassiveBOT.Configuration
 
         public List<ulong> RoleList { get; set; } =
             new List<ulong>(); // a list of roles that users can join via command
-
-        //public string Roles { get; set; } //Unnecessary data as this was converted to the above list.
+        
 
         public string Rss { get; set; } = "0"; // rss feed url
         public ulong RssChannel { get; set; } // channel to post custom rss feeds to
@@ -76,16 +83,20 @@ namespace PassiveBOT.Configuration
             public int sendlimit { get; set; } = 50;
         }
 
-        public static void SaveServer(GuildConfig config, IGuild guild)
+        public static void SaveServer(GuildConfig config)
         {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
+            var file = Path.Combine(Appdir, $"setup/server/{config.GuildId}.json");
             var output = JsonConvert.SerializeObject(config, Formatting.Indented);
             File.WriteAllText(file, output);
         }
 
-        public static GuildConfig Load(ulong id)
+        public static GuildConfig Load(ulong id, IGuild contextGuild)
         {
             var file = Path.Combine(Appdir, $"setup/server/{id}.json");
+            if (!File.Exists(file))
+            {
+                Setup(contextGuild);
+            }
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
         }
 
@@ -98,20 +109,14 @@ namespace PassiveBOT.Configuration
                 GuildName = guild.Name
             };
 
-            SaveServer(cfg, guild);
+            SaveServer(cfg);
         }
 
         public static GuildConfig GetServer(IGuild guild)
         {
             if (!File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json")))
             {
-                var cfg = new GuildConfig
-                {
-                    GuildId = guild.Id,
-                    GuildName = guild.Name
-                };
-
-                SaveServer(cfg, guild);
+                Setup(guild);
             }
 
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
@@ -126,7 +131,7 @@ namespace PassiveBOT.Configuration
                 var jsonObj = GetServer(guild);
                 jsonObj.WelcomeMessage = input;
                 jsonObj.WelcomeEvent = true;
-                SaveServer(jsonObj, guild);
+                SaveServer(jsonObj);
             }
             else
             {
@@ -142,7 +147,7 @@ namespace PassiveBOT.Configuration
             {
                 var jsonObj = GetServer(guild);
                 jsonObj.WelcomeChannel = channel;
-                SaveServer(jsonObj, guild);
+                SaveServer(jsonObj);
             }
             else
             {
@@ -158,7 +163,7 @@ namespace PassiveBOT.Configuration
             {
                 var jsonObj = GetServer(guild);
                 jsonObj.ErrorLog = status;
-                SaveServer(jsonObj, guild);
+                SaveServer(jsonObj);
             }
             else
             {
@@ -175,7 +180,7 @@ namespace PassiveBOT.Configuration
             {
                 var jsonObj = GetServer(guild);
                 jsonObj.WelcomeEvent = status;
-                SaveServer(jsonObj, guild);
+                SaveServer(jsonObj);
             }
             else
             {
@@ -191,7 +196,7 @@ namespace PassiveBOT.Configuration
             {
                 var jsonObj = GetServer(guild);
                 jsonObj.DjRoleId = role;
-                SaveServer(jsonObj, guild);
+                SaveServer(jsonObj);
             }
             else
             {
@@ -217,7 +222,7 @@ namespace PassiveBOT.Configuration
                     jsonObj.Rss = "0";
                 }
 
-                SaveServer(jsonObj, guild);
+                SaveServer(jsonObj);
             }
             else
             {

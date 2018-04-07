@@ -2,6 +2,39 @@
 {
     public class NsfwStr
     {
+        //profanity
+        public static string[] Profanity =
+        {
+            "porn",
+            "nigger",
+            "retard",
+            "shit",
+            "fuck",
+            "rape",
+            "cunt",
+            "slut",
+            "penis",
+            "dick",
+            "vagina",
+            "xxx",
+            "asshole",
+            "arsehole",
+            "bitch",
+            "blowjob",
+            "boob",
+            "tits",
+            "titties",
+            "breast",
+            "dildo",
+            "gay",
+            "whore",
+            "jizz",
+            "kkk",
+            "nigga",
+            "pussy",
+            "sex"
+        };
+
         //sfw
         public static string[] Sfw =
         {
