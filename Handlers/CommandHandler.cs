@@ -156,9 +156,27 @@ namespace PassiveBOT.Handlers
                 }
             try
             {
-                if (GuildConfig.GetServer(context.Guild).Blacklist
-                        .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
-                    !((IGuildUser)context.User).GuildPermissions.Administrator)
+                bool blacklistdetected = false;
+                if (GuildConfig.GetServer(context.Guild).BlacklistBetterFilter)
+                {
+                    if (GuildConfig.GetServer(context.Guild).Blacklist.Any(x =>
+                        ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(context.Message.Content))
+                            .ToLower().Contains(x.ToLower())) &&
+                        !((IGuildUser)context.User).GuildPermissions.Administrator)
+                    {
+                        blacklistdetected = true;
+                    }
+                }
+                else
+                {
+                    if (GuildConfig.GetServer(context.Guild).Blacklist
+                            .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
+                        !((IGuildUser) context.User).GuildPermissions.Administrator)
+                    {
+                        blacklistdetected = true;
+                    }
+                }
+                if (blacklistdetected)
                 {
                     await message.DeleteAsync();
                     var blmessage = "";

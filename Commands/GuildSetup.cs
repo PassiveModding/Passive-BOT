@@ -716,6 +716,18 @@ namespace PassiveBOT.Commands
             await ReplyAsync("The blacklist has been cleared.");
         }
 
+        [Command("blacklistBFToggle")]
+        [Summary("blacklistBFToggle")]
+        [Remarks("Toggles whether or not to filter special characters for spam")]
+        public async Task BFToggle()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            jsonObj.BlacklistBetterFilter = !jsonObj.BlacklistBetterFilter;
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"Blacklist BetterFilter status set to {(jsonObj.BlacklistBetterFilter ? "ON" : "OFF")}");
+        }
+
         [Command("blacklist message")]
         [Summary("blacklist message <message>")]
         [Remarks("set the blaklist message")]
@@ -723,11 +735,10 @@ namespace PassiveBOT.Commands
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             jsonObj.BlacklistMessage = blmess ?? "";
-
-
             GuildConfig.SaveServer(jsonObj);
 
-            await ReplyAsync("The blacklist has been cleared.");
+            await ReplyAsync("The blacklist message is now:\n" +
+                             $"{jsonObj.BlacklistMessage}");
         }
 
 

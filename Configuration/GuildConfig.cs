@@ -49,6 +49,7 @@ namespace PassiveBOT.Configuration
 
         public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
         public string BlacklistMessage { get; set; } = "";
+        public bool BlacklistBetterFilter { get; set; } = true;
         public bool Invite { get; set; } = false; // blacklist for discord invites
         public List<ulong> InviteExcempt { get; set; } = new List<ulong>();
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 

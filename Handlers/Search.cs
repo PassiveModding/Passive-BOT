@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PassiveBOT.Handlers
@@ -12,6 +14,40 @@ namespace PassiveBOT.Handlers
         Get,
         Post
     }
+
+    public static class ProfanityFilter
+    {
+        public static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        public static string doreplacements(string text)
+        {
+            var toremove = new[]
+            {
+                "-", "_", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "{", "}", "\"", "'", "+", "=","<",">", "?","/", "|", "\\","[", "]", " "
+            };
+            text = toremove.Aggregate(text, (current, str) => current.Replace(str, ""));
+
+            text = text.Replace("1", "i").Replace("3", "e").Replace("4", "a").Replace("5", "s").Replace("6", "g")
+                .Replace("8", "b").Replace("9", "g");
+            return text;
+        }
+    }
+
 
     public static class RedditHelper
     {
