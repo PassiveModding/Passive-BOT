@@ -15,6 +15,7 @@ namespace PassiveBOT.Configuration
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
         public string Prefix { get; set; } = Configuration.Load.Pre; //
+        public bool antiraid { get; set; } = false;
 
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
         public ulong MutedRole { get; set; } = 0;

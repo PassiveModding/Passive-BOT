@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -218,6 +219,21 @@ namespace PassiveBOT.Handlers
 
         public async Task UserJoinedEvent(SocketGuildUser user)
         {
+            if (GuildConfig.GetServer(user.Guild).antiraid)
+            {
+                IRole role;
+                if (user.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)) is IRole Role)
+                {
+                    await Role.ModifyAsync(x => x.Permissions = new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    role = Role;
+                }
+                else
+                {
+                    role = await user.Guild.CreateRoleAsync("PB-RAID", new GuildPermissions(readMessageHistory: true, readMessages: true));
+                }
+
+                await user.AddRoleAsync(role);
+            }
             if (GuildConfig.GetServer(user.Guild).EventLogging)
             {
                 var embed = new EmbedBuilder();

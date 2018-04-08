@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -15,6 +16,118 @@ namespace PassiveBOT.Commands.ServerModeration
     [RequireContext(ContextType.Guild)]
     public class Admin : InteractiveBase
     {
+        [Command("AntiRaidToggle", RunMode = RunMode.Async)]
+        [Summary("AntiRaidToggle")]
+        [Remarks("Toggle Anti Raid Mode slow chat")]
+        public async Task AntiRaid()
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            guild.antiraid = !guild.antiraid;
+            GuildConfig.SaveServer(guild);
+            await ReplyAsync($"Anti Raid Mode: {guild.antiraid}");
+            if (guild.antiraid)
+            {
+                var embed = new EmbedBuilder();
+                IRole asrole;
+                await ReplyAsync("Creating/Modifying AntiRaid Role");
+                if (Context.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)) is IRole Role)
+                {
+                    await Role.ModifyAsync(x => x.Permissions = new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    asrole = Role;
+                    embed.AddField("Role Modified",
+                        "PB-RAID role has been modified in server");
+                }
+                else
+                {
+                    asrole = await Context.Guild.CreateRoleAsync("PB-RAID", new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    embed.AddField("Role Created",
+                        "PB-RAID role has been created in server");
+                }
+                await ReplyAsync("Editing Channel Permissions");
+                var channellist = new List<string>();
+                var overwrite = new OverwritePermissions(createInstantInvite: PermValue.Deny,
+                    readMessages: PermValue.Allow,
+                    readMessageHistory: PermValue.Allow, addReactions: PermValue.Deny,
+                    sendMessages: PermValue.Deny, attachFiles: PermValue.Deny, connect: PermValue.Deny,
+                    deafenMembers: PermValue.Deny, embedLinks: PermValue.Deny, manageChannel: PermValue.Deny,
+                    manageMessages: PermValue.Deny, managePermissions: PermValue.Deny,
+                    manageWebhooks: PermValue.Deny, mentionEveryone: PermValue.Deny,
+                    moveMembers: PermValue.Deny, muteMembers: PermValue.Deny, sendTTSMessages: PermValue.Deny,
+                    speak: PermValue.Deny, useExternalEmojis: PermValue.Deny,
+                    useVoiceActivation: PermValue.Deny);
+                foreach (var channel in Context.Guild.TextChannels)
+                {
+                    try
+                    {
+                        if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole)
+                        {
+                            if (trole.Permissions.DenyValue != overwrite.DenyValue)
+                            {
+                                await channel.AddPermissionOverwriteAsync(asrole, overwrite);
+                            }
+                        }
+                        channellist.Add($"Overwrite Added: {channel.Name}");
+                    }
+                    catch
+                    {
+                        channellist.Add($"OVERWRITE ERROR: {channel.Name}");
+                    }
+                }
+                foreach (var channel in Context.Guild.VoiceChannels)
+                {
+                    try
+                    {
+                        if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole)
+                        {
+                            if (trole.Permissions.DenyValue != overwrite.DenyValue)
+                            {
+                                await channel.AddPermissionOverwriteAsync(asrole, overwrite);
+                            }
+                        }
+                        channellist.Add($"Overwrite Added: {channel.Name}");
+                    }
+                    catch
+                    {
+                        channellist.Add($"OVERWRITE ERROR: {channel.Name}");
+                    }
+                }
+                embed.AddField("Channels", string.Join("\n", channellist));
+                var userlist = new List<string>();
+                await ReplyAsync("Modifying roles for new users");
+                var newusers = Context.Guild.Users.Where(x =>
+                    x.JoinedAt > DateTime.UtcNow - TimeSpan.FromMinutes(120)).ToList();
+                if (newusers.Any())
+                {
+                    foreach (var user in newusers)
+                    {
+                        if (user.Roles.FirstOrDefault(x => x.Id == asrole.Id) == null)
+                        {
+                            await user.AddRoleAsync(asrole);
+                            userlist.Add(user.Username);
+                        }
+                    }
+
+                    embed.AddField("Users Muted", newusers.Any() ? string.Join("\n", userlist) : "N/A");
+                }
+                else
+                {
+                    embed.AddField("Users Muted", "N/A");
+                }
+                await ReplyAsync("", false, embed.Build());
+            }
+            else
+            {
+                try
+                {
+                    await Context.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)).DeleteAsync();
+                }
+                catch
+                {
+                    //
+                }
+            }
+        }
+
         [Command("ClearWarn")]
         [Summary("ClearWarn <@user>")]
         [Remarks("Clears warnings for the specified user")]
