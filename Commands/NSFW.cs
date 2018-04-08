@@ -30,11 +30,11 @@ namespace PassiveBOT.Commands
 
         [Command("RedditNSFW", RunMode = RunMode.Async)]
         [Summary("RedditNSFW <sub>")]
-        [Remarks("Get a random post from first 25 in hot of a sub")]
+        [Remarks("Get a random post from first 150 in hot of a sub")]
         public async Task RedditNSFW(string subreddit = null)
         {
-            if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
-            if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
+            if (subreddit == null)
+            { await ReplyAsync("Please give a subreddit to browse."); return;}
             var rnd = new Random();
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
                 string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));

@@ -12,13 +12,10 @@ namespace PassiveBOT.Commands
         [Command("rip")]
         [Summary("rip")]
         [Remarks("rip in pepperoni")]
-        public async Task Rip([Optional] IUser user)
+        public async Task Rip(IUser user = null)
         {
-            if (user == null)
-                await ReplyAsync("rip in pepperoni little boi, you will forever be remembered in the hall of lame");
-            else
                 await ReplyAsync(
-                    $"rip in pepperoni {user.Mention}, you will forever be remembered in the hall of lame");
+                    $"rip in pepperoni {(user == null ? "little boi" : user.Mention)}, you will forever be remembered in the hall of lame");
         }
 
         [Command("rekt")]
@@ -101,9 +98,7 @@ namespace PassiveBOT.Commands
         public async Task Insult()
         {
             var rnd = new Random();
-            var result = rnd.Next(0, FunStr.Insult.Length);
-
-            await ReplyAsync(FunStr.Insult[result]);
+            await ReplyAsync(FunStr.Insult[rnd.Next(0, FunStr.Insult.Length)]);
         }
 
         [Command("cringe")]
@@ -133,9 +128,7 @@ namespace PassiveBOT.Commands
         public async Task Dick()
         {
             var rnd = new Random();
-            var result = rnd.Next(0, FunStr.Dick.Length);
-
-            await ReplyAsync(FunStr.Dick[result]);
+            await ReplyAsync(FunStr.Dick[rnd.Next(0, FunStr.Dick.Length)]);
         }
     }
 }

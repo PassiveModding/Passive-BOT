@@ -259,46 +259,59 @@ namespace PassiveBOT.Commands.ServerSetup
         [Command("Welcome", RunMode = RunMode.Async)]
         [Remarks("Setup the Welcome Message for new users")]
         [Summary("Welcome")]
-        public async Task InitialiseWelcome()
+        public async Task InitialiseWelcome(int option = 0)
         {
-            await ReplyAsync("```\n" +
-                             "Reply with the command you would like to perform\n" +
-                             "[1] Set the welcome message\n" +
-                             "[2] Set the current channel for welcome events\n" +
-                             "[3] Enable the welcome event\n" +
-                             "[4] Disable the welcome event\n" +
-                             "[5] View Welcome Info" +
-                             "" +
-                             "```");
+            int input;
+            if (option == 0)
+            {
+                await ReplyAsync("```\n" +
+                                 "Reply with the command you would like to perform\n" +
+                                 "[1] Set the welcome message\n" +
+                                 "[2] Set the current channel for welcome events\n" +
+                                 "[3] Enable the welcome event\n" +
+                                 "[4] Disable the welcome event\n" +
+                                 "[5] View Welcome Info" +
+                                 "" +
+                                 "```");
+                var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
+                input = Int32.Parse(next.Content);
+            }
+            else
+            {
+                input = option;
+            }
 
-            var next = await NextMessageAsync();
-            if (next.Content == "1")
+
+            
+            
+            
+            if (input == 1)
             {
                 await ReplyAsync(
                     "Please reply with the welcome message you want to be sent when a user joins the server ie. `Welcome to Our Server!!`");
-                var next2 = await NextMessageAsync(timeout: TimeSpan.FromSeconds(30));
+                var next2 = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
                 GuildConfig.SetWMessage(Context.Guild, next2.Content);
                 GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
                 await ReplyAsync("The Welcome Message for this server has been set to:\n" +
                                  $"**{next2.Content}**\n" +
                                  $"In the channel **{Context.Channel.Name}**");
             }
-            else if (next.Content == "2")
+            else if (input == 2)
             {
                 GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
                 await ReplyAsync($"Welcome Events will be sent in the channel: **{Context.Channel.Name}**");
             }
-            else if (next.Content == "3")
+            else if (input == 3)
             {
                 GuildConfig.SetWelcomeStatus(Context.Guild, true);
                 await ReplyAsync("Welcome Messageing for this server has been set to: true");
             }
-            else if (next.Content == "4")
+            else if (input == 4)
             {
                 GuildConfig.SetWelcomeStatus(Context.Guild, false);
                 await ReplyAsync("Welcome Messageing for this server has been set to: false");
             }
-            else if (next.Content == "5")
+            else if (input == 5)
             {
                 var l = GuildConfig.GetServer(Context.Guild);
                 var embed = new EmbedBuilder();
@@ -317,16 +330,19 @@ namespace PassiveBOT.Commands.ServerSetup
             }
             else
             {
-                await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
+                await ReplyAsync("ERROR: you did not supply a valid option. type only `1` etc.");
             }
         }
 
         [Command("GoodBye", RunMode = RunMode.Async)]
         [Remarks("Setup the goodbye message for new users")]
         [Summary("Goodbye")]
-        public async Task InitialiseGoodbye()
+        public async Task InitialiseGoodbye(int option = 0)
         {
-            await ReplyAsync("```\n" +
+            int input;
+            if (option == 0)
+            {
+                await ReplyAsync("```\n" +
                              "Reply with the command you would like to perform\n" +
                              "[1] Set the GoodBye message\n" +
                              "[2] Set the current channel for GoodBye events\n" +
@@ -335,12 +351,17 @@ namespace PassiveBOT.Commands.ServerSetup
                              "[5] View GoodBye Info" +
                              "" +
                              "```");
-
-            var next = await NextMessageAsync();
+                var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
+                input = Int32.Parse(next.Content);
+            }
+            else
+            {
+                input = option;
+            }
 
             var jsonObj = GuildConfig.GetServer(Context.Guild);
 
-            if (next.Content == "1")
+            if (input == 1)
             {
                 await ReplyAsync(
                     "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
@@ -353,25 +374,25 @@ namespace PassiveBOT.Commands.ServerSetup
                                  $"**{next2.Content}**\n" +
                                  $"In the channel **{Context.Channel.Name}**");
             }
-            else if (next.Content == "2")
+            else if (input == 2)
             {
                 jsonObj.GoodByeChannel = Context.Channel.Id;
                 GuildConfig.SaveServer(jsonObj);
                 await ReplyAsync($"Goodbye Events will be sent in the channel: **{Context.Channel.Name}**");
             }
-            else if (next.Content == "3")
+            else if (input == 3)
             {
                 jsonObj.GoodbyeEvent = true;
                 GuildConfig.SaveServer(jsonObj);
                 await ReplyAsync("GoodBye Messaging for this server has been set to: On");
             }
-            else if (next.Content == "4")
+            else if (input == 4)
             {
                 jsonObj.GoodbyeEvent = false;
                 GuildConfig.SaveServer(jsonObj);
                 await ReplyAsync("GoodBye Messaging for this server has been set to: Off");
             }
-            else if (next.Content == "5")
+            else if (input == 5)
             {
                 var embed = new EmbedBuilder();
                 try
@@ -389,7 +410,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
             else
             {
-                await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
+                await ReplyAsync("ERROR: you did not supply a valid option. type only `1` etc.");
             }
         }
 
@@ -412,8 +433,11 @@ namespace PassiveBOT.Commands.ServerSetup
         [Command("AutoMessage", RunMode = RunMode.Async)]
         [Summary("AutoMessage")]
         [Remarks("Enable to use of automatic bot messages in channels")]
-        public async Task AutoMessage()
+        public async Task AutoMessage(int option = 0)
         {
+            int input;
+            if (option == 0)
+            {
             await ReplyAsync("```\n" +
                              "Reply with the command you would like to perform\n" +
                              "[1] Set the auto message for this channel\n" +
@@ -423,6 +447,14 @@ namespace PassiveBOT.Commands.ServerSetup
                              "[5] View AutoMessage Info" +
                              "" +
                              "```");
+            var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
+            input = Int32.Parse(next.Content);
+            }
+            else
+            {
+                input = option;
+            }
+
             var serverobj = GuildConfig.GetServer(Context.Guild);
             if (serverobj.AutoMessage.All(x => x.channelID != Context.Channel.Id))
                 serverobj.AutoMessage.Add(new GuildConfig.autochannels
@@ -434,8 +466,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     sendlimit = 50
                 });
             var chan = serverobj.AutoMessage.First(x => x.channelID == Context.Channel.Id);
-            var next = await NextMessageAsync();
-            if (next.Content == "1")
+            if (input == 1)
             {
                 await ReplyAsync(
                     "Please reply with the message you would like to auto-send in this channel");
@@ -447,7 +478,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     $"{chan.automessage}\n" +
                     "`-----`");
             }
-            else if (next.Content == "2")
+            else if (input == 2)
             {
                 await ReplyAsync("Please reply with the amount of messages you would like in between automessages");
                 var next2 = await NextMessageAsync();
@@ -461,17 +492,17 @@ namespace PassiveBOT.Commands.ServerSetup
                     await ReplyAsync("Error: Not an integer");
                 }
             }
-            else if (next.Content == "3")
+            else if (input == 3)
             {
                 chan.enabled = true;
                 await ReplyAsync("Automessages will now be sent in this channel");
             }
-            else if (next.Content == "4")
+            else if (input == 4)
             {
                 chan.enabled = false;
                 await ReplyAsync("Automessages will no longer be sent  in this channel");
             }
-            else if (next.Content == "5")
+            else if (input == 5)
             {
                 var embed = new EmbedBuilder();
                 foreach (var channel in serverobj.AutoMessage)
