@@ -83,7 +83,7 @@ namespace PassiveBOT.Commands
             }
         }
 
-        [Command("tits")]
+        [Command("tits", RunMode = RunMode.Async)]
         [Summary("tits")]
         [Alias("boobs", "rack")]
         [Remarks("Fetches some sexy titties")]
@@ -107,7 +107,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder.Build());
         }
 
-        [Command("Ass")]
+        [Command("Ass", RunMode = RunMode.Async)]
         [Summary("ass")]
         [Remarks("Sexy Ass!")]
         public async Task BumsAsync()

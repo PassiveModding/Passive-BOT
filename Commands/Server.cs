@@ -5,25 +5,28 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands
 {
     [RequireContext(ContextType.Guild)]
-    public class Server : ModuleBase
+    public class Server : InteractiveBase
     {
+        [CheckModerator]
         [Command("serverinfo")]
         [Summary("serverinfo")]
         [Remarks("Displays information about the current server")]
         public async Task ServerInfo()
         {
             var embed = new EmbedBuilder();
-            var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
-            var mem = ((SocketGuild) Context.Guild).MemberCount;
+            var botlist = ((SocketGuild)Context.Guild).Users.Count(x => x.IsBot);
+            var mem = ((SocketGuild)Context.Guild).MemberCount;
             var guildusers = mem - botlist;
-            var s = (SocketGuild) Context.Guild;
+            var s = (SocketGuild)Context.Guild;
             var g = Context.Guild;
 
             try
@@ -144,14 +147,6 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                embed.AddInlineField("Available", g.Available);
-            }
-            catch
-            {
-                //
-            }
-            try
-            {
                 embed.AddInlineField("MFA Status", g.MfaLevel);
             }
             catch
@@ -209,7 +204,7 @@ namespace PassiveBOT.Commands
             }
             try
             {
-                embed.AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count);
+                embed.AddInlineField(":spy: Role Count", ((SocketGuild)Context.Guild).Roles.Count);
             }
             catch
             {
@@ -298,7 +293,7 @@ namespace PassiveBOT.Commands
                 var embed = new EmbedBuilder();
                 if (jsonObj.RoleList.Contains(role.Id))
                 {
-                    var u = (IGuildUser) Context.User;
+                    var u = (IGuildUser)Context.User;
                     if (u.RoleIds.Contains(role.Id))
                     {
                         await u.RemoveRoleAsync(role);
@@ -325,7 +320,7 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task RoleInfoAsync(IRole role)
         {
-            var srole = ((SocketRole) role).Permissions;
+            var srole = ((SocketRole)role).Permissions;
             var l = new List<string>();
             if (srole.AddReactions)
                 l.Add("Can Add Reactions");
@@ -410,8 +405,8 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            var botlist = ((SocketGuild) Context.Guild).Users.Count(x => x.IsBot);
-            var mem = ((SocketGuild) Context.Guild).MemberCount;
+            var botlist = ((SocketGuild)Context.Guild).Users.Count(x => x.IsBot);
+            var mem = ((SocketGuild)Context.Guild).MemberCount;
             var guildusers = mem - botlist;
 
             var embed = new EmbedBuilder()
@@ -419,10 +414,10 @@ namespace PassiveBOT.Commands
                 .AddInlineField(":busts_in_silhouette: Total Members", mem)
                 .AddInlineField(":robot: Total Bots", botlist)
                 .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
-                .AddInlineField(":newspaper2: Total Channels", ((SocketGuild) Context.Guild).Channels.Count)
+                .AddInlineField(":newspaper2: Total Channels", ((SocketGuild)Context.Guild).Channels.Count)
                 .AddInlineField(":microphone: Text/Voice Channels",
-                    $"{((SocketGuild) Context.Guild).TextChannels.Count}/{((SocketGuild) Context.Guild).VoiceChannels.Count}")
-                .AddInlineField(":spy: Role Count", ((SocketGuild) Context.Guild).Roles.Count)
+                    $"{((SocketGuild)Context.Guild).TextChannels.Count}/{((SocketGuild)Context.Guild).VoiceChannels.Count}")
+                .AddInlineField(":spy: Role Count", ((SocketGuild)Context.Guild).Roles.Count)
                 .AddField("Links",
                     $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
@@ -442,17 +437,26 @@ namespace PassiveBOT.Commands
         public async Task RoleList()
         {
             var rol = Context.Guild.Roles;
-
-            var embed = new EmbedBuilder()
-                .WithTitle($"Roles for {Context.Guild.Name}")
-                .WithDescription(string.Join("\n", rol.OrderByDescending(x => x.Position)))
-                .WithFooter(x =>
+            var rolepage = new List<string>();
+            var list = "";
+            foreach (var role in rol.OrderByDescending(x => x.Position))
+            {
+                list += $"{role.Name}\n";
+                if (list.Split('\n').Length >= 20)
                 {
-                    x.WithText("PassiveBOT");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
+                    rolepage.Add(list);
+                    list = "";
+                }
+            }
+            rolepage.Add(list);
+            var msg = new PaginatedMessage
+            {
+                Title = $"Roles for {Context.Guild.Name}",
+                Pages = rolepage,
+                Color = new Color(114, 137, 218)
+            };
 
-            await ReplyAsync("", false, embed);
+            await PagedReplyAsync(msg);
         }
 
         [Command("RoleMembers")]
@@ -465,23 +469,30 @@ namespace PassiveBOT.Commands
             var id = role.Id;
             var guild = Context.Guild as SocketGuild;
             var members = new List<string>();
+            var list = "";
             if (guild != null)
                 foreach (var user in guild.Users)
+                {
                     if (user.Roles.Contains(Context.Guild.GetRole(id)))
                         if (type == "username")
-                            members.Add(user.Username);
+                            list += user.Username + "\n";
                         else
-                            members.Add(user.Nickname ?? user.Username);
-            var embed = new EmbedBuilder()
-                .WithTitle($"Here is a list of Members with the role {role}")
-                .WithDescription(string.Join(" \n", members))
-                .WithFooter(x =>
-                {
-                    x.WithText("PassiveBOT");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
+                            list += user.Nickname == null ? $"{user.Username}\n" : $"{user.Nickname}\n";
+                    if (list.Split('\n').Length >= 20)
+                    {
+                        members.Add(list);
+                        list = "";
+                    }
+                }
+            members.Add(list);
+            var msg = new PaginatedMessage
+            {
+                Title = $"Here is a list of Members with the role {role}",
+                Pages = members,
+                Color = new Color(114, 137, 218)
+            };
 
-            await ReplyAsync("", false, embed.Build());
+            await PagedReplyAsync(msg);
         }
     }
 }

@@ -8,7 +8,7 @@ using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Preconditions;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.ServerModeration
 {
     [RequireContext(ContextType.Guild)]
     [CheckModerator]

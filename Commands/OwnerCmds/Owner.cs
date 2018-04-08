@@ -13,7 +13,7 @@ using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.OwnerCmds
 {
     [RequireOwner]
     public class Owner : InteractiveBase
@@ -59,108 +59,15 @@ namespace PassiveBOT.Commands
             await ReplyAsync("PartnerUpdates will now be posted here!");
         }
 
-        [Command("BanPartner+")]
-        [Summary("BanPartner+ <guildID>")]
-        [Remarks("Ban a partner from the partners program")]
-        public async Task BanPartner(ulong GuildId = 0)
+        [Command("SetBotModerators+")]
+        [Summary("SetBotModerators+")]
+        [Remarks("Set a role of users which can access some Bot Owner Commands")]
+        public async Task BModRole(SocketRole role = null)
         {
-            if (GuildId == 0)
-            {
-                var pages = new List<string>();
-                var currentpage = "";
-                //await ReplyAsync(string.Join("\n", TimerService.AcceptedServers));
-                foreach (var guild in TimerService.AcceptedServers)
-                {
-                    if (Context.Client.GetGuild(guild) is SocketGuild guildfull)
-                    {
-                        var guildobj = GuildConfig.GetServer(guildfull);
-                        if (currentpage.Length > 2000)
-                        {
-                            pages.Add(currentpage);
-                            currentpage = "";
-                        }
-
-                        currentpage += $"`{guildobj.GuildId} - {(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`" +
-                                        "\n" +
-                                        $"{guildobj.PartnerSetup.Message}" +
-                                        "\n-----\n";
-                    }
-
-
-
-
-                }
-                pages.Add(currentpage);
-                pages.Add("PassiveBOT <3");
-                var msg = new PaginatedMessage
-                {
-                    Title = "Partner Messages",
-                    Pages = pages,
-                    Color = new Color(114, 137, 218)
-                };
-
-                await PagedReplyAsync(msg);
-            }
-            else
-            {
-                var guildobj = GuildConfig.GetServer(Context.Client.GetGuild(GuildId));
-                guildobj.PartnerSetup.banned = true;
-                GuildConfig.SaveServer(guildobj);
-                await ReplyAsync("Guild Partnership Banned for:\n" +
-                                 $"{guildobj.PartnerSetup.Message}");
-            }
-        }
-
-        [Command("UnbanPartner+")]
-        [Summary("UnbanPartner+ <guildID>")]
-        [Remarks("Ban a partner from the partners program")]
-        public async Task UnBanPartner(ulong GuildId = 0)
-        {
-            if (GuildId == 0)
-            {
-                var pages = new List<string>();
-                var currentpage = "";
-                //await ReplyAsync(string.Join("\n", TimerService.AcceptedServers));
-                foreach (var guild in TimerService.AcceptedServers)
-                {
-                    if (Context.Client.GetGuild(guild) is SocketGuild guildfull)
-                    {
-                        var guildobj = GuildConfig.GetServer(guildfull);
-                        if (currentpage.Length > 2000)
-                        {
-                            pages.Add(currentpage);
-                            currentpage = "";
-                        }
-
-                        currentpage += $"`{guildobj.GuildId}`" +
-                                       "\n" +
-                                       $"{guildobj.PartnerSetup.Message}" +
-                                       "\n-----\n";
-                    }
-
-
-
-
-                }
-                pages.Add(currentpage);
-                pages.Add("PassiveBOT <3");
-                var msg = new PaginatedMessage
-                {
-                    Title = "Partner Messages",
-                    Pages = pages,
-                    Color = new Color(114, 137, 218)
-                };
-
-                await PagedReplyAsync(msg);
-            }
-            else
-            {
-                var guildobj = GuildConfig.GetServer(Context.Client.GetGuild(GuildId));
-                guildobj.PartnerSetup.banned = false;
-                guildobj.PartnerSetup.Message = "";
-                GuildConfig.SaveServer(guildobj);
-                await ReplyAsync("Guild Partnership Unbanned. Message has been reset");
-            }
+            var home = Homeserver.Load();
+            home.BotModerator = role == null ? 0 : role.Id;
+            Homeserver.SaveHome(home);
+            await ReplyAsync($"ModRole is set to {(role == null ? "N/A" : role.Name)}!");
         }
 
         [Command("GlobalBan+", RunMode = RunMode.Async)]

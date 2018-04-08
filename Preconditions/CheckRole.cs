@@ -63,4 +63,34 @@ namespace PassiveBOT.Preconditions
             return Task.FromResult(PreconditionResult.FromError("User is Not A Moderator or an Admin!"));
         }
     }
+
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class BotModerator : PreconditionAttribute
+    {
+        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
+            IServiceProvider services)
+        {
+
+            if (context.Channel is IDMChannel)
+            {
+                return Task.FromResult(PreconditionResult.FromSuccess());
+            }
+
+            var own = context.Client.GetApplicationInfoAsync();
+            if (own.Result.Owner.Id == context.User.Id)
+                return Task.FromResult(PreconditionResult.FromSuccess());
+
+            var role = Homeserver.Load().BotModerator;
+            if (role == 0)
+            {
+                return Task.FromResult(PreconditionResult.FromError("User is not a BOT Moderator"));
+            }
+
+            if (((IGuildUser)context.User).RoleIds.Contains(role))
+                return Task.FromResult(PreconditionResult.FromSuccess());
+
+
+            return Task.FromResult(PreconditionResult.FromError("User is not BOT Moderator"));
+        }
+    }
 }

@@ -7,6 +7,7 @@ using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands
 {
+    [RequireContext(ContextType.Guild)]
     public class Giveaway : ModuleBase
     {
         [Command("CreateGiveAway")]

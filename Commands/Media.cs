@@ -13,7 +13,7 @@ using PassiveBOT.strings;
 
 namespace PassiveBOT.Commands
 {
-    [Ratelimit(1, 3, Measure.Seconds)]
+    [Ratelimit(1, 5, Measure.Seconds)]
     public class Media : ModuleBase
     {
         [Command("GetRedditPost", RunMode = RunMode.Async)]

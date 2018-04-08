@@ -12,6 +12,7 @@ using PassiveBOT.strings;
 namespace PassiveBOT.Commands
 {
     [CheckModerator]
+    [RequireContext(ContextType.Guild)]
     public class Partner : ModuleBase
     {
         [Command("PartnerToggle")]
