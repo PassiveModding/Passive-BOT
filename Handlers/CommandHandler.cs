@@ -279,11 +279,9 @@ namespace PassiveBOT.Handlers
                         var embed = new EmbedBuilder
                         {
                             Title = $"ERROR: {context.Message}",
-                            Description = $"Reason:\n" +
+                            Description = $"REASON:\n" +
                                           $"{result.ErrorReason}"
                         };
-                        embed.AddField("ERROR", context.Message);
-                        embed.AddField("Reason", result.ErrorReason);
                         embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
                         embed.Color = Color.Red;
                         await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
