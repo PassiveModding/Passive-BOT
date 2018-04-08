@@ -383,6 +383,29 @@ namespace PassiveBOT.Commands.ServerModeration
             await ReplyAsync("All server bans have been cleared.");
         }
 
+        [Command("GenerateChannelList")]
+        [Summary("GenerateChannelList")]
+        [Remarks("makes a list of all channels in the server")]
+        [ServerOwner]
+        public async Task ChannelList()
+        {
+            var list = "__Text Channels__\n";
+
+            foreach (var channel in Context.Guild.TextChannels.OrderBy(x => x.Position))
+            {
+                list += $"{channel.Mention}{(channel.Topic == null ? "" : $" - {channel.Topic}")}\n";
+            }
+
+            list += "\n__Audio Channels__\n";
+
+            foreach (var channel in Context.Guild.VoiceChannels.OrderBy(x => x.Position))
+            {
+                list += $"{channel.Name}\n";
+            }
+
+            await ReplyAsync(list);
+        }
+
         [Command("ResetWarns")]
         [Summary("ResetWarns")]
         [Remarks("Clears all warnings logged in the server")]
