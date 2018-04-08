@@ -73,6 +73,33 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
+        [Command("PartnerHelp")]
+        [Summary("PartnerHelp")]
+        [Remarks("See the PartnerHelp tutorial")]
+        public async Task PHelp()
+        {
+            var embed = new EmbedBuilder
+            {
+                Title = "Partner Help Tutorial",
+                Description = $"```\r\n" +
+                              $"What is the partner program?\r\n" +
+                              $"```\r\n" +
+                              $"-This is a part of PassiveBOT, different servers may sign up for this by enabling the partner program with the command\r\n" +
+                              $"\r\n" +
+                              $"```\r\n" +
+                              $"Full Tutorial\r\n" +
+                              $"```\r\n" +
+                              $"`1.` Type `.p invite` to get an invite link to the bot, add it to your server with all permissions\r\n" +
+                              $"`2.` Type `.p PartnerToggle` to enable to partner system in your server\r\n" +
+                              $"`3.` Type `.p PartnerChannel` in your desired channel to set which channel other Partner messages will be sent to\r\n" +
+                              $"`4.` Type `.p PartnerMessage <message>` to set the message you want to be sent to other servers, make sure to include your `discord.gg` or discord.me` invite link for the server so people can join.\r\n" +
+                              $"\r\n" +
+                              $"That's it, your message will be sent to a server every hour and your server will receive a message every hour!!\r\n" +
+                              $"ENJOY!!!"
+            };
+            await ReplyAsync("", false, embed.Build());
+        }
+
         [Command("PartnerReport")]
         [Summary("PartnerReport")]
         [Remarks("Report a partner message")]
