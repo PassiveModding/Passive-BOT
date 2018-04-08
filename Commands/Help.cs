@@ -18,7 +18,7 @@ namespace PassiveBOT.Commands
 
         [Command("command")]
         [Summary("command <command name>")]
-        [Remarks("all help commands")]
+        [Remarks("get info about a specific command")]
         public async Task CommandAsync([Remainder] string command = null)
         {
             if (command == null)
@@ -29,8 +29,7 @@ namespace PassiveBOT.Commands
 
             try
             {
-                var result = _service.Search(Context, command)
-                    ;
+                var result = _service.Search(Context, command);
                 var builder = new EmbedBuilder
                 {
                     Color = new Color(179, 56, 216)
@@ -40,9 +39,9 @@ namespace PassiveBOT.Commands
                 {
                     var cmd = match.Command;
                     builder.Title = cmd.Name.ToUpper();
-                    builder.Description =
+                    builder.Description +=
                         $"**Aliases:** {string.Join(", ", cmd.Aliases)}\n**Parameters:** {string.Join(", ", cmd.Parameters.Select(p => p.Name))}\n" +
-                        $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Load.Pre}{cmd.Summary}`";
+                        $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Load.Pre}{cmd.Summary}`\n";
                 }
 
                 await ReplyAsync("", false, builder.Build());

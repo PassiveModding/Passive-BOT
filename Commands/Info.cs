@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -7,13 +8,14 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Discord.Addons.Interactive.Paginator;
 
 namespace PassiveBOT.Commands
 {
-    public class Information : ModuleBase
+    public class Information : InteractiveBase
     {
         [Command("invite")]
         [Summary("invite")]
@@ -30,11 +32,36 @@ namespace PassiveBOT.Commands
         [Remarks("Get all users with a particular discriminator")]
         public async Task Discrim(ushort disc = 0)
         {
-            var usermatches = ((SocketGuild) Context.Guild).Users.Where(x => x.DiscriminatorValue == disc);
+            var usermatches = Context.Guild.Users.Where(x => x.DiscriminatorValue == disc).Select(x => $"{x.Username}#{x.Discriminator}\n");
             var embed = new EmbedBuilder();
-            embed.AddField($"Users with Discriminator {disc}",
-                $"{string.Join("\n", usermatches.Select(x => $"{x.Username}#{x.DiscriminatorValue}"))}");
-            await ReplyAsync("", false, embed.Build());
+            var value = usermatches.ToList();
+            if (!value.Any())
+            {
+                embed.AddField($"Users with Discriminator {disc}",
+                    $"N/A");
+                await ReplyAsync("", false, embed.Build());
+                return;
+            }
+
+            var pages = new List<string>();
+            var desc = "";
+            foreach (var user in value)
+            {
+                desc += user;
+                if (desc.Split('\n').Length < 30) continue;
+                pages.Add(desc);
+                desc = "";
+            }
+            pages.Add(desc);
+
+            var msg = new PaginatedMessage
+            {
+                Title = $"Users with Discriminator #{disc}",
+                Pages = pages,
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
         }
 
         [Command("user")]
@@ -92,7 +119,7 @@ namespace PassiveBOT.Commands
         [Remarks("Bot Info and Stats")]
         public async Task Info()
         {
-            var client = Context.Client as DiscordSocketClient;
+            var client = Context.Client;
             var hClient = new HttpClient();
             string changes;
             hClient.DefaultRequestHeaders.Add("User-Agent",
@@ -179,9 +206,9 @@ namespace PassiveBOT.Commands
             embed.AddInlineField("Author", Load.Owner);
             embed.AddInlineField("Uptime", GetUptime());
             embed.AddInlineField("Heap", $"{GetHeapSize()}MB");
-            embed.AddInlineField("Guilds", ((DiscordSocketClient) Context.Client).Guilds.Count);
-            embed.AddInlineField("Channels", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.Channels.Count));
-            embed.AddInlineField("Users", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.MemberCount));
+            embed.AddInlineField("Guilds", Context.Client.Guilds.Count);
+            embed.AddInlineField("Channels", Context.Client.Guilds.Sum(g => g.Channels.Count));
+            embed.AddInlineField("Users", Context.Client.Guilds.Sum(g => g.MemberCount));
 
             embed.AddField("Links",
                 $"[Site]({Load.Siteurl}) \n[Invite]({Context.Client})\n[Our Server]({Load.Server})");

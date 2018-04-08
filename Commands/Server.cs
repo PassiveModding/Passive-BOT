@@ -256,7 +256,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("Emotes")]
-        [Summary("Emoted")]
+        [Summary("Emotes")]
         [Remarks("Displays a list of the servers emotes")]
         public async Task Emotes()
         {
