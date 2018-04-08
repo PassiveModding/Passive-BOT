@@ -6,6 +6,7 @@ using TwitchLib;
 
 namespace PassiveBOT.Commands
 {
+    /*
     public class Twitchcs : ModuleBase
     {
         private static TwitchAPI api;
@@ -99,6 +100,6 @@ namespace PassiveBOT.Commands
             await ReplyAsync("Success");
 
             await TwitchService.Update((DiscordSocketClient)Context.Client);
-        }*/
-    }
+        }
+    }*/
 }
