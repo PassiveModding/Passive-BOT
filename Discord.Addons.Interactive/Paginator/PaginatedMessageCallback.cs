@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using PassiveBOT.Discord.Addons.Interactive.Callbacks;
+using PassiveBOT.Discord.Addons.Interactive.Criteria;
 
-namespace Discord.Addons.Interactive
+namespace PassiveBOT.Discord.Addons.Interactive.Paginator
 {
     public class PaginatedMessageCallback : IReactionCallback
     {
@@ -81,7 +84,6 @@ namespace Discord.Addons.Interactive
                         await Interactive.ReplyAndDeleteAsync(Context, options.Stop.Name);
                         return;
                     }
-
                     page = request;
                     _ = response.DeleteAsync().ConfigureAwait(false);
                     await RenderAsync().ConfigureAwait(false);
@@ -92,7 +94,6 @@ namespace Discord.Addons.Interactive
                 await Interactive.ReplyAndDeleteAsync(Context, options.InformationText, timeout: options.InfoTimeout);
                 return false;
             }
-
             _ = Message.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
             await RenderAsync().ConfigureAwait(false);
             return false;

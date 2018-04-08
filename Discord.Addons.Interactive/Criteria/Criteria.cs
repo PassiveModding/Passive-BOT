@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace Discord.Addons.Interactive
+namespace PassiveBOT.Discord.Addons.Interactive.Criteria
 {
     public class Criteria<T> : ICriterion<T>
     {
@@ -15,7 +15,6 @@ namespace Discord.Addons.Interactive
                 var result = await criterion.JudgeAsync(sourceContext, parameter).ConfigureAwait(false);
                 if (!result) return false;
             }
-
             return true;
         }
 

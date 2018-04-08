@@ -64,7 +64,7 @@ namespace PassiveBOT.Commands.ServerModeration
             if (user.GuildPermissions.Administrator || user.GuildPermissions.KickMembers)
             {
                 embed.AddField("User Kick Failed",
-                    $"This user is an administrator or has the ability to kick other users");
+                    "This user is an administrator or has the ability to kick other users");
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
@@ -94,7 +94,7 @@ namespace PassiveBOT.Commands.ServerModeration
             }
             catch
             {
-                embed.AddField("User Kick Failed", $"This user was unable to be kicked");
+                embed.AddField("User Kick Failed", "This user was unable to be kicked");
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
@@ -298,7 +298,7 @@ namespace PassiveBOT.Commands.ServerModeration
             if (user.GuildPermissions.Administrator || user.GuildPermissions.BanMembers)
             {
                 embed.AddField("User Ban Failed",
-                    $"This user is an administrator or has the ability to ban other users");
+                    "This user is an administrator or has the ability to ban other users");
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
@@ -311,7 +311,7 @@ namespace PassiveBOT.Commands.ServerModeration
             }
             catch
             {
-                embed.AddField("User Ban Failed", $"This user was unable to be banned");
+                embed.AddField("User Ban Failed", "This user was unable to be banned");
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
@@ -432,7 +432,7 @@ namespace PassiveBOT.Commands.ServerModeration
             }
             catch (Exception e)
             {
-                await ReplyAsync($"Use role unable to be modified. ERROR\n" +
+                await ReplyAsync("Use role unable to be modified. ERROR\n" +
                                  $"{e}");
             }
         }

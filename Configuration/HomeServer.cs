@@ -18,14 +18,14 @@ namespace PassiveBOT.Configuration
 
         public static void SaveHome(Homeserver config)
         {
-            var file = Path.Combine(Appdir, $"setup/config/home.json");
+            var file = Path.Combine(Appdir, "setup/config/home.json");
             var output = JsonConvert.SerializeObject(config, Formatting.Indented);
             File.WriteAllText(file, output);
         }
 
         public static Homeserver Load()
         {
-            var file = Path.Combine(Appdir, $"setup/config/home.json");
+            var file = Path.Combine(Appdir, "setup/config/home.json");
             return JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
         }
     }

@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
@@ -51,7 +51,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 }
                 else
                 {
-                    await ReplyAsync($"The config file does not exist, please use option 1 to initialise it");
+                    await ReplyAsync("The config file does not exist, please use option 1 to initialise it");
                 }
             }
             else
@@ -204,7 +204,7 @@ namespace PassiveBOT.Commands.ServerSetup
             try
             {
                 if (l.EventLogging)
-                    eventlogging = $"Status: On\n" +
+                    eventlogging = "Status: On\n" +
                                    $"Channel: {Context.Guild.GetChannel(l.EventChannel).Name}";
                 else
                     eventlogging = "Status: Off";
@@ -233,7 +233,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
             catch
             {
-                blacklist = $"0";
+                blacklist = "0";
             }
 
 
@@ -445,11 +445,11 @@ namespace PassiveBOT.Commands.ServerSetup
                     "The auto-message for this channel will now be:\n" +
                     "`-----`\n" +
                     $"{chan.automessage}\n" +
-                    $"`-----`");
+                    "`-----`");
             }
             else if (next.Content == "2")
             {
-                await ReplyAsync($"Please reply with the amount of messages you would like in between automessages");
+                await ReplyAsync("Please reply with the amount of messages you would like in between automessages");
                 var next2 = await NextMessageAsync();
                 if (int.TryParse(next2.Content, out var result))
                 {
@@ -464,12 +464,12 @@ namespace PassiveBOT.Commands.ServerSetup
             else if (next.Content == "3")
             {
                 chan.enabled = true;
-                await ReplyAsync($"Automessages will now be sent in this channel");
+                await ReplyAsync("Automessages will now be sent in this channel");
             }
             else if (next.Content == "4")
             {
                 chan.enabled = false;
-                await ReplyAsync($"Automessages will no longer be sent  in this channel");
+                await ReplyAsync("Automessages will no longer be sent  in this channel");
             }
             else if (next.Content == "5")
             {
@@ -634,8 +634,8 @@ namespace PassiveBOT.Commands.ServerSetup
 
             await ReplyAsync($"the prefix has been updated to `{newpre}`\n" +
                              $"NOTE: the Default prefix `{Load.Pre}` and @mentions will still work\n" +
-                             $"NOTE: if you want to have any spaces in the prefix enclose your new prefix in brackets, ie.\n" +
-                             $"`(newprefix)`");
+                             "NOTE: if you want to have any spaces in the prefix enclose your new prefix in brackets, ie.\n" +
+                             "`(newprefix)`");
         }
 
         [Command("blacklist")]

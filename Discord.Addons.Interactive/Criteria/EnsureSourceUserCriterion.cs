@@ -2,7 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace Discord.Addons.Interactive
+namespace PassiveBOT.Discord.Addons.Interactive.Criteria
 {
     public class EnsureSourceUserCriterion : ICriterion<SocketMessage>
     {

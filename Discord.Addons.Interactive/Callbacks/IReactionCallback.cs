@@ -2,8 +2,9 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
+using PassiveBOT.Discord.Addons.Interactive.Criteria;
 
-namespace Discord.Addons.Interactive
+namespace PassiveBOT.Discord.Addons.Interactive.Callbacks
 {
     public interface IReactionCallback
     {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
 using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.ServerModeration
@@ -267,7 +267,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var config = GuildConfig.GetServer(Context.Guild);
             config.Banning = new List<GuildConfig.Bans>();
             GuildConfig.SaveServer(config);
-            await ReplyAsync($"All server bans have been cleared.");
+            await ReplyAsync("All server bans have been cleared.");
         }
 
         [Command("ResetWarns")]
@@ -282,7 +282,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var config = GuildConfig.GetServer(Context.Guild);
             config.Warnings = new List<GuildConfig.Warns>();
             GuildConfig.SaveServer(config);
-            await ReplyAsync($"All server warnings have been cleared.");
+            await ReplyAsync("All server warnings have been cleared.");
         }
 
         [Command("ResetKicks")]
@@ -297,7 +297,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var config = GuildConfig.GetServer(Context.Guild);
             config.Kicking = new List<GuildConfig.Kicks>();
             GuildConfig.SaveServer(config);
-            await ReplyAsync($"All server kicks have been cleared.");
+            await ReplyAsync("All server kicks have been cleared.");
         }
 
         [Command("InviteExcempt")]

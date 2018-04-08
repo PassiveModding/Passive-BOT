@@ -20,7 +20,6 @@ namespace PassiveBOT.Commands
         [Remarks("Returns the OAuth2 Invite URL of the bot")]
         public async Task InviteBot()
         {
-            var application = await Context.Client.GetApplicationInfoAsync();
             await ReplyAsync(
                 $"A user with `MANAGE_SERVER` can invite me to your server here: <{Load.GetInvite(Context.Client)}>");
         }

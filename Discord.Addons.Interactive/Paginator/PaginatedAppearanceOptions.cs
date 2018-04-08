@@ -1,6 +1,7 @@
 ﻿using System;
+using Discord;
 
-namespace Discord.Addons.Interactive
+namespace PassiveBOT.Discord.Addons.Interactive.Paginator
 {
     public class PaginatedAppearanceOptions
     {

@@ -91,7 +91,7 @@ namespace PassiveBOT.Commands
 
                 embed.AddField("\n\n**NOTE**",
                     $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
-                    $"Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
+                    "Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
             }
             else
             {

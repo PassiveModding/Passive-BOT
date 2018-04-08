@@ -5,10 +5,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Discord.Addons.Interactive.Paginator;
 using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands
@@ -76,10 +77,7 @@ namespace PassiveBOT.Commands
 
             try
             {
-                if (s.SplashUrl == null)
-                    embed.AddInlineField("Splash Url", "null");
-                else
-                    embed.AddInlineField("Splash Url", s.SplashUrl);
+                embed.AddInlineField("Splash Url", s.SplashUrl ?? "null");
             }
             catch
             {

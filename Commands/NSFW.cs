@@ -396,8 +396,8 @@ namespace PassiveBOT.Commands
             List<string> Tags)
         {
             string Url = null;
-            string Result = null;
-            MatchCollection Matches = null;
+            string Result;
+            MatchCollection Matches;
             Tags = !Tags.Any() ? new[] {"boobs", "tits", "ass", "sexy", "neko"}.ToList() : Tags;
             switch (NsfwType)
             {
@@ -443,6 +443,9 @@ namespace PassiveBOT.Commands
                     break;
                 case NsfwType.Konachan:
                     Matches = Regex.Matches(Get, "<a class=\"directlink smallimg\" href=\"(.*?)\"");
+                    break;
+                default:
+                    Matches = Regex.Matches(Get, "\"url\":\"(.*?)\"");
                     break;
             }
 

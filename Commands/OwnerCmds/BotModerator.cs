@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Discord.Addons.Interactive.Paginator;
 using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Commands.OwnerCmds

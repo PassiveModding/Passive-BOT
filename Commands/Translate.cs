@@ -42,8 +42,6 @@ namespace PassiveBOT.Commands
         {
             var url =
                 $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(message)}";
-            var embed = new EmbedBuilder();
-
             var client = new WebClient {Encoding = Encoding.UTF8};
 
             var stream = client.OpenRead(url);

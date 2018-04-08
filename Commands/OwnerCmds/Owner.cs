@@ -3,12 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.OwnerCmds
@@ -64,7 +64,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         public async Task BModRole(SocketRole role = null)
         {
             var home = Homeserver.Load();
-            home.BotModerator = role == null ? 0 : role.Id;
+            home.BotModerator = role?.Id ?? 0;
             Homeserver.SaveHome(home);
             await ReplyAsync($"ModRole is set to {(role == null ? "N/A" : role.Name)}!");
         }
