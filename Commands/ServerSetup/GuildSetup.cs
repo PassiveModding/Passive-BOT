@@ -31,6 +31,7 @@ namespace PassiveBOT.Commands.ServerSetup
                                  "```");
                 return;
             }
+
             if (i == 1)
             {
                 GuildConfig.Setup(Context.Guild);
@@ -40,7 +41,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ConfigInfo();
             }
-            else if (i== 3)
+            else if (i == 3)
             {
                 var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
                 if (File.Exists(file))
@@ -91,6 +92,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 subrolelist = "There are no joinable roles";
             }
+
             try
             {
                 if (l.ModeratorRoleId == 0)
@@ -107,6 +109,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 modRole = $"@deleted-role <{l.ModeratorRoleId}>";
             }
+
             try
             {
                 djstring = Context.Guild.GetRole(l.DjRoleId).Name;
@@ -115,6 +118,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 djstring = "There is no DJ role configured";
             }
+
             try
             {
                 guildstring = $"{l.GuildName}, {l.GuildId}";
@@ -123,6 +127,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 guildstring = $"{Context.Guild.Name}, {Context.Guild.Id}";
             }
+
             /*try
             {
                 errorLogString = l.ErrorLog ? "Status: On" : "Status: Off";
@@ -139,6 +144,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 rss = "Status: Disabled";
             }
+
             try
             {
                 var dict = GuildConfig.GetServer(Context.Guild).Dict;
@@ -152,6 +158,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 tags = "there are none yet....";
             }
+
             try
             {
                 var status = l.WelcomeEvent ? "On" : "Off";
@@ -163,6 +170,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 welcome = "Status: Disabled";
             }
+
             try
             {
                 var status = l.GoodbyeEvent ? "On" : "Off";
@@ -174,6 +182,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 goodbye = "Status: Disabled";
             }
+
             try
             {
                 nomention = l.MentionAll ? "Status: On" : "Status: Off";
@@ -182,6 +191,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 nomention = "Status: Off";
             }
+
             try
             {
                 noinvite = l.Invite ? "Status: On" : "Status: Off";
@@ -190,6 +200,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 noinvite = "Status: Off";
             }
+
             try
             {
                 if (l.EventLogging)
@@ -202,6 +213,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 eventlogging = "Disabled";
             }
+
             try
             {
                 admincommands = $"Warnings: {l.Warnings.Count}\n" +
@@ -214,6 +226,7 @@ namespace PassiveBOT.Commands.ServerSetup
                                 "Kicks: 0\n" +
                                 "Bans: 0";
             }
+
             try
             {
                 blacklist = $"{l.Blacklist.Count}";
@@ -412,7 +425,6 @@ namespace PassiveBOT.Commands.ServerSetup
                              "```");
             var serverobj = GuildConfig.GetServer(Context.Guild);
             if (serverobj.AutoMessage.All(x => x.channelID != Context.Channel.Id))
-            {
                 serverobj.AutoMessage.Add(new GuildConfig.autochannels
                 {
                     automessage = "AutoMessage",
@@ -421,7 +433,6 @@ namespace PassiveBOT.Commands.ServerSetup
                     messages = 0,
                     sendlimit = 50
                 });
-            }
             var chan = serverobj.AutoMessage.First(x => x.channelID == Context.Channel.Id);
             var next = await NextMessageAsync();
             if (next.Content == "1")
@@ -440,7 +451,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync($"Please reply with the amount of messages you would like in between automessages");
                 var next2 = await NextMessageAsync();
-                if (Int32.TryParse(next2.Content, out var result))
+                if (int.TryParse(next2.Content, out var result))
                 {
                     chan.sendlimit = result;
                     await ReplyAsync($"Automessages will now be sent every {result} messages in this channel");
@@ -464,16 +475,12 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 var embed = new EmbedBuilder();
                 foreach (var channel in serverobj.AutoMessage)
-                {
                     if (Context.Guild.TextChannels.Any(x => x.Id == channel.channelID))
-                    {
-                        embed.AddField(Context.Guild.TextChannels.First(x => x.Id == channel.channelID).Name, $"Message: {channel.automessage}\n" +
-                                                     $"Message Count: {channel.messages}\n" +
-                                                     $"Enabled: {channel.enabled}\n" +
-                                                     $"Msg/AutoMessage: {channel.sendlimit}");
-                    }
-
-                }
+                        embed.AddField(Context.Guild.TextChannels.First(x => x.Id == channel.channelID).Name,
+                            $"Message: {channel.automessage}\n" +
+                            $"Message Count: {channel.messages}\n" +
+                            $"Enabled: {channel.enabled}\n" +
+                            $"Msg/AutoMessage: {channel.sendlimit}");
 
                 await Context.Channel.SendMessageAsync("", false, embed.Build());
                 await ReplyAsync("Done");
@@ -482,6 +489,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
             }
+
             GuildConfig.SaveServer(serverobj);
         }
 
@@ -650,6 +658,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 //
             }
+
             embed.AddField("Timeout", "This message self destructs after 5 seconds.");
 
             await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
@@ -675,6 +684,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync("Keyword is already in the blacklist");
                 return;
             }
+
             GuildConfig.SaveServer(jsonObj);
         }
 

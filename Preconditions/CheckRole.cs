@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Preconditions
@@ -14,10 +13,7 @@ namespace PassiveBOT.Preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider services)
         {
-            if (context.Channel is IDMChannel)
-            {
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            }
+            if (context.Channel is IDMChannel) return Task.FromResult(PreconditionResult.FromSuccess());
 
             var id = context.Guild.Id;
             var role = GuildConfig.GetServer(context.Guild).DjRoleId;
@@ -37,11 +33,7 @@ namespace PassiveBOT.Preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider services)
         {
-
-            if (context.Channel is IDMChannel)
-            {
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            }
+            if (context.Channel is IDMChannel) return Task.FromResult(PreconditionResult.FromSuccess());
 
             var own = context.Client.GetApplicationInfoAsync();
             if (own.Result.Owner.Id == context.User.Id)
@@ -70,23 +62,16 @@ namespace PassiveBOT.Preconditions
         public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
             IServiceProvider services)
         {
-
-            if (context.Channel is IDMChannel)
-            {
-                return Task.FromResult(PreconditionResult.FromSuccess());
-            }
+            if (context.Channel is IDMChannel) return Task.FromResult(PreconditionResult.FromSuccess());
 
             var own = context.Client.GetApplicationInfoAsync();
             if (own.Result.Owner.Id == context.User.Id)
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
             var role = Homeserver.Load().BotModerator;
-            if (role == 0)
-            {
-                return Task.FromResult(PreconditionResult.FromError("User is not a BOT Moderator"));
-            }
+            if (role == 0) return Task.FromResult(PreconditionResult.FromError("User is not a BOT Moderator"));
 
-            if (((IGuildUser)context.User).RoleIds.Contains(role))
+            if (((IGuildUser) context.User).RoleIds.Contains(role))
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
 

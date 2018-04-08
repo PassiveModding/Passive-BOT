@@ -26,6 +26,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync($"Please specify a command, ie `{Load.Pre}command kick`");
                 return;
             }
+
             try
             {
                 var result = _service.Search(Context, command)
@@ -43,6 +44,7 @@ namespace PassiveBOT.Commands
                         $"**Aliases:** {string.Join(", ", cmd.Aliases)}\n**Parameters:** {string.Join(", ", cmd.Parameters.Select(p => p.Name))}\n" +
                         $"**Remarks:** {cmd.Remarks}\n**Summary:** `{Load.Pre}{cmd.Summary}`";
                 }
+
                 await ReplyAsync("", false, builder.Build());
             }
             catch
@@ -68,6 +70,7 @@ namespace PassiveBOT.Commands
                 {
                     isserver = Load.Pre;
                 }
+
             var embed = new EmbedBuilder
             {
                 Color = new Color(114, 137, 218),
@@ -85,6 +88,7 @@ namespace PassiveBOT.Commands
                             x.Value = string.Join(", ", list);
                         });
                 }
+
                 embed.AddField("\n\n**NOTE**",
                     $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
                     $"Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
@@ -108,6 +112,7 @@ namespace PassiveBOT.Commands
 
                         embed.AddField(module.Name, string.Join("\n", list));
                     }
+
                 if (embed.Fields.Count == 0)
                 {
                     embed.AddField("Error", $"{modulearg} is not a module");
@@ -115,6 +120,7 @@ namespace PassiveBOT.Commands
                     embed.AddField("Modules", string.Join("\n", list));
                 }
             }
+
             await ReplyAsync("", false, embed.Build());
         }
 

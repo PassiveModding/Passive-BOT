@@ -25,10 +25,7 @@ namespace PassiveBOT.Handlers
             foreach (var c in normalizedString)
             {
                 var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark) stringBuilder.Append(c);
             }
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
@@ -38,7 +35,8 @@ namespace PassiveBOT.Handlers
         {
             var toremove = new[]
             {
-                "-", "_", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "{", "}", "\"", "'", "+", "=","<",">", "?","/", "|", "\\","[", "]", " "
+                "-", "_", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "{", "}", "\"", "'", "+", "=", "<", ">",
+                "?", "/", "|", "\\", "[", "]", " "
             };
             text = toremove.Aggregate(text, (current, str) => current.Replace(str, ""));
 
@@ -51,13 +49,6 @@ namespace PassiveBOT.Handlers
 
     public static class RedditHelper
     {
-        public class isimg
-        {
-            public string url { get; set; }
-            public bool isimage { get; set; }
-            public string extension { get; set; }
-        }
-
         public static isimg isimage(string urli)
         {
             var imgextensions = new List<string>
@@ -80,20 +71,22 @@ namespace PassiveBOT.Handlers
 
             var urli1 = urli;
             if (imgextensions.Find(ex => urli1.ToLower().Contains(ex)) == "gfycat")
-            {
                 urli = $"{urli.ToLower().Replace("gfycat.com", "zippy.gfycat.com")}.gif";
-            }
 
-            if (urli.EndsWith(".gifv"))
-            {
-                urli = urli.Replace(".gifv", ".gif");
-            }
+            if (urli.EndsWith(".gifv")) urli = urli.Replace(".gifv", ".gif");
             return new isimg
             {
                 extension = imgextensions.Find(ex => urli.ToLower().Contains(ex)),
                 isimage = true,
                 url = urli
             };
+        }
+
+        public class isimg
+        {
+            public string url { get; set; }
+            public bool isimage { get; set; }
+            public string extension { get; set; }
         }
     }
 

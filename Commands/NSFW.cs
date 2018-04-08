@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
@@ -11,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
+using RedditSharp;
 
 namespace PassiveBOT.Commands
 {
@@ -18,21 +18,26 @@ namespace PassiveBOT.Commands
     [CheckNsfw]
     public class Nsfw : ModuleBase
     {
+        public enum NsfwType
+        {
+            Rule34,
+            Yandere,
+            Gelbooru,
+            Konachan,
+            Danbooru,
+            Cureninja
+        }
+
         [Command("RedditNSFW", RunMode = RunMode.Async)]
         [Summary("RedditNSFW <sub>")]
         [Remarks("Get a random post from first 25 in hot of a sub")]
         public async Task RedditNSFW(string subreddit = null)
         {
-            if (subreddit == null)
-            {
-                await ReplyAsync("Please give a subreddit to browse.");
-            }
-            if (subreddit == null)
-            {
-                await ReplyAsync("Please give a subreddit to browse.");
-            }
+            if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
+            if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
             var rnd = new Random();
-            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x => String.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
+                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
                 var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
@@ -46,11 +51,12 @@ namespace PassiveBOT.Commands
                         Text = objx.extension
                     }
                 };
-                await ReplyAsync(objx.url); await ReplyAsync("", false, embedx.Build());
+                await ReplyAsync(objx.url);
+                await ReplyAsync("", false, embedx.Build());
             }
             else
             {
-                var r = new RedditSharp.Reddit();
+                var r = new Reddit();
                 var sub = r.GetSubreddit(subreddit);
 
                 if (sub.NSFW)
@@ -71,9 +77,11 @@ namespace PassiveBOT.Commands
                         Text = obj.extension
                     }
                 };
-                await ReplyAsync(obj.url); await ReplyAsync("", false, embed.Build());
+                await ReplyAsync(obj.url);
+                await ReplyAsync("", false, embed.Build());
 
-                CommandHandler.SubReddits.RemoveAll(x => string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                CommandHandler.SubReddits.RemoveAll(x =>
+                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
                     title = subreddit,
@@ -95,6 +103,7 @@ namespace PassiveBOT.Commands
             {
                 obj = JArray.Parse(await http.GetStringAsync($"http://api.oboobs.ru/boobs/{rnd}"))[0];
             }
+
             var builder = new EmbedBuilder
             {
                 ImageUrl = $"http://media.oboobs.ru/{obj["preview"]}",
@@ -118,6 +127,7 @@ namespace PassiveBOT.Commands
             {
                 obj = JArray.Parse(await http.GetStringAsync($"http://api.obutts.ru/butts/{rnd}"))[0];
             }
+
             var builder = new EmbedBuilder
             {
                 ImageUrl = $"http://media.obutts.ru/{obj["preview"]}",
@@ -234,7 +244,7 @@ namespace PassiveBOT.Commands
                     x.WithText($"PassiveBOT | {result}/{str.Length}");
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
-               // .WithImageUrl(str[result]);
+            // .WithImageUrl(str[result]);
 
             await ReplyAsync("", false, builder.Build());
 
@@ -259,7 +269,7 @@ namespace PassiveBOT.Commands
                     ImageUrl = result,
                     Title = "View On Site [R34]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags)}
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -282,7 +292,7 @@ namespace PassiveBOT.Commands
                     ImageUrl = result,
                     Title = "View On Site [Yandere]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -305,7 +315,7 @@ namespace PassiveBOT.Commands
                     ImageUrl = result,
                     Title = "View On Site [Gelbooru]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -353,7 +363,7 @@ namespace PassiveBOT.Commands
                     ImageUrl = result,
                     Title = "View On Site [Cureninja]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -376,59 +386,85 @@ namespace PassiveBOT.Commands
                     ImageUrl = result,
                     Title = "View On Site [Konachan]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
         }
 
-        public enum NsfwType
-        {
-            Rule34,
-            Yandere,
-            Gelbooru,
-            Konachan,
-            Danbooru,
-            Cureninja,
-        }
-
-        public static async Task<string> HentaiAsync(HttpClient HttpClient, Random Random, NsfwType NsfwType, List<string> Tags)
+        public static async Task<string> HentaiAsync(HttpClient HttpClient, Random Random, NsfwType NsfwType,
+            List<string> Tags)
         {
             string Url = null;
             string Result = null;
             MatchCollection Matches = null;
-            Tags = !Tags.Any() ? new[] { "boobs", "tits", "ass", "sexy", "neko" }.ToList() : Tags;
+            Tags = !Tags.Any() ? new[] {"boobs", "tits", "ass", "sexy", "neko"}.ToList() : Tags;
             switch (NsfwType)
             {
-                case NsfwType.Danbooru: Url = $"http://danbooru.donmai.us/posts?page={Random.Next(0, 15)}{string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}"; break;
-                case NsfwType.Gelbooru: Url = $"http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}"; break;
-                case NsfwType.Rule34: Url = $"http://rule34.xxx/index.php?page=dapi&s=post&q=index&limit=100&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}"; break;
-                case NsfwType.Cureninja: Url = $"https://cure.ninja/booru/api/json?f=a&o=r&s=1&q={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}"; break;
-                case NsfwType.Konachan: Url = $"http://konachan.com/post?page={Random.Next(0, 5)}&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}"; break;
-                case NsfwType.Yandere: Url = $"https://yande.re/post.xml?limit=25&page={Random.Next(0, 15)}&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}"; break;
+                case NsfwType.Danbooru:
+                    Url =
+                        $"http://danbooru.donmai.us/posts?page={Random.Next(0, 15)}{string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}";
+                    break;
+                case NsfwType.Gelbooru:
+                    Url =
+                        $"http://gelbooru.com/index.php?page=dapi&s=post&q=index&limit=100&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}";
+                    break;
+                case NsfwType.Rule34:
+                    Url =
+                        $"http://rule34.xxx/index.php?page=dapi&s=post&q=index&limit=100&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}";
+                    break;
+                case NsfwType.Cureninja:
+                    Url =
+                        $"https://cure.ninja/booru/api/json?f=a&o=r&s=1&q={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}";
+                    break;
+                case NsfwType.Konachan:
+                    Url =
+                        $"http://konachan.com/post?page={Random.Next(0, 5)}&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}";
+                    break;
+                case NsfwType.Yandere:
+                    Url =
+                        $"https://yande.re/post.xml?limit=25&page={Random.Next(0, 15)}&tags={string.Join("+", Tags.Select(x => x.Replace(" ", "_")))}";
+                    break;
             }
+
             var Get = await HttpClient.GetStringAsync(Url).ConfigureAwait(false);
             switch (NsfwType)
             {
-                case NsfwType.Danbooru: Matches = Regex.Matches(Get, "data-large-file-url=\"(.*)\""); break;
+                case NsfwType.Danbooru:
+                    Matches = Regex.Matches(Get, "data-large-file-url=\"(.*)\"");
+                    break;
                 case NsfwType.Yandere:
                 case NsfwType.Gelbooru:
-                case NsfwType.Rule34: Matches = Regex.Matches(Get, "file_url=\"(.*?)\" "); break;
-                case NsfwType.Cureninja: Matches = Regex.Matches(Get, "\"url\":\"(.*?)\""); break;
-                case NsfwType.Konachan: Matches = Regex.Matches(Get, "<a class=\"directlink smallimg\" href=\"(.*?)\""); break;
+                case NsfwType.Rule34:
+                    Matches = Regex.Matches(Get, "file_url=\"(.*?)\" ");
+                    break;
+                case NsfwType.Cureninja:
+                    Matches = Regex.Matches(Get, "\"url\":\"(.*?)\"");
+                    break;
+                case NsfwType.Konachan:
+                    Matches = Regex.Matches(Get, "<a class=\"directlink smallimg\" href=\"(.*?)\"");
+                    break;
             }
+
             if (!Matches.Any()) return null;
             switch (NsfwType)
             {
-                case NsfwType.Danbooru: Result = $"http://danbooru.donmai.us/{Matches[Random.Next(Matches.Count)].Groups[1].Value}"; break;
+                case NsfwType.Danbooru:
+                    Result = $"http://danbooru.donmai.us/{Matches[Random.Next(Matches.Count)].Groups[1].Value}";
+                    break;
                 case NsfwType.Konachan:
                 case NsfwType.Gelbooru:
                 case NsfwType.Yandere:
-                case NsfwType.Rule34: Result = $"{Matches[Random.Next(Matches.Count)].Groups[1].Value}"; break;
-                case NsfwType.Cureninja: Result = Matches[Random.Next(Matches.Count)].Groups[1].Value.Replace("\\/", "/"); break;
+                case NsfwType.Rule34:
+                    Result = $"{Matches[Random.Next(Matches.Count)].Groups[1].Value}";
+                    break;
+                case NsfwType.Cureninja:
+                    Result = Matches[Random.Next(Matches.Count)].Groups[1].Value.Replace("\\/", "/");
+                    break;
                 default:
                     return null;
             }
+
             Result = Result.EndsWith("/") ? Result.Substring(0, Result.Length - 1) : Result;
             return Result;
         }

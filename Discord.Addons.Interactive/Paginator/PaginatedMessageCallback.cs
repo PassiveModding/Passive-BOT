@@ -81,6 +81,7 @@ namespace Discord.Addons.Interactive
                         await Interactive.ReplyAndDeleteAsync(Context, options.Stop.Name);
                         return;
                     }
+
                     page = request;
                     _ = response.DeleteAsync().ConfigureAwait(false);
                     await RenderAsync().ConfigureAwait(false);
@@ -91,6 +92,7 @@ namespace Discord.Addons.Interactive
                 await Interactive.ReplyAndDeleteAsync(Context, options.InformationText, timeout: options.InfoTimeout);
                 return false;
             }
+
             _ = Message.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
             await RenderAsync().ConfigureAwait(false);
             return false;

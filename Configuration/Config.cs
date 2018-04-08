@@ -17,8 +17,8 @@ namespace PassiveBOT.Configuration
         public bool AutoRun { get; set; }
         public string twitchtoken { get; set; }
         public string dialogueflow { get; set; } = null;
-        public string DBLtoken { get; set; } = null;
-        public string DBLLink { get; set; } = null;
+        public string DBLtoken { get; set; }
+        public string DBLLink { get; set; }
         public string SupportServer { get; set; } = "https://discord.me/passive";
 
         public void Save(string dir = "setup/config/config.json")
@@ -49,6 +49,7 @@ namespace PassiveBOT.Configuration
             {
                 auto = false;
             }
+
             if (auto)
             {
             }
@@ -124,6 +125,7 @@ namespace PassiveBOT.Configuration
             {
                 Configuration.Load.Pre = Load().Prefix;
             }
+
             ColourLog.In1Run("Config Loaded!");
             ColourLog.In1Run($"Prefix: {Load().Prefix}");
             ColourLog.In1Run($"Debug: {Load().Debug}");

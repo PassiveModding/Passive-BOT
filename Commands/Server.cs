@@ -23,10 +23,10 @@ namespace PassiveBOT.Commands
         public async Task ServerInfo()
         {
             var embed = new EmbedBuilder();
-            var botlist = ((SocketGuild)Context.Guild).Users.Count(x => x.IsBot);
-            var mem = ((SocketGuild)Context.Guild).MemberCount;
+            var botlist = Context.Guild.Users.Count(x => x.IsBot);
+            var mem = Context.Guild.MemberCount;
             var guildusers = mem - botlist;
-            var s = (SocketGuild)Context.Guild;
+            var s = Context.Guild;
             var g = Context.Guild;
 
             try
@@ -37,6 +37,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("Owner", s.Owner);
@@ -45,6 +46,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("Owner ID", s.OwnerId);
@@ -53,6 +55,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("Voice Region", s.VoiceRegionId);
@@ -61,6 +64,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("Verification Level", s.VerificationLevel);
@@ -69,6 +73,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 if (s.SplashUrl == null)
@@ -80,6 +85,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddField("Creation Date", s.CreatedAt);
@@ -88,6 +94,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 if (s.Features.Count > 0)
@@ -105,6 +112,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("Default Notifications", s.DefaultMessageNotifications);
@@ -113,6 +121,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddField("--------------", "**Defaults**");
@@ -121,6 +130,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("Default Channel", s.DefaultChannel.Name);
@@ -129,6 +139,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("AFK Channel", s.AFKChannel);
@@ -137,6 +148,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("AFK Timeout", s.AFKTimeout);
@@ -145,6 +157,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField("MFA Status", g.MfaLevel);
@@ -153,6 +166,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddField("--------------", "**User Counts**");
@@ -161,6 +175,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField(":busts_in_silhouette: Total Members", mem);
@@ -169,6 +184,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField(":robot: Total Bots", botlist);
@@ -177,6 +193,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField(":man_in_tuxedo: Total Users", guildusers);
@@ -185,6 +202,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField(":newspaper2: Total Channels", s.Channels.Count);
@@ -193,6 +211,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.AddInlineField(":microphone: Text/Voice Channels",
@@ -202,14 +221,16 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
-                embed.AddInlineField(":spy: Role Count", ((SocketGuild)Context.Guild).Roles.Count);
+                embed.AddInlineField(":spy: Role Count", Context.Guild.Roles.Count);
             }
             catch
             {
                 //
             }
+
             try
             {
                 embed.AddField("Links",
@@ -219,6 +240,7 @@ namespace PassiveBOT.Commands
             {
                 //
             }
+
             try
             {
                 embed.WithFooter(x =>
@@ -282,6 +304,7 @@ namespace PassiveBOT.Commands
                         {
                             //
                         }
+
                     embed.AddField("Subscribable Roles", $"{roles}\n" +
                                                          "NOTE: If this list is empty, there are no roles setup in this server");
                     await ReplyAsync("", false, embed.Build());
@@ -293,7 +316,7 @@ namespace PassiveBOT.Commands
                 var embed = new EmbedBuilder();
                 if (jsonObj.RoleList.Contains(role.Id))
                 {
-                    var u = (IGuildUser)Context.User;
+                    var u = (IGuildUser) Context.User;
                     if (u.RoleIds.Contains(role.Id))
                     {
                         await u.RemoveRoleAsync(role);
@@ -309,6 +332,7 @@ namespace PassiveBOT.Commands
                 {
                     embed.AddField("Failed", $"{role.Name} is not a subscribable role");
                 }
+
                 await ReplyAsync("", false, embed.Build());
             }
         }
@@ -320,7 +344,7 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task RoleInfoAsync(IRole role)
         {
-            var srole = ((SocketRole)role).Permissions;
+            var srole = ((SocketRole) role).Permissions;
             var l = new List<string>();
             if (srole.AddReactions)
                 l.Add("Can Add Reactions");
@@ -405,8 +429,8 @@ namespace PassiveBOT.Commands
         [RequireContext(ContextType.Guild)]
         public async Task Ucount()
         {
-            var botlist = ((SocketGuild)Context.Guild).Users.Count(x => x.IsBot);
-            var mem = ((SocketGuild)Context.Guild).MemberCount;
+            var botlist = Context.Guild.Users.Count(x => x.IsBot);
+            var mem = Context.Guild.MemberCount;
             var guildusers = mem - botlist;
 
             var embed = new EmbedBuilder()
@@ -414,10 +438,10 @@ namespace PassiveBOT.Commands
                 .AddInlineField(":busts_in_silhouette: Total Members", mem)
                 .AddInlineField(":robot: Total Bots", botlist)
                 .AddInlineField(":man_in_tuxedo: Total Users", guildusers)
-                .AddInlineField(":newspaper2: Total Channels", ((SocketGuild)Context.Guild).Channels.Count)
+                .AddInlineField(":newspaper2: Total Channels", Context.Guild.Channels.Count)
                 .AddInlineField(":microphone: Text/Voice Channels",
-                    $"{((SocketGuild)Context.Guild).TextChannels.Count}/{((SocketGuild)Context.Guild).VoiceChannels.Count}")
-                .AddInlineField(":spy: Role Count", ((SocketGuild)Context.Guild).Roles.Count)
+                    $"{Context.Guild.TextChannels.Count}/{Context.Guild.VoiceChannels.Count}")
+                .AddInlineField(":spy: Role Count", Context.Guild.Roles.Count)
                 .AddField("Links",
                     $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
@@ -448,6 +472,7 @@ namespace PassiveBOT.Commands
                     list = "";
                 }
             }
+
             rolepage.Add(list);
             var msg = new PaginatedMessage
             {
@@ -467,7 +492,7 @@ namespace PassiveBOT.Commands
         public async Task Rmem(IRole role, [Remainder] [Optional] string type)
         {
             var id = role.Id;
-            var guild = Context.Guild as SocketGuild;
+            var guild = Context.Guild;
             var members = new List<string>();
             var list = "";
             if (guild != null)
@@ -484,6 +509,7 @@ namespace PassiveBOT.Commands
                         list = "";
                     }
                 }
+
             members.Add(list);
             var msg = new PaginatedMessage
             {

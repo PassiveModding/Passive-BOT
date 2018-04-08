@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using DiscordBotsList.Api.Extensions.DiscordNet;
-using PassiveBOT.Configuration;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 
@@ -198,6 +196,7 @@ namespace PassiveBOT.Commands
                     default:
                         return;
                 }
+
                 var choice = new Random().Next(0, 3);
 
                 string msg;
@@ -284,6 +283,7 @@ namespace PassiveBOT.Commands
                     "http://www.marshu.com/articles/images-website/articles/presidents-on-coins/quarter-coin-head-thumb.jpg";
                 result = "You Flipped **Heads!!**";
             }
+
             var embed = new EmbedBuilder
             {
                 ImageUrl = coin,

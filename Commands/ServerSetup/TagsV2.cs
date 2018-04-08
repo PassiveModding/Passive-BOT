@@ -26,7 +26,8 @@ namespace PassiveBOT.Commands.ServerSetup
             var server = GuildConfig.GetServer(Context.Guild);
             if (server.Dict.Any(x => string.Equals(x.Tagname, tagname, StringComparison.CurrentCultureIgnoreCase)))
             {
-                await ReplyAsync($"**{tagname}** is already a tag in this server, if you want to edit it, please delete it first, then add the new tag");
+                await ReplyAsync(
+                    $"**{tagname}** is already a tag in this server, if you want to edit it, please delete it first, then add the new tag");
                 return;
             }
 
@@ -46,7 +47,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 foreach (var tagging in ServerConfig.Dict)
                     if (string.Equals(tagging.Tagname, tagname, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        if (((SocketGuildUser)Context.User).GuildPermissions.Administrator)
+                        if (((SocketGuildUser) Context.User).GuildPermissions.Administrator)
                         {
                             ServerConfig.Dict.Remove(tagging);
                             await ReplyAsync("Tag Deleted using Admin Permissions");
@@ -60,9 +61,11 @@ namespace PassiveBOT.Commands.ServerSetup
                         {
                             await ReplyAsync("You do not own this tag");
                         }
+
                         GuildConfig.SaveServer(ServerConfig);
                         return;
                     }
+
                 return;
             }
 
@@ -93,7 +96,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 var embed = new EmbedBuilder();
                 if (dict.Count > 0)
                 {
-                    var tag = dict.FirstOrDefault(x => string.Equals(x.Tagname, tagname, StringComparison.CurrentCultureIgnoreCase));
+                    var tag = dict.FirstOrDefault(x =>
+                        string.Equals(x.Tagname, tagname, StringComparison.CurrentCultureIgnoreCase));
                     if (tag == null)
                     {
                         await ReplyAsync($"No tag with the name **{tagname}** exists.");
@@ -120,10 +124,7 @@ namespace PassiveBOT.Commands.ServerSetup
                         await ReplyAsync("", false, embed.Build());
                     }
                 }
-
             }
-
-
         }
 
         public class Tagging

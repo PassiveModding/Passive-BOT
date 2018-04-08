@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
-using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.OwnerCmds
@@ -36,6 +34,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                 await ReplyAsync("Bot Not Configured for DiscordBots.org");
                 return;
             }
+
             try
             {
                 var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);
@@ -76,9 +75,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         public async Task GlobalBan(ulong ID)
         {
             foreach (var server in Context.Client.Guilds)
-            {
                 if (server.Users.Any(x => x.Id == ID))
-                {
                     try
                     {
                         await server.AddBanAsync(ID);
@@ -88,8 +85,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                     {
                         await ReplyAsync($"Failed to Ban User in {server.Name}");
                     }
-                }
-            }
 
             await ReplyAsync("Complete");
         }
@@ -116,6 +111,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                     purged++;
                 }
             }
+
             await ReplyAsync("Guilds Purged.\n" +
                              $"Purged: {purged}");
         }
@@ -198,7 +194,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             var gld = Context.Client.GetGuild(id);
             //var ch = await gld.GetDefaultChannelAsync();
             foreach (var channel in gld.TextChannels)
-            {
                 try
                 {
                     await channel.SendMessageAsync($"Goodbye. `{reason}`");
@@ -208,7 +203,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                 {
                     //
                 }
-            }
 
             //await Task.Delay(500);
             await gld.LeaveAsync();
@@ -249,7 +243,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             var i = 0;
             await ReplyAsync("Leaving all servers with less than 15 members.");
             foreach (var guild in Context.Client.Guilds)
-            {
                 if (guild.MemberCount < 15)
                 {
                     await LeaveAsync(guild.Id,
@@ -257,7 +250,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                         $"{Load.Server}");
                     i++;
                 }
-            }
 
             await ReplyAsync($"{i} servers left.");
         }

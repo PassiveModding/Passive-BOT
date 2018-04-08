@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Newtonsoft.Json;
 using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
+using RedditSharp;
 
 namespace PassiveBOT.Commands
 {
@@ -21,13 +19,11 @@ namespace PassiveBOT.Commands
         [Remarks("Get a random post from first 25 in hot of a sub")]
         public async Task RedditTask(string subreddit = null)
         {
-            if (subreddit == null)
-            {
-                await ReplyAsync("Please give a subreddit to browse.");
-            }
-            
+            if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
+
             var rnd = new Random();
-            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x => string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
+                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
                 var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
@@ -35,12 +31,13 @@ namespace PassiveBOT.Commands
             }
             else
             {
-                var r = new RedditSharp.Reddit();
+                var r = new Reddit();
                 var sub = r.GetSubreddit(subreddit);
                 var num1 = sub.Hot.GetListing(25).ToList();
                 var post = num1[rnd.Next(24)];
                 await ReplyAsync($"{post.Title}\nhttps://reddit.com{post.Permalink}");
-                CommandHandler.SubReddits.RemoveAll(x => string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                CommandHandler.SubReddits.RemoveAll(x =>
+                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
                     title = subreddit,
@@ -48,8 +45,6 @@ namespace PassiveBOT.Commands
                     Posts = num1
                 });
             }
-
-
         }
 
         [Command("RedditImage", RunMode = RunMode.Async)]
@@ -58,30 +53,29 @@ namespace PassiveBOT.Commands
         [Remarks("Get a random post from first 25 in hot of a sub")]
         public async Task RedditIMG(string subreddit = null)
         {
-            if (subreddit == null)
-            {
-                await ReplyAsync("Please give a subreddit to browse.");
-            }
+            if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
             var rnd = new Random();
-            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x => string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+            var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
+                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
-                    var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
-                    var objx = RedditHelper.isimage(imgx.Url.ToString());
-                    var embedx = new EmbedBuilder
+                var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
+                var objx = RedditHelper.isimage(imgx.Url.ToString());
+                var embedx = new EmbedBuilder
+                {
+                    Title = imgx.Title,
+                    Url = $"https://reddit.com{imgx.Permalink}",
+                    Footer = new EmbedFooterBuilder
                     {
-                        Title = imgx.Title,
-                        Url = $"https://reddit.com{imgx.Permalink}",
-                        Footer = new EmbedFooterBuilder
-                        {
-                            Text = objx.extension
-                        }
-                    };
-                    await ReplyAsync(objx.url); await ReplyAsync("", false, embedx.Build());
+                        Text = objx.extension
+                    }
+                };
+                await ReplyAsync(objx.url);
+                await ReplyAsync("", false, embedx.Build());
             }
             else
             {
-                var r = new RedditSharp.Reddit();
+                var r = new Reddit();
                 var sub = r.GetSubreddit(subreddit);
 
                 if (sub.NSFW)
@@ -90,7 +84,8 @@ namespace PassiveBOT.Commands
                     return;
                 }
 
-                var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage && !x.NSFW).ToList();
+                var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage && !x.NSFW)
+                    .ToList();
                 var img = num1[rnd.Next(num1.Count)];
                 var obj = RedditHelper.isimage(img.Url.ToString());
                 var embed = new EmbedBuilder
@@ -102,8 +97,10 @@ namespace PassiveBOT.Commands
                         Text = obj.extension
                     }
                 };
-                await ReplyAsync(obj.url); await ReplyAsync("", false, embed.Build());
-                CommandHandler.SubReddits.RemoveAll(x => string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                await ReplyAsync(obj.url);
+                await ReplyAsync("", false, embed.Build());
+                CommandHandler.SubReddits.RemoveAll(x =>
+                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
                     title = subreddit,
@@ -111,9 +108,7 @@ namespace PassiveBOT.Commands
                     Posts = num1
                 });
             }
-
         }
-
 
 
         /*[Command("youtube", RunMode = RunMode.Async)]

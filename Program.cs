@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
@@ -7,7 +6,6 @@ using Discord.Addons.Interactive;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using Color = System.Drawing.Color;
@@ -17,8 +15,9 @@ namespace PassiveBOT
 {
     public class Program
     {
-        private CommandHandler _handler;
         public static DiscordSocketClient Client;
+
+        private CommandHandler _handler;
         //public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
@@ -32,7 +31,6 @@ namespace PassiveBOT
                 Console.WriteLine(e);
                 Console.ReadKey();
             }
-            
         }
 
         public async Task Start()

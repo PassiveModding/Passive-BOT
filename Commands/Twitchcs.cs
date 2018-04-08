@@ -1,10 +1,4 @@
-﻿using System.Threading.Tasks;
-using Discord;
-using Discord.Commands;
-using PassiveBOT.Configuration;
-using TwitchLib;
-
-namespace PassiveBOT.Commands
+﻿namespace PassiveBOT.Commands
 {
     /*
     public class Twitchcs : ModuleBase

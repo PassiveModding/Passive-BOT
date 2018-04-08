@@ -141,6 +141,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     username = group.List.First().User;
                 }
+
                 var list = "";
                 foreach (var x in group.List)
                 {
@@ -149,10 +150,12 @@ namespace PassiveBOT.Commands.ServerModeration
                         embed.AddField($"{username} [{group.UserId}]", list);
                         list = "";
                     }
+
                     var moderator =
                         $"{x.Moderator}                                             ".Substring(0, 20);
                     list += $"Mod: {moderator} || Reason: {x.Reason}\n";
                 }
+
                 embed.AddField($"{username} [{group.UserId}]", list);
             }
 
@@ -178,6 +181,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
+
             var config = GuildConfig.GetServer(Context.Guild);
 
             var add = new GuildConfig.Warns
@@ -240,6 +244,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     username = group.List.First().User;
                 }
+
                 var list = "";
                 foreach (var x in group.List)
                 {
@@ -248,10 +253,12 @@ namespace PassiveBOT.Commands.ServerModeration
                         embed.AddField($"{username} [{group.UserId}]", list);
                         list = "";
                     }
+
                     var moderator =
                         $"{x.Moderator}                                             ".Substring(0, 20);
                     list += $"Mod: {moderator} || Reason: {x.Reason}\n";
                 }
+
                 embed.AddField($"{username} [{group.UserId}]", list);
             }
 
@@ -277,6 +284,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
+
             var config = GuildConfig.GetServer(Context.Guild);
 
             var add = new GuildConfig.Bans
@@ -351,6 +359,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     username = group.List.First().User;
                 }
+
                 var list = "";
                 foreach (var x in group.List)
                 {
@@ -359,10 +368,12 @@ namespace PassiveBOT.Commands.ServerModeration
                         embed.AddField($"{username} [{group.UserId}]", list);
                         list = "";
                     }
+
                     var moderator =
                         $"{x.Moderator}                                             ".Substring(0, 20);
                     list += $"Mod: {moderator} || Reason: {x.Reason}\n";
                 }
+
                 embed.AddField($"{username} [{group.UserId}]", list);
             }
 
@@ -398,6 +409,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     await ReplyAsync("The servers muted role is not setup");
                     return;
                 }
+
                 mutedrole = Context.Guild.GetRole(mrole);
             }
             catch
@@ -420,7 +432,6 @@ namespace PassiveBOT.Commands.ServerModeration
             }
             catch (Exception e)
             {
-
                 await ReplyAsync($"Use role unable to be modified. ERROR\n" +
                                  $"{e}");
             }

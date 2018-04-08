@@ -1,5 +1,4 @@
 ﻿using Discord;
-using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Configuration
 {
@@ -12,9 +11,11 @@ namespace PassiveBOT.Configuration
         public static string Pre = Config.Load().Prefix;
         public static int Messages;
         public static int Commands;
+
         public static string DBLLink = Config.Load().DBLLink;
+
         //public static string Invite = $"https://discordapp.com/oauth2/authorize?client_id=430837105690673152&scope=bot&permissions=2146958591";
-        public static string Server =  Config.Load().SupportServer;
+        public static string Server = Config.Load().SupportServer;
 
         public static string GetInvite(IDiscordClient client)
         {

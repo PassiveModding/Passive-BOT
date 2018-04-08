@@ -17,13 +17,13 @@ namespace PassiveBOT.Commands.ServerSetup
         {
             var server = GuildConfig.GetServer(Context.Guild);
 
-                var comp = new GuildConfig().Comp;
-                comp.Message = description;
-                comp.Users = new List<ulong>();
-                comp.Creator = Context.User.Id;
-                server.Comp = comp;
+            var comp = new GuildConfig().Comp;
+            comp.Message = description;
+            comp.Users = new List<ulong>();
+            comp.Creator = Context.User.Id;
+            server.Comp = comp;
 
-                GuildConfig.SaveServer(server);
+            GuildConfig.SaveServer(server);
 
             await ReplyAsync("GiveAway Created.");
         }

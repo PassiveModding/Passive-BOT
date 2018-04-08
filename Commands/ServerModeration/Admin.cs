@@ -40,6 +40,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     newconfig.Add(group);
                 }
+
             config.Warnings = newconfig;
             embed.WithDescription(list);
             GuildConfig.SaveServer(config);
@@ -79,6 +80,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     newconfig.Add(group);
                 }
+
             embed.WithDescription(list);
             config.Kicking = newconfig;
             GuildConfig.SaveServer(config);
@@ -118,6 +120,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     newconfig.Add(group);
                 }
+
             config.Banning = newconfig;
             embed.WithDescription(list);
             GuildConfig.SaveServer(config);
@@ -157,6 +160,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     newconfig.Add(group);
                 }
+
             config.Warnings = newconfig;
             embed.WithDescription(list);
             GuildConfig.SaveServer(config);
@@ -196,6 +200,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     newconfig.Add(group);
                 }
+
             embed.WithDescription(list);
             config.Kicking = newconfig;
             GuildConfig.SaveServer(config);
@@ -235,6 +240,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     newconfig.Add(group);
                 }
+
             config.Banning = newconfig;
             embed.WithDescription(list);
             GuildConfig.SaveServer(config);
@@ -316,6 +322,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     {
                         //
                     }
+
                 embed.Title = "Roles Excempt from Invite Block";
                 await ReplyAsync("", false, embed.Build());
                 return;
@@ -349,6 +356,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     {
                         //
                     }
+
                 embed.Title = "Roles Excempt from Invite Block";
                 await ReplyAsync("", false, embed.Build());
                 return;
@@ -382,6 +390,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     {
                         //
                     }
+
                 embed.Title = "Roles Excempt from Mention Blocker";
                 await ReplyAsync("", false, embed.Build());
                 return;
@@ -415,6 +424,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     {
                         //
                     }
+
                 embed.Title = "Roles Excempt from Mention Blocker";
                 await ReplyAsync("", false, embed.Build());
                 return;

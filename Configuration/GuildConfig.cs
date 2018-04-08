@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using Discord;
 using Newtonsoft.Json;
-using PassiveBOT.Commands;
 using PassiveBOT.Commands.ServerSetup;
 
 namespace PassiveBOT.Configuration
@@ -21,13 +20,6 @@ namespace PassiveBOT.Configuration
         public ulong MutedRole { get; set; } = 0;
         public ulong ModeratorRoleId { get; set; } = 0;
         public PartnerShip PartnerSetup { get; set; } = new PartnerShip();
-        public class PartnerShip
-        {
-            public bool IsPartner { get; set; } = false;
-            public ulong PartherChannel { get; set; }
-            public string Message { get; set; }
-            public bool banned { get; set; } = false;
-        }
 
         //TRANSLATION
         public bool Premium { get; set; } = false;
@@ -38,7 +30,7 @@ namespace PassiveBOT.Configuration
 
         public List<ulong> RoleList { get; set; } =
             new List<ulong>(); // a list of roles that users can join via command
-        
+
 
         public string Rss { get; set; } = "0"; // rss feed url
         public ulong RssChannel { get; set; } // channel to post custom rss feeds to
@@ -76,14 +68,6 @@ namespace PassiveBOT.Configuration
         public List<Kicks> Kicking { get; set; } = new List<Kicks>();
         public List<Bans> Banning { get; set; } = new List<Bans>();
         public List<autochannels> AutoMessage { get; set; } = new List<autochannels>();
-        public class autochannels
-        {
-            public bool enabled { get; set; } = false;
-            public ulong channelID { get; set; }
-            public int messages { get; set; } = 0;
-            public string automessage { get; set; } = "PassiveBOT";
-            public int sendlimit { get; set; } = 50;
-        }
 
         public static void SaveServer(GuildConfig config)
         {
@@ -95,10 +79,7 @@ namespace PassiveBOT.Configuration
         public static GuildConfig Load(ulong id, IGuild contextGuild)
         {
             var file = Path.Combine(Appdir, $"setup/server/{id}.json");
-            if (!File.Exists(file))
-            {
-                Setup(contextGuild);
-            }
+            if (!File.Exists(file)) Setup(contextGuild);
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
         }
 
@@ -116,10 +97,7 @@ namespace PassiveBOT.Configuration
 
         public static GuildConfig GetServer(IGuild guild)
         {
-            if (!File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json")))
-            {
-                Setup(guild);
-            }
+            if (!File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) Setup(guild);
 
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
@@ -139,6 +117,7 @@ namespace PassiveBOT.Configuration
             {
                 return "please run the setup command before using configuration commands";
             }
+
             return null;
         }
 
@@ -155,6 +134,7 @@ namespace PassiveBOT.Configuration
             {
                 return "please run the setup command before using configuration commands";
             }
+
             return null;
         }
 
@@ -171,6 +151,7 @@ namespace PassiveBOT.Configuration
             {
                 return "please run the setup command before using configuration commands";
             }
+
             return null;
         }
 
@@ -188,6 +169,7 @@ namespace PassiveBOT.Configuration
             {
                 return "please run the setup command before using configuration commands";
             }
+
             return null;
         }
 
@@ -204,6 +186,7 @@ namespace PassiveBOT.Configuration
             {
                 return "please run the setup command before using configuration commands";
             }
+
             return null;
         }
 
@@ -230,7 +213,25 @@ namespace PassiveBOT.Configuration
             {
                 return "please run the setup command before using configuration commands";
             }
+
             return null;
+        }
+
+        public class PartnerShip
+        {
+            public bool IsPartner { get; set; } = false;
+            public ulong PartherChannel { get; set; }
+            public string Message { get; set; }
+            public bool banned { get; set; } = false;
+        }
+
+        public class autochannels
+        {
+            public bool enabled { get; set; } = false;
+            public ulong channelID { get; set; }
+            public int messages { get; set; } = 0;
+            public string automessage { get; set; } = "PassiveBOT";
+            public int sendlimit { get; set; } = 50;
         }
 
         public class Twitch

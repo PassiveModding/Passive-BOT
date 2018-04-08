@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using DiscordBotsList.Api;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
@@ -13,8 +12,8 @@ namespace PassiveBOT.Handlers
 {
     public class EventHandler
     {
-        private DateTime _delay; //NOTE THIS IS NOT GUILD SPECIFIC YET!
         private readonly DiscordSocketClient client;
+        private DateTime _delay; //NOTE THIS IS NOT GUILD SPECIFIC YET!
 
         public EventHandler(IServiceProvider provider)
         {

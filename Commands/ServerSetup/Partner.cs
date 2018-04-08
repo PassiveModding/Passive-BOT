@@ -25,16 +25,12 @@ namespace PassiveBOT.Commands.ServerSetup
             if (guild.PartnerSetup.IsPartner)
             {
                 if (!TimerService.AcceptedServers.Contains(Context.Guild.Id))
-                {
                     TimerService.AcceptedServers.Add(Context.Guild.Id);
-                }
             }
             else
             {
                 if (TimerService.AcceptedServers.Contains(Context.Guild.Id))
-                {
                     TimerService.AcceptedServers.Remove(Context.Guild.Id);
-                }
             }
 
             var home = Homeserver.Load().PartnerUpdates;
@@ -80,15 +76,12 @@ namespace PassiveBOT.Commands.ServerSetup
         [Command("PartnerReport")]
         [Summary("PartnerReport")]
         [Remarks("Report a partner message")]
-        public async Task PReport([Remainder]string message = null)
+        public async Task PReport([Remainder] string message = null)
         {
             if (message == null)
-            {
                 await ReplyAsync(
                     "Please provide some information about the Partner message you are reporting, and we will do our best to remove it");
-            }
             else
-            {
                 try
                 {
                     var s = Homeserver.Load().Suggestion;
@@ -97,15 +90,13 @@ namespace PassiveBOT.Commands.ServerSetup
                     embed.AddField($"Pertner Message Report from {Context.User.Username}", message);
                     embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
                     embed.Color = Color.Blue;
-                    await ((ITextChannel)c).SendMessageAsync("", false, embed.Build());
+                    await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
                     await ReplyAsync("Report Sent!!");
                 }
                 catch
                 {
                     await ReplyAsync("The bots owner has not yet configured the Reports channel");
                 }
-
-            }
         }
 
         [Command("PartnerMessage")]
@@ -119,7 +110,9 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
-            if (NsfwStr.Profanity.Any(x => ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(input.ToLower())).ToLower().Contains(x.ToLower())))
+            if (NsfwStr.Profanity.Any(x =>
+                ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(input.ToLower())).ToLower()
+                    .Contains(x.ToLower())))
             {
                 await ReplyAsync("Profanity Detected, unable to set message!");
                 return;
@@ -140,7 +133,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too!");
                 return;
             }
-            
+
             var guild = GuildConfig.GetServer(Context.Guild);
             guild.PartnerSetup.Message = input;
             GuildConfig.SaveServer(guild);
@@ -151,7 +144,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 ThumbnailUrl = Context.Guild.IconUrl,
                 Color = Color.Green
             };
-            
+
             await ReplyAsync("Success, here is your Partner Message:", false, embed.Build());
 
             var home = Homeserver.Load().PartnerUpdates;
@@ -176,10 +169,11 @@ namespace PassiveBOT.Commands.ServerSetup
         {
             var embed = new EmbedBuilder();
             var guild = GuildConfig.GetServer(Context.Guild);
-            embed.Description = $"Channel: {Context.Client.GetChannelAsync(guild.PartnerSetup.PartherChannel).Result?.Name}\n" +
-                             $"Enabled: {guild.PartnerSetup.IsPartner}\n" +
-                                $"Banned: {guild.PartnerSetup.banned}\n" +
-                             $"Message:\n{guild.PartnerSetup.Message}";
+            embed.Description =
+                $"Channel: {Context.Client.GetChannelAsync(guild.PartnerSetup.PartherChannel).Result?.Name}\n" +
+                $"Enabled: {guild.PartnerSetup.IsPartner}\n" +
+                $"Banned: {guild.PartnerSetup.banned}\n" +
+                $"Message:\n{guild.PartnerSetup.Message}";
             embed.Color = Color.Blue;
             await ReplyAsync("", false, embed.Build());
         }

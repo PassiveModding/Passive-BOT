@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Addons.Interactive;
@@ -22,7 +20,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             var pages = new List<string>();
             var currentpage = "";
             foreach (var guild in TimerService.AcceptedServers)
-            {
                 if (Context.Client.GetGuild(guild) is SocketGuild guildfull)
                 {
                     var guildobj = GuildConfig.GetServer(guildfull);
@@ -31,13 +28,13 @@ namespace PassiveBOT.Commands.OwnerCmds
                         pages.Add(currentpage);
                         currentpage = "";
                     }
+
                     currentpage += $"`{guildobj.GuildId} - {(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`" +
                                    "\n" +
                                    $"{guildobj.PartnerSetup.Message}" +
                                    "\n-----\n";
-
                 }
-            }
+
             pages.Add(currentpage);
             pages.Add("PassiveBOT <3");
             var msg = new PaginatedMessage

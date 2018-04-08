@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -15,6 +14,7 @@ namespace PassiveBOT.Handlers
         public static List<ulong> AcceptedServers = new List<ulong>();
         private readonly Timer _timer;
         public Random rndshuffle = new Random();
+
         public TimerService(DiscordSocketClient client)
         {
             _timer = new Timer(async _ =>
@@ -27,18 +27,18 @@ namespace PassiveBOT.Handlers
                         if (guildobj.PartnerSetup.banned) continue;
                         if (client.GetChannel(guildobj.PartnerSetup.PartherChannel) is IMessageChannel channel)
                         {
-                            
                             try
                             {
-                                
                                 var newitems = newlist.Where(x => x != guildid).ToList();
                                 var rnd = new Random().Next(0, newitems.Count);
                                 var newitem = newitems[rnd];
-                                
+
                                 var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem)).PartnerSetup;
                                 if (selectedguild.banned) continue;
                                 ColourLog.LogInfo($"{channel.Name}");
-                                if (selectedguild.IsPartner && client.GetChannel(selectedguild.PartherChannel) is IGuildChannel otherchannel && selectedguild.Message != null)
+                                if (selectedguild.IsPartner &&
+                                    client.GetChannel(selectedguild.PartherChannel) is IGuildChannel otherchannel &&
+                                    selectedguild.Message != null)
                                 {
                                     var embed = new EmbedBuilder
                                     {
@@ -55,7 +55,6 @@ namespace PassiveBOT.Handlers
                             {
                                 //Console.WriteLine(e);
                             }
-
                         }
                         else
                         {
@@ -67,7 +66,8 @@ namespace PassiveBOT.Handlers
                 null,
                 //TimeSpan.FromMinutes(10),  // 4) Time that message should fire after the timer is created
                 TimeSpan.Zero,
-                TimeSpan.FromMinutes(60)); // 5) Time after which message should repeat (use `Timeout.Infinite` for no repeat)
+                TimeSpan.FromMinutes(
+                    60)); // 5) Time after which message should repeat (use `Timeout.Infinite` for no repeat)
         }
 
         public void Stop() // 6) Example to make the timer stop running
@@ -89,10 +89,12 @@ namespace PassiveBOT.Handlers
         {
             _service = service;
         }
+
         public void StopCmd()
         {
             _service.Stop();
         }
+
         public void RestartCmd()
         {
             _service.Restart();

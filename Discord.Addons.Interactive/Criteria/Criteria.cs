@@ -15,6 +15,7 @@ namespace Discord.Addons.Interactive
                 var result = await criterion.JudgeAsync(sourceContext, parameter).ConfigureAwait(false);
                 if (!result) return false;
             }
+
             return true;
         }
 

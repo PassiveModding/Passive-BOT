@@ -38,40 +38,6 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, embed.Build());
         }
 
-        /*[Command("Activity", RunMode = RunMode.Async)]
-        [Summary("Activity <@user>")]
-        [Remarks("Rank the most recent users based on activity in the last 1k messages")]
-        public async Task Activity(IUser user)
-        {
-            var k = 1000;
-            var messages = Context.Channel.GetMessagesAsync(k).Flatten().Result;
-            var ranks = messages.GroupBy(x => x.Author.Id).OrderBy(x => x.Count()).Reverse();
-            var i = 0;
-            var str = "`RANK :MSG(s) - USER`\n";
-            foreach (var x in ranks)
-            {
-                i++;
-                var pt1 = $"{i}     ".Substring(0, 4);
-                var pt2 = $"{x.Count()}     ".Substring(0, 5);
-
-                if (x.First().Author.Id == user.Id)
-                    str += $"`#{pt1} : {pt2}` - {x.First().Author.Username} `<--`\n";
-                else
-                    str += $"`#{pt1} : {pt2}` - {x.First().Author.Username}\n";
-            }
-
-            if (str.Length > 1900)
-            {
-                var numLines = str.Split('\n').Length;
-                if (numLines > 30)
-                {
-                    var b = str.Split('\n').Take(31);
-                    str = string.Join("\n", b);
-                }
-            }
-            await ReplyAsync(str);
-        }*/
-
         [Command("user")]
         [Summary("user [Optional]<@user>")]
         [Alias("whois", "userinfo")]
@@ -147,8 +113,10 @@ namespace PassiveBOT.Commands
                         $"[{((string) result[1].sha).Substring(0, 7)}]({result[1].html_url}) {result[1].commit.message}\n" +
                         $"[{((string) result[2].sha).Substring(0, 7)}]({result[2].html_url}) {result[2].commit.message}";
                 }
+
                 response.Dispose();
             }
+
             var embed = new EmbedBuilder();
 
             if (changes.Length > 1000)
@@ -179,6 +147,7 @@ namespace PassiveBOT.Commands
                 embed.AddField("Guilds", $"{client.Guilds.Count}\n[Support Guild]({Load.Server})",
                     true);
             }
+
             embed.AddField(":space_invader:",
                 $"Commands Ran: {Load.Commands}\n" +
                 $"Messages Received: {Load.Messages}", true);
