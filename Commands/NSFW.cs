@@ -128,7 +128,7 @@ namespace PassiveBOT.Commands
             foreach (var image in posts)
             {
                 var iobj = RedditHelper.isimage(image.Url.ToString());
-                if (iobj.isimage)
+                if (iobj.isimage && !iobj.url.Contains("gfy"))
                 pages.Add(new PaginatedMessage.Page
                 {
                     imageurl = iobj.url,
