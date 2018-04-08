@@ -322,6 +322,7 @@ namespace PassiveBOT.Handlers
             public string title { get; set; }
             public List<Post> Posts { get; set; }
             public DateTime LastUpdate { get; set; }
+            public int Hits { get; set; } = 0;
         }
     }
 }

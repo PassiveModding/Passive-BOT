@@ -53,6 +53,7 @@ namespace PassiveBOT.Commands
                 };
                 await ReplyAsync(objx.url);
                 await ReplyAsync("", false, embedx.Build());
+                checkcache.Hits++;
             }
             else
             {
@@ -64,7 +65,7 @@ namespace PassiveBOT.Commands
                     await ReplyAsync("Please use the NSFW Reddit command for NSFW Images");
                     return;
                 }
-
+                await ReplyAsync("Refreshing Cache");
                 var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
                 var img = num1[rnd.Next(num1.Count)];
                 var obj = RedditHelper.isimage(img.Url.ToString());

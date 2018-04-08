@@ -28,11 +28,13 @@ namespace PassiveBOT.Commands
             {
                 var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
                 await ReplyAsync($"{imgx.Title}\nhttps://reddit.com{imgx.Permalink}");
+                checkcache.Hits++;
             }
             else
             {
                 var r = new Reddit();
                 var sub = r.GetSubreddit(subreddit);
+                await ReplyAsync("Refreshing Cache");
                 var num1 = sub.Hot.GetListing(25).ToList();
                 var post = num1[rnd.Next(24)];
                 await ReplyAsync($"{post.Title}\nhttps://reddit.com{post.Permalink}");
@@ -72,6 +74,7 @@ namespace PassiveBOT.Commands
                 };
                 await ReplyAsync(objx.url);
                 await ReplyAsync("", false, embedx.Build());
+                checkcache.Hits++;
             }
             else
             {
@@ -84,6 +87,7 @@ namespace PassiveBOT.Commands
                     return;
                 }
 
+                await ReplyAsync("Refreshing Cache");
                 var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage && !x.NSFW)
                     .ToList();
                 var img = num1[rnd.Next(num1.Count)];

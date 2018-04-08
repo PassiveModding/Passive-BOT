@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Preconditions;
@@ -114,7 +115,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     var s = Homeserver.Load().Suggestion;
                     var c = await Context.Client.GetChannelAsync(s);
                     var embed = new EmbedBuilder();
-                    embed.AddField($"Pertner Message Report from {Context.User.Username}", message);
+                    embed.AddField($"Partner Message Report from {Context.User.Username}", message);
                     embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
                     embed.Color = Color.Blue;
                     await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
@@ -183,7 +184,11 @@ namespace PassiveBOT.Commands.ServerSetup
                     Title = "Partner Msg. Updated",
                     Description = $"{Context.Guild.Name}\n" +
                                   $"`{Context.Guild.Id}`\n" +
-                                  $"{guild.PartnerSetup.Message}"
+                                  $"{guild.PartnerSetup.Message}",
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"{((SocketGuild)Context.Guild).Owner.Username}#{((SocketGuild)Context.Guild).Owner.Discriminator}"
+                    }
                 };
                 await channel.SendMessageAsync("", false, embed2.Build());
             }

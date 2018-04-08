@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -70,6 +76,46 @@ namespace PassiveBOT.Commands.OwnerCmds
             guildobj.PartnerSetup.Message = "";
             GuildConfig.SaveServer(guildobj);
             await ReplyAsync("Guild Partnership Unbanned. Message has been reset");
+        }
+
+        [Command("ViewRedditCache+")]
+        [Summary("ViewRedditCache+")]
+        [Remarks("Get a list of cached subreddits")]
+        public async Task RCache()
+        {
+            var pages = new List<string>();
+            var curpage = "";
+            foreach (var sub in CommandHandler.SubReddits)
+            {
+                curpage += $"__{sub.title}__\n" +
+                           $"Cached Posts: {sub.Posts.Count}\n" +
+                           $"NSFW Posts: {sub.Posts.Count(x => x.NSFW)}\n" +
+                           $"Last Refresh: {sub.LastUpdate}\n" +
+                           $"Hits Since Refresh: {sub.Hits}\n";
+                if (curpage.Length > 400)
+                {
+                    pages.Add(curpage);
+                    curpage = "";
+                }
+            }
+            pages.Add(curpage);
+            var msg = new PaginatedMessage
+            {
+                Title = "Reddit Cache",
+                Pages = pages,
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
+        }
+
+        [Command("ClearRedditCache+")]
+        [Summary("ClearRedditCache+")]
+        [Remarks("Clear all cached subreddits")]
+        public async Task CCache()
+        {
+            CommandHandler.SubReddits = new List<CommandHandler.SubReddit>();
+            await ReplyAsync("SubReddit Cache Cleared");
         }
     }
 }
