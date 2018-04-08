@@ -5,7 +5,7 @@ using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.ServerSetup
 {
     [RequireContext(ContextType.Guild)]
     public class Giveaway : ModuleBase

@@ -4,6 +4,7 @@ using System.IO;
 using Discord;
 using Newtonsoft.Json;
 using PassiveBOT.Commands;
+using PassiveBOT.Commands.ServerSetup;
 
 namespace PassiveBOT.Configuration
 {

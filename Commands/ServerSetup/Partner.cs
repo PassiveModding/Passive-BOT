@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -9,7 +7,7 @@ using PassiveBOT.Handlers;
 using PassiveBOT.Preconditions;
 using PassiveBOT.strings;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.ServerSetup
 {
     [CheckModerator]
     [RequireContext(ContextType.Guild)]

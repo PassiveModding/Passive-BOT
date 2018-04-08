@@ -9,8 +9,6 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.preconditions;
-//using Google.Apis.Auth.OAuth2;
-//using Google.Cloud.Translation.V2;
 
 namespace PassiveBOT.Commands
 {

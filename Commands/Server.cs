@@ -213,7 +213,7 @@ namespace PassiveBOT.Commands
             try
             {
                 embed.AddField("Links",
-                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})");
             }
             catch
             {
@@ -419,7 +419,7 @@ namespace PassiveBOT.Commands
                     $"{((SocketGuild)Context.Guild).TextChannels.Count}/{((SocketGuild)Context.Guild).VoiceChannels.Count}")
                 .AddInlineField(":spy: Role Count", ((SocketGuild)Context.Guild).Roles.Count)
                 .AddField("Links",
-                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");

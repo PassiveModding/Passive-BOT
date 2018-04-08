@@ -19,7 +19,7 @@ namespace PassiveBOT.Configuration
         public string dialogueflow { get; set; } = null;
         public string DBLtoken { get; set; } = null;
         public string DBLLink { get; set; } = null;
-        public string SupportServer { get; set; } = null;
+        public string SupportServer { get; set; } = "https://discord.me/passive";
 
         public void Save(string dir = "setup/config/config.json")
         {

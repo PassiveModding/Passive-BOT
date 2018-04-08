@@ -22,7 +22,7 @@ namespace PassiveBOT.Commands
         {
             var application = await Context.Client.GetApplicationInfoAsync();
             await ReplyAsync(
-                $"A user with `MANAGE_SERVER` can invite me to your server here: <https://discordapp.com/oauth2/authorize?client_id={application.Id}&scope=bot&permissions=2146958591>");
+                $"A user with `MANAGE_SERVER` can invite me to your server here: <{Load.GetInvite(Context.Client)}>");
         }
 
         [RequireContext(ContextType.Guild)]
@@ -92,7 +92,7 @@ namespace PassiveBOT.Commands
                 .AddInlineField("Discriminatior", user.Discriminator)
                 .AddInlineField("Status", status)
                 .AddField("Links",
-                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})")
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})")
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");
@@ -216,7 +216,7 @@ namespace PassiveBOT.Commands
             embed.AddInlineField("Users", ((DiscordSocketClient) Context.Client).Guilds.Sum(g => g.MemberCount));
 
             embed.AddField("Links",
-                $"[Site]({Load.Siteurl}) \n[Invite]({Load.Invite})\n[Our Server]({Load.Server})");
+                $"[Site]({Load.Siteurl}) \n[Invite]({Context.Client})\n[Our Server]({Load.Server})");
 
 
             await ReplyAsync("", false, embed.Build());
