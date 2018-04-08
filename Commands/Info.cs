@@ -57,7 +57,11 @@ namespace PassiveBOT.Commands
             var msg = new PaginatedMessage
             {
                 Title = $"Users with Discriminator #{disc}",
-                Pages = pages,
+                Pages = pages.Select(x => new PaginatedMessage.Page
+                {
+                    description = x
+                }),
+
                 Color = new Color(114, 137, 218)
             };
 

@@ -43,11 +43,11 @@ namespace PassiveBOT.Commands.OwnerCmds
                 }
 
             pages.Add(currentpage);
-            pages.Add("PassiveBOT <3");
             var msg = new PaginatedMessage
             {
                 Title = "Partner Messages",
-                Pages = pages,
+                Pages = pages.Select(x => new PaginatedMessage.Page
+                    {description = x}),
                 Color = new Color(114, 137, 218)
             };
 
@@ -102,7 +102,10 @@ namespace PassiveBOT.Commands.OwnerCmds
             var msg = new PaginatedMessage
             {
                 Title = "Reddit Cache",
-                Pages = pages,
+                Pages = pages.Select(x => new PaginatedMessage.Page
+                {
+                    description = x
+                }),
                 Color = new Color(114, 137, 218)
             };
 

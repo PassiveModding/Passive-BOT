@@ -475,7 +475,11 @@ namespace PassiveBOT.Commands
             var msg = new PaginatedMessage
             {
                 Title = $"Roles for {Context.Guild.Name}",
-                Pages = rolepage,
+                Pages = rolepage.Select(x => new PaginatedMessage.Page
+                {
+                    description = x
+                }),
+
                 Color = new Color(114, 137, 218)
             };
 
@@ -512,7 +516,10 @@ namespace PassiveBOT.Commands
             var msg = new PaginatedMessage
             {
                 Title = $"Here is a list of Members with the role {role}",
-                Pages = members,
+                Pages = members.Select(x => new PaginatedMessage.Page
+                {
+                    description = x
+                }),
                 Color = new Color(114, 137, 218)
             };
 

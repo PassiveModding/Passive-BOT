@@ -36,7 +36,7 @@ namespace PassiveBOT.Discord.Addons.Interactive
             return Interactive.ReplyAndDeleteAsync(Context, content, isTTS, embed, timeout, options);
         }
 
-        public Task<IUserMessage> PagedReplyAsync(IEnumerable<object> pages, bool fromSourceUser = true)
+        public Task<IUserMessage> PagedReplyAsync(IEnumerable<PaginatedMessage.Page> pages, bool fromSourceUser = true)
         {
             var pager = new PaginatedMessage
             {

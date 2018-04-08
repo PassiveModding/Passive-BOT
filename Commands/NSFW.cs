@@ -7,16 +7,19 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json.Linq;
+using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Discord.Addons.Interactive.Paginator;
 using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 using RedditSharp;
+using RedditSharp.Things;
 
 namespace PassiveBOT.Commands
 {
     [Ratelimit(1, 2, Measure.Seconds)]
     [CheckNsfw]
-    public class Nsfw : ModuleBase
+    public class Nsfw : InteractiveBase
     {
         public enum NsfwType
         {
@@ -60,11 +63,6 @@ namespace PassiveBOT.Commands
                 var r = new Reddit();
                 var sub = r.GetSubreddit(subreddit);
 
-                if (sub.NSFW)
-                {
-                    await ReplyAsync("Please use the NSFW Reddit command for NSFW Images");
-                    return;
-                }
                 await ReplyAsync("Refreshing Cache");
                 var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
                 var img = num1[rnd.Next(num1.Count)];
@@ -90,6 +88,63 @@ namespace PassiveBOT.Commands
                     Posts = num1
                 });
             }
+        }
+
+        [Command("BrowseRedditNSFW", RunMode = RunMode.Async)]
+        [Summary("BorwseRedditNSFW <sub>")]
+        [Remarks("Get a random post from first 150 in hot of a sub")]
+        public async Task BRedditNSFW(string subreddit = null)
+        {
+            if (subreddit == null)
+            { await ReplyAsync("Please give a subreddit to browse."); return; }
+            var subredditobj = CommandHandler.SubReddits.FirstOrDefault(x =>
+                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+            List<Post> posts;
+            if (subredditobj != null && subredditobj.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
+            { 
+                //just post
+                posts = subredditobj.Posts;
+                subredditobj.Hits++;
+            }
+            else
+            {
+                //get images then post
+                var r = new Reddit();
+                var sub = r.GetSubreddit(subreddit);
+                await ReplyAsync("Refreshing Cache");
+                posts = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
+                CommandHandler.SubReddits.RemoveAll(x =>
+                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
+                {
+                    title = subreddit,
+                    LastUpdate = DateTime.UtcNow,
+                    Posts = posts,
+                    Hits = 0
+                });
+            }
+            //post 
+            var pages = new List<PaginatedMessage.Page>();
+            foreach (var image in posts)
+            {
+                var iobj = RedditHelper.isimage(image.Url.ToString());
+                if (iobj.isimage)
+                pages.Add(new PaginatedMessage.Page
+                {
+                    imageurl = iobj.url,
+                    description = $"{iobj.extension} || [Link](https://reddit.com{image.Permalink})",
+                    dynamictitle = image.Title
+                });
+            }
+
+            var msg = new PaginatedMessage
+            {
+                Title = $"{subreddit} Images",
+                Pages = pages,
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
         }
 
         [Command("tits", RunMode = RunMode.Async)]

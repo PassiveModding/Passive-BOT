@@ -137,12 +137,16 @@ namespace PassiveBOT.Discord.Addons.Interactive.Paginator
 
         protected Embed BuildEmbed()
         {
+            //NOTE: Must have description or wont send?
+            var current = _pager.Pages.ElementAt(page - 1);
             return new EmbedBuilder()
                 .WithAuthor(_pager.Author)
                 .WithColor(_pager.Color)
-                .WithDescription(_pager.Pages.ElementAt(page - 1).ToString())
+                .WithDescription(_pager.Pages.ElementAt(page - 1).description)
+                .WithImageUrl(current.imageurl ?? _pager.Img)
+                .WithUrl(current.titleURL)
                 .WithFooter(f => f.Text = string.Format(options.FooterFormat, page, pages))
-                .WithTitle(_pager.Title)
+                .WithTitle(current.dynamictitle ?? _pager.Title)
                 .Build();
         }
 
