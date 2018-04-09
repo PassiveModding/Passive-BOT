@@ -99,7 +99,7 @@ namespace PassiveBOT.Discord.Addons.Interactive.Paginator
             return false;
         }
 
-        public async Task DisplayAsync()
+        public async Task DisplayAsync(bool showall = false)
         {
             var embed = BuildEmbed();
             var message = await Context.Channel.SendMessageAsync(_pager.Content, embed: embed).ConfigureAwait(false);
@@ -108,23 +108,35 @@ namespace PassiveBOT.Discord.Addons.Interactive.Paginator
             // Reactions take a while to add, don't wait for them
             _ = Task.Run(async () =>
             {
-                await message.AddReactionAsync(options.First);
+                if (showall)
+                {
+                    await message.AddReactionAsync(options.First);
+                }
+                
                 await message.AddReactionAsync(options.Back);
                 await message.AddReactionAsync(options.Next);
-                await message.AddReactionAsync(options.Last);
+                if (showall)
+                {
+                    await message.AddReactionAsync(options.Last);
+                }
+                
 
                 var manageMessages = Context.Channel is IGuildChannel guildChannel
                     ? (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages
                     : false;
+                if (showall)
+                {
+                    if (options.JumpDisplayOptions == JumpDisplayOptions.Always
+                        || options.JumpDisplayOptions == JumpDisplayOptions.WithManageMessages && manageMessages)
+                        await message.AddReactionAsync(options.Jump);
 
-                if (options.JumpDisplayOptions == JumpDisplayOptions.Always
-                    || options.JumpDisplayOptions == JumpDisplayOptions.WithManageMessages && manageMessages)
-                    await message.AddReactionAsync(options.Jump);
 
-                await message.AddReactionAsync(options.Stop);
 
-                if (options.DisplayInformationIcon)
-                    await message.AddReactionAsync(options.Info);
+                    await message.AddReactionAsync(options.Stop);
+
+                    if (options.DisplayInformationIcon)
+                        await message.AddReactionAsync(options.Info);
+                }
             });
             // TODO: (Next major version) timeouts need to be handled at the service-level!
             if (Timeout.HasValue && Timeout.Value != null)

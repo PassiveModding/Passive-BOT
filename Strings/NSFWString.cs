@@ -57,6 +57,7 @@
         };
 
         //nsfw
+        /*
         public static string[] Nsfwgif =
         {
             "https://68.media.tumblr.com/68fc685e7741d231100ecab47aaa2e93/tumblr_ocs249gT0C1v5cpozo1_400.gif",
@@ -1621,6 +1622,6 @@
             "https://i.imgur.com/AikxlTc.png",
             "https://i.imgur.com/vT6BtuG.png",
             "https://i.imgur.com/kRYasGX.png"
-        };
+        };*/
     }
 }

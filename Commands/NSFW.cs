@@ -17,7 +17,7 @@ using RedditSharp.Things;
 
 namespace PassiveBOT.Commands
 {
-    [Ratelimit(1, 2, Measure.Seconds)]
+    //[Ratelimit(1, 2, Measure.Seconds)]
     [CheckNsfw]
     public class Nsfw : InteractiveBase
     {
@@ -39,23 +39,12 @@ namespace PassiveBOT.Commands
             if (subreddit == null)
             { await ReplyAsync("Please give a subreddit to browse."); return;}
             var rnd = new Random();
+            List<Post> posts;
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
                 string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
-                var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
-                var objx = RedditHelper.isimage(imgx.Url.ToString());
-                var embedx = new EmbedBuilder
-                {
-                    Title = imgx.Title,
-                    Url = $"https://reddit.com{imgx.Permalink}",
-                    Footer = new EmbedFooterBuilder
-                    {
-                        Text = objx.extension
-                    }
-                };
-                await ReplyAsync(objx.url);
-                await ReplyAsync("", false, embedx.Build());
+                posts = checkcache.Posts;
                 checkcache.Hits++;
             }
             else
@@ -64,30 +53,29 @@ namespace PassiveBOT.Commands
                 var sub = r.GetSubreddit(subreddit);
 
                 await ReplyAsync("Refreshing Cache");
-                var num1 = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
-                var img = num1[rnd.Next(num1.Count)];
-                var obj = RedditHelper.isimage(img.Url.ToString());
-                var embed = new EmbedBuilder
-                {
-                    Title = img.Title,
-                    Url = $"https://reddit.com{img.Permalink}",
-                    Footer = new EmbedFooterBuilder
-                    {
-                        Text = obj.extension
-                    }
-                };
-                await ReplyAsync(obj.url);
-                await ReplyAsync("", false, embed.Build());
-
+                posts = sub.Hot.Take(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
                 CommandHandler.SubReddits.RemoveAll(x =>
                     string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
                     title = subreddit,
                     LastUpdate = DateTime.UtcNow,
-                    Posts = num1
+                    Posts = posts
                 });
             }
+            var img = posts[rnd.Next(posts.Count - 1)];
+            var obj = RedditHelper.isimage(img.Url.ToString());
+            var embed = new EmbedBuilder
+            {
+                Title = img.Title,
+                Url = $"https://reddit.com{img.Permalink}",
+                Footer = new EmbedFooterBuilder
+                {
+                    Text = obj.extension
+                }
+            };
+            await ReplyAsync(obj.url);
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("BrowseRedditNSFW", RunMode = RunMode.Async)]
@@ -125,7 +113,7 @@ namespace PassiveBOT.Commands
             }
             //post 
             var pages = new List<PaginatedMessage.Page>();
-            foreach (var image in posts)
+            foreach (var image in posts.OrderByDescending(x => (new Random().Next())))
             {
                 var iobj = RedditHelper.isimage(image.Url.ToString());
                 if (iobj.isimage && !iobj.url.Contains("gfy"))
@@ -194,27 +182,13 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder.Build());
         }
 
-        [Command("nsfw")]
+        [Command("nsfw", RunMode = RunMode.Async)]
         [Summary("nsfw")]
         [Alias("nude", "porn")]
         [Remarks("Sexy Stuff!")]
         public async Task Porn()
         {
-            var str = NsfwStr.Nsfw;
-            var rnd = new Random();
-            var result = rnd.Next(0, str.Length);
-
-            var builder = new EmbedBuilder()
-                .WithTitle("NSFW")
-                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}")
-                .WithImageUrl(str[result])
-                .WithFooter(x =>
-                {
-                    x.WithText($"PassiveBOT | {result}/{str.Length}");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
-
-            await ReplyAsync("", false, builder.Build());
+            await RedditNSFW("nsfw");
         }
 
         [Command("sfw")]
@@ -239,72 +213,50 @@ namespace PassiveBOT.Commands
             await ReplyAsync("", false, builder.Build());
         }
 
-        [Command("nsfwvid")]
-        [Summary("nsfwvid")]
-        [Remarks("Pornhub + Bots = win?")]
-        public async Task Nsfwvid()
-        {
-            var str = NsfwStr.Nsfwvid;
-            var rnd = new Random();
-            var result = rnd.Next(0, str.Length);
-
-            var builder = new EmbedBuilder()
-                .WithTitle("Click for Random Video")
-                .WithUrl("http://adult.passivenation.com/18217229/{str[result]}")
-                .WithFooter(x =>
-                {
-                    x.WithText($"PassiveBOT | {result}/{str.Length}");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
-
-            await ReplyAsync("", false, builder.Build());
-        }
-
-        [Command("pussy")]
+        [Command("pussy", RunMode = RunMode.Async)]
         [Summary("pussy")]
         [Remarks(";)")]
         public async Task Pussy()
         {
-            var str = NsfwStr.Pussy;
             var rnd = new Random();
-            var result = rnd.Next(0, str.Length);
-
-            var builder = new EmbedBuilder()
-                .WithTitle("Pussy")
-                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}")
-                .WithFooter(x =>
-                {
-                    x.WithText($"PassiveBOT | {result}/{str.Length}");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                })
-                .WithImageUrl(str[result]);
-
-            await ReplyAsync("", false, builder.Build());
-            //await ReplyAsync(str[result]);
+            var subs = new[]
+            {
+                "grool",
+                "creampies",
+                "creampie",
+                "creampiegifs",
+                "pussyjobs",
+                "pussyslip",
+                "upskirt",
+                "pussy",
+                "rearpussy",
+                "simps",
+                "vagina",
+                "moundofvenus"
+            };
+            await BRedditNSFW(subs[rnd.Next(subs.Length - 1)]);
         }
 
-        [Command("nsfwgif")]
+        [Command("nsfwgif", RunMode = RunMode.Async)]
         [Summary("nsfwgif")]
         [Remarks("Gifs")]
         public async Task Ngif()
         {
-            var str = NsfwStr.Nsfwgif;
             var rnd = new Random();
-            var result = rnd.Next(0, str.Length);
-
-            var builder = new EmbedBuilder()
-                .WithTitle("NSFW GIF")
-                .WithUrl($"http://adult.passivenation.com/18217229/{str[result]}")
-                .WithFooter(x =>
-                {
-                    x.WithText($"PassiveBOT | {result}/{str.Length}");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
-            // .WithImageUrl(str[result]);
-
-            await ReplyAsync("", false, builder.Build());
-
-            await ReplyAsync(str[result]);
+            var subs = new[]
+            {
+                "nsfwgif",
+                "booty_gifs",
+                "boobgifs",
+                "creampiegifs",
+                "pussyjobs",
+                "gifsgonewild",
+                "nsfw_gif",
+                "nsfw_gifs",
+                "porn_gifs",
+                "adultgifs"
+            };
+            await BRedditNSFW(subs[rnd.Next(subs.Length - 1)]);
         }
 
         [Command("Rule34", RunMode = RunMode.Async)]

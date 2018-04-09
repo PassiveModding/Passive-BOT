@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
+using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Discord.Addons.Interactive.Paginator;
 
 namespace PassiveBOT.Commands
 {
-    public class Help : ModuleBase
+    public class Help : InteractiveBase
     {
         private readonly CommandService _service;
 
@@ -77,20 +79,41 @@ namespace PassiveBOT.Commands
             };
             if (modulearg == null) //ShortHelp
             {
-                foreach (var module in _service.Modules)
+                var pages = new List<PaginatedMessage.Page>
                 {
-                    var list = module.Commands.Select(command => command.Name).ToList();
+                    new PaginatedMessage.Page
+                    {
+                        dynamictitle = $"PassiveBOT | Modules | Prefix: {isserver}",
+                        description = $"Here is a list of all the PassiveBOT command modules\n" +
+                                      $"Click the arrows to view each one!\n" +
+                                      string.Join("\n",
+                                          _service.Modules.Where(x =>
+                                                  x.Name != $"InteractiveBase" && x.Name != "InteractiveBase`1")
+                                              .Select(x => x.Name))
+                    }
+                };
+                foreach (var module in _service.Modules.Where(x => x.Name != "BotModerator" && x.Name != "Owner"))
+                {
+                    var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}").ToList();
                     if (module.Commands.Count > 0)
-                        embed.AddField(x =>
+                    {
+                        pages.Add(new PaginatedMessage.Page
                         {
-                            x.Name = module.Name;
-                            x.Value = string.Join(", ", list);
+                            dynamictitle = module.Name,
+                            description = string.Join("\n", list)
                         });
+                    }
                 }
-
-                embed.AddField("\n\n**NOTE**",
-                    $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
-                    "Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
+                var msg = new PaginatedMessage
+                {
+                    Color = Color.Green,
+                    Pages = pages
+                };
+                await PagedReplyAsync(msg);
+                return;
+                //embed.AddField("\n\n**NOTE**",
+                //    $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
+                //    "Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
             }
             else
             {
@@ -147,7 +170,7 @@ namespace PassiveBOT.Commands
                 try
                 {
                     var s = Homeserver.Load().Suggestion;
-                    var c = await Context.Client.GetChannelAsync(s);
+                    var c = Context.Client.GetChannel(s);
                     var embed = new EmbedBuilder();
                     embed.AddField($"Suggestion from {Context.User.Username}", suggestion);
                     embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });
@@ -172,7 +195,7 @@ namespace PassiveBOT.Commands
                 try
                 {
                     var s = Homeserver.Load().Suggestion;
-                    var c = await Context.Client.GetChannelAsync(s);
+                    var c = Context.Client.GetChannel(s);
                     var embed = new EmbedBuilder();
                     embed.AddField($"BugReport from {Context.User.Username}", bug);
                     embed.WithFooter(x => { x.Text = $"{Context.Message.CreatedAt} || {Context.Guild.Name}"; });

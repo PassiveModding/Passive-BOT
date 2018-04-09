@@ -81,7 +81,7 @@ namespace PassiveBOT.Handlers
         }
     }
 
-    public class TimerModule : ModuleBase
+    /*public class TimerModule : ModuleBase
     {
         private readonly TimerService _service;
 
@@ -99,5 +99,5 @@ namespace PassiveBOT.Handlers
         {
             _service.Restart();
         }
-    }
+    }*/
 }

@@ -45,17 +45,17 @@ namespace PassiveBOT.Discord.Addons.Interactive
             return PagedReplyAsync(pager, fromSourceUser);
         }
 
-        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, bool fromSourceUser = true)
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, bool fromSourceUser = true, bool showall = false)
         {
             var criterion = new Criteria<SocketReaction>();
             if (fromSourceUser)
                 criterion.AddCriterion(new EnsureReactionFromSourceUserCriterion());
-            return PagedReplyAsync(pager, criterion);
+            return PagedReplyAsync(pager, criterion, showall);
         }
 
-        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion)
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, bool showall = false)
         {
-            return Interactive.SendPaginatedMessageAsync(Context, pager, criterion);
+            return Interactive.SendPaginatedMessageAsync(Context, pager, criterion, showall);
         }
 
         public RuntimeResult Ok(string reason = null)
