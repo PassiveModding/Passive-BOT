@@ -32,7 +32,15 @@ namespace PassiveBOT.Commands.ServerModeration
                 await Context.Message.DeleteAsync().ConfigureAwait(false);
                 var limit = count < 100 ? count : 100;
                 var enumerable = await Context.Channel.GetMessagesAsync(limit).Flatten().ConfigureAwait(false);
-                await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
+                try
+                {
+                    await Context.Channel.DeleteMessagesAsync(enumerable).ConfigureAwait(false);
+                }
+                catch
+                {
+                    //
+                }
+
                 await ReplyAsync($"Cleared **{count}** Messages");
             }
         }
@@ -44,8 +52,16 @@ namespace PassiveBOT.Commands.ServerModeration
         {
             await Context.Message.DeleteAsync().ConfigureAwait(false);
             var enumerable = await Context.Channel.GetMessagesAsync().Flatten().ConfigureAwait(false);
-            var newlist = enumerable.Where(x => x.Author == user).ToList();
-            await Context.Channel.DeleteMessagesAsync(newlist).ConfigureAwait(false);
+            var messages = enumerable as IMessage[] ?? enumerable.ToArray();
+            var newlist = messages.Where(x => x.Author == user).ToList();
+            try
+            {
+                await Context.Channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
+            }
+            catch
+            {
+                //
+            }
             await ReplyAsync($"Cleared **{user.Username}'s** Messages (Count = {newlist.Count})");
         }
 

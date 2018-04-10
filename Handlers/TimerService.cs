@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Discord;
 using Discord.Commands;
@@ -19,63 +20,73 @@ namespace PassiveBOT.Handlers
         {
             _timer = new Timer(async _ =>
                 {
-                    var newlist = AcceptedServers.ToList();
-                    foreach (var guildid in AcceptedServers.OrderBy(x => rndshuffle.Next()))
+                    try
                     {
-                        var guildobj = GuildConfig.GetServer(client.GetGuild(guildid));
-                        if (!guildobj.PartnerSetup.IsPartner) continue;
-                        if (guildobj.PartnerSetup.banned) continue;
-                        if (client.GetChannel(guildobj.PartnerSetup.PartherChannel) is IMessageChannel channel)
+                        AcceptedServers = AcceptedServers.Where(x => client.Guilds.Any(y => y.Id == x)).ToList();
+                        var newlist = AcceptedServers.ToList();
+                        foreach (var guildid in AcceptedServers.OrderBy(x => rndshuffle.Next()))
                         {
                             try
                             {
-                                var newitems = newlist.Where(x => x != guildid).ToList();
-                                var rnd = new Random().Next(0, newitems.Count);
-                                var newitem = newitems[rnd];
-
-                                var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem)).PartnerSetup;
-                                if (selectedguild.banned) continue;
-                                ColourLog.LogInfo($"{channel.Name}");
-                                if (selectedguild.IsPartner &&
-                                    client.GetChannel(selectedguild.PartherChannel) is IGuildChannel otherchannel &&
-                                    selectedguild.Message != null)
+                                var guildobj = GuildConfig.GetServer(client.GetGuild(guildid));
+                                if (!guildobj.PartnerSetup.IsPartner) continue;
+                                if (guildobj.PartnerSetup.banned) continue;
+                                if (client.GetChannel(guildobj.PartnerSetup.PartherChannel) is IMessageChannel channel)
                                 {
-                                    var embed = new EmbedBuilder
+                                    try
                                     {
-                                        Title = otherchannel.Guild.Name,
-                                        Description = selectedguild.Message,
-                                        ThumbnailUrl = otherchannel.Guild.IconUrl,
-                                        Color = Color.Green
-                                    };
-                                    await channel.SendMessageAsync("", false, embed.Build());
-                                    newlist.Remove(newitem);
+                                        var newitems = newlist.Where(x => x != guildid).ToList();
+                                        var rnd = new Random().Next(0, newitems.Count);
+                                        var newitem = newitems[rnd];
+
+                                        var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem)).PartnerSetup;
+                                        if (selectedguild.banned) continue;
+                                        if (!selectedguild.IsPartner ||
+                                            !(client.GetChannel(selectedguild.PartherChannel) is IGuildChannel
+                                                otherchannel) || selectedguild.Message == null) continue;
+                                        var embed = new EmbedBuilder
+                                        {
+                                            Title = otherchannel.Guild.Name,
+                                            Description = selectedguild.Message,
+                                            ThumbnailUrl = otherchannel.Guild.IconUrl,
+                                            Color = Color.Green
+                                        };
+                                        await channel.SendMessageAsync("", false, embed.Build());
+                                        newlist.Remove(newitem);
+                                    }
+                                    catch //(Exception e)
+                                    {
+                                        //Console.WriteLine(e);
+                                    }
+                                }
+                                else
+                                {
+                                    guildobj.PartnerSetup.IsPartner = false;
+                                    GuildConfig.SaveServer(guildobj);
                                 }
                             }
-                            catch //(Exception e)
+                            catch (Exception e)
                             {
-                                //Console.WriteLine(e);
+                                Console.WriteLine(e);
                             }
-                        }
-                        else
-                        {
-                            guildobj.PartnerSetup.IsPartner = false;
-                            GuildConfig.SaveServer(guildobj);
+
                         }
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
                 },
-                null,
-                //TimeSpan.FromMinutes(10),  // 4) Time that message should fire after the timer is created
-                TimeSpan.Zero,
-                TimeSpan.FromMinutes(
-                    60)); // 5) Time after which message should repeat (use `Timeout.Infinite` for no repeat)
+                null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
         }
 
-        public void Stop() // 6) Example to make the timer stop running
+        public void Stop()
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        public void Restart() // 7) Example to restart the timer
+        public void Restart()
         {
             _timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(60));
         }
