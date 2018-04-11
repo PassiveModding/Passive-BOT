@@ -19,9 +19,9 @@ namespace PassiveBOT.Commands.OwnerCmds
     [Preconditions.BotModerator]
     public class BotModerator : InteractiveBase
     {
-        [Command("PartnerList+")]
+        [Command("PartnerList+", RunMode = RunMode.Async)]
         [Summary("PartnerList+")]
-        [Remarks("Set the PartnerUpdatesChannel")]
+        [Remarks("Get a list of all partner servers")]
         public async Task PList()
         {
             var pages = new List<string>();
@@ -52,6 +52,134 @@ namespace PassiveBOT.Commands.OwnerCmds
             };
 
             await PagedReplyAsync(msg);
+        }
+
+        [Command("PartnerListFull+", RunMode = RunMode.Async)]
+        [Summary("PartnerListFull+")]
+        [Remarks("Get a complete list of all partner servers")]
+        public async Task PListF()
+        {
+            var pages = new List<string>();
+            var currentpage = "";
+            foreach (var guild in Context.Client.Guilds)
+            {
+                try
+                {
+                    var guildobj = GuildConfig.GetServer(guild);
+
+                    if (guildobj.PartnerSetup.IsPartner)
+                    {
+                        if (currentpage.Length > 1000)
+                        {
+                            pages.Add(currentpage);
+                            currentpage = "";
+                        }
+
+                        currentpage += $"`{guildobj.GuildId} - {(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`" +
+                                        "\n" +
+                                        $"{guildobj.PartnerSetup.Message}" +
+                                        "\n-----\n";
+                    }
+
+                }
+                catch
+                {
+                    //
+                }
+            }
+
+
+            pages.Add(currentpage);
+            var msg = new PaginatedMessage
+            {
+                Title = "Partner Messages",
+                Pages = pages.Select(x => new PaginatedMessage.Page
+                    { description = x }),
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
+        }
+
+
+        [Command("PartnerInfo+", RunMode = RunMode.Async)]
+        [Summary("PartnerInfo+ <ID>")]
+        [Remarks("Get Partner information via guild ID")]
+        public async Task Pinfo2(ulong GuildID)
+        {
+            var Guild = Context.Client.Guilds.FirstOrDefault(x => x.Id == GuildID);
+            if (Guild == null)
+            {
+                await ReplyAsync("Invalid Guild");
+                return;
+            }
+            var guild = GuildConfig.GetServer(Guild);
+            var embed = new EmbedBuilder();
+            embed.Color = Color.Green;
+            var PChannel = Guild.Channels.FirstOrDefault(x => x.Id == guild.PartnerSetup.PartherChannel);
+            var Pchannelname = PChannel == null ? "Null" : PChannel.Name;
+            embed.Title = guild.GuildName;
+            embed.ThumbnailUrl = Guild.IconUrl;
+            embed.AddField($"Partner Info",
+                $"Is Partner: {guild.PartnerSetup.IsPartner}\n" +
+                $"Is Banned: {guild.PartnerSetup.banned}\n" +
+                $"Partner Channel ID: {guild.PartnerSetup.PartherChannel}\n" +
+                $"Partner Channel Name: {Pchannelname}\n");
+            embed.AddField($"Partner Message", $"-------------------------\n" +
+                                               $"{guild.PartnerSetup.Message}");
+            if (PChannel != null)
+            {
+                var ChannelOverWrites = PChannel.PermissionOverwrites;
+                var Checking = "";
+                foreach (var OverWrite in ChannelOverWrites)
+                {
+                    try
+                    {
+                        var Name = "N/A";
+                        if (OverWrite.TargetType == PermissionTarget.Role)
+                        {
+                            var Role = Guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                            if (Role != null)
+                            {
+                                Name = Role.Name;
+                            }
+                        }
+                        else
+                        {
+                            var user = Guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                            if (user != null)
+                            {
+                                Name = user.Username;
+                            }
+                        }
+
+                        if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                        {
+                            Checking += $"{Name} Cannot Read Msgs.\n";
+                        }
+
+                        if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                        {
+                            Checking += $"{Name} Cannot Read History.\n";
+                        }
+                        
+                    }
+                    catch
+                    {
+                        //
+                    }
+
+                }
+
+                if (Checking != "")
+                {
+                    embed.AddField("Partner Channel Perms",
+                      $"{Checking}");
+                }
+
+            }
+
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("BanPartner+")]
@@ -119,6 +247,36 @@ namespace PassiveBOT.Commands.OwnerCmds
         {
             CommandHandler.SubReddits = new List<CommandHandler.SubReddit>();
             await ReplyAsync("SubReddit Cache Cleared");
+        }
+
+        [Command("GetCMDUses+")]
+        [Summary("GetCMDUses+")]
+        [Remarks("Get a list of all commands that have been used since restart")]
+        public async Task CUses()
+        {
+            var pages = new List<string>();
+            var curpage = "";
+            foreach (var cmd in CommandHandler.CommandUses.OrderByDescending(x => x.Uses))
+            {
+                curpage += $"{cmd.Name} - {cmd.Uses}\n";
+                if (curpage.Length > 400)
+                {
+                    pages.Add(curpage);
+                    curpage = "";
+                }
+            }
+            pages.Add(curpage);
+            var msg = new PaginatedMessage
+            {
+                Title = "Command Uses",
+                Pages = pages.Select(x => new PaginatedMessage.Page
+                {
+                    description = x
+                }),
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
         }
     }
 }

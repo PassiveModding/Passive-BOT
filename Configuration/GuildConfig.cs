@@ -221,8 +221,8 @@ namespace PassiveBOT.Configuration
         public class PartnerShip
         {
             public bool IsPartner { get; set; } = false;
-            public ulong PartherChannel { get; set; }
-            public string Message { get; set; }
+            public ulong PartherChannel { get; set; } = 0;
+            public string Message { get; set; } = null;
             public bool banned { get; set; } = false;
         }
 

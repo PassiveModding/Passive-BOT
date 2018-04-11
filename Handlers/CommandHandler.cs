@@ -18,6 +18,14 @@ namespace PassiveBOT.Handlers
 {
     public class CommandHandler
     {
+        public class CMD
+        {
+            public string Name { get; set; }
+            public int Uses { get; set; }
+        }
+
+        public static List<CMD> CommandUses = new List<CMD>();
+
         public static List<SubReddit> SubReddits = new List<SubReddit>();
         private readonly ApiAi _apiAi;
         private readonly DiscordSocketClient _client;
@@ -314,6 +322,27 @@ namespace PassiveBOT.Handlers
                     $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}"); //if there is no error log normally
 
                 Load.Commands++;
+                var srch = _commands.Search(context, argPos);
+                if (srch.IsSuccess)
+                {
+                    var name = srch.Commands.Select(x => x.Command.Name).FirstOrDefault();
+                    if (name != null)
+                    {
+                        if (CommandUses.Any(x => x.Name.ToLower() == name.ToLower()))
+                        {
+                            var cmd = CommandUses.First(x => x.Name.ToLower() == name.ToLower());
+                            cmd.Uses++;
+                        }
+                        else
+                        {
+                            CommandUses.Add(new CMD
+                            {
+                                Name = name.ToLower(),
+                                Uses = 1
+                            });
+                        }
+                    }
+                }
             }
         }
 
