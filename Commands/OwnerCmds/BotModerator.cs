@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -114,19 +115,25 @@ namespace PassiveBOT.Commands.OwnerCmds
                 return;
             }
             var guild = GuildConfig.GetServer(Guild);
-            var embed = new EmbedBuilder();
-            embed.Color = Color.Green;
+            var pages = new List<PaginatedMessage.Page>();
             var PChannel = Guild.Channels.FirstOrDefault(x => x.Id == guild.PartnerSetup.PartherChannel);
             var Pchannelname = PChannel == null ? "Null" : PChannel.Name;
-            embed.Title = guild.GuildName;
-            embed.ThumbnailUrl = Guild.IconUrl;
-            embed.AddField($"Partner Info",
-                $"Is Partner: {guild.PartnerSetup.IsPartner}\n" +
-                $"Is Banned: {guild.PartnerSetup.banned}\n" +
-                $"Partner Channel ID: {guild.PartnerSetup.PartherChannel}\n" +
-                $"Partner Channel Name: {Pchannelname}\n");
-            embed.AddField($"Partner Message", $"-------------------------\n" +
-                                               $"{guild.PartnerSetup.Message}");
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Info",
+                description = $"{Guild.Name} - [{Guild.Id}]\n" +
+                          $"Is Partner: { guild.PartnerSetup.IsPartner}\n" +
+                          $"Is Banned: {guild.PartnerSetup.banned}\n" +
+                          $"Partner Channel ID: {guild.PartnerSetup.PartherChannel}\n" +
+                          $"Partner Channel Name: {Pchannelname}\n"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = $"Server Message",
+                description = $"---\n" +
+                          $"{guild.PartnerSetup.Message}" +
+                          $"\n---"
+            });
             if (PChannel != null)
             {
                 var ChannelOverWrites = PChannel.PermissionOverwrites;
@@ -173,13 +180,24 @@ namespace PassiveBOT.Commands.OwnerCmds
 
                 if (Checking != "")
                 {
-                    embed.AddField("Partner Channel Perms",
-                      $"{Checking}");
+                    pages.Add(new PaginatedMessage.Page
+                    {
+                        dynamictitle = "Partner Channel Perms",
+                        description = $"---\n" +
+                                  $"{Checking}" +
+                                  $"\n---"
+                    });
                 }
 
             }
+            var msg = new PaginatedMessage
+            {
+                Title = "Partner Messages",
+                Pages = pages,
+                Color = new Color(114, 137, 218)
+            };
 
-            await ReplyAsync("", false, embed.Build());
+            await PagedReplyAsync(msg);
         }
 
         [Command("BanPartner+")]
