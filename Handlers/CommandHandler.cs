@@ -125,6 +125,11 @@ namespace PassiveBOT.Handlers
                     //
                 }
 
+            if (message.MentionedRoles.Count > 5 || message.MentionedUsers.Count > 5)
+            {
+                //Remove.
+            }
+
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
                 try
                 {

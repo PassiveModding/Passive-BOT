@@ -259,8 +259,8 @@ namespace PassiveBOT.Commands.OwnerCmds
 
         }
 
-        [Command("GlobanBan+")]
-        [Summary("GlobalBan+ <UserID>")]
+        [Command("NoCommands+")]
+        [Summary("NoCommands+ <UserID>")]
         [Remarks("Ban a user from using all bot commands")]
         public async Task GlobalBan(ulong UserId = 0)
         {
@@ -287,8 +287,8 @@ namespace PassiveBOT.Commands.OwnerCmds
             await ReplyAsync("User banned from PassiveBOT Commands");
         }
 
-        [Command("GlobanUnBan+")]
-        [Summary("GlobalUnBan+ <UserID>")]
+        [Command("YesCommands+")]
+        [Summary("YesCommands+ <UserID>")]
         [Remarks("UnBan a user from using all bot commands")]
         public async Task GlobalUnBan(ulong UserId = 0)
         {
@@ -298,8 +298,8 @@ namespace PassiveBOT.Commands.OwnerCmds
             await ReplyAsync("User UnBanned from PassiveBOT Commands");
         }
 
-        [Command("GlobanBanList+")]
-        [Summary("GlobalBanLust+")]
+        [Command("NoCommandsList+")]
+        [Summary("NoCommandsList+")]
         [Remarks("View all global bans")]
         public async Task GlobalBans()
         {

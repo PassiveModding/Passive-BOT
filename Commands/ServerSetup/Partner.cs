@@ -159,9 +159,21 @@ namespace PassiveBOT.Commands.ServerSetup
                               $"`2.` Type `.p PartnerToggle` to enable to partner system in your server\r\n" +
                               $"`3.` Type `.p PartnerChannel` in your desired channel to set which channel other Partner messages will be sent to\r\n" +
                               $"`4.` Type `.p PartnerMessage <message>` to set the message you want to be sent to other servers, make sure to include your `discord.gg` or `discord.me` invite link for the server so people can join.\r\n" +
+                              $"**[OPTIONAL]**\n" +
+                              $"`.p PartnerImage <image URL>` - set an image for your partner messages\n" +
+                              $"`.p PartnerUserCount` - toggle wether or not to show your server's user count\n" +
                               $"\r\n" +
                               $"That's it, your message will be sent to a server every hour and your server will receive a message every hour!!\r\n" +
-                              $"ENJOY!!!"
+                              $"ENJOY!!!\n\n" +
+                              $"```\n" +
+                              $"**RULES**\n" +
+                              $"```\n" +
+                              $"It is important to note the following rules for the Partner Program:\r\n" +
+                              $"-The partner channel must be visible to all roles in your server\r\n" +
+                              $"-Profanity and other 18+ type content is not allowed in partner messages (you may tell people you have NSFW Content but that\'s all)\r\n" +
+                              $"-The text must not contain hard to read characters or that which would be considered spammy. Ie. Zalgo text. Symbols and emojis are fine though.\r\n" +
+                              $"-Using multiple servers/messages to promote a single server (ie. All with an invite to one server OR having invites to multiple different servers) is not allowed\r\n" +
+                              $"`Any attempt to bypass these rules or breaking these rules may result in your server being Permanently Banned from the partner program`"
             };
             await ReplyAsync("", false, embed.Build());
         }
