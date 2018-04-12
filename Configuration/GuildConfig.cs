@@ -224,6 +224,8 @@ namespace PassiveBOT.Configuration
             public ulong PartherChannel { get; set; } = 0;
             public string Message { get; set; } = null;
             public bool banned { get; set; } = false;
+            public string ImageUrl { get; set; } = null;
+            public bool showusercount { get; set; }
         }
 
         public class autochannels

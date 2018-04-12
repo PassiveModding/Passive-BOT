@@ -9,6 +9,7 @@ using DiscordBotsList.Api.Extensions.DiscordNet;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Handlers;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.OwnerCmds
@@ -19,9 +20,10 @@ namespace PassiveBOT.Commands.OwnerCmds
         public readonly CommandService Service;
         //public DiscordSocketClient Client;
 
-        public Owner(CommandService service)
+
+        public Owner(CommandService Cserv)
         {
-            Service = service;
+            Service = Cserv;
         }
 
         [Command("UpdateStats+")]

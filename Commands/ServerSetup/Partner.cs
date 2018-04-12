@@ -74,6 +74,71 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
+        [Command("PartnerImage")]
+        [Summary("PartnerImage <URL>")]
+        [Remarks("Set an Image for partner servers")]
+        public async Task PImage(string URL = null)
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            if (URL == null)
+            {
+                guild.PartnerSetup.ImageUrl = null;
+                await ReplyAsync("Image has been removed.");
+            }
+            else if (RedditHelper.isimage(URL).isimage)
+            {
+                guild.PartnerSetup.ImageUrl = URL;
+                var embed = new EmbedBuilder {ImageUrl = URL};
+                await ReplyAsync("Image Set", false, embed.Build());
+                var home = Homeserver.Load().PartnerUpdates;
+                var chan = await Context.Client.GetChannelAsync(home);
+                if (chan is IMessageChannel channel)
+                {
+                    var embed2 = new EmbedBuilder
+                    {
+                        Title = "Partner Image Set",
+                        Description = $"{Context.Guild.Name}\n" +
+                                      $"`{Context.Guild.Id}`\n" +
+                                      $"Channel: {Context.Channel.Name}",
+                        ImageUrl = URL
+                    };
+                    await channel.SendMessageAsync("", false, embed2.Build());
+                }
+            }
+            else
+            {
+                await ReplyAsync("You have not provided an image URL.");
+                return;
+            }
+            GuildConfig.SaveServer(guild);
+        }
+
+        [Command("PartnerUserCount")]
+        [Summary("PartnerUserCount")]
+        [Remarks("Toggle wether or not to show your server's user count in partner message")]
+        public async Task PUserCount()
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            guild.PartnerSetup.showusercount = !guild.PartnerSetup.showusercount;
+            await ReplyAsync($"Will show UserCount in pertner messages: {guild.PartnerSetup.showusercount}");
+            var home = Homeserver.Load().PartnerUpdates;
+            var chan = await Context.Client.GetChannelAsync(home);
+            if (chan is IMessageChannel channel)
+            {
+                var embed2 = new EmbedBuilder
+                {
+                    Title = "Partner UserCount Toggled",
+                    Description = $"{Context.Guild.Name}\n" +
+                                    $"`{Context.Guild.Id}`\n" +
+                                    $"Channel: {Context.Channel.Name}\n" +
+                                  $"ShowUserCount: {guild.PartnerSetup.showusercount}"
+                };
+                await channel.SendMessageAsync("", false, embed2.Build());
+            }
+
+            GuildConfig.SaveServer(guild);
+        }
+
         [Command("PartnerHelp")]
         [Summary("PartnerHelp")]
         [Remarks("See the PartnerHelp tutorial")]
@@ -200,6 +265,27 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
+        [Command("PartnerPreview")]
+        [Summary("PartnerPreview")]
+        [Remarks("Preview how your server's partner message will appear to other servers.")]
+        public async Task PPreview()
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            var embed = new EmbedBuilder
+            {
+                Title = Context.Guild.Name,
+                Description = guild.PartnerSetup.Message,
+                ThumbnailUrl = Context.Guild.IconUrl,
+                ImageUrl = guild.PartnerSetup.ImageUrl,
+                Color = Color.Green,
+                Footer = new EmbedFooterBuilder
+                {
+                    Text = (guild.PartnerSetup.showusercount ? $"User Count: {((SocketGuild)Context.Guild).MemberCount}" : null)
+                }
+            };
+            await ReplyAsync("", false, embed.Build());
+        }
+
         [Command("PartnerInfo")]
         [Summary("PartnerInfo")]
         [Remarks("See Partner Setup Info")]
@@ -211,6 +297,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 $"Channel: {Context.Client.GetChannelAsync(guild.PartnerSetup.PartherChannel).Result?.Name}\n" +
                 $"Enabled: {guild.PartnerSetup.IsPartner}\n" +
                 $"Banned: {guild.PartnerSetup.banned}\n" +
+                $"Image URL: {guild.PartnerSetup.ImageUrl}\n" +
+                $"Show User Count: {guild.PartnerSetup.showusercount}\n" +
                 $"Message:\n{guild.PartnerSetup.Message}";
             embed.Color = Color.Blue;
             await ReplyAsync("", false, embed.Build());

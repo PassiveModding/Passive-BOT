@@ -49,7 +49,12 @@ namespace PassiveBOT.Handlers
                                             Title = otherchannel.Guild.Name,
                                             Description = selectedguild.Message,
                                             ThumbnailUrl = otherchannel.Guild.IconUrl,
-                                            Color = Color.Green
+                                            ImageUrl = selectedguild.ImageUrl,
+                                            Color = Color.Green,
+                                            Footer = new EmbedFooterBuilder
+                                            {
+                                                Text = (selectedguild.showusercount ? $"User Count: {((SocketGuild)otherchannel.Guild).MemberCount}" : null)
+                                            }
                                         };
                                         await channel.SendMessageAsync("", false, embed.Build());
                                         newlist.Remove(newitem);

@@ -79,7 +79,7 @@ namespace PassiveBOT.Commands
         }
 
         [Command("BrowseRedditNSFW", RunMode = RunMode.Async)]
-        [Summary("BorwseRedditNSFW <sub>")]
+        [Summary("BrowseRedditNSFW <sub>")]
         [Remarks("Get a random post from first 150 in hot of a sub")]
         public async Task BRedditNSFW(string subreddit = null)
         {

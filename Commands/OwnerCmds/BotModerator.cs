@@ -89,12 +89,15 @@ namespace PassiveBOT.Commands.OwnerCmds
                                       $"{Checking}\n\n" +
                                       $"__**Channel Info:**__\n" +
                                       $"Topic: {pchannel.Topic}\n" +
-                                      $"Name: {pchannel.Name}\n\n" +
+                                      $"Name: {pchannel.Name}\n" +
+                                      $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                      $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
                                       $"__**Guild Info:**__\n" +
                                       $"Owner: {guild.Owner.Username}\n" +
                                       $"Owner ID: {guild.OwnerId}\n" +
                                       $"UserCount: {guild.MemberCount}\n" +
-                                      $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n"
+                                      $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
+                        imageurl = guildobj.PartnerSetup.ImageUrl
                     });
 
                 }
