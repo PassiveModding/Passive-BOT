@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -15,6 +16,12 @@ namespace PassiveBOT.Configuration
         public ulong Error { get; set; } = 0;
         public ulong PartnerUpdates { get; set; } = 0;
         public ulong BotModerator { get; set; } = 0;
+        public List<globalban> GlobalBans { get; set; } = new List<globalban>();
+        public class globalban
+        {
+            public string Name { get; set; } = "";
+            public ulong ID { get; set; } = 0;
+        }
 
         public static void SaveHome(Homeserver config)
         {

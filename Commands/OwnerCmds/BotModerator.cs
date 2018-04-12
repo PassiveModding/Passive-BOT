@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -22,65 +16,86 @@ namespace PassiveBOT.Commands.OwnerCmds
     {
         [Command("PartnerList+", RunMode = RunMode.Async)]
         [Summary("PartnerList+")]
-        [Remarks("Get a list of all partner servers")]
-        public async Task PList()
-        {
-            var pages = new List<string>();
-            var currentpage = "";
-            foreach (var guild in TimerService.AcceptedServers)
-                if (Context.Client.GetGuild(guild) is SocketGuild guildfull)
-                {
-                    var guildobj = GuildConfig.GetServer(guildfull);
-                    if (currentpage.Length > 1000)
-                    {
-                        pages.Add(currentpage);
-                        currentpage = "";
-                    }
-
-                    currentpage += $"`{guildobj.GuildId} - {(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`" +
-                                   "\n" +
-                                   $"{guildobj.PartnerSetup.Message}" +
-                                   "\n-----\n";
-                }
-
-            pages.Add(currentpage);
-            var msg = new PaginatedMessage
-            {
-                Title = "Partner Messages",
-                Pages = pages.Select(x => new PaginatedMessage.Page
-                    {description = x}),
-                Color = new Color(114, 137, 218)
-            };
-
-            await PagedReplyAsync(msg);
-        }
-
-        [Command("PartnerListFull+", RunMode = RunMode.Async)]
-        [Summary("PartnerListFull+")]
         [Remarks("Get a complete list of all partner servers")]
-        public async Task PListF()
+        public async Task PListF2()
         {
-            var pages = new List<string>();
-            var currentpage = "";
+            var pages = new List<PaginatedMessage.Page>();
             foreach (var guild in Context.Client.Guilds)
             {
                 try
                 {
                     var guildobj = GuildConfig.GetServer(guild);
+                    if (!guildobj.PartnerSetup.IsPartner) continue;
 
-                    if (guildobj.PartnerSetup.IsPartner)
+                    var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                    var Checking = "";
+                    if (pchannel != null)
                     {
-                        if (currentpage.Length > 1000)
-                        {
-                            pages.Add(currentpage);
-                            currentpage = "";
-                        }
+                        var ChannelOverWrites = pchannel.PermissionOverwrites;
 
-                        currentpage += $"`{guildobj.GuildId} - {(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`" +
-                                        "\n" +
-                                        $"{guildobj.PartnerSetup.Message}" +
-                                        "\n-----\n";
+                        foreach (var OverWrite in ChannelOverWrites)
+                        {
+                            try
+                            {
+                                var Name = "N/A";
+                                if (OverWrite.TargetType == PermissionTarget.Role)
+                                {
+                                    var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                    if (Role != null)
+                                    {
+                                        Name = Role.Name;
+                                    }
+                                }
+                                else
+                                {
+                                    var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                    if (user != null)
+                                    {
+                                        Name = user.Username;
+                                    }
+                                }
+
+                                if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                                {
+                                    Checking += $"{Name} Cannot Read Msgs.\n";
+                                }
+
+                                if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                {
+                                    Checking += $"{Name} Cannot Read History.\n";
+                                }
+
+                            }
+                            catch
+                            {
+                                //
+                            }
+
+                        }
                     }
+
+                    var pmessage = guildobj.PartnerSetup.Message;
+                    if (pmessage.Length > 1024)
+                    {
+                        pmessage = pmessage.Substring(0, 1024);
+                    }
+
+                    pages.Add(new PaginatedMessage.Page
+                    {
+                        dynamictitle = $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                        description = $"__**Message:**__\n\n" +
+                                      $"{(pmessage ?? "N/A")}\n\n" +
+                                      $"__**Permissions:**__\n" +
+                                      $"{Checking}\n\n" +
+                                      $"__**Channel Info:**__\n" +
+                                      $"Topic: {pchannel.Topic}\n" +
+                                      $"Name: {pchannel.Name}\n\n" +
+                                      $"__**Guild Info:**__\n" +
+                                      $"Owner: {guild.Owner.Username}\n" +
+                                      $"Owner ID: {guild.OwnerId}\n" +
+                                      $"UserCount: {guild.MemberCount}\n" +
+                                      $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n"
+                    });
 
                 }
                 catch
@@ -88,14 +103,10 @@ namespace PassiveBOT.Commands.OwnerCmds
                     //
                 }
             }
-
-
-            pages.Add(currentpage);
             var msg = new PaginatedMessage
             {
                 Title = "Partner Messages",
-                Pages = pages.Select(x => new PaginatedMessage.Page
-                    { description = x }),
+                Pages = pages,
                 Color = new Color(114, 137, 218)
             };
 
@@ -224,6 +235,85 @@ namespace PassiveBOT.Commands.OwnerCmds
             await ReplyAsync("Guild Partnership Unbanned. Message has been reset");
         }
 
+        [Command("GlobalGetUser+")]
+        [Summary("GlobalGetUser+ <UserID>")]
+        [Remarks("Get a user's info (if they share a server with the bot)")]
+        public async Task GlobalGetuser(ulong UserId = 0)
+        {
+            if (Context.Client.Guilds.Any(x => x.Users.Any(u => u.Id == UserId)))
+            {
+                var guilds = Context.Client.Guilds.Where(x => x.Users.Any(u => u.Id == UserId)).Select(x => $"{x.Name} - {x.Id}");
+                var user = Context.Client.GetUser(UserId);
+                await ReplyAsync($"Name: {user.Username}#{user.Discriminator}\n" +
+                                 $"ID: {user.Id}\n" +
+                                 $"Guilds:\n" +
+                                 $"{string.Join("\n", guilds)}");
+            }
+            else
+            {
+                await ReplyAsync("User Unavailable");                
+            }
+
+        }
+
+        [Command("GlobanBan+")]
+        [Summary("GlobalBan+ <UserID>")]
+        [Remarks("Ban a user from using all bot commands")]
+        public async Task GlobalBan(ulong UserId = 0)
+        {
+            var hs = Homeserver.Load();
+            var us = Context.Client.GetUser(UserId);
+            if (us == null)
+            {
+                await ReplyAsync("Unable to Get User, adding unknown global ban");
+                hs.GlobalBans.Add(new Homeserver.globalban
+                {
+                    Name = "Unknown User",
+                    ID = UserId
+                });
+            }
+            else
+            {
+                hs.GlobalBans.Add(new Homeserver.globalban
+                {
+                    Name = us.Username,
+                    ID = us.Id
+                });                
+            }
+            Homeserver.SaveHome(hs);
+            await ReplyAsync("User banned from PassiveBOT Commands");
+        }
+
+        [Command("GlobanUnBan+")]
+        [Summary("GlobalUnBan+ <UserID>")]
+        [Remarks("UnBan a user from using all bot commands")]
+        public async Task GlobalUnBan(ulong UserId = 0)
+        {
+            var hs = Homeserver.Load();
+            hs.GlobalBans.Remove(hs.GlobalBans.FirstOrDefault(x => x.ID == UserId));
+            Homeserver.SaveHome(hs);
+            await ReplyAsync("User UnBanned from PassiveBOT Commands");
+        }
+
+        [Command("GlobanBanList+")]
+        [Summary("GlobalBanLust+")]
+        [Remarks("View all global bans")]
+        public async Task GlobalBans()
+        {
+            var hs = Homeserver.Load();
+            try
+            {
+                var embed = new EmbedBuilder().WithDescription(string.Join("\n", hs.GlobalBans.Select(x => $"{x.Name} || {x.ID}")));
+                embed.Title = "Global Bans";
+                await ReplyAsync("", false, embed.Build());
+            }
+            catch
+            {
+                await ReplyAsync("No Global Bans");
+            }
+
+        }
+
         [Command("ViewRedditCache+")]
         [Summary("ViewRedditCache+")]
         [Remarks("Get a list of cached subreddits")]
@@ -295,6 +385,31 @@ namespace PassiveBOT.Commands.OwnerCmds
             };
 
             await PagedReplyAsync(msg);
+        }
+
+        [Command("GetInvite+")]
+        [Summary("GetInvite+ <guild ID>")]
+        [Remarks("Creat an invite to the specified server")]
+        public async Task GetAsync(ulong id)
+        {
+            if (id <= 0)
+                await ReplyAsync("Please enter a valid Guild ID");
+
+            foreach (var guild in Context.Client.Guilds)
+                if (guild.Id == id)
+                    foreach (var channel in guild.Channels)
+                        try
+                        {
+                            var inv = channel.CreateInviteAsync().Result.Url;
+                            await ReplyAsync(inv);
+                            return;
+                        }
+                        catch
+                        {
+                            //
+                        }
+
+            await ReplyAsync("No Invites able to be created.");
         }
     }
 }

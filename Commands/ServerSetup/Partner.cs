@@ -138,6 +138,12 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
+            if (input.Length > 1024)
+            {
+                await ReplyAsync($"Message is too long. Please limit it to 1024 characters or less. (Current = {input.Length})");
+                return;
+            }
+
             if (NsfwStr.Profanity.Any(x =>
                 ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(input.ToLower())).ToLower()
                     .Contains(x.ToLower())))

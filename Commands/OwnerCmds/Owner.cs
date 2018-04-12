@@ -206,33 +206,7 @@ namespace PassiveBOT.Commands.OwnerCmds
 
             //await Task.Delay(500);
             await gld.LeaveAsync();
-            //await ReplyAsync("Message has been sent and I've left the guild!");
-        }
-
-
-        [Command("GetInvite+")]
-        [Summary("GetInvite+ <guild ID>")]
-        [Remarks("Creat an invite to the specified server")]
-        public async Task GetAsync(ulong id)
-        {
-            if (id <= 0)
-                await ReplyAsync("Please enter a valid Guild ID");
-
-            foreach (var guild in Context.Client.Guilds)
-                if (guild.Id == id)
-                    foreach (var channel in guild.Channels)
-                        try
-                        {
-                            var inv = channel.CreateInviteAsync().Result.Url;
-                            await ReplyAsync(inv);
-                            return;
-                        }
-                        catch
-                        {
-                            //
-                        }
-
-            await ReplyAsync("No Invites able to be created.");
+            await ReplyAsync("Message has been sent and I've left the guild!");
         }
 
         [Command("ReduceServers+", RunMode = RunMode.Async)]

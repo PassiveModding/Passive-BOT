@@ -284,6 +284,40 @@ namespace PassiveBOT.Commands.ServerModeration
                 await ReplyAsync("There are no warns in the server...");
         }
 
+        [Command("HackBan")]
+        [Summary("HackBan <User ID>")]
+        [Remarks("Bans the specified user from a server they are not in (requires Admin Permissions)")]
+        public async Task BanUser(ulong UserID)
+        {
+            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
+            if (!File.Exists(file))
+                GuildConfig.Setup(Context.Guild);
+            var config = GuildConfig.GetServer(Context.Guild);
+
+            var add = new GuildConfig.Bans
+            {
+                Moderator = Context.User.Username,
+                Reason = "HackBan",
+                User = $"{UserID}",
+                UserId = UserID
+            };
+
+            try
+            {
+
+                await Context.Guild.AddBanAsync(UserID);
+            }
+            catch
+            {
+                await ReplyAsync("This user was unable to be banned");
+                return;
+            }
+
+            config.Banning.Add(add);
+            GuildConfig.SaveServer(config);
+            await ReplyAsync("Success!! User Banned");
+        }
+
         [Command("Ban")]
         [Summary("Ban <@user> <reason>")]
         [Remarks("Bans the specified user (requires Admin Permissions)")]

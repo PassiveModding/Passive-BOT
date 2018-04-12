@@ -240,6 +240,7 @@ namespace PassiveBOT.Handlers
             if (context.User.IsBot) return;
 
             InitialisePartnerProgram();
+
             await CheckMessage(message, context);
             await AutoMessage(message, context);
 
@@ -264,6 +265,9 @@ namespace PassiveBOT.Handlers
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) ||
                   message.HasStringPrefix(Load.Pre, ref argPos) ||
                   message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))) return;
+
+            if (Homeserver.Load().GlobalBans.Any(x => x.ID == context.User.Id))
+                return;
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
             var commandsuccess = result.IsSuccess;
