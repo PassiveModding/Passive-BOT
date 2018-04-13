@@ -49,6 +49,8 @@ namespace PassiveBOT.Configuration
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
         public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
 
+        public bool RemoveMassMention { get; set; } = false;
+
         public bool ErrorLog { get; set; } // allows for responses with errors 
 
         public bool GoodbyeEvent { get; set; } = false;

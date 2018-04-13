@@ -70,14 +70,14 @@ namespace PassiveBOT.Handlers
 
         public async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
         {
+            var guild = GuildConfig.GetServer(context.Guild);
             try
             {
                 if (!(context.Channel is IDMChannel))
                     if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) &&
-                        GuildConfig.GetServer(context.Guild).AutoMessage.Any(x => x.channelID == context.Channel.Id))
+                        guild.AutoMessage.Any(x => x.channelID == context.Channel.Id))
                     {
-                        var serverobj = GuildConfig.GetServer(context.Guild);
-                        var chan = serverobj.AutoMessage.First(x => x.channelID == context.Channel.Id);
+                        var chan = guild.AutoMessage.First(x => x.channelID == context.Channel.Id);
                         if (chan.enabled)
                         {
                             chan.messages++;
@@ -90,7 +90,7 @@ namespace PassiveBOT.Handlers
                                 chan.messages = 0;
                             }
 
-                            GuildConfig.SaveServer(serverobj);
+                            GuildConfig.SaveServer(guild);
                         }
                     }
             }
@@ -102,14 +102,15 @@ namespace PassiveBOT.Handlers
 
         public async Task CheckMessage(SocketUserMessage message, SocketCommandContext context)
         {
+            var guild = GuildConfig.GetServer(context.Guild);
             if (message.Content.Contains("discord.gg"))
                 try
                 {
                     if (context.Channel is IGuildChannel)
-                        if (GuildConfig.GetServer(context.Guild).Invite &&
+                        if (guild.Invite &&
                             !((SocketGuildUser) context.User).GuildPermissions.Administrator)
                             if (!((IGuildUser) context.User).RoleIds
-                                .Intersect(GuildConfig.GetServer(context.Guild).InviteExcempt).Any())
+                                .Intersect(guild.InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
                                 await context.Channel.SendMessageAsync(
@@ -125,19 +126,27 @@ namespace PassiveBOT.Handlers
                     //
                 }
 
-            if (message.MentionedRoles.Count > 5 || message.MentionedUsers.Count > 5)
+            if (guild.RemoveMassMention && !((SocketGuildUser)context.User).GuildPermissions.Administrator && !((IGuildUser)context.User).RoleIds.Intersect(guild.InviteExcempt).Any())
             {
-                //Remove.
+                if (message.MentionedRoles.Count > 5 || message.MentionedUsers.Count > 5)
+                {
+                    var emb = new EmbedBuilder
+                    {
+                        Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once",
+                    };
+                    await context.Channel.SendMessageAsync("", false, emb.Build());
+                }
             }
+
 
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
                 try
                 {
                     if (context.Channel is IGuildChannel)
-                        if (GuildConfig.GetServer(context.Guild).MentionAll &&
+                        if (guild.MentionAll &&
                             !((SocketGuildUser) context.User).GuildPermissions.Administrator)
                             if (!((IGuildUser) context.User).RoleIds
-                                .Intersect(GuildConfig.GetServer(context.Guild).InviteExcempt).Any())
+                                .Intersect(guild.InviteExcempt).Any())
                             {
                                 await message.DeleteAsync();
 
@@ -163,9 +172,9 @@ namespace PassiveBOT.Handlers
             try
             {
                 var blacklistdetected = false;
-                if (GuildConfig.GetServer(context.Guild).BlacklistBetterFilter)
+                if (guild.BlacklistBetterFilter)
                 {
-                    if (GuildConfig.GetServer(context.Guild).Blacklist.Any(x =>
+                    if (guild.Blacklist.Any(x =>
                             ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(context.Message.Content))
                                 .ToLower().Contains(x.ToLower())) &&
                         !((IGuildUser) context.User).GuildPermissions.Administrator)
@@ -173,7 +182,7 @@ namespace PassiveBOT.Handlers
                 }
                 else
                 {
-                    if (GuildConfig.GetServer(context.Guild).Blacklist
+                    if (guild.Blacklist
                             .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
                         !((IGuildUser) context.User).GuildPermissions.Administrator)
                         blacklistdetected = true;
@@ -185,7 +194,7 @@ namespace PassiveBOT.Handlers
                     var blmessage = "";
                     try
                     {
-                        blmessage = GuildConfig.GetServer(context.Guild).BlacklistMessage;
+                        blmessage = guild.BlacklistMessage;
                     }
                     catch
                     {

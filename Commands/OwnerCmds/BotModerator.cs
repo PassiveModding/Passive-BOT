@@ -392,8 +392,8 @@ namespace PassiveBOT.Commands.OwnerCmds
 
         [Command("GetInvite+")]
         [Summary("GetInvite+ <guild ID>")]
-        [Remarks("Creat an invite to the specified server")]
-        public async Task GetAsync(ulong id)
+        [Remarks("Create an invite to the specified server")]
+        public async Task GetInvite(ulong id)
         {
             if (id <= 0)
                 await ReplyAsync("Please enter a valid Guild ID");
@@ -413,6 +413,38 @@ namespace PassiveBOT.Commands.OwnerCmds
                         }
 
             await ReplyAsync("No Invites able to be created.");
+        }
+
+        [Command("GetAlias+")]
+        [Summary("GetAlias+ <@User>")]
+        [Remarks("Get user aliases")]
+        public async Task GetAlias(IGuildUser user)
+        {
+            var HS = Homeserver.Load();
+            var Alias = HS.Aliases.FirstOrDefault(x => x.UserID == user.Id);
+            if (Alias == null)
+            {
+                await ReplyAsync("No Logged aliases for this user");
+            }
+            else
+            {
+                var pages = new List<PaginatedMessage.Page>();
+                foreach (var guild in Alias.Guilds)
+                {
+                    pages.Add(new PaginatedMessage.Page
+                    {
+                        dynamictitle = guild.GuildName,
+                        description = string.Join("\n", guild.GuildAliases.OrderByDescending(x => x.DateChanged).Select(x => x.Name))
+                    });
+                }
+                var paginated = new PaginatedMessage
+                {
+                    Title = $"{user.Username}'s Nickname History",
+                    Pages = pages,
+                    Color = Color.Blue
+                };
+                await PagedReplyAsync(paginated);
+            }
         }
     }
 }

@@ -35,6 +35,7 @@ namespace PassiveBOT.Handlers
             client.UserLeft += GoodbyeMessage;
 
             //user
+            client.GuildMemberUpdated += Client_GuildMemberUpdated; ;
             client.UserLeft += UserLeftEvent;
             client.UserJoined += UserJoinedEvent;
             client.UserBanned += UserBannedEvent;
@@ -46,6 +47,108 @@ namespace PassiveBOT.Handlers
             client.ChannelCreated += ChannelCreatedEvent;
             client.ChannelDestroyed += ChannelDeletedEvent;
             client.ChannelUpdated += ChannelUpdatedEvent;
+        }
+
+        private async Task Client_GuildMemberUpdated(SocketGuildUser UserBefore, SocketGuildUser UserAfter)
+        {
+            var HS = Homeserver.Load();
+            var logmsg = "";
+
+            if (UserBefore.Nickname != UserAfter.Nickname)
+            {
+                var UserAliases = HS.Aliases.FirstOrDefault(x => x.UserID == UserBefore.Id);
+
+                if (UserAliases == null)
+                {
+                    HS.Aliases.Add(new Homeserver.Alias
+                    {
+                        UserID = UserBefore.Id,
+                        UserName = UserAfter.Username,
+                        Guilds = new List<Homeserver.Alias.guild>
+                        {
+                            new Homeserver.Alias.guild
+                            {
+                                GuildID = UserBefore.Guild.Id,
+                                GuildName = UserBefore.Guild.Name,
+                                GuildAliases = new List<Homeserver.Alias.guild.GuildAlias>
+                                {
+                                    new Homeserver.Alias.guild.GuildAlias
+                                    {
+                                        DateChanged = DateTime.UtcNow,
+                                        Name = UserAfter.Nickname ?? UserAfter.Username
+                                    }
+                                }
+                            }
+                        }
+
+                    });
+                }
+                else
+                {
+                    var guild = UserAliases.Guilds.FirstOrDefault(x => x.GuildID == UserBefore.Guild.Id);
+                    if (guild == null)
+                    {
+                        UserAliases.Guilds.Add(new Homeserver.Alias.guild
+                        {
+                            GuildName = UserBefore.Guild.Name,
+                            GuildID = UserBefore.Guild.Id,
+                            GuildAliases = new List<Homeserver.Alias.guild.GuildAlias>
+                            {
+                                new Homeserver.Alias.guild.GuildAlias
+                                {
+                                    DateChanged = DateTime.UtcNow,
+                                    Name = UserAfter.Nickname ?? UserAfter.Username
+                                }
+                            }
+                        });
+                    }
+                    else
+                    {
+                        guild.GuildAliases.Add(new Homeserver.Alias.guild.GuildAlias
+                        {
+                            DateChanged = DateTime.UtcNow,
+                            Name = UserAfter.Nickname ?? UserAfter.Username
+                        });
+                    }
+                }
+
+                logmsg += $"__**NickName Updated**__\n" +
+                          $"OLD: {UserBefore.Nickname ?? UserBefore.Username}\n" +
+                          $"AFTER: {UserAfter.Nickname ?? UserAfter.Username}\n";
+            }
+
+            if (UserBefore.Roles.Count < UserAfter.Roles.Count)
+            {
+                var result = UserAfter.Roles.Where(b => UserBefore.Roles.All(a => b.Id != a.Id)).ToList();
+                logmsg += $"__**Role Added**__\n" +
+                          $"{(result[0]).Name}\n";
+            }
+            else if (UserBefore.Roles.Count > UserAfter.Roles.Count)
+            {
+                var result = UserBefore.Roles.Where(b => UserAfter.Roles.All(a => b.Id != a.Id)).ToList();
+                logmsg += $"__**Role Removed**__\n" +
+                          $"{(result[0]).Name}\n";
+            }
+            
+            if (logmsg == "") return;
+            var GuildConfig = Configuration.GuildConfig.GetServer(UserAfter.Guild);
+            if (GuildConfig.EventLogging && GuildConfig.EventChannel != 0)
+            {
+                var embed = new EmbedBuilder
+                {
+                    Title = $"User Updated",
+                    Description = $"**User:** {UserAfter.Mention}\n" +
+                                  $"**ID:** {UserAfter.Id}\n\n" + logmsg,
+                    ThumbnailUrl = UserAfter.GetAvatarUrl(),
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC"
+                    },
+                    Color = Color.Blue
+                };
+                await SendMessage(UserAfter.Guild, GuildConfig, embed);
+            }
+            Homeserver.SaveHome(HS);
         }
 
         public async Task SendMessage(SocketGuild guild, GuildConfig gobject, EmbedBuilder embed, string txt = "")
@@ -100,6 +203,7 @@ namespace PassiveBOT.Handlers
                 var embed = new EmbedBuilder
                 {
                     Title = "Message Updated",
+                    ThumbnailUrl = messageNew.Author.GetAvatarUrl(),
                     Footer = new EmbedFooterBuilder
                     {
                         Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
@@ -109,10 +213,10 @@ namespace PassiveBOT.Handlers
                 embed.AddField("Old Message:", $"{messageOld.Value.Content}");
                 embed.AddField("New Message:", $"{messageNew.Content}");
                 embed.AddField("Info",
-                    $"Author: {messageNew.Author.Username}\n" +
-                    $"Author ID: {messageNew.Author.Id}\n" +
-                    $"Channel: {messageNew.Channel.Name}\n" +
-                    $"Embeds: {messageNew.Embeds.Any()}");
+                    $"**Author:** {messageNew.Author.Username}\n" +
+                    $"**Author ID:** {messageNew.Author.Id}\n" +
+                    $"**Channel:** {messageNew.Channel.Name}\n" +
+                    $"**Embeds:** {messageNew.Embeds.Any()}");
 
                 await SendMessage(guild, guildobj, embed);
             }
@@ -170,18 +274,20 @@ namespace PassiveBOT.Handlers
         public async Task ChannelCreatedEvent(SocketChannel sChannel)
         {
             var guild = ((SocketGuildChannel) sChannel).Guild;
-            var gChannel = (SocketGuildChannel) sChannel;
             var guildobj = GuildConfig.GetServer(guild);
             if (guildobj.EventLogging)
             {
-                var embed = new EmbedBuilder();
-                embed.AddField("Channel Created", $"{gChannel.Name}");
-                embed.WithFooter(x =>
+                var embed = new EmbedBuilder
                 {
-                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
-                });
-                embed.Color = Color.Green;
+                    Title = "Channel Created",
+                    Description = ((SocketGuildChannel)sChannel)?.Name,
+                    Color = Color.Green,
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
+                    }
 
+                };
                 await SendMessage(guild, guildobj, embed);
             }
         }
@@ -211,7 +317,7 @@ namespace PassiveBOT.Handlers
                 {
                     x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
                 });
-                embed.Color = Color.Green;
+                embed.Color = Color.DarkTeal;
 
                 await SendMessage(guild, guildobj, embed);
             }
@@ -222,14 +328,17 @@ namespace PassiveBOT.Handlers
             var guildobj = GuildConfig.GetServer(guild);
             if (guildobj.EventLogging)
             {
-                var embed = new EmbedBuilder();
-                embed.AddField("User UnBanned", $"Username: {user.Username}");
-                embed.WithFooter(x =>
+                var embed = new EmbedBuilder
                 {
-                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
-                });
-                embed.Color = Color.Green;
-
+                    Title = "User Unbanned",
+                    ThumbnailUrl = user.GetAvatarUrl(),
+                    Description = $"**Username:** {user.Username}",
+                    Color = Color.DarkTeal,
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
+                    }
+                };
                 await SendMessage(guild, guildobj, embed);
             }
         }
@@ -239,13 +348,17 @@ namespace PassiveBOT.Handlers
             var guildobj = GuildConfig.GetServer(guild);
             if (guildobj.EventLogging)
             {
-                var embed = new EmbedBuilder();
-                embed.AddField("User Banned", $"Username: {user.Username}");
-                embed.WithFooter(x =>
+                var embed = new EmbedBuilder
                 {
-                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
-                });
-                embed.Color = Color.Red;
+                    Title = "User Banned",
+                    ThumbnailUrl = user.GetAvatarUrl(),
+                    Description = $"**Username:** {user.Username}",
+                    Color = Color.Red,
+                    Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
+                    }
+                };
 
                 await SendMessage(guild, guildobj, embed);
             }
@@ -317,6 +430,7 @@ namespace PassiveBOT.Handlers
             var embed = new EmbedBuilder
             {
                 Title = $"Welcome {user.Username}",
+                ThumbnailUrl = user.GetAvatarUrl(),
                 Description = wmessage,
                 Color = Color.Blue,
                 Footer = new EmbedFooterBuilder
@@ -342,6 +456,7 @@ namespace PassiveBOT.Handlers
             var embed = new EmbedBuilder
             {
                 Title = $"Goodbye {user.Username}",
+                ThumbnailUrl = user.GetAvatarUrl(),
                 Description = guildobj.GoodbyeMessage
             };
             if (guildobj.GoodByeChannel != 0)
