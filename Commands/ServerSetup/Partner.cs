@@ -245,6 +245,26 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
+            if (input.Contains("discord.gg"))
+            {
+                var invites = input.Split(' ').Where(x => x.Contains("discord.gg")).ToList();
+                var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
+                var invitelist = 0;
+                foreach (var invite in invites)
+                {
+                    if (officialinvites.Any(x => x.Url == invite))
+                    {
+                        invitelist++;
+                    }
+                }
+
+                if (invitelist < invites.Count)
+                {
+                    await ReplyAsync("Only invites from this server are allowed in the partner message!");
+                    return;
+                }
+            }
+
             var guild = GuildConfig.GetServer(Context.Guild);
             guild.PartnerSetup.Message = input;
             GuildConfig.SaveServer(guild);
