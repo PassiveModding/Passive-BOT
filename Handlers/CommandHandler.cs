@@ -144,7 +144,6 @@ namespace PassiveBOT.Handlers
                             }
                         }
                     });
-                    message.Channel.SendMessageAsync("Guild Added");
                 }
                 else
                 {
