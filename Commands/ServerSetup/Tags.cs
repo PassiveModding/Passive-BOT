@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -10,6 +11,7 @@ namespace PassiveBOT.Commands.ServerSetup
 {
     [RequireContext(ContextType.Guild)]
     [Group("Tag")]
+    [Alias("Tags")]
     public class Tags : ModuleBase
     {
         [Command("add")]
@@ -92,11 +94,11 @@ namespace PassiveBOT.Commands.ServerSetup
             }
             else
             {
-                var dict = GuildConfig.GetServer(Context.Guild).Dict;
+                var server = GuildConfig.GetServer(Context.Guild);
                 var embed = new EmbedBuilder();
-                if (dict.Count > 0)
+                if (server.Dict.Count > 0)
                 {
-                    var tag = dict.FirstOrDefault(x =>
+                    var tag = server.Dict.FirstOrDefault(x =>
                         string.Equals(x.Tagname, tagname, StringComparison.CurrentCultureIgnoreCase));
                     if (tag == null)
                     {
@@ -119,9 +121,12 @@ namespace PassiveBOT.Commands.ServerSetup
                         embed.WithFooter(x =>
                         {
                             x.Text =
-                                $"Tag Owner: {ownername} || Command Invokee: {Context.User.Username}";
+                                $"Tag Owner: {ownername} || Uses: {tag.uses} || Command Invokee: {Context.User.Username}";
                         });
+                        tag.uses++;
+                        GuildConfig.SaveServer(server);
                         await ReplyAsync("", false, embed.Build());
+
                     }
                 }
             }
@@ -132,6 +137,7 @@ namespace PassiveBOT.Commands.ServerSetup
             public string Tagname { get; set; }
             public string Content { get; set; }
             public ulong Creator { get; set; }
+            public int uses { get; set; } = 0;
         }
     }
 }

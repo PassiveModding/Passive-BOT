@@ -448,7 +448,7 @@ namespace PassiveBOT.Commands.ServerSetup
                              "" +
                              "```");
             var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
-            input = Int32.Parse(next.Content);
+            input = int.Parse(next.Content);
             }
             else
             {
@@ -528,41 +528,71 @@ namespace PassiveBOT.Commands.ServerSetup
         [Command("NoInvite")]
         [Summary("NoInvite <true/false>")]
         [Remarks("disables/enables the sending of invites in a server from regular members")]
-        public async Task NoInvite(bool status)
+        public async Task NoInvite()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.Invite = status;
+            jsonObj.Invite = !jsonObj.Invite;
             GuildConfig.SaveServer(jsonObj);
 
-            if (status)
+            if (jsonObj.Invite)
                 await ReplyAsync("Invite links will now be deleted!");
             else
                 await ReplyAsync("Invite links are now allowed to be sent");
         }
 
         [Command("NoMention")]
-        [Summary("NoMention <true/false>")]
+        [Summary("NoMention")]
         [Remarks("disables/enables the use of @ everyone and @ here in a server from regular members")]
-        public async Task NoMention(bool status)
+        public async Task NoMention()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.MentionAll = status;
+            jsonObj.MentionAll = !jsonObj.MentionAll;
             GuildConfig.SaveServer(jsonObj);
 
-            if (status)
+            if (jsonObj.MentionAll)
+                await ReplyAsync("Everyone and Here mentions will be deleted");
+            else
+                await ReplyAsync("Everyone and Here mentions will no longer be deleted");
+        }
+
+        [Command("NoMassMention")]
+        [Summary("NoMassMention")]
+        [Remarks("disables/enables the use of @ everyone and @ here in a server from regular members")]
+        public async Task NoMassMention()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            jsonObj.RemoveMassMention = !jsonObj.RemoveMassMention;
+            GuildConfig.SaveServer(jsonObj);
+
+            if (jsonObj.RemoveMassMention)
                 await ReplyAsync("Mass Mentions will now be deleted!");
             else
                 await ReplyAsync("Mass Mentions are now allowed to be sent");
         }
 
-        [Command("SetDj")]
-        [Summary("SetDj <@role>")]
-        [Remarks("Sets the DJ role")]
-        public async Task Dj([Remainder] IRole role)
+        [Command("NoSpam")]
+        [Summary("NoSpam")]
+        [Remarks("Toggle wether or not to disable spam in the server")]
+        public async Task SpamToggle()
         {
-            GuildConfig.SetDj(Context.Guild, role.Id);
-            await ReplyAsync($"The DJ Role has been set to: {role.Name}");
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            jsonObj.NoSpam = !jsonObj.NoSpam;
+            GuildConfig.SaveServer(jsonObj);
+
+            if (jsonObj.NoSpam)
+                await ReplyAsync($"NoSpam: {jsonObj.NoSpam}");
+            else
+                await ReplyAsync($"NoSpam: {jsonObj.NoSpam}");
         }
+
+        /* [Command("SetDj")]
+         [Summary("SetDj <@role>")]
+         [Remarks("Sets the DJ role")]
+         public async Task Dj([Remainder] IRole role)
+         {
+             GuildConfig.SetDj(Context.Guild, role.Id);
+             await ReplyAsync($"The DJ Role has been set to: {role.Name}");
+         }*/
 
         /*[Command("Errors")]
         [Summary("Errors <true/false>")]

@@ -9,7 +9,7 @@ using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 using RedditSharp;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Media
 {
     [Ratelimit(1, 5, Measure.Seconds)]
     public class Media : ModuleBase

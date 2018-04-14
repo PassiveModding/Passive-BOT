@@ -48,7 +48,7 @@ namespace PassiveBOT.Configuration
         public List<ulong> InviteExcempt { get; set; } = new List<ulong>();
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
         public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
-
+        public bool NoSpam { get; set; } = false;
         public bool RemoveMassMention { get; set; } = false;
 
         public bool ErrorLog { get; set; } // allows for responses with errors 

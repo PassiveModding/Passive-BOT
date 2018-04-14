@@ -8,7 +8,7 @@ using PassiveBOT.Configuration;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Text
 {
     [Ratelimit(1, 2, Measure.Seconds)]
     public class Fun : ModuleBase

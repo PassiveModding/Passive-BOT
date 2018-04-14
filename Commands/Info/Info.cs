@@ -13,7 +13,7 @@ using PassiveBOT.Configuration;
 using PassiveBOT.Discord.Addons.Interactive;
 using PassiveBOT.Discord.Addons.Interactive.Paginator;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Info
 {
     public class Information : InteractiveBase
     {

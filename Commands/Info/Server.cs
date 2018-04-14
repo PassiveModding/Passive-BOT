@@ -12,7 +12,7 @@ using PassiveBOT.Discord.Addons.Interactive;
 using PassiveBOT.Discord.Addons.Interactive.Paginator;
 using PassiveBOT.Preconditions;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Info
 {
     [RequireContext(ContextType.Guild)]
     public class Server : InteractiveBase

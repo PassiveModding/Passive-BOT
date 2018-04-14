@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -7,7 +8,7 @@ using PassiveBOT.Configuration;
 using PassiveBOT.Discord.Addons.Interactive;
 using PassiveBOT.Discord.Addons.Interactive.Paginator;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Info
 {
     public class Help : InteractiveBase
     {
@@ -115,34 +116,21 @@ namespace PassiveBOT.Commands
                 //    $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
                 //    "Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
             }
-            else
+
+            var mod = _service.Modules.FirstOrDefault(x =>
+                string.Equals(x.Name, modulearg, StringComparison.CurrentCultureIgnoreCase));
+
+            if (mod == null)
             {
-                foreach (var module in _service.Modules)
-                    if (module.Name.ToLower() == modulearg.ToLower())
-                    {
-                        var list = new List<string>();
-                        foreach (var command in module.Commands)
-                        {
-                            list.Add(
-                                $"`{isserver}{command.Summary}` - {command.Remarks}");
-                            if (string.Join("\n", list).Length > 800)
-                            {
-                                embed.AddField(module.Name, string.Join("\n", list));
-                                list = new List<string>();
-                            }
-                        }
-
-                        embed.AddField(module.Name, string.Join("\n", list));
-                    }
-
-                if (embed.Fields.Count == 0)
-                {
-                    embed.AddField("Error", $"{modulearg} is not a module");
-                    var list = _service.Modules.Select(module => module.Name).ToList();
-                    embed.AddField("Modules", string.Join("\n", list));
-                }
+                var list = _service.Modules.Where(x => x.Name != "InteractiveBase" && x.Name != "InteractiveBase`1").Select(x => x.Name);
+                var response = string.Join("\n", list);
+                embed.AddField("ERROR, Module not found", response);
+                await ReplyAsync("", false, embed.Build());
+                return;
             }
 
+            var commands = mod.Commands.Select(x => $"`{isserver}{x.Summary}` - {x.Remarks}").ToList();
+            embed.AddField($"{mod.Name} Commands", commands.Count == 0 ? "N/A" : string.Join("\n", commands));
             await ReplyAsync("", false, embed.Build());
         }
 

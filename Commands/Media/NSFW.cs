@@ -15,7 +15,7 @@ using PassiveBOT.strings;
 using RedditSharp;
 using RedditSharp.Things;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Media
 {
     //[Ratelimit(1, 2, Measure.Seconds)]
     [CheckNsfw]
