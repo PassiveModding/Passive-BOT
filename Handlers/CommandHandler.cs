@@ -117,7 +117,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public bool CheckMessage(SocketUserMessage message, SocketCommandContext context)
+        public async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context)
         {
             var guild = GuildConfig.GetServer(context.Guild);
             if (guild.NoSpam)
@@ -165,7 +165,7 @@ namespace PassiveBOT.Handlers
                     }
                     else
                     {
-                        bool deleted = false;
+                        var deleted = false;
                         user.Messages.Add(new NoSpamGuild.NoSpam.msg
                         {
                             LastMessage = message.Content,
@@ -196,7 +196,7 @@ namespace PassiveBOT.Handlers
 
                         if (deleted)
                         {
-                            message.DeleteAsync();
+                            await message.DeleteAsync();
                             var delay = AntiSpamMsgDelays.FirstOrDefault(x => x.GuildID == guild.GuildId);
                             if (delay != null)
                             {
@@ -207,7 +207,7 @@ namespace PassiveBOT.Handlers
                                 {
                                     Title = $"{context.User} - No Spamming!!",
                                 };
-                                context.Channel.SendMessageAsync("", false, emb.Build());
+                                await context.Channel.SendMessageAsync("", false, emb.Build());
                             }
                             else
                             {
@@ -236,8 +236,8 @@ namespace PassiveBOT.Handlers
                             if (!((IGuildUser) context.User).RoleIds
                                 .Intersect(guild.InviteExcempt).Any())
                             {
-                                message.DeleteAsync();
-                                context.Channel.SendMessageAsync(
+                                await message.DeleteAsync();
+                                await context.Channel.SendMessageAsync(
                                     $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry");
                                 //if
                                 // 1. The server Has Invite Deletions turned on
@@ -254,12 +254,12 @@ namespace PassiveBOT.Handlers
                 {
                     if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
                     {
-                        message.DeleteAsync();
+                        await message.DeleteAsync();
                         var emb = new EmbedBuilder
                         {
                             Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once",
                         };
-                        context.Channel.SendMessageAsync("", false, emb.Build());
+                        await context.Channel.SendMessageAsync("", false, emb.Build());
                         return true;
                     }
                 }
@@ -275,7 +275,7 @@ namespace PassiveBOT.Handlers
                             if (!((IGuildUser) context.User).RoleIds
                                 .Intersect(guild.InviteExcempt).Any())
                             {
-                                message.DeleteAsync();
+                                await message.DeleteAsync();
 
                                 var rnd = new Random();
                                 var res = rnd.Next(0, FunStr.Everyone.Length);
@@ -284,7 +284,7 @@ namespace PassiveBOT.Handlers
                                     Title = $"{context.User} - the admins might get angry",
                                     ImageUrl = FunStr.Everyone[res]
                                 };
-                                context.Channel.SendMessageAsync("", false, emb.Build());
+                                await context.Channel.SendMessageAsync("", false, emb.Build());
                                 return true;
                                 //if
                                 // 1. The server Has Mention Deletions turned on
@@ -318,7 +318,7 @@ namespace PassiveBOT.Handlers
 
                 if (blacklistdetected)
                 {
-                    message.DeleteAsync();
+                    await message.DeleteAsync();
                     var blmessage = "";
                     try
                     {
@@ -386,7 +386,7 @@ namespace PassiveBOT.Handlers
 
             InitialisePartnerProgram();
 
-            if (CheckMessage(message, context))
+            if (await CheckMessage(message, context))
             {
                 return;
             }
