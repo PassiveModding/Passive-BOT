@@ -249,18 +249,21 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 var invites = input.Split(' ').Where(x => x.Contains("discord.gg")).ToList();
                 var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
-                var invitelist = 0;
+                bool mismatch = false;
                 foreach (var invite in invites)
                 {
-                    if (officialinvites.Any(x => x.Url == invite))
+                    var match = officialinvites.FirstOrDefault(x => x.Url == invite);
+                    if (match == null)
                     {
-                        invitelist++;
+                        mismatch = true;
                     }
                 }
 
-                if (invitelist < invites.Count)
+                if (mismatch)
                 {
-                    await ReplyAsync("Only invites from this server are allowed in the partner message!");
+                    await ReplyAsync("Only invites from this server are allowed in the partner message!\n" +
+                                     "Also please ensure that the invite link you are using is set to never expire\n\n" +
+                                     "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server");
                     return;
                 }
             }

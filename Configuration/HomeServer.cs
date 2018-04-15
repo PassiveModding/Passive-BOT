@@ -52,6 +52,15 @@ namespace PassiveBOT.Configuration
             File.WriteAllText(file, output);
         }
 
+        public static void CheckExistence()
+        {
+            if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")))
+            {
+                var newhome = new Homeserver();
+                SaveHome(newhome);
+            }
+        }
+
         public static Homeserver Load()
         {
             var file = Path.Combine(Appdir, "setup/config/home.json");

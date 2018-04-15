@@ -53,9 +53,10 @@ namespace PassiveBOT
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config/"));
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/server/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/server/"));
-            if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")))
-                File.Create(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")).Dispose();
+            //if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")))
+            //    File.Create(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")).Dispose();
             Config.CheckExistence();
+            Homeserver.CheckExistence();
             var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug.ToUpper();
             var token = Config.Load().Token;
