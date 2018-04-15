@@ -17,6 +17,19 @@ namespace PassiveBOT.Commands.Info
     [RequireContext(ContextType.Guild)]
     public class Server : InteractiveBase
     {
+        public EmbedBuilder SafeEmbed(EmbedBuilder input, string addition, string additiontitle, bool inline = false)
+        {
+            if (addition == null)
+            {
+                input.AddField(additiontitle, "NULL", inline);
+                return input;
+            }
+
+            input.AddField(additiontitle, addition, inline);
+            return input;
+        }
+
+
         [CheckModerator]
         [Command("serverinfo")]
         [Summary("serverinfo")]
@@ -24,233 +37,33 @@ namespace PassiveBOT.Commands.Info
         public async Task ServerInfo()
         {
             var embed = new EmbedBuilder();
-            var botlist = Context.Guild.Users.Count(x => x.IsBot);
-            var mem = Context.Guild.MemberCount;
-            var guildusers = mem - botlist;
             var s = Context.Guild;
-            var g = Context.Guild;
-
-            try
+            embed = SafeEmbed(embed, s.Name, "Server Name", true);
+            embed = SafeEmbed(embed, s.Owner.Username, "Owner", true);
+            embed = SafeEmbed(embed, s.OwnerId.ToString(), "OwnerID", true);
+            embed = SafeEmbed(embed, s.VoiceRegionId, "Voice Region", true);
+            embed = SafeEmbed(embed, s.VerificationLevel.ToString(), "Verification Level", true);
+            embed = SafeEmbed(embed, s.SplashUrl, "Splash URL", true);
+            embed = SafeEmbed(embed, s.CreatedAt.Date.ToShortDateString(), "Creation Date", true);
+            embed = SafeEmbed(embed, s.DefaultMessageNotifications.ToString(), "Default Notifications", true);
+            embed = SafeEmbed(embed, s.DefaultChannel?.Name, "Default Channel", true);
+            embed = SafeEmbed(embed, s.AFKChannel?.Name, "AFK Channel", true);
+            embed = SafeEmbed(embed, s.AFKTimeout.ToString(), "AFK Timeout", true);
+            embed = SafeEmbed(embed, s.MfaLevel.ToString(), "MFA Status", true);
+            embed.AddField("--------------", "**User Counts**");
+            embed = SafeEmbed(embed, s.MemberCount.ToString(), ":busts_in_silhouette: Total Members", true);
+            embed = SafeEmbed(embed, Context.Guild.Users.Count(x => x.IsBot).ToString(), ":robot: Total Bots", true);
+            embed = SafeEmbed(embed, (s.MemberCount - Context.Guild.Users.Count(x => x.IsBot)).ToString(), ":man_in_tuxedo: Total Users", true);
+            embed = SafeEmbed(embed, s.Channels.Count.ToString(), ":newspaper2: Total Channels", true);
+            embed = SafeEmbed(embed, $"{s.TextChannels.Count}/{s.VoiceChannels.Count}", ":microphone: Text/Voice Channels", true);
+            embed = SafeEmbed(embed, s.Roles.Count.ToString(), ":spy: Role Count", true);
+            embed.AddField("Links", $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})");
+            embed.ThumbnailUrl = s.IconUrl;
+            embed.WithFooter(x =>
             {
-                embed.AddInlineField("Server Name", g.Name);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Owner", s.Owner);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Owner ID", s.OwnerId);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Voice Region", s.VoiceRegionId);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Verification Level", s.VerificationLevel);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Splash Url", s.SplashUrl ?? "null");
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddField("Creation Date", s.CreatedAt);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                if (s.Features.Count > 0)
-                {
-                    embed.AddField("--------------", "**Features**");
-                    var i = 0;
-                    foreach (var feature in s.Features.ToList())
-                    {
-                        i++;
-                        embed.AddField($"{i}", feature);
-                    }
-                }
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Default Notifications", s.DefaultMessageNotifications);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddField("--------------", "**Defaults**");
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("Default Channel", s.DefaultChannel.Name);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("AFK Channel", s.AFKChannel);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("AFK Timeout", s.AFKTimeout);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField("MFA Status", g.MfaLevel);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddField("--------------", "**User Counts**");
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField(":busts_in_silhouette: Total Members", mem);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField(":robot: Total Bots", botlist);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField(":man_in_tuxedo: Total Users", guildusers);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField(":newspaper2: Total Channels", s.Channels.Count);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField(":microphone: Text/Voice Channels",
-                    $"{s.TextChannels.Count}/{s.VoiceChannels.Count}");
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddInlineField(":spy: Role Count", Context.Guild.Roles.Count);
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.AddField("Links",
-                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})");
-            }
-            catch
-            {
-                //
-            }
-
-            try
-            {
-                embed.WithFooter(x =>
-                {
-                    x.WithText("PassiveBOT");
-                    x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
-                });
-            }
-            catch
-            {
-                //
-            }
+                x.WithText("PassiveBOT");
+                x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
+            });
 
             await ReplyAsync("", false, embed.Build());
         }

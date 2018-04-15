@@ -81,10 +81,10 @@ namespace PassiveBOT.Discord.Addons.Interactive
         }
 
         public async Task<IUserMessage> SendPaginatedMessageAsync(SocketCommandContext context, PaginatedMessage pager,
-            ICriterion<SocketReaction> criterion = null, bool showall = false)
+            ICriterion<SocketReaction> criterion = null, bool showall = false, bool showindex = false)
         {
             var callback = new PaginatedMessageCallback(this, context, pager, criterion);
-            await callback.DisplayAsync(showall).ConfigureAwait(false);
+            await callback.DisplayAsync(showall, showindex).ConfigureAwait(false);
             return callback.Message;
         }
 

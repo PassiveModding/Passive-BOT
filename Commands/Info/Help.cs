@@ -80,6 +80,19 @@ namespace PassiveBOT.Commands.Info
             };
             if (modulearg == null) //ShortHelp
             {
+                var moduleselect = new List<string>
+                {
+                    $"`1` - This Page",
+                    $"`2` - List of all commands(1)",
+                    $"`3` - List of all commands(2)"
+                };
+                var i = 2;
+                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
+                {
+                    i++;
+                    moduleselect.Add($"`{i}` - {module.Name}");
+                }
+
                 var pages = new List<PaginatedMessage.Page>
                 {
                     new PaginatedMessage.Page
@@ -87,13 +100,21 @@ namespace PassiveBOT.Commands.Info
                         dynamictitle = $"PassiveBOT | Modules | Prefix: {isserver}",
                         description = $"Here is a list of all the PassiveBOT command modules\n" +
                                       $"Click the arrows to view each one!\n" +
-                                      string.Join("\n",
-                                          _service.Modules.Where(x =>
-                                                  x.Name != $"InteractiveBase" && x.Name != "InteractiveBase`1")
-                                              .Select(x => x.Name))
+                                      $"Or Click :1234: and reply with the page number you would like\n\n" +
+                                      string.Join("\n", moduleselect)
+                    },
+                    new PaginatedMessage.Page
+                    {
+                        dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Take(8).Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
+                    },
+                    new PaginatedMessage.Page
+                    {
+                        dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Skip(8).Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
                     }
                 };
-                foreach (var module in _service.Modules.Where(x => x.Name != "BotModerator" && x.Name != "Owner"))
+                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
                 {
                     var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}").ToList();
                     if (module.Commands.Count > 0)
@@ -110,7 +131,7 @@ namespace PassiveBOT.Commands.Info
                     Color = Color.Green,
                     Pages = pages
                 };
-                await PagedReplyAsync(msg);
+                await PagedReplyAsync(msg, showindex: true);
                 return;
                 //embed.AddField("\n\n**NOTE**",
                 //    $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
@@ -122,7 +143,7 @@ namespace PassiveBOT.Commands.Info
 
             if (mod == null)
             {
-                var list = _service.Modules.Where(x => x.Name != "InteractiveBase" && x.Name != "InteractiveBase`1").Select(x => x.Name);
+                var list = _service.Modules.Where(x => x.Commands.Count > 0).Select(x => x.Name);
                 var response = string.Join("\n", list);
                 embed.AddField("ERROR, Module not found", response);
                 await ReplyAsync("", false, embed.Build());

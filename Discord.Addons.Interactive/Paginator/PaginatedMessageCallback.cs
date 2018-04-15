@@ -99,7 +99,7 @@ namespace PassiveBOT.Discord.Addons.Interactive.Paginator
             return false;
         }
 
-        public async Task DisplayAsync(bool showall = false)
+        public async Task DisplayAsync(bool showall = false, bool showindex = false)
         {
             var embed = BuildEmbed();
             var message = await Context.Channel.SendMessageAsync(_pager.Content, embed: embed).ConfigureAwait(false);
@@ -121,16 +121,17 @@ namespace PassiveBOT.Discord.Addons.Interactive.Paginator
                 }
                 
 
-                var manageMessages = Context.Channel is IGuildChannel guildChannel
-                    ? (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages
-                    : false;
-                if (showall)
+                var manageMessages = Context.Channel is IGuildChannel guildChannel && (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
+
+                if (showindex)
                 {
                     if (options.JumpDisplayOptions == JumpDisplayOptions.Always
                         || options.JumpDisplayOptions == JumpDisplayOptions.WithManageMessages && manageMessages)
                         await message.AddReactionAsync(options.Jump);
+                }
 
-
+                if (showall)
+                {
 
                     await message.AddReactionAsync(options.Stop);
 
