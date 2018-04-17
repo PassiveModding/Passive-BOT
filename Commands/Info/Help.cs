@@ -64,20 +64,8 @@ namespace PassiveBOT.Commands.Info
             if (Context.Channel is IPrivateChannel)
                 isserver = Load.Pre;
             else
-                try
-                {
-                    isserver = GuildConfig.GetServer(Context.Guild).Prefix;
-                }
-                catch
-                {
-                    isserver = Load.Pre;
-                }
-
-            var embed = new EmbedBuilder
-            {
-                Color = new Color(114, 137, 218),
-                Title = $"PassiveBOT | Commands | Prefix: {isserver}"
-            };
+                isserver = GuildConfig.GetServer(Context.Guild)?.Prefix == null ? Load.Pre : GuildConfig.GetServer(Context.Guild)?.Prefix;
+            
             if (modulearg == null) //ShortHelp
             {
                 var moduleselect = new List<string>
@@ -100,7 +88,7 @@ namespace PassiveBOT.Commands.Info
                         dynamictitle = $"PassiveBOT | Modules | Prefix: {isserver}",
                         description = $"Here is a list of all the PassiveBOT command modules\n" +
                                       $"Click the arrows to view each one!\n" +
-                                      $"Or Click :1234: and reply with the page number you would like\n\n" +
+                                      $"{(Context.Channel is IDMChannel ? "\n" : "Or Click :1234: and reply with the page number you would like\n\n")}" +
                                       string.Join("\n", moduleselect)
                     },
                     new PaginatedMessage.Page
@@ -133,14 +121,15 @@ namespace PassiveBOT.Commands.Info
                 };
                 await PagedReplyAsync(msg, showindex: true);
                 return;
-                //embed.AddField("\n\n**NOTE**",
-                //    $"You can also see modules in more detail using `{isserver}help <modulename>`\n" +
-                //    "Also Please consider supporting this project on patreon: <https://www.patreon.com/passivebot>");
             }
 
             var mod = _service.Modules.FirstOrDefault(x =>
                 string.Equals(x.Name, modulearg, StringComparison.CurrentCultureIgnoreCase));
-
+            var embed = new EmbedBuilder
+            {
+                Color = new Color(114, 137, 218),
+                Title = $"PassiveBOT | Commands | Prefix: {isserver}"
+            };
             if (mod == null)
             {
                 var list = _service.Modules.Where(x => x.Commands.Count > 0).Select(x => x.Name);
@@ -199,7 +188,7 @@ namespace PassiveBOT.Commands.Info
         public async Task Bug([Remainder] string bug = null)
         {
             if (bug == null)
-                await ReplyAsync("report a bug please.");
+                await ReplyAsync("Please provide an error report");
             else
                 try
                 {

@@ -28,7 +28,7 @@ namespace PassiveBOT.Handlers
 
         public static List<SubReddit> SubReddits = new List<SubReddit>();
         public List<NoSpamGuild> NoSpam = new List<NoSpamGuild>();
-        private readonly ApiAi _apiAi;
+        private ApiAi _apiAi;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly TimerService _service;
@@ -41,9 +41,6 @@ namespace PassiveBOT.Handlers
             _client = Provider.GetService<DiscordSocketClient>();
             _commands = new CommandService();
             _service = provider.GetService<TimerService>();
-
-            var config = new AIConfiguration(Config.Load().dialogueflow, SupportedLanguage.English);
-            _apiAi = new ApiAi(config);
 
             _client.MessageReceived += DoCommand;
             _client.Ready += _client_Ready;
@@ -87,6 +84,10 @@ namespace PassiveBOT.Handlers
 
         public async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
         {
+            if (context.Channel is IDMChannel)
+            {
+                return;
+            }
             var guild = GuildConfig.GetServer(context.Guild);
             try
             {
@@ -119,6 +120,10 @@ namespace PassiveBOT.Handlers
 
         public async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context)
         {
+            if (context.Channel is IDMChannel)
+            {
+                return false;
+            }
             var guild = GuildConfig.GetServer(context.Guild);
             if (guild.NoSpam)
             {
@@ -349,6 +354,16 @@ namespace PassiveBOT.Handlers
         public void InitialisePartnerProgram()
         {
             if (DoOnce) return;
+            try
+            {
+
+                var config = new AIConfiguration(Tokens.Load().DialogFlowToken, SupportedLanguage.English);
+                _apiAi = new ApiAi(config);
+            }
+            catch (Exception e)
+            {
+                //Console.WriteLine(e);
+            }
             try
             {
                 foreach (var guild in _client.Guilds)

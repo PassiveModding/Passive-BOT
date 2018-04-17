@@ -31,7 +31,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Remarks("Update the Bots Stats on DiscordBots.org")]
         public async Task UpdateStats()
         {
-            if (Config.Load().DBLtoken == null)
+            if (Tokens.Load().DiscordBotsListToken == null)
             {
                 await ReplyAsync("Bot Not Configured for DiscordBots.org");
                 return;
@@ -39,7 +39,7 @@ namespace PassiveBOT.Commands.OwnerCmds
 
             try
             {
-                var DblApi = new DiscordNetDblApi(Context.Client, Config.Load().DBLtoken);
+                var DblApi = new DiscordNetDblApi(Context.Client, Tokens.Load().DiscordBotsListToken);
                 var me = await DblApi.GetMeAsync();
                 await me.UpdateStatsAsync(Context.Client.Guilds.Count);
             }
@@ -139,8 +139,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Remarks("set the suggestion channel")]
         public async Task Suggest()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, "setup/config/home.json");
-            var home = JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
+            var home = Homeserver.Load();
             home.Suggestion = Context.Channel.Id;
             Homeserver.SaveHome(home);
             await ReplyAsync("Done");
@@ -151,13 +150,11 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Remarks("set the suggestion channel")]
         public async Task Error()
         {
-            var file = Path.Combine(AppContext.BaseDirectory, "setup/config/home.json");
-            var home = JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
+            var home = Homeserver.Load();
             home.Error = Context.Channel.Id;
             Homeserver.SaveHome(home);
             await ReplyAsync("Done");
         }
-
 
         [Command("help+", RunMode = RunMode.Async)]
         [Summary("help+")]
@@ -223,57 +220,12 @@ namespace PassiveBOT.Commands.OwnerCmds
                 {
                     await LeaveAsync(guild.Id,
                         "PassiveBOT is leaving this server due to low usercount. Please feel free to invite it back by going to our dev server and using the invite command:\n" +
-                        $"{Load.Server}");
+                        $"{Tokens.Load().SupportServer}");
                     i++;
                 }
 
             await ReplyAsync($"{i} servers left.");
         }
-
-        /*[Command("addpremium+")]
-        [Summary("addpremium+")]
-        [Remarks("Bot Creator Command")]
-        public async Task Addpremium(params string[] keys)
-        {
-            try
-            {
-                var i = 0;
-                var duplicates = "Dupes:\n";
-                if (Program.Keys == null)
-                {
-                    Program.Keys = keys.ToList();
-                    await ReplyAsync("list replaced.");
-                    var obj1 = JsonConvert.SerializeObject(Program.Keys, Formatting.Indented);
-                    File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json"), obj1);
-                    return;
-                }
-                foreach (var key in keys)
-                {
-                    var dupe = false;
-                    foreach (var k in Program.Keys)
-                        if (k == key)
-                            dupe = true;
-                    if (!dupe)
-                    {
-                        i++;
-                        Program.Keys.Add(key); //NO DUPES
-                    }
-                    else
-                    {
-                        duplicates += $"{key}\n";
-                    }
-                }
-                await ReplyAsync($"{keys.Length} Supplied\n" +
-                                 $"{i} Added\n" +
-                                 $"{duplicates}");
-                var obj = JsonConvert.SerializeObject(Program.Keys, Formatting.Indented);
-                File.WriteAllText(Path.Combine(AppContext.BaseDirectory, "setup/keys.json"), obj);
-            }
-            catch (Exception e)
-            {
-                await ReplyAsync(e.ToString());
-            }
-        }*/
 
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
@@ -299,6 +251,114 @@ namespace PassiveBOT.Commands.OwnerCmds
                 await ReplyAsync("Value cannot be empty");
             await Context.Client.CurrentUser.ModifyAsync(x => x.Username = value).ConfigureAwait(false);
             await ReplyAsync("Bot Username updated").ConfigureAwait(false);
+        }
+
+        [Group("Token")]
+        [RequireOwner]
+        public class TokenSetup : ModuleBase
+        {
+
+            [Command("SetFortniteToken+")]
+            [Summary("SetFortniteToken+ <token>")]
+            [Remarks("set the fortnite api token")]
+            public async Task FNToken([Remainder] string token = null)
+            {
+                if (token == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.FortniteToken = token;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
+
+            [Command("SetDialogFlowToken+")]
+            [Summary("SetDialogFlowToken+")]
+            [Remarks("set the DialogFlow api token")]
+            public async Task DFToken([Remainder] string token = null)
+            {
+                if (token == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.DialogFlowToken = token;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
+
+            [Command("SetDiscordBotsListToken+")]
+            [Summary("SetDiscordBotsListToken+")]
+            [Remarks("set the DBL api token")]
+            public async Task DBLToken([Remainder] string token = null)
+            {
+                if (token == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.DiscordBotsListToken = token;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
+
+            [Command("SetTwitchToken+")]
+            [Summary("SetTwitchToken+")]
+            [Remarks("set the Twitch api token")]
+            public async Task TwitchToken([Remainder] string token = null)
+            {
+                if (token == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.TwitchToken = token;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
+
+            [Command("SetDiscordBotsListURL+")]
+            [Summary("SetDiscordBotsListURL+")]
+            [Remarks("set the DBL bot URL")]
+            public async Task DBLUrl([Remainder] string URL = null)
+            {
+                if (URL == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.DiscordBotsListUrl = URL;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
+
+            [Command("SetSupportServerURL+")]
+            [Summary("SetSupportServerURL+")]
+            [Remarks("set the DBL bot URL")]
+            public async Task SupportURL([Remainder] string URL = null)
+            {
+                if (URL == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.SupportServer = URL;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
         }
     }
 }

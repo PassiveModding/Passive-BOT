@@ -481,7 +481,7 @@ namespace PassiveBOT.Handlers
 
             try
             {
-                var DblApi = new DiscordNetDblApi(client, Config.Load().DBLtoken);
+                var DblApi = new DiscordNetDblApi(client, Tokens.Load().DiscordBotsListToken);
                 var me = await DblApi.GetMeAsync();
                 await me.UpdateStatsAsync(client.Guilds.Count);
             }

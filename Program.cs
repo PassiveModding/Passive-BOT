@@ -18,7 +18,6 @@ namespace PassiveBOT
         public static DiscordSocketClient Client;
 
         private CommandHandler _handler;
-        //public static List<string> Keys { get; set; }
 
         public static void Main(string[] args)
         {
@@ -57,6 +56,7 @@ namespace PassiveBOT
             //    File.Create(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")).Dispose();
             Config.CheckExistence();
             Homeserver.CheckExistence();
+            Tokens.CheckExistence();
             var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug.ToUpper();
             var token = Config.Load().Token;

@@ -57,7 +57,7 @@ namespace PassiveBOT.Commands.Info
             embed = SafeEmbed(embed, s.Channels.Count.ToString(), ":newspaper2: Total Channels", true);
             embed = SafeEmbed(embed, $"{s.TextChannels.Count}/{s.VoiceChannels.Count}", ":microphone: Text/Voice Channels", true);
             embed = SafeEmbed(embed, s.Roles.Count.ToString(), ":spy: Role Count", true);
-            embed.AddField("Links", $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})");
+            embed.AddField("Links", $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Support Server]({Tokens.Load().SupportServer})");
             embed.ThumbnailUrl = s.IconUrl;
             embed.WithFooter(x =>
             {
@@ -254,7 +254,7 @@ namespace PassiveBOT.Commands.Info
                     $"{Context.Guild.TextChannels.Count}/{Context.Guild.VoiceChannels.Count}")
                 .AddInlineField(":spy: Role Count", Context.Guild.Roles.Count)
                 .AddField("Links",
-                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})")
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Support Server]({Tokens.Load().SupportServer})")
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");

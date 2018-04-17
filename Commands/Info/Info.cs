@@ -88,7 +88,7 @@ namespace PassiveBOT.Commands.Info
                 .AddInlineField("Discriminatior", user.Discriminator)
                 .AddInlineField("Status", status)
                 .AddField("Links",
-                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Our Server]({Load.Server})")
+                    $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Support Server]({Tokens.Load().SupportServer})")
                 .WithFooter(x =>
                 {
                     x.WithText("PassiveBOT");
@@ -174,7 +174,7 @@ namespace PassiveBOT.Commands.Info
                     $"Text: {client.Guilds.Sum(x => x.TextChannels.Count)}\n" +
                     $"Voice: {client.Guilds.Sum(x => x.VoiceChannels.Count)}\n" +
                     $"Total: {client.Guilds.Sum(x => x.Channels.Count)}", true);
-                embed.AddField("Guilds", $"{client.Guilds.Count}\n[Support Guild]({Load.Server})",
+                embed.AddField("Guilds", $"{client.Guilds.Count}\n[Support Server]({Tokens.Load().SupportServer})",
                     true);
             }
 
@@ -215,7 +215,7 @@ namespace PassiveBOT.Commands.Info
             embed.AddInlineField("Users", Context.Client.Guilds.Sum(g => g.MemberCount));
 
             embed.AddField("Links",
-                $"[Site]({Load.Siteurl}) \n[Invite]({Context.Client})\n[Our Server]({Load.Server})");
+                $"[Site]({Load.Siteurl}) \n[Invite]({Context.Client})\n[Support Server]({Tokens.Load().SupportServer})");
 
 
             await ReplyAsync("", false, embed.Build());
