@@ -32,7 +32,8 @@ namespace PassiveBOT.Commands.Info
         [Remarks("Get all users with a particular discriminator")]
         public async Task Discrim(ushort disc = 0)
         {
-            var usermatches = Context.Guild.Users.Where(x => x.DiscriminatorValue == disc).Select(x => $"{x.Username}#{x.Discriminator}\n");
+            var usermatches = Context.Guild.Users.Where(x => x.DiscriminatorValue == disc)
+                .Select(x => $"{x.Username}#{x.Discriminator}\n");
             var embed = new EmbedBuilder();
             var value = usermatches.ToList();
             if (!value.Any())
@@ -52,6 +53,7 @@ namespace PassiveBOT.Commands.Info
                 pages.Add(desc);
                 desc = "";
             }
+
             pages.Add(desc);
 
             var msg = new PaginatedMessage

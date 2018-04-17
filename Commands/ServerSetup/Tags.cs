@@ -126,7 +126,6 @@ namespace PassiveBOT.Commands.ServerSetup
                         tag.uses++;
                         GuildConfig.SaveServer(server);
                         await ReplyAsync("", false, embed.Build());
-
                     }
                 }
             }

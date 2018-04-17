@@ -16,6 +16,7 @@ namespace PassiveBOT.Handlers
     {
         private readonly DiscordSocketClient client;
         public List<Delays> AntiRLDelays = new List<Delays>();
+
         public class Delays
         {
             public DateTime _delay { get; set; } = DateTime.UtcNow;
@@ -23,6 +24,7 @@ namespace PassiveBOT.Handlers
         }
 
         public IServiceProvider Provider { get; }
+
         public EventHandler(IServiceProvider provider)
         {
             Provider = provider;
@@ -35,7 +37,8 @@ namespace PassiveBOT.Handlers
             client.UserLeft += GoodbyeMessage;
 
             //user
-            client.GuildMemberUpdated += Client_GuildMemberUpdated; ;
+            client.GuildMemberUpdated += Client_GuildMemberUpdated;
+            ;
             client.UserLeft += UserLeftEvent;
             client.UserJoined += UserJoinedEvent;
             client.UserBanned += UserBannedEvent;
@@ -80,7 +83,6 @@ namespace PassiveBOT.Handlers
                                 }
                             }
                         }
-
                     });
                 }
                 else
@@ -129,7 +131,7 @@ namespace PassiveBOT.Handlers
                 logmsg += $"__**Role Removed**__\n" +
                           $"{(result[0]).Name}\n";
             }
-            
+
             if (logmsg == "") return;
             var GuildConfig = Configuration.GuildConfig.GetServer(UserAfter.Guild);
             if (GuildConfig.EventLogging && GuildConfig.EventChannel != 0)
@@ -148,6 +150,7 @@ namespace PassiveBOT.Handlers
                 };
                 await SendMessage(UserAfter.Guild, GuildConfig, embed);
             }
+
             Homeserver.SaveHome(HS);
         }
 
@@ -168,21 +171,22 @@ namespace PassiveBOT.Handlers
                     GuildID = guild.Id
                 });
             }
+
             try
             {
                 if (gobject.EventChannel != 0)
                 {
-                    await ((ITextChannel) guild.GetChannel(gobject.EventChannel)).SendMessageAsync(txt, false, embed.Build());
+                    await ((ITextChannel) guild.GetChannel(gobject.EventChannel)).SendMessageAsync(txt, false,
+                        embed.Build());
                 }
             }
             catch
             {
                 //
             }
-
         }
 
-        
+
         public async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
             ISocketMessageChannel cchannel)
         {
@@ -244,7 +248,6 @@ namespace PassiveBOT.Handlers
                         {
                             Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
                         }
-
                     };
                     await SendMessage(guild, guildobj, embed);
                 }
@@ -280,13 +283,12 @@ namespace PassiveBOT.Handlers
                 var embed = new EmbedBuilder
                 {
                     Title = "Channel Created",
-                    Description = ((SocketGuildChannel)sChannel)?.Name,
+                    Description = ((SocketGuildChannel) sChannel)?.Name,
                     Color = Color.Green,
                     Footer = new EmbedFooterBuilder
                     {
                         Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
                     }
-
                 };
                 await SendMessage(guild, guildobj, embed);
             }
@@ -298,8 +300,6 @@ namespace PassiveBOT.Handlers
             var guildobj = GuildConfig.GetServer(guild);
             if (guildobj.EventLogging)
             {
-
-
                 var embed = new EmbedBuilder();
                 try
                 {
@@ -370,18 +370,22 @@ namespace PassiveBOT.Handlers
             if (guildobj.antiraid)
             {
                 IRole role;
-                if (user.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)) is IRole Role)
+                if (user.Guild.Roles.FirstOrDefault(x =>
+                    string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)) is IRole Role)
                 {
-                    await Role.ModifyAsync(x => x.Permissions = new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    await Role.ModifyAsync(x =>
+                        x.Permissions = new GuildPermissions(readMessageHistory: true, readMessages: true));
                     role = Role;
                 }
                 else
                 {
-                    role = await user.Guild.CreateRoleAsync("PB-RAID", new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    role = await user.Guild.CreateRoleAsync("PB-RAID",
+                        new GuildPermissions(readMessageHistory: true, readMessages: true));
                 }
 
                 await user.AddRoleAsync(role);
             }
+
             if (guildobj.EventLogging)
             {
                 var embed = new EmbedBuilder
@@ -392,8 +396,7 @@ namespace PassiveBOT.Handlers
                     ThumbnailUrl = user.GetAvatarUrl(),
                     Color = Color.Green,
                     Footer = new EmbedFooterBuilder
-                    {Text = $"{DateTime.UtcNow} UTC TIME"}
-                    
+                        {Text = $"{DateTime.UtcNow} UTC TIME"}
                 };
                 await SendMessage(user.Guild, guildobj, embed);
             }
@@ -415,7 +418,6 @@ namespace PassiveBOT.Handlers
                     {
                         Text = $"{DateTime.UtcNow} UTC TIME"
                     }
-
                 };
                 await SendMessage(user.Guild, guildobj, embed);
             }

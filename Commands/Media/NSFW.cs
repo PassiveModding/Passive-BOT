@@ -38,7 +38,11 @@ namespace PassiveBOT.Commands.Media
         public async Task RedditNSFW(string subreddit = null)
         {
             if (subreddit == null)
-            { await ReplyAsync("Please give a subreddit to browse."); return;}
+            {
+                await ReplyAsync("Please give a subreddit to browse.");
+                return;
+            }
+
             var rnd = new Random();
             List<Post> posts;
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
@@ -64,6 +68,7 @@ namespace PassiveBOT.Commands.Media
                     Posts = posts
                 });
             }
+
             var img = posts[rnd.Next(posts.Count - 1)];
             var obj = RedditHelper.isimage(img.Url.ToString());
             var embed = new EmbedBuilder
@@ -85,12 +90,16 @@ namespace PassiveBOT.Commands.Media
         public async Task BRedditNSFW(string subreddit = null)
         {
             if (subreddit == null)
-            { await ReplyAsync("Please give a subreddit to browse."); return; }
+            {
+                await ReplyAsync("Please give a subreddit to browse.");
+                return;
+            }
+
             var subredditobj = CommandHandler.SubReddits.FirstOrDefault(x =>
                 string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             List<Post> posts;
             if (subredditobj != null && subredditobj.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
-            { 
+            {
                 //just post
                 posts = subredditobj.Posts;
                 subredditobj.Hits++;
@@ -112,18 +121,19 @@ namespace PassiveBOT.Commands.Media
                     Hits = 0
                 });
             }
+
             //post 
             var pages = new List<PaginatedMessage.Page>();
             foreach (var image in posts.OrderByDescending(x => (new Random().Next())))
             {
                 var iobj = RedditHelper.isimage(image.Url.ToString());
                 if (iobj.isimage && !iobj.url.Contains("gfy"))
-                pages.Add(new PaginatedMessage.Page
-                {
-                    imageurl = iobj.url,
-                    description = $"{iobj.extension} || [Link](https://reddit.com{image.Permalink})",
-                    dynamictitle = image.Title
-                });
+                    pages.Add(new PaginatedMessage.Page
+                    {
+                        imageurl = iobj.url,
+                        description = $"{iobj.extension} || [Link](https://reddit.com{image.Permalink})",
+                        dynamictitle = image.Title
+                    });
             }
 
             var msg = new PaginatedMessage

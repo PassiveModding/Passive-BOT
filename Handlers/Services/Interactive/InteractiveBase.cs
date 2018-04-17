@@ -45,7 +45,8 @@ namespace PassiveBOT.Handlers.Services.Interactive
             return PagedReplyAsync(pager, fromSourceUser);
         }
 
-        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, bool fromSourceUser = true, bool showall = false, bool showindex = false)
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, bool fromSourceUser = true,
+            bool showall = false, bool showindex = false)
         {
             var criterion = new Criteria<SocketReaction>();
             if (fromSourceUser)
@@ -53,7 +54,8 @@ namespace PassiveBOT.Handlers.Services.Interactive
             return PagedReplyAsync(pager, criterion, showall, showindex);
         }
 
-        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, bool showall = false, bool showindex = false)
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion,
+            bool showall = false, bool showindex = false)
         {
             return Interactive.SendPaginatedMessageAsync(Context, pager, criterion, showall, showindex);
         }

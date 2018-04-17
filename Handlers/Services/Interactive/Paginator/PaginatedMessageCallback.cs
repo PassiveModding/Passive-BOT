@@ -86,6 +86,7 @@ namespace PassiveBOT.Handlers.Services.Interactive.Paginator
                         await Interactive.ReplyAndDeleteAsync(Context, options.Stop.Name);
                         return;
                     }
+
                     page = request;
                     _ = response.DeleteAsync().ConfigureAwait(false);
                     await RenderAsync().ConfigureAwait(false);
@@ -96,6 +97,7 @@ namespace PassiveBOT.Handlers.Services.Interactive.Paginator
                 await Interactive.ReplyAndDeleteAsync(Context, options.InformationText, timeout: options.InfoTimeout);
                 return false;
             }
+
             _ = Message.RemoveReactionAsync(reaction.Emote, reaction.User.Value);
             await RenderAsync().ConfigureAwait(false);
             return false;
@@ -114,16 +116,17 @@ namespace PassiveBOT.Handlers.Services.Interactive.Paginator
                 {
                     await message.AddReactionAsync(options.First);
                 }
-                
+
                 await message.AddReactionAsync(options.Back);
                 await message.AddReactionAsync(options.Next);
                 if (showall)
                 {
                     await message.AddReactionAsync(options.Last);
                 }
-                
 
-                var manageMessages = Context.Channel is IGuildChannel guildChannel && (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
+
+                var manageMessages = Context.Channel is IGuildChannel guildChannel &&
+                                     (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
 
                 if (showindex)
                 {
@@ -134,7 +137,6 @@ namespace PassiveBOT.Handlers.Services.Interactive.Paginator
 
                 if (showall)
                 {
-
                     await message.AddReactionAsync(options.Stop);
 
                     if (options.DisplayInformationIcon)

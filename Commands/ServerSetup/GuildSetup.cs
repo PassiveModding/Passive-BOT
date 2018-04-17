@@ -282,9 +282,6 @@ namespace PassiveBOT.Commands.ServerSetup
             }
 
 
-            
-            
-            
             if (input == 1)
             {
                 await ReplyAsync(
@@ -343,14 +340,14 @@ namespace PassiveBOT.Commands.ServerSetup
             if (option == 0)
             {
                 await ReplyAsync("```\n" +
-                             "Reply with the command you would like to perform\n" +
-                             "[1] Set the GoodBye message\n" +
-                             "[2] Set the current channel for GoodBye events\n" +
-                             "[3] Enable the GoodBye event\n" +
-                             "[4] Disable the GoodBye event\n" +
-                             "[5] View GoodBye Info" +
-                             "" +
-                             "```");
+                                 "Reply with the command you would like to perform\n" +
+                                 "[1] Set the GoodBye message\n" +
+                                 "[2] Set the current channel for GoodBye events\n" +
+                                 "[3] Enable the GoodBye event\n" +
+                                 "[4] Disable the GoodBye event\n" +
+                                 "[5] View GoodBye Info" +
+                                 "" +
+                                 "```");
                 var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
                 input = Int32.Parse(next.Content);
             }
@@ -438,17 +435,17 @@ namespace PassiveBOT.Commands.ServerSetup
             int input;
             if (option == 0)
             {
-            await ReplyAsync("```\n" +
-                             "Reply with the command you would like to perform\n" +
-                             "[1] Set the auto message for this channel\n" +
-                             "[2] Set amount of messages before automessaging\n" +
-                             "[3] Enable Automessaging in this channel\n" +
-                             "[4] Disable AutoMessaging\n" +
-                             "[5] View AutoMessage Info" +
-                             "" +
-                             "```");
-            var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
-            input = int.Parse(next.Content);
+                await ReplyAsync("```\n" +
+                                 "Reply with the command you would like to perform\n" +
+                                 "[1] Set the auto message for this channel\n" +
+                                 "[2] Set amount of messages before automessaging\n" +
+                                 "[3] Enable Automessaging in this channel\n" +
+                                 "[4] Disable AutoMessaging\n" +
+                                 "[5] View AutoMessage Info" +
+                                 "" +
+                                 "```");
+                var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
+                input = int.Parse(next.Content);
             }
             else
             {

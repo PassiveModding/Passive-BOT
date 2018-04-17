@@ -64,10 +64,12 @@ namespace PassiveBOT.Handlers
         {
             public ulong guildID { get; set; }
             public List<NoSpam> Users { get; set; } = new List<NoSpam>();
+
             public class NoSpam
             {
                 public ulong UserID { get; set; }
                 public List<msg> Messages { get; set; } = new List<msg>();
+
                 public class msg
                 {
                     public string LastMessage { get; set; }
@@ -77,6 +79,7 @@ namespace PassiveBOT.Handlers
         }
 
         public List<Delays> AntiSpamMsgDelays = new List<Delays>();
+
         public class Delays
         {
             public DateTime _delay { get; set; } = DateTime.UtcNow;
@@ -89,6 +92,7 @@ namespace PassiveBOT.Handlers
             {
                 return;
             }
+
             var guild = GuildConfig.GetServer(context.Guild);
             try
             {
@@ -125,15 +129,16 @@ namespace PassiveBOT.Handlers
             {
                 return false;
             }
+
             var guild = GuildConfig.GetServer(context.Guild);
             if (guild.NoSpam)
             {
-                var SpamGuild = NoSpam.FirstOrDefault(x => x.guildID == ((SocketGuildUser)context.User).Guild.Id);
+                var SpamGuild = NoSpam.FirstOrDefault(x => x.guildID == ((SocketGuildUser) context.User).Guild.Id);
                 if (SpamGuild == null)
                 {
                     NoSpam.Add(new NoSpamGuild
                     {
-                        guildID = ((SocketGuildUser)context.User).Guild.Id,
+                        guildID = ((SocketGuildUser) context.User).Guild.Id,
                         Users = new List<NoSpamGuild.NoSpam>
                         {
                             new NoSpamGuild.NoSpam
@@ -196,7 +201,8 @@ namespace PassiveBOT.Handlers
                         {
                             var msgs = user.Messages.OrderBy(x => x.LastMessageDate).ToList();
                             msgs.RemoveRange(0, 1);
-                            msgs = msgs.Where(x => x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(10)).ToList();
+                            msgs = msgs.Where(x => x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(10))
+                                .ToList();
                             user.Messages = msgs;
                         }
 
@@ -228,11 +234,9 @@ namespace PassiveBOT.Handlers
                         }
                     }
                 }
-
             }
 
 
-            
             if (message.Content.Contains("discord.gg"))
                 try
                 {
@@ -255,21 +259,21 @@ namespace PassiveBOT.Handlers
                 {
                     //
                 }
-            
-                if (guild.RemoveMassMention && !((SocketGuildUser)context.User).GuildPermissions.Administrator && !((IGuildUser)context.User).RoleIds.Intersect(guild.InviteExcempt).Any())
-                {
-                    if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
-                    {
-                        await message.DeleteAsync();
-                        var emb = new EmbedBuilder
-                        {
-                            Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once",
-                        };
-                        await context.Channel.SendMessageAsync("", false, emb.Build());
-                        return true;
-                    }
-                }
 
+            if (guild.RemoveMassMention && !((SocketGuildUser) context.User).GuildPermissions.Administrator &&
+                !((IGuildUser) context.User).RoleIds.Intersect(guild.InviteExcempt).Any())
+            {
+                if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
+                {
+                    await message.DeleteAsync();
+                    var emb = new EmbedBuilder
+                    {
+                        Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once",
+                    };
+                    await context.Channel.SendMessageAsync("", false, emb.Build());
+                    return true;
+                }
+            }
 
 
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
@@ -357,7 +361,6 @@ namespace PassiveBOT.Handlers
             if (DoOnce) return;
             try
             {
-
                 var config = new AIConfiguration(Tokens.Load().DialogFlowToken, SupportedLanguage.English);
                 _apiAi = new ApiAi(config);
             }
@@ -365,6 +368,7 @@ namespace PassiveBOT.Handlers
             {
                 //Console.WriteLine(e);
             }
+
             try
             {
                 foreach (var guild in _client.Guilds)
@@ -406,6 +410,7 @@ namespace PassiveBOT.Handlers
             {
                 return;
             }
+
             await AutoMessage(message, context);
 
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos))

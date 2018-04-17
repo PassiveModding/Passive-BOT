@@ -257,7 +257,6 @@ namespace PassiveBOT.Commands.OwnerCmds
         [RequireOwner]
         public class TokenSetup : ModuleBase
         {
-
             [Command("SetFortniteToken+")]
             [Summary("SetFortniteToken+ <token>")]
             [Remarks("set the fortnite api token")]

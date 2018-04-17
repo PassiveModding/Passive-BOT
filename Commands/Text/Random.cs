@@ -14,8 +14,8 @@ namespace PassiveBOT.Commands
         [Remarks("rip in pepperoni")]
         public async Task Rip(IUser user = null)
         {
-                await ReplyAsync(
-                    $"rip in pepperoni {(user == null ? "little boi" : user.Mention)}, you will forever be remembered in the hall of lame");
+            await ReplyAsync(
+                $"rip in pepperoni {(user == null ? "little boi" : user.Mention)}, you will forever be remembered in the hall of lame");
         }
 
         [Command("rekt")]

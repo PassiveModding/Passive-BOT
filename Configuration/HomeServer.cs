@@ -24,18 +24,19 @@ namespace PassiveBOT.Configuration
             public string UserName { get; set; }
             public ulong UserID { get; set; }
             public List<guild> Guilds { get; set; } = new List<guild>();
+
             public class guild
             {
                 public string GuildName { get; set; }
                 public ulong GuildID { get; set; }
                 public List<GuildAlias> GuildAliases { get; set; } = new List<GuildAlias>();
+
                 public class GuildAlias
                 {
                     public DateTime DateChanged { get; set; }
                     public string Name { get; set; }
                 }
             }
-
         }
 
 

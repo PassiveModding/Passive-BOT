@@ -11,6 +11,7 @@ namespace PassiveBOT.Configuration
         public static string Pre = Config.Load().Prefix;
         public static int Messages;
         public static int Commands;
+
         public static string GetInvite(IDiscordClient client)
         {
             return

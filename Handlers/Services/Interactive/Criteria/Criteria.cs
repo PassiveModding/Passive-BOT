@@ -15,6 +15,7 @@ namespace PassiveBOT.Handlers.Services.Interactive.Criteria
                 var result = await criterion.JudgeAsync(sourceContext, parameter).ConfigureAwait(false);
                 if (!result) return false;
             }
+
             return true;
         }
 

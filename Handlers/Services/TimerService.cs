@@ -37,7 +37,8 @@ namespace PassiveBOT.Handlers.Services
                                         var rnd = new Random().Next(0, newitems.Count);
                                         var newitem = newitems[rnd];
 
-                                        var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem)).PartnerSetup;
+                                        var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem))
+                                            .PartnerSetup;
                                         if (selectedguild.banned) continue;
                                         if (!selectedguild.IsPartner ||
                                             !(client.GetChannel(selectedguild.PartherChannel) is IGuildChannel
@@ -51,7 +52,9 @@ namespace PassiveBOT.Handlers.Services
                                             Color = Color.Green,
                                             Footer = new EmbedFooterBuilder
                                             {
-                                                Text = (selectedguild.showusercount ? $"User Count: {((SocketGuild)otherchannel.Guild).MemberCount}" : null)
+                                                Text = (selectedguild.showusercount
+                                                    ? $"User Count: {((SocketGuild) otherchannel.Guild).MemberCount}"
+                                                    : null)
                                             }
                                         };
                                         await channel.SendMessageAsync("", false, embed.Build());
@@ -72,14 +75,12 @@ namespace PassiveBOT.Handlers.Services
                             {
                                 Console.WriteLine(e);
                             }
-
                         }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
-
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
         }

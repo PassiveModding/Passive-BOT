@@ -30,19 +30,23 @@ namespace PassiveBOT.Commands.ServerModeration
                 var embed = new EmbedBuilder();
                 IRole asrole;
                 await ReplyAsync("Creating/Modifying AntiRaid Role");
-                if (Context.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)) is IRole Role)
+                if (Context.Guild.Roles.FirstOrDefault(x =>
+                    string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)) is IRole Role)
                 {
-                    await Role.ModifyAsync(x => x.Permissions = new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    await Role.ModifyAsync(x =>
+                        x.Permissions = new GuildPermissions(readMessageHistory: true, readMessages: true));
                     asrole = Role;
                     embed.AddField("Role Modified",
                         "PB-RAID role has been modified in server");
                 }
                 else
                 {
-                    asrole = await Context.Guild.CreateRoleAsync("PB-RAID", new GuildPermissions(readMessageHistory: true, readMessages: true));
+                    asrole = await Context.Guild.CreateRoleAsync("PB-RAID",
+                        new GuildPermissions(readMessageHistory: true, readMessages: true));
                     embed.AddField("Role Created",
                         "PB-RAID role has been created in server");
                 }
+
                 await ReplyAsync("Editing Channel Permissions");
                 var channellist = new List<string>();
                 var overwrite = new OverwritePermissions(createInstantInvite: PermValue.Deny,
@@ -59,13 +63,15 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     try
                     {
-                        if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole)
+                        if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole
+                        )
                         {
                             if (trole.Permissions.DenyValue != overwrite.DenyValue)
                             {
                                 await channel.AddPermissionOverwriteAsync(asrole, overwrite);
                             }
                         }
+
                         channellist.Add($"Overwrite Added: {channel.Name}");
                     }
                     catch
@@ -73,17 +79,20 @@ namespace PassiveBOT.Commands.ServerModeration
                         channellist.Add($"OVERWRITE ERROR: {channel.Name}");
                     }
                 }
+
                 foreach (var channel in Context.Guild.VoiceChannels)
                 {
                     try
                     {
-                        if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole)
+                        if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole
+                        )
                         {
                             if (trole.Permissions.DenyValue != overwrite.DenyValue)
                             {
                                 await channel.AddPermissionOverwriteAsync(asrole, overwrite);
                             }
                         }
+
                         channellist.Add($"Overwrite Added: {channel.Name}");
                     }
                     catch
@@ -91,6 +100,7 @@ namespace PassiveBOT.Commands.ServerModeration
                         channellist.Add($"OVERWRITE ERROR: {channel.Name}");
                     }
                 }
+
                 embed.AddField("Channels", string.Join("\n", channellist));
                 var userlist = new List<string>();
                 await ReplyAsync("Modifying roles for new users");
@@ -113,13 +123,15 @@ namespace PassiveBOT.Commands.ServerModeration
                 {
                     embed.AddField("Users Muted", "N/A");
                 }
+
                 await ReplyAsync("", false, embed.Build());
             }
             else
             {
                 try
                 {
-                    await Context.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)).DeleteAsync();
+                    await Context.Guild.Roles.FirstOrDefault(x =>
+                        string.Equals(x.Name, "PB-RAID", StringComparison.CurrentCultureIgnoreCase)).DeleteAsync();
                 }
                 catch
                 {

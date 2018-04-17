@@ -65,48 +65,47 @@ namespace PassiveBOT.Commands.Info
             if (Context.Channel is IPrivateChannel)
                 isserver = Load.Pre;
             else
-                isserver = GuildConfig.GetServer(Context.Guild)?.Prefix == null ? Load.Pre : GuildConfig.GetServer(Context.Guild)?.Prefix;
-            
+                isserver = GuildConfig.GetServer(Context.Guild)?.Prefix == null
+                    ? Load.Pre
+                    : GuildConfig.GetServer(Context.Guild)?.Prefix;
+
             if (modulearg == null) //ShortHelp
             {
-                var pages = new List<PaginatedMessage.Page>
-                {
-                };
+                var pages = new List<PaginatedMessage.Page>();
                 foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
                 {
-                    var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}").ToList();
+                    var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}")
+                        .ToList();
 
-                    if (module.Commands.Count > 0)
+                    if (module.Commands.Count <= 0) continue;
+                    if (string.Join("\n", list).Length > 1000)
                     {
-                        if (string.Join("\n", list).Length > 1000)
+                        pages.Add(new PaginatedMessage.Page
                         {
-                            pages.Add(new PaginatedMessage.Page
-                            {
-                                dynamictitle = $"{module.Name} (1)",
-                                description = string.Join("\n", list.Take(list.Count / 2))
-                            });
-                            pages.Add(new PaginatedMessage.Page
-                            {
-                                dynamictitle = $"{module.Name} (2)",
-                                description = string.Join("\n", list.Skip(list.Count / 2))
-                            });
-                        }
-                        else
+                            dynamictitle = $"{module.Name} (1)",
+                            description = string.Join("\n", list.Take(list.Count / 2))
+                        });
+                        pages.Add(new PaginatedMessage.Page
                         {
-                            pages.Add(new PaginatedMessage.Page
-                            {
-                                dynamictitle = module.Name,
-                                description = string.Join("\n", list)
-                            });                            
-                        }
+                            dynamictitle = $"{module.Name} (2)",
+                            description = string.Join("\n", list.Skip(list.Count / 2))
+                        });
+                    }
+                    else
+                    {
+                        pages.Add(new PaginatedMessage.Page
+                        {
+                            dynamictitle = module.Name,
+                            description = string.Join("\n", list)
+                        });
                     }
                 }
 
                 var moduleselect = new List<string>
                 {
-                    $"`1` - This Page",
-                    $"`2` - List of all commands(1)",
-                    $"`3` - List of all commands(2)"
+                    "`1` - This Page",
+                    "`2` - List of all commands(1)",
+                    "`3` - List of all commands(2)"
                 };
                 var i = 2;
                 foreach (var module in pages.Where(x => x.dynamictitle != null))
@@ -128,13 +127,15 @@ namespace PassiveBOT.Commands.Info
                     new PaginatedMessage.Page
                     {
                         dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
-                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Take(_service.Modules.Count()/2)
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0)
+                            .Take(_service.Modules.Count() / 2)
                             .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
                     },
                     new PaginatedMessage.Page
                     {
                         dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
-                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Skip(_service.Modules.Count()/2)
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0)
+                            .Skip(_service.Modules.Count() / 2)
                             .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
                     }
                 };
@@ -142,6 +143,7 @@ namespace PassiveBOT.Commands.Info
                 {
                     fullpages.Add(page);
                 }
+
                 var msg = new PaginatedMessage
                 {
                     Color = Color.Green,

@@ -32,6 +32,7 @@ namespace PassiveBOT.Commands
                 await ReplyAsync("This message is unavailable");
                 return;
             }
+
             var embed = new EmbedBuilder
             {
                 Title = msg.Author.Username,

@@ -122,7 +122,7 @@ namespace PassiveBOT.Commands.ServerSetup
                         {
                             Title = "Winner!!!",
                             Description = $"Congratulations {winner.Mention}, You have won:\n\n" +
-                                          $"{server.Comp.Message}\n\n" + 
+                                          $"{server.Comp.Message}\n\n" +
                                           $"Please Contact {Context.User.Mention} or the Giveaway host!!!"
                         };
 

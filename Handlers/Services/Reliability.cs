@@ -28,6 +28,7 @@ namespace PassiveBOT.Handlers.Services
         // Change log levels if desired:
         private static readonly LogSeverity _debug = LogSeverity.Debug;
         private static readonly LogSeverity _info = LogSeverity.Info;
+
         private static readonly LogSeverity _critical = LogSeverity.Critical;
         // --- End Configuration Section ---
 
@@ -105,10 +106,13 @@ namespace PassiveBOT.Handlers.Services
 
         // Logging Helpers
         private const string LogSource = "Reliability";
+
         private Task DebugAsync(string message)
             => _logger.Invoke(new LogMessage(_debug, LogSource, message));
+
         private Task InfoAsync(string message)
             => _logger.Invoke(new LogMessage(_info, LogSource, message));
+
         private Task CriticalAsync(string message, Exception error = null)
             => _logger.Invoke(new LogMessage(_critical, LogSource, message, error));
     }

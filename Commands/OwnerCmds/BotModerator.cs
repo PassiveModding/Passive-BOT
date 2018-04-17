@@ -27,7 +27,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                     var guildobj = GuildConfig.GetServer(guild);
                     if (!guildobj.PartnerSetup.IsPartner) continue;
 
-                    var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                    var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
                     var Checking = "";
                     if (pchannel != null)
                     {
@@ -64,13 +64,11 @@ namespace PassiveBOT.Commands.OwnerCmds
                                 {
                                     Checking += $"{Name} Cannot Read History.\n";
                                 }
-
                             }
                             catch
                             {
                                 //
                             }
-
                         }
                     }
 
@@ -82,7 +80,8 @@ namespace PassiveBOT.Commands.OwnerCmds
 
                     pages.Add(new PaginatedMessage.Page
                     {
-                        dynamictitle = $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                        dynamictitle =
+                            $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
                         description = $"__**Message:**__\n\n" +
                                       $"{(pmessage ?? "N/A")}\n\n" +
                                       $"__**Permissions:**__\n" +
@@ -99,13 +98,13 @@ namespace PassiveBOT.Commands.OwnerCmds
                                       $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
                         imageurl = guildobj.PartnerSetup.ImageUrl
                     });
-
                 }
                 catch
                 {
                     //
                 }
             }
+
             var msg = new PaginatedMessage
             {
                 Title = "Partner Messages",
@@ -128,6 +127,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                 await ReplyAsync("Invalid Guild");
                 return;
             }
+
             var guild = GuildConfig.GetServer(Guild);
             var pages = new List<PaginatedMessage.Page>();
             var PChannel = Guild.Channels.FirstOrDefault(x => x.Id == guild.PartnerSetup.PartherChannel);
@@ -136,17 +136,17 @@ namespace PassiveBOT.Commands.OwnerCmds
             {
                 dynamictitle = "Info",
                 description = $"{Guild.Name} - [{Guild.Id}]\n" +
-                          $"Is Partner: { guild.PartnerSetup.IsPartner}\n" +
-                          $"Is Banned: {guild.PartnerSetup.banned}\n" +
-                          $"Partner Channel ID: {guild.PartnerSetup.PartherChannel}\n" +
-                          $"Partner Channel Name: {Pchannelname}\n"
+                              $"Is Partner: {guild.PartnerSetup.IsPartner}\n" +
+                              $"Is Banned: {guild.PartnerSetup.banned}\n" +
+                              $"Partner Channel ID: {guild.PartnerSetup.PartherChannel}\n" +
+                              $"Partner Channel Name: {Pchannelname}\n"
             });
             pages.Add(new PaginatedMessage.Page
             {
                 dynamictitle = $"Server Message",
                 description = $"---\n" +
-                          $"{guild.PartnerSetup.Message}" +
-                          $"\n---"
+                              $"{guild.PartnerSetup.Message}" +
+                              $"\n---"
             });
             if (PChannel != null)
             {
@@ -183,13 +183,11 @@ namespace PassiveBOT.Commands.OwnerCmds
                         {
                             Checking += $"{Name} Cannot Read History.\n";
                         }
-                        
                     }
                     catch
                     {
                         //
                     }
-
                 }
 
                 if (Checking != "")
@@ -198,12 +196,12 @@ namespace PassiveBOT.Commands.OwnerCmds
                     {
                         dynamictitle = "Partner Channel Perms",
                         description = $"---\n" +
-                                  $"{Checking}" +
-                                  $"\n---"
+                                      $"{Checking}" +
+                                      $"\n---"
                     });
                 }
-
             }
+
             var msg = new PaginatedMessage
             {
                 Title = "Partner Messages",
@@ -245,7 +243,8 @@ namespace PassiveBOT.Commands.OwnerCmds
         {
             if (Context.Client.Guilds.Any(x => x.Users.Any(u => u.Id == UserId)))
             {
-                var guilds = Context.Client.Guilds.Where(x => x.Users.Any(u => u.Id == UserId)).Select(x => $"{x.Name} - {x.Id}");
+                var guilds = Context.Client.Guilds.Where(x => x.Users.Any(u => u.Id == UserId))
+                    .Select(x => $"{x.Name} - {x.Id}");
                 var user = Context.Client.GetUser(UserId);
                 await ReplyAsync($"Name: {user.Username}#{user.Discriminator}\n" +
                                  $"ID: {user.Id}\n" +
@@ -254,9 +253,8 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
             else
             {
-                await ReplyAsync("User Unavailable");                
+                await ReplyAsync("User Unavailable");
             }
-
         }
 
         [Command("NoCommands+")]
@@ -281,8 +279,9 @@ namespace PassiveBOT.Commands.OwnerCmds
                 {
                     Name = us.Username,
                     ID = us.Id
-                });                
+                });
             }
+
             Homeserver.SaveHome(hs);
             await ReplyAsync("User banned from PassiveBOT Commands");
         }
@@ -306,7 +305,8 @@ namespace PassiveBOT.Commands.OwnerCmds
             var hs = Homeserver.Load();
             try
             {
-                var embed = new EmbedBuilder().WithDescription(string.Join("\n", hs.GlobalBans.Select(x => $"{x.Name} || {x.ID}")));
+                var embed = new EmbedBuilder().WithDescription(string.Join("\n",
+                    hs.GlobalBans.Select(x => $"{x.Name} || {x.ID}")));
                 embed.Title = "Global Bans";
                 await ReplyAsync("", false, embed.Build());
             }
@@ -314,7 +314,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             {
                 await ReplyAsync("No Global Bans");
             }
-
         }
 
         [Command("ViewRedditCache+")]
@@ -337,6 +336,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                     curpage = "";
                 }
             }
+
             pages.Add(curpage);
             var msg = new PaginatedMessage
             {
@@ -376,6 +376,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                     curpage = "";
                 }
             }
+
             pages.Add(curpage);
             var msg = new PaginatedMessage
             {
@@ -434,9 +435,11 @@ namespace PassiveBOT.Commands.OwnerCmds
                     pages.Add(new PaginatedMessage.Page
                     {
                         dynamictitle = guild.GuildName,
-                        description = string.Join("\n", guild.GuildAliases.OrderByDescending(x => x.DateChanged).Select(x => x.Name))
+                        description = string.Join("\n",
+                            guild.GuildAliases.OrderByDescending(x => x.DateChanged).Select(x => x.Name))
                     });
                 }
+
                 var paginated = new PaginatedMessage
                 {
                     Title = $"{user.Username}'s Nickname History",

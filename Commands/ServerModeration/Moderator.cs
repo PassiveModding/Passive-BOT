@@ -62,6 +62,7 @@ namespace PassiveBOT.Commands.ServerModeration
             {
                 //
             }
+
             await ReplyAsync($"Cleared **{user.Username}'s** Messages (Count = {newlist.Count})");
         }
 
@@ -304,7 +305,6 @@ namespace PassiveBOT.Commands.ServerModeration
 
             try
             {
-
                 await Context.Guild.AddBanAsync(UserID);
             }
             catch

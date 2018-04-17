@@ -111,6 +111,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync("You have not provided an image URL.");
                 return;
             }
+
             GuildConfig.SaveServer(guild);
         }
 
@@ -130,8 +131,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 {
                     Title = "Partner UserCount Toggled",
                     Description = $"{Context.Guild.Name}\n" +
-                                    $"`{Context.Guild.Id}`\n" +
-                                    $"Channel: {Context.Channel.Name}\n" +
+                                  $"`{Context.Guild.Id}`\n" +
+                                  $"Channel: {Context.Channel.Name}\n" +
                                   $"ShowUserCount: {guild.PartnerSetup.showusercount}"
                 };
                 await channel.SendMessageAsync("", false, embed2.Build());
@@ -218,7 +219,8 @@ namespace PassiveBOT.Commands.ServerSetup
 
             if (input.Length > 1024)
             {
-                await ReplyAsync($"Message is too long. Please limit it to 1024 characters or less. (Current = {input.Length})");
+                await ReplyAsync(
+                    $"Message is too long. Please limit it to 1024 characters or less. (Current = {input.Length})");
                 return;
             }
 
@@ -294,7 +296,8 @@ namespace PassiveBOT.Commands.ServerSetup
                                   $"{guild.PartnerSetup.Message}",
                     Footer = new EmbedFooterBuilder
                     {
-                        Text = $"{((SocketGuild)Context.Guild).Owner.Username}#{((SocketGuild)Context.Guild).Owner.Discriminator}"
+                        Text =
+                            $"{((SocketGuild) Context.Guild).Owner.Username}#{((SocketGuild) Context.Guild).Owner.Discriminator}"
                     }
                 };
                 await channel.SendMessageAsync("", false, embed2.Build());
@@ -316,7 +319,9 @@ namespace PassiveBOT.Commands.ServerSetup
                 Color = Color.Green,
                 Footer = new EmbedFooterBuilder
                 {
-                    Text = (guild.PartnerSetup.showusercount ? $"User Count: {((SocketGuild)Context.Guild).MemberCount}" : null)
+                    Text = (guild.PartnerSetup.showusercount
+                        ? $"User Count: {((SocketGuild) Context.Guild).MemberCount}"
+                        : null)
                 }
             };
             await ReplyAsync("", false, embed.Build());

@@ -53,11 +53,14 @@ namespace PassiveBOT.Commands.Info
             embed.AddField("--------------", "**User Counts**");
             embed = SafeEmbed(embed, s.MemberCount.ToString(), ":busts_in_silhouette: Total Members", true);
             embed = SafeEmbed(embed, Context.Guild.Users.Count(x => x.IsBot).ToString(), ":robot: Total Bots", true);
-            embed = SafeEmbed(embed, (s.MemberCount - Context.Guild.Users.Count(x => x.IsBot)).ToString(), ":man_in_tuxedo: Total Users", true);
+            embed = SafeEmbed(embed, (s.MemberCount - Context.Guild.Users.Count(x => x.IsBot)).ToString(),
+                ":man_in_tuxedo: Total Users", true);
             embed = SafeEmbed(embed, s.Channels.Count.ToString(), ":newspaper2: Total Channels", true);
-            embed = SafeEmbed(embed, $"{s.TextChannels.Count}/{s.VoiceChannels.Count}", ":microphone: Text/Voice Channels", true);
+            embed = SafeEmbed(embed, $"{s.TextChannels.Count}/{s.VoiceChannels.Count}",
+                ":microphone: Text/Voice Channels", true);
             embed = SafeEmbed(embed, s.Roles.Count.ToString(), ":spy: Role Count", true);
-            embed.AddField("Links", $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Support Server]({Tokens.Load().SupportServer})");
+            embed.AddField("Links",
+                $"[Site]({Load.Siteurl}) \n[Invite]({Load.GetInvite(Context.Client)})\n[Support Server]({Tokens.Load().SupportServer})");
             embed.ThumbnailUrl = s.IconUrl;
             embed.WithFooter(x =>
             {
