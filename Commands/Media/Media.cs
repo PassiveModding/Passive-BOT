@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Handlers;
+using PassiveBOT.Handlers.Services;
 using PassiveBOT.preconditions;
 using PassiveBOT.strings;
 using RedditSharp;

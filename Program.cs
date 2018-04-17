@@ -6,8 +6,9 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
-using PassiveBOT.Discord.Addons.Interactive;
 using PassiveBOT.Handlers;
+using PassiveBOT.Handlers.Services;
+using PassiveBOT.Handlers.Services.Interactive;
 using Color = System.Drawing.Color;
 using EventHandler = PassiveBOT.Handlers.EventHandler;
 
@@ -116,6 +117,7 @@ namespace PassiveBOT
                 .AddSingleton(Client)
                 .AddSingleton(new InteractiveService(Client))
                 .AddSingleton(new TimerService(Client))
+                .AddSingleton(new ReliabilityService(Client))
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();

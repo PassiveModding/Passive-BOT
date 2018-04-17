@@ -5,6 +5,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
+using PassiveBOT.Handlers.Services;
 using PassiveBOT.Preconditions;
 using PassiveBOT.strings;
 

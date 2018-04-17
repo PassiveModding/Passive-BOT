@@ -5,9 +5,9 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
-using PassiveBOT.Discord.Addons.Interactive;
-using PassiveBOT.Discord.Addons.Interactive.Paginator;
 using PassiveBOT.Handlers;
+using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
 
 namespace PassiveBOT.Commands.OwnerCmds
 {

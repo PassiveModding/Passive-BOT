@@ -2,13 +2,13 @@
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace PassiveBOT.Discord.Addons.Interactive.Criteria
+namespace PassiveBOT.Handlers.Services.Interactive.Criteria
 {
-    public class EnsureSourceChannelCriterion : ICriterion<SocketMessage>
+    public class EnsureSourceUserCriterion : ICriterion<SocketMessage>
     {
         public Task<bool> JudgeAsync(SocketCommandContext sourceContext, SocketMessage parameter)
         {
-            var ok = sourceContext.Channel.Id == parameter.Channel.Id;
+            var ok = sourceContext.User.Id == parameter.Author.Id;
             return Task.FromResult(ok);
         }
     }

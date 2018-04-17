@@ -11,6 +11,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers.Services;
 using PassiveBOT.strings;
 using RedditSharp.Things;
 

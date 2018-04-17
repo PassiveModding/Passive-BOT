@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
-using PassiveBOT.Discord.Addons.Interactive;
-using PassiveBOT.Discord.Addons.Interactive.Paginator;
+using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
 
 namespace PassiveBOT.Commands.Info
 {
@@ -68,6 +69,39 @@ namespace PassiveBOT.Commands.Info
             
             if (modulearg == null) //ShortHelp
             {
+                var pages = new List<PaginatedMessage.Page>
+                {
+                };
+                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
+                {
+                    var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}").ToList();
+
+                    if (module.Commands.Count > 0)
+                    {
+                        if (string.Join("\n", list).Length > 1000)
+                        {
+                            pages.Add(new PaginatedMessage.Page
+                            {
+                                dynamictitle = $"{module.Name} (1)",
+                                description = string.Join("\n", list.Take(list.Count / 2))
+                            });
+                            pages.Add(new PaginatedMessage.Page
+                            {
+                                dynamictitle = $"{module.Name} (2)",
+                                description = string.Join("\n", list.Skip(list.Count / 2))
+                            });
+                        }
+                        else
+                        {
+                            pages.Add(new PaginatedMessage.Page
+                            {
+                                dynamictitle = module.Name,
+                                description = string.Join("\n", list)
+                            });                            
+                        }
+                    }
+                }
+
                 var moduleselect = new List<string>
                 {
                     $"`1` - This Page",
@@ -75,13 +109,13 @@ namespace PassiveBOT.Commands.Info
                     $"`3` - List of all commands(2)"
                 };
                 var i = 2;
-                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
+                foreach (var module in pages.Where(x => x.dynamictitle != null))
                 {
                     i++;
-                    moduleselect.Add($"`{i}` - {module.Name}");
+                    moduleselect.Add($"`{i}` - {module.dynamictitle}");
                 }
 
-                var pages = new List<PaginatedMessage.Page>
+                var fullpages = new List<PaginatedMessage.Page>
                 {
                     new PaginatedMessage.Page
                     {
@@ -94,30 +128,24 @@ namespace PassiveBOT.Commands.Info
                     new PaginatedMessage.Page
                     {
                         dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
-                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Take(8).Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Take(_service.Modules.Count()/2)
+                            .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
                     },
                     new PaginatedMessage.Page
                     {
                         dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
-                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Skip(8).Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0).Skip(_service.Modules.Count()/2)
+                            .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
                     }
                 };
-                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
+                foreach (var page in pages)
                 {
-                    var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}").ToList();
-                    if (module.Commands.Count > 0)
-                    {
-                        pages.Add(new PaginatedMessage.Page
-                        {
-                            dynamictitle = module.Name,
-                            description = string.Join("\n", list)
-                        });
-                    }
+                    fullpages.Add(page);
                 }
                 var msg = new PaginatedMessage
                 {
                     Color = Color.Green,
-                    Pages = pages
+                    Pages = fullpages
                 };
                 await PagedReplyAsync(msg, showindex: true);
                 return;

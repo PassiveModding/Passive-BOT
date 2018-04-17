@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace PassiveBOT.Discord.Addons.Interactive.Criteria
+namespace PassiveBOT.Handlers.Services.Interactive.Criteria
 {
     public class Criteria<T> : ICriterion<T>
     {

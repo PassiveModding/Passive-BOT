@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using PassiveBOT.Discord.Addons.Interactive.Criteria;
-using PassiveBOT.Discord.Addons.Interactive.Paginator;
-using PassiveBOT.Discord.Addons.Interactive.Results;
+using PassiveBOT.Handlers.Services.Interactive.Criteria;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
+using PassiveBOT.Handlers.Services.Interactive.Results;
 
-namespace PassiveBOT.Discord.Addons.Interactive
+namespace PassiveBOT.Handlers.Services.Interactive
 {
     public class InteractiveBase : InteractiveBase<SocketCommandContext>
     {

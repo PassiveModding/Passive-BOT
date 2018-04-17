@@ -1,6 +1,6 @@
 ﻿using Discord.Commands;
 
-namespace PassiveBOT.Discord.Addons.Interactive.Results
+namespace PassiveBOT.Handlers.Services.Interactive.Results
 {
     public class OkResult : RuntimeResult
     {

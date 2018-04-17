@@ -10,8 +10,8 @@ using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Configuration;
 using PassiveBOT.Configuration.Objects;
-using PassiveBOT.Discord.Addons.Interactive;
-using PassiveBOT.Discord.Addons.Interactive.Paginator;
+using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.Gaming

@@ -7,7 +7,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
-using PassiveBOT.Discord.Addons.Interactive;
+using PassiveBOT.Handlers.Services.Interactive;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
