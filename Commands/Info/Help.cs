@@ -107,7 +107,7 @@ namespace PassiveBOT.Commands.Info
                     "`2` - List of all commands(1)",
                     "`3` - List of all commands(2)"
                 };
-                var i = 2;
+                var i = 3;
                 foreach (var module in pages.Where(x => x.dynamictitle != null))
                 {
                     i++;
