@@ -45,9 +45,9 @@ namespace PassiveBOT.Commands.ServerModeration
             }
         }
 
-        [Command("prune")]
-        [Summary("prune <user>")]
-        [Remarks("removes most recent messages from a user from the last 100 messages in the channel")]
+        [Command("pruneUser")]
+        [Summary("pruneUser <user>")]
+        [Remarks("removes messages from a user in the last 100 messages")]
         public async Task Prune(IUser user)
         {
             await Context.Message.DeleteAsync().ConfigureAwait(false);
@@ -64,6 +64,28 @@ namespace PassiveBOT.Commands.ServerModeration
             }
 
             await ReplyAsync($"Cleared **{user.Username}'s** Messages (Count = {newlist.Count})");
+        }
+
+
+        [Command("pruneID")]
+        [Summary("pruneID <userID>")]
+        [Remarks("removes messages from a user ID in the last 100 messages")]
+        public async Task Prune(ulong userID)
+        {
+            await Context.Message.DeleteAsync().ConfigureAwait(false);
+            var enumerable = await Context.Channel.GetMessagesAsync().Flatten().ConfigureAwait(false);
+            var messages = enumerable as IMessage[] ?? enumerable.ToArray();
+            var newlist = messages.Where(x => x.Author.Id == userID).ToList();
+            try
+            {
+                await Context.Channel.DeleteMessagesAsync(newlist).ConfigureAwait(false);
+            }
+            catch
+            {
+                //
+            }
+
+            await ReplyAsync($"Cleared Messages (Count = {newlist.Count})");
         }
 
 
