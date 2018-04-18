@@ -258,7 +258,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         public class TokenSetup : ModuleBase
         {
             [Command("SetFortniteToken+")]
-            [Summary("SetFortniteToken+ <token>")]
+            [Summary("Token SetFortniteToken+ <token>")]
             [Remarks("set the fortnite api token")]
             public async Task FNToken([Remainder] string token = null)
             {
@@ -275,7 +275,7 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
 
             [Command("SetDialogFlowToken+")]
-            [Summary("SetDialogFlowToken+")]
+            [Summary("Token SetDialogFlowToken+")]
             [Remarks("set the DialogFlow api token")]
             public async Task DFToken([Remainder] string token = null)
             {
@@ -292,7 +292,7 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
 
             [Command("SetDiscordBotsListToken+")]
-            [Summary("SetDiscordBotsListToken+")]
+            [Summary("Token SetDiscordBotsListToken+")]
             [Remarks("set the DBL api token")]
             public async Task DBLToken([Remainder] string token = null)
             {
@@ -309,7 +309,7 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
 
             [Command("SetTwitchToken+")]
-            [Summary("SetTwitchToken+")]
+            [Summary("Token SetTwitchToken+")]
             [Remarks("set the Twitch api token")]
             public async Task TwitchToken([Remainder] string token = null)
             {
@@ -326,7 +326,7 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
 
             [Command("SetDiscordBotsListURL+")]
-            [Summary("SetDiscordBotsListURL+")]
+            [Summary("Token SetDiscordBotsListURL+")]
             [Remarks("set the DBL bot URL")]
             public async Task DBLUrl([Remainder] string URL = null)
             {
@@ -343,7 +343,7 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
 
             [Command("SetSupportServerURL+")]
-            [Summary("SetSupportServerURL+")]
+            [Summary("Token SetSupportServerURL+")]
             [Remarks("set the DBL bot URL")]
             public async Task SupportURL([Remainder] string URL = null)
             {

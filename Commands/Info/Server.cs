@@ -71,6 +71,7 @@ namespace PassiveBOT.Commands.Info
             await ReplyAsync("", false, embed.Build());
         }
 
+        /*
         [Command("Emotes")]
         [Summary("Emotes")]
         [Remarks("Displays a list of the servers emotes")]
@@ -94,7 +95,7 @@ namespace PassiveBOT.Commands.Info
                 await ReplyAsync("", false, embed.Build());
             }
         }
-
+        */
         [Command("subrole")]
         [Alias("setrole", "joinrole")]
         [Summary("subrole @role")]

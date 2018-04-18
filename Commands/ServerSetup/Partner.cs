@@ -208,7 +208,7 @@ namespace PassiveBOT.Commands.ServerSetup
 
         [Command("PartnerMessage")]
         [Summary("PartnerMessage <message>")]
-        [Remarks("Set your Servers PertnerMessage")]
+        [Remarks("Set your Servers PartnerMessage")]
         public async Task PMessage([Remainder] string input = null)
         {
             if (input == null)

@@ -158,7 +158,8 @@ namespace PassiveBOT.Commands.Media
         }
 
         [Command("dog")]
-        [Summary("Gets a random dog image from random.dog")]
+        [Summary("dog")]
+        [Remarks("Gets a random dog image from random.dog")]
         public async Task Doggo2()
         {
             var woof = "http://random.dog/" + await SearchHelper.GetResponseStringAsync("https://random.dog/woof")

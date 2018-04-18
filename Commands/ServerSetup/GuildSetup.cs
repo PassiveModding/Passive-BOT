@@ -696,117 +696,123 @@ namespace PassiveBOT.Commands.ServerSetup
                              "`(newprefix)`");
         }
 
-        [Command("blacklist")]
-        [Summary("blacklist")]
-        [Remarks("displays the blacklist for 5 seconds")]
-        public async Task B()
+        [Group("Blacklist")]
+        public class Blacklist : InteractiveBase
         {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-            if (jsonObj.Blacklist == null)
+
+            [Command("")]
+            [Summary("blacklist")]
+            [Remarks("displays the blacklist for 5 seconds")]
+            public async Task B()
+            {
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+                if (jsonObj.Blacklist == null)
+                    jsonObj.Blacklist = new List<string>();
+                var embed = new EmbedBuilder();
+                var blackl = "";
+                foreach (var word in jsonObj.Blacklist)
+                    blackl += $"{word} \n";
+                try
+                {
+                    embed.AddField("Blacklisted Words", blackl);
+                }
+                catch
+                {
+                    //
+                }
+
+                embed.AddField("Timeout", "This message self destructs after 5 seconds.");
+
+                await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
+            }
+
+            [Command("add")]
+            [Summary("blacklist add <word>")]
+            [Remarks("adds a word to the blacklist")]
+            public async Task Ab(string keyword)
+            {
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+                if (jsonObj.Blacklist == null)
+                    jsonObj.Blacklist = new List<string>();
+                if (!jsonObj.Blacklist.Contains(keyword))
+                {
+                    jsonObj.Blacklist.Add(keyword);
+                    await Context.Message.DeleteAsync();
+                    await ReplyAsync("Added to the Blacklist");
+                }
+                else
+                {
+                    await Context.Message.DeleteAsync();
+                    await ReplyAsync("Keyword is already in the blacklist");
+                    return;
+                }
+
+                GuildConfig.SaveServer(jsonObj);
+            }
+
+            [Command("del")]
+            [Summary("blacklist del <word>")]
+            [Remarks("removes a word from the blacklist")]
+            public async Task Db(string keyword)
+            {
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+                if (jsonObj.Blacklist == null)
+                    jsonObj.Blacklist = new List<string>();
+
+                if (jsonObj.Blacklist.Contains(keyword))
+                {
+                    jsonObj.Blacklist.Remove(keyword);
+                    await ReplyAsync($"{keyword} is has been removed from the blacklist");
+                }
+                else
+                {
+                    await ReplyAsync($"{keyword} is not in the blacklist");
+                    return;
+                }
+
+                GuildConfig.SaveServer(jsonObj);
+            }
+
+            [Command("clear")]
+            [Summary("blacklist clear")]
+            [Remarks("clears the blacklist")]
+            public async Task Clear()
+            {
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
                 jsonObj.Blacklist = new List<string>();
-            var embed = new EmbedBuilder();
-            var blackl = "";
-            foreach (var word in jsonObj.Blacklist)
-                blackl += $"{word} \n";
-            try
-            {
-                embed.AddField("Blacklisted Words", blackl);
-            }
-            catch
-            {
-                //
+
+                GuildConfig.SaveServer(jsonObj);
+
+                await ReplyAsync("The blacklist has been cleared.");
             }
 
-            embed.AddField("Timeout", "This message self destructs after 5 seconds.");
-
-            await ReplyAndDeleteAsync("", false, embed.Build(), TimeSpan.FromSeconds(5));
-        }
-
-        [Command("blacklist add")]
-        [Summary("blacklist add <word>")]
-        [Remarks("adds a word to the blacklist")]
-        public async Task Ab(string keyword)
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-            if (jsonObj.Blacklist == null)
-                jsonObj.Blacklist = new List<string>();
-            if (!jsonObj.Blacklist.Contains(keyword))
+            [Command("BFToggle")]
+            [Summary("blacklist BFToggle")]
+            [Remarks("Toggles whether or not to filter special characters for spam")]
+            public async Task BFToggle()
             {
-                jsonObj.Blacklist.Add(keyword);
-                await Context.Message.DeleteAsync();
-                await ReplyAsync("Added to the Blacklist");
-            }
-            else
-            {
-                await Context.Message.DeleteAsync();
-                await ReplyAsync("Keyword is already in the blacklist");
-                return;
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+                jsonObj.BlacklistBetterFilter = !jsonObj.BlacklistBetterFilter;
+                GuildConfig.SaveServer(jsonObj);
+
+                await ReplyAsync($"Blacklist BetterFilter status set to {(jsonObj.BlacklistBetterFilter ? "ON" : "OFF")}");
             }
 
-            GuildConfig.SaveServer(jsonObj);
-        }
-
-        [Command("blacklist del")]
-        [Summary("blacklist del <word>")]
-        [Remarks("removes a word from the blacklist")]
-        public async Task Db(string keyword)
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-
-            if (jsonObj.Blacklist == null)
-                jsonObj.Blacklist = new List<string>();
-
-            if (jsonObj.Blacklist.Contains(keyword))
+            [Command("message")]
+            [Summary("blacklist message <message>")]
+            [Remarks("set the blaklist message")]
+            public async Task BlMessage([Remainder] string blmess = null)
             {
-                jsonObj.Blacklist.Remove(keyword);
-                await ReplyAsync($"{keyword} is has been removed from the blacklist");
+                var jsonObj = GuildConfig.GetServer(Context.Guild);
+                jsonObj.BlacklistMessage = blmess ?? "";
+                GuildConfig.SaveServer(jsonObj);
+
+                await ReplyAsync("The blacklist message is now:\n" +
+                                 $"{jsonObj.BlacklistMessage}");
             }
-            else
-            {
-                await ReplyAsync($"{keyword} is not in the blacklist");
-                return;
-            }
-
-            GuildConfig.SaveServer(jsonObj);
         }
 
-        [Command("blacklist clear")]
-        [Summary("blacklist clear")]
-        [Remarks("clears the blacklist")]
-        public async Task Clear()
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.Blacklist = new List<string>();
-
-            GuildConfig.SaveServer(jsonObj);
-
-            await ReplyAsync("The blacklist has been cleared.");
-        }
-
-        [Command("blacklistBFToggle")]
-        [Summary("blacklistBFToggle")]
-        [Remarks("Toggles whether or not to filter special characters for spam")]
-        public async Task BFToggle()
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.BlacklistBetterFilter = !jsonObj.BlacklistBetterFilter;
-            GuildConfig.SaveServer(jsonObj);
-
-            await ReplyAsync($"Blacklist BetterFilter status set to {(jsonObj.BlacklistBetterFilter ? "ON" : "OFF")}");
-        }
-
-        [Command("blacklist message")]
-        [Summary("blacklist message <message>")]
-        [Remarks("set the blaklist message")]
-        public async Task BlMessage([Remainder] string blmess = null)
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.BlacklistMessage = blmess ?? "";
-            GuildConfig.SaveServer(jsonObj);
-
-            await ReplyAsync("The blacklist message is now:\n" +
-                             $"{jsonObj.BlacklistMessage}");
-        }
 
 
         [Command("SetMod")]

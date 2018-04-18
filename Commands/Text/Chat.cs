@@ -4,7 +4,7 @@ using Discord;
 using Discord.Commands;
 using PassiveBOT.preconditions;
 
-namespace PassiveBOT.Commands
+namespace PassiveBOT.Commands.Text
 {
     [Ratelimit(1, 10, Measure.Seconds)]
     public class Chat : ModuleBase
@@ -67,6 +67,14 @@ namespace PassiveBOT.Commands
         public async Task Huguser(IUser user)
         {
             await ReplyAsync($"Hey {user.Mention}, {Context.User.Mention} sent you a big warm hug :heart:");
+        }
+
+        [Command("clapclap")]
+        [Summary("clapclap <message>")]
+        [Remarks("replace all spaces with claps")]
+        public async Task ClapClap([Remainder]string message)
+        {
+            await ReplyAsync(message.Replace(" ", ":clap:"));
         }
 
         [Command("date")]

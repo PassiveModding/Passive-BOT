@@ -47,7 +47,7 @@ namespace PassiveBOT.Commands.ServerModeration
 
         [Command("prune")]
         [Summary("prune <user>")]
-        [Remarks("removes most recent messages from a user")]
+        [Remarks("removes most recent messages from a user from the last 100 messages in the channel")]
         public async Task Prune(IUser user)
         {
             await Context.Message.DeleteAsync().ConfigureAwait(false);
@@ -56,7 +56,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var newlist = messages.Where(x => x.Author == user).ToList();
             try
             {
-                await Context.Channel.DeleteMessagesAsync(messages).ConfigureAwait(false);
+                await Context.Channel.DeleteMessagesAsync(newlist).ConfigureAwait(false);
             }
             catch
             {
@@ -69,7 +69,7 @@ namespace PassiveBOT.Commands.ServerModeration
 
         [Command("Kick")]
         [Summary("kick <@user> <reason>")]
-        [Remarks("Kicks the specified user (requires Admin Permissions)")]
+        [Remarks("Kicks the specified user (Admin)")]
         public async Task Kickuser(SocketGuildUser user, [Remainder] string reason = null)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
@@ -184,7 +184,7 @@ namespace PassiveBOT.Commands.ServerModeration
 
         [Command("Warn")]
         [Summary("Warn <@user> <reason>")]
-        [Remarks("Warns the specified user (requires Admin Permissions)")]
+        [Remarks("Warns the specified user")]
         public async Task WarnUser(SocketGuildUser user, [Remainder] string reason = null)
         {
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
@@ -287,9 +287,15 @@ namespace PassiveBOT.Commands.ServerModeration
 
         [Command("HackBan")]
         [Summary("HackBan <User ID>")]
-        [Remarks("Bans the specified user from a server they are not in (requires Admin Permissions)")]
+        [Remarks("Bans the specified user from a server they are not in (Admin)")]
         public async Task BanUser(ulong UserID)
         {
+            if (!((SocketGuildUser) Context.User).GuildPermissions.Administrator)
+            {
+                await ReplyAsync("Admin Only!");
+                return;
+            }
+
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);

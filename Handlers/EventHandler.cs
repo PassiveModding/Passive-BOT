@@ -278,12 +278,37 @@ namespace PassiveBOT.Handlers
         {
             var guild = ((SocketGuildChannel) sChannel).Guild;
             var guildobj = GuildConfig.GetServer(guild);
+            bool? mutesuccess = null;
+            if (guildobj.MutedRole != 0 && sChannel is ITextChannel channel)
+            {
+                var mutedrole = guild.GetRole(guildobj.MutedRole);
+                if (mutedrole != null)
+                {
+                    try
+                    {
+                        var unverifiedPerms =
+                            new OverwritePermissions(sendMessages: PermValue.Deny, addReactions: PermValue.Deny);
+                        await channel.AddPermissionOverwriteAsync(mutedrole, unverifiedPerms);
+                        mutesuccess = true;
+                    }
+                    catch
+                    {
+                        mutesuccess = false;
+                    }
+                }
+            }
             if (guildobj.EventLogging)
             {
+                var desc = ((SocketGuildChannel) sChannel)?.Name;
+                if (mutesuccess != null)
+                {
+                    desc = $"{((SocketGuildChannel) sChannel).Name}\n\n" +
+                           $"Muted Role Added: {mutesuccess}";
+                }
                 var embed = new EmbedBuilder
                 {
                     Title = "Channel Created",
-                    Description = ((SocketGuildChannel) sChannel)?.Name,
+                    Description = desc,
                     Color = Color.Green,
                     Footer = new EmbedFooterBuilder
                     {
