@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Rest;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Preconditions;
@@ -88,6 +89,29 @@ namespace PassiveBOT.Commands.ServerModeration
             await ReplyAsync($"Cleared Messages (Count = {newlist.Count})");
         }
 
+        
+        [Command("pruneRole")]
+        [Summary("pruneRole <@role>")]
+        [Remarks("removes messages from a role in the last 100 messages")]
+        public async Task Prune(IRole role)
+        {
+            await Context.Message.DeleteAsync().ConfigureAwait(false);
+            var enumerable = await Context.Channel.GetMessagesAsync().Flatten().ConfigureAwait(false);
+            var messages = enumerable as IMessage[] ?? enumerable.ToArray();
+            var newerlist = messages.ToList().Where(x => Context.Guild.GetUserAsync(x.Author.Id).Result != null && Context.Guild.GetUserAsync(x.Author.Id).Result.RoleIds.Contains(role.Id)).ToList();
+
+            try
+            {
+                await Context.Channel.DeleteMessagesAsync(newerlist).ConfigureAwait(false);
+            }
+            catch
+            {
+                //
+            }
+
+            await ReplyAsync($"Cleared Messages (Count = {newerlist.Count()})");
+        }
+        
 
         [Command("Kick")]
         [Summary("kick <@user> <reason>")]
