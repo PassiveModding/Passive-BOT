@@ -43,6 +43,16 @@ namespace PassiveBOT.Commands.ServerModeration
                 }
 
                 await ReplyAsync($"Cleared **{count}** Messages");
+
+                SendModLog(new EmbedBuilder()
+                    .WithColor(Color.DarkTeal)
+                    .AddField($"Pruned Messages", 
+                        $"{count} messages cleared")
+                    .AddField("Moderator",
+                        $"Mod: {Context.User.Username}\n" +
+                        $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                        $"Channel: {Context.Channel.Name}")
+                    .WithCurrentTimestamp());
             }
         }
 
@@ -65,6 +75,16 @@ namespace PassiveBOT.Commands.ServerModeration
             }
 
             await ReplyAsync($"Cleared **{user.Username}'s** Messages (Count = {newlist.Count})");
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkTeal)
+                .AddField($"Pruned Messages from {user.Username}",
+                    $"{newlist.Count} messages cleared")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
 
 
@@ -87,8 +107,41 @@ namespace PassiveBOT.Commands.ServerModeration
             }
 
             await ReplyAsync($"Cleared Messages (Count = {newlist.Count})");
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkTeal)
+                .AddField($"Pruned Messages from ID: {userID}",
+                    $"{newlist.Count} messages cleared")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
 
+        public async void SendModLog(EmbedBuilder embed)
+        {
+            var server = GuildConfig.GetServer(Context.Guild);
+            if (server.LogModCommands)
+            {
+                var channel = await Context.Guild.GetChannelAsync(server.ModLogChannel);
+                if (channel != null)
+                {
+                    if (channel is IMessageChannel ModChannel)
+                    {
+                        try
+                        {
+                            await ModChannel.SendMessageAsync("", false, embed.Build());
+                        }
+                        catch
+                        {
+                            //
+                        }
+                    }
+
+                }
+            }
+        }
         
         [Command("pruneRole")]
         [Summary("pruneRole <@role>")]
@@ -110,6 +163,16 @@ namespace PassiveBOT.Commands.ServerModeration
             }
 
             await ReplyAsync($"Cleared Messages (Count = {newerlist.Count()})");
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkTeal)
+                .AddField($"Pruned Messages from Role: {role.Name}",
+                    $"{newerlist.Count} messages cleared")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
         
 
@@ -170,6 +233,19 @@ namespace PassiveBOT.Commands.ServerModeration
                                           $"Moderator: {Context.User.Username}\n" +
                                           $"Reason: {reason}");
             await ReplyAsync("", false, embed.Build());
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkPurple)
+                .AddField($"Kicked User",
+                    $"User: {user.Username}\n" +
+                    $"User Nick: {((IGuildUser)user)?.Nickname ?? "N/A"}\n" +
+                    $"UserID: {user.Id}\n" +
+                    $"Reason: {reason}")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
 
         [Command("Kicks")]
@@ -271,8 +347,23 @@ namespace PassiveBOT.Commands.ServerModeration
             embed.AddField("User Warned", $"User: {user.Username}\n" +
                                           $"UserID: {user.Id}\n" +
                                           $"Moderator: {Context.User.Username}\n" +
-                                          $"Reason: {reason}");
+                                          $"Reason: {reason}\n" +
+                                          $"Warnings Count: {config.Warnings.Count(x => x.UserId == user.Id)}");
             await ReplyAsync("", false, embed.Build());
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkOrange)
+                .AddField($"Warned User",
+                    $"User: {user.Username}\n" +
+                    $"User Nick: {((IGuildUser)user)?.Nickname ?? "N/A"}\n" +
+                    $"UserID: {user.Id}\n" +
+                    $"Reason: {reason}\n" +
+                    $"Warnings Count: {config.Warnings.Count(x => x.UserId == user.Id)}")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
 
         [Command("Warns")]
@@ -368,6 +459,17 @@ namespace PassiveBOT.Commands.ServerModeration
             config.Banning.Add(add);
             GuildConfig.SaveServer(config);
             await ReplyAsync("Success!! User Banned");
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkPurple)
+                .AddField($"HackBanned User",
+                    $"UserID: {UserID}\n" +
+                    $"Reason: HackBan")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
 
         [Command("Ban")]
@@ -426,6 +528,19 @@ namespace PassiveBOT.Commands.ServerModeration
                                           $"Moderator: {Context.User.Username}\n" +
                                           $"Reason: {reason}");
             await ReplyAsync("", false, embed.Build());
+
+            SendModLog(new EmbedBuilder()
+                .WithColor(Color.DarkRed)
+                .AddField($"Banned User",
+                    $"User: {user.Username}\n" +
+                    $"User Nick: {((IGuildUser)user)?.Nickname ?? "N/A"}\n" +
+                    $"UserID: {user.Id}\n" +
+                    $"Reason: {reason}")
+                .AddField("Moderator",
+                    $"Mod: {Context.User.Username}\n" +
+                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Channel: {Context.Channel.Name}")
+                .WithCurrentTimestamp());
         }
 
         [Command("Bans")]
@@ -531,6 +646,18 @@ namespace PassiveBOT.Commands.ServerModeration
             {
                 await user.AddRoleAsync(mutedrole);
                 await ReplyAsync($"SUCCESS. The user has been muted and added to the muted role: {mutedrole.Mention}");
+
+                SendModLog(new EmbedBuilder()
+                    .WithColor(Color.DarkPurple)
+                    .AddField($"Muted User",
+                        $"User: {user.Username}\n" +
+                        $"User Nick: {(user)?.Nickname ?? "N/A"}\n" +
+                        $"UserID: {user.Id}\n")
+                    .AddField("Moderator",
+                        $"Mod: {Context.User.Username}\n" +
+                        $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                        $"Channel: {Context.Channel.Name}")
+                    .WithCurrentTimestamp());
             }
             catch (Exception e)
             {
@@ -550,6 +677,19 @@ namespace PassiveBOT.Commands.ServerModeration
             {
                 await user.RemoveRoleAsync(muterole);
                 await ReplyAsync("SUCCESS! User unmuted.");
+
+                SendModLog(new EmbedBuilder()
+                    .WithColor(Color.DarkPurple)
+                    .AddField($"Unmuted User",
+                        $"User: {user.Username}\n" +
+                        $"User Nick: {(user)?.Nickname ?? "N/A"}\n" +
+                        $"UserID: {user.Id}\n")
+                    .AddField("Moderator",
+                        $"Mod: {Context.User.Username}\n" +
+                        $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                        $"Channel: {Context.Channel.Name}")
+                    .WithCurrentTimestamp());
+
                 return;
             }
 

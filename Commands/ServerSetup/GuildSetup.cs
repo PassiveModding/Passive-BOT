@@ -813,8 +813,6 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
-
-
         [Command("SetMod")]
         [Summary("SetMod <@role>")]
         [Remarks("Set the Moderator Role For your server")]
@@ -827,6 +825,36 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(jsonObj);
 
             await ReplyAsync($"ModRole has been set as {modRole.Mention}");
+        }
+
+        [Command("ToggleModLog")]
+        [Summary("ToggleModLog")]
+        [Remarks("Toggle logging of kick, warn and ban commands")]
+        public async Task ToggleModLog()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.LogModCommands = !jsonObj.LogModCommands;
+
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"Log Mod Commands: {jsonObj.LogModCommands}\n" +
+                             $"Use the SetModLogChannel Command so set the channel where these will be sent!");
+        }
+
+        [Command("SetModLogChannel")]
+        [Summary("SetModLogChannel")]
+        [Remarks("Set Mod Logging Channel")]
+        public async Task SetModLogChannel()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.ModLogChannel = Context.Channel.Id;
+
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"Mod Log will now be sent in:\n" +
+                             $"{Context.Channel.Name}");
         }
 
         [Command("SetMuted")]
