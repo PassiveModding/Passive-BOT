@@ -461,7 +461,7 @@ namespace PassiveBOT.Commands.ServerModeration
             await ReplyAsync("Success!! User Banned");
 
             SendModLog(new EmbedBuilder()
-                .WithColor(Color.DarkPurple)
+                .WithColor(Color.DarkRed)
                 .AddField($"HackBanned User",
                     $"UserID: {UserID}\n" +
                     $"Reason: HackBan")
@@ -648,7 +648,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 await ReplyAsync($"SUCCESS. The user has been muted and added to the muted role: {mutedrole.Mention}");
 
                 SendModLog(new EmbedBuilder()
-                    .WithColor(Color.DarkPurple)
+                    .WithColor(Color.DarkMagenta)
                     .AddField($"Muted User",
                         $"User: {user.Username}\n" +
                         $"User Nick: {(user)?.Nickname ?? "N/A"}\n" +
@@ -679,7 +679,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 await ReplyAsync("SUCCESS! User unmuted.");
 
                 SendModLog(new EmbedBuilder()
-                    .WithColor(Color.DarkPurple)
+                    .WithColor(Color.Magenta)
                     .AddField($"Unmuted User",
                         $"User: {user.Username}\n" +
                         $"User Nick: {(user)?.Nickname ?? "N/A"}\n" +
