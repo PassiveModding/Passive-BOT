@@ -235,6 +235,28 @@ namespace PassiveBOT.Handlers
                 var guild = ChannelBefore.Guild;
                 var gChannel = ChannelAfter;
                 var guildobj = GuildConfig.GetServer(guild);
+                if (guildobj.PartnerSetup.IsPartner && !guildobj.PartnerSetup.banned && ChannelBefore.Id == guildobj.PartnerSetup.PartherChannel)
+                {
+                    var changes = ChannelAfter.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role && 
+                        ChannelBefore.PermissionOverwrites.FirstOrDefault(y => y.TargetId == x.TargetId && (y.Permissions.AllowValue != x.Permissions.AllowValue || y.Permissions.DenyValue != x.Permissions.DenyValue)).TargetId == x.TargetId);
+                    var homeserver = Homeserver.Load();
+                    var embed = new EmbedBuilder
+                    {
+                        Title = $"Partner Channel Updated",
+                        Description = $"{string.Join("\n", changes.Select(x => $"Role: {guild.GetRole(x.TargetId)?.Name}\n" + $"Read Messages: {x.Permissions.ReadMessages}\n" + $"Read History: {x.Permissions.ReadMessageHistory}\n" + $"Guild Name: {guild.Name}\n" + $"Guild ID: `{guild.Id}`\n" + $"Channel Name: {ChannelAfter.Name}"))}",
+                        Color = Color.Blue,
+                        Footer = new EmbedFooterBuilder
+                        {
+                            Text = $"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"
+                        }
+                    };
+                    var channel = client.GetChannel(homeserver.PartnerUpdates);
+                    if (channel != null && !string.IsNullOrEmpty(embed.Description))
+                    {
+                        await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
+                    }
+                }
+
                 if (guildobj.EventLogging)
                 {
                     if (ChannelAfter != null && ChannelBefore.Position != ChannelAfter.Position)
