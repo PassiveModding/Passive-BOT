@@ -4,7 +4,6 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
-using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services;
 using PassiveBOT.Preconditions;
 using PassiveBOT.strings;
@@ -252,14 +251,11 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 var invites = input.Split(' ').Where(x => x.Contains("discord.gg")).ToList();
                 var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
-                bool mismatch = false;
+                var mismatch = false;
                 foreach (var invite in invites)
                 {
                     var match = officialinvites.FirstOrDefault(x => x.Url == invite);
-                    if (match == null)
-                    {
-                        mismatch = true;
-                    }
+                    if (match == null) mismatch = true;
                 }
 
                 if (mismatch)
@@ -319,9 +315,9 @@ namespace PassiveBOT.Commands.ServerSetup
                 Color = Color.Green,
                 Footer = new EmbedFooterBuilder
                 {
-                    Text = (guild.PartnerSetup.showusercount
+                    Text = guild.PartnerSetup.showusercount
                         ? $"User Count: {((SocketGuild) Context.Guild).MemberCount}"
-                        : null)
+                        : null
                 }
             };
             await ReplyAsync("", false, embed.Build());

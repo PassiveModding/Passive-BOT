@@ -17,14 +17,6 @@ namespace PassiveBOT.Handlers
         private readonly DiscordSocketClient client;
         public List<Delays> AntiRLDelays = new List<Delays>();
 
-        public class Delays
-        {
-            public DateTime _delay { get; set; } = DateTime.UtcNow;
-            public ulong GuildID { get; set; }
-        }
-
-        public IServiceProvider Provider { get; }
-
         public EventHandler(IServiceProvider provider)
         {
             Provider = provider;
@@ -51,6 +43,8 @@ namespace PassiveBOT.Handlers
             client.ChannelDestroyed += ChannelDeletedEvent;
             client.ChannelUpdated += ChannelUpdatedEvent;
         }
+
+        public IServiceProvider Provider { get; }
 
         private async Task Client_GuildMemberUpdated(SocketGuildUser UserBefore, SocketGuildUser UserAfter)
         {
@@ -89,7 +83,6 @@ namespace PassiveBOT.Handlers
                 {
                     var guild = UserAliases.Guilds.FirstOrDefault(x => x.GuildID == UserBefore.Guild.Id);
                     if (guild == null)
-                    {
                         UserAliases.Guilds.Add(new Homeserver.Alias.guild
                         {
                             GuildName = UserBefore.Guild.Name,
@@ -103,15 +96,12 @@ namespace PassiveBOT.Handlers
                                 }
                             }
                         });
-                    }
                     else
-                    {
                         guild.GuildAliases.Add(new Homeserver.Alias.guild.GuildAlias
                         {
                             DateChanged = DateTime.UtcNow,
                             Name = UserAfter.Nickname ?? UserAfter.Username
                         });
-                    }
                 }
 
                 logmsg += $"__**NickName Updated**__\n" +
@@ -123,13 +113,13 @@ namespace PassiveBOT.Handlers
             {
                 var result = UserAfter.Roles.Where(b => UserBefore.Roles.All(a => b.Id != a.Id)).ToList();
                 logmsg += $"__**Role Added**__\n" +
-                          $"{(result[0]).Name}\n";
+                          $"{result[0].Name}\n";
             }
             else if (UserBefore.Roles.Count > UserAfter.Roles.Count)
             {
                 var result = UserBefore.Roles.Where(b => UserAfter.Roles.All(a => b.Id != a.Id)).ToList();
                 logmsg += $"__**Role Removed**__\n" +
-                          $"{(result[0]).Name}\n";
+                          $"{result[0].Name}\n";
             }
 
             if (logmsg == "") return;
@@ -175,10 +165,8 @@ namespace PassiveBOT.Handlers
             try
             {
                 if (gobject.EventChannel != 0)
-                {
                     await ((ITextChannel) guild.GetChannel(gobject.EventChannel)).SendMessageAsync(txt, false,
                         embed.Build());
-                }
             }
             catch
             {
@@ -235,15 +223,24 @@ namespace PassiveBOT.Handlers
                 var guild = ChannelBefore.Guild;
                 var gChannel = ChannelAfter;
                 var guildobj = GuildConfig.GetServer(guild);
-                if (guildobj.PartnerSetup.IsPartner && !guildobj.PartnerSetup.banned && ChannelBefore.Id == guildobj.PartnerSetup.PartherChannel)
+                if (guildobj.PartnerSetup.IsPartner && !guildobj.PartnerSetup.banned &&
+                    ChannelBefore.Id == guildobj.PartnerSetup.PartherChannel)
                 {
-                    var changes = ChannelAfter.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role && 
-                        ChannelBefore.PermissionOverwrites.FirstOrDefault(y => y.TargetId == x.TargetId && (y.Permissions.AllowValue != x.Permissions.AllowValue || y.Permissions.DenyValue != x.Permissions.DenyValue)).TargetId == x.TargetId);
+                    var changes = ChannelAfter.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role &&
+                                                                               ChannelBefore.PermissionOverwrites
+                                                                                   .FirstOrDefault(y =>
+                                                                                       y.TargetId == x.TargetId &&
+                                                                                       (y.Permissions.AllowValue !=
+                                                                                        x.Permissions.AllowValue ||
+                                                                                        y.Permissions.DenyValue !=
+                                                                                        x.Permissions.DenyValue))
+                                                                                   .TargetId == x.TargetId);
                     var homeserver = Homeserver.Load();
                     var embed = new EmbedBuilder
                     {
                         Title = $"Partner Channel Updated",
-                        Description = $"{string.Join("\n", changes.Select(x => $"Role: {guild.GetRole(x.TargetId)?.Name}\n" + $"Read Messages: {x.Permissions.ReadMessages}\n" + $"Read History: {x.Permissions.ReadMessageHistory}\n" + $"Guild Name: {guild.Name}\n" + $"Guild ID: `{guild.Id}`\n" + $"Channel Name: {ChannelAfter.Name}"))}",
+                        Description =
+                            $"{string.Join("\n", changes.Select(x => $"Role: {guild.GetRole(x.TargetId)?.Name}\n" + $"Read Messages: {x.Permissions.ReadMessages}\n" + $"Read History: {x.Permissions.ReadMessageHistory}\n" + $"Guild Name: {guild.Name}\n" + $"Guild ID: `{guild.Id}`\n" + $"Channel Name: {ChannelAfter.Name}"))}",
                         Color = Color.Blue,
                         Footer = new EmbedFooterBuilder
                         {
@@ -252,9 +249,7 @@ namespace PassiveBOT.Handlers
                     };
                     var channel = client.GetChannel(homeserver.PartnerUpdates);
                     if (channel != null && !string.IsNullOrEmpty(embed.Description))
-                    {
                         await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
-                    }
                 }
 
                 if (guildobj.EventLogging)
@@ -305,7 +300,6 @@ namespace PassiveBOT.Handlers
             {
                 var mutedrole = guild.GetRole(guildobj.MutedRole);
                 if (mutedrole != null)
-                {
                     try
                     {
                         var unverifiedPerms =
@@ -317,16 +311,15 @@ namespace PassiveBOT.Handlers
                     {
                         mutesuccess = false;
                     }
-                }
             }
+
             if (guildobj.EventLogging)
             {
                 var desc = ((SocketGuildChannel) sChannel)?.Name;
                 if (mutesuccess != null)
-                {
                     desc = $"{((SocketGuildChannel) sChannel).Name}\n\n" +
                            $"Muted Role Added: {mutesuccess}";
-                }
+
                 var embed = new EmbedBuilder
                 {
                     Title = "Channel Created",
@@ -509,13 +502,9 @@ namespace PassiveBOT.Handlers
                 Description = guildobj.GoodbyeMessage
             };
             if (guildobj.GoodByeChannel != 0)
-            {
                 await user.Guild.GetTextChannel(guildobj.GoodByeChannel).SendMessageAsync($"", false, embed.Build());
-            }
             else
-            {
                 await user.Guild.DefaultChannel.SendMessageAsync($"", false, embed.Build());
-            }
         }
 
         public async Task NewGuildMessage(SocketGuild guild)
@@ -538,6 +527,12 @@ namespace PassiveBOT.Handlers
             {
                 //
             }
+        }
+
+        public class Delays
+        {
+            public DateTime _delay { get; set; } = DateTime.UtcNow;
+            public ulong GuildID { get; set; }
         }
     }
 }

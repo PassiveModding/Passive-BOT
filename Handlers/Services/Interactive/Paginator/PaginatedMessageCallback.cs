@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Callbacks;
 using PassiveBOT.Handlers.Services.Interactive.Criteria;
-using PassiveBOT.Handlers.Services.Interactive.Paginator;
 
 namespace PassiveBOT.Handlers.Services.Interactive.Paginator
 {
@@ -112,28 +110,20 @@ namespace PassiveBOT.Handlers.Services.Interactive.Paginator
             // Reactions take a while to add, don't wait for them
             _ = Task.Run(async () =>
             {
-                if (showall)
-                {
-                    await message.AddReactionAsync(options.First);
-                }
+                if (showall) await message.AddReactionAsync(options.First);
 
                 await message.AddReactionAsync(options.Back);
                 await message.AddReactionAsync(options.Next);
-                if (showall)
-                {
-                    await message.AddReactionAsync(options.Last);
-                }
+                if (showall) await message.AddReactionAsync(options.Last);
 
 
                 var manageMessages = Context.Channel is IGuildChannel guildChannel &&
                                      (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
 
                 if (showindex)
-                {
                     if (options.JumpDisplayOptions == JumpDisplayOptions.Always
                         || options.JumpDisplayOptions == JumpDisplayOptions.WithManageMessages && manageMessages)
                         await message.AddReactionAsync(options.Jump);
-                }
 
                 if (showall)
                 {

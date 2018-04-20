@@ -18,6 +18,9 @@ namespace PassiveBOT.Handlers.Services
     // [Bash (Unix)] https://stackoverflow.com/a/697064
     public class ReliabilityService
     {
+        // Logging Helpers
+        private const string LogSource = "Reliability";
+
         // --- Begin Configuration Section ---
         // How long should we wait on the client to reconnect before resetting?
         private static readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
@@ -94,7 +97,9 @@ namespace PassiveBOT.Handlers.Services
                     FailFast();
                 }
                 else if (connect.IsCompletedSuccessfully)
+                {
                     await InfoAsync("Client reset succesfully!");
+                }
             }
 
             await CriticalAsync("Client did not reconnect in time, killing process");
@@ -102,18 +107,23 @@ namespace PassiveBOT.Handlers.Services
         }
 
         private void FailFast()
-            => Environment.Exit(1);
-
-        // Logging Helpers
-        private const string LogSource = "Reliability";
+        {
+            Environment.Exit(1);
+        }
 
         private Task DebugAsync(string message)
-            => _logger.Invoke(new LogMessage(_debug, LogSource, message));
+        {
+            return _logger.Invoke(new LogMessage(_debug, LogSource, message));
+        }
 
         private Task InfoAsync(string message)
-            => _logger.Invoke(new LogMessage(_info, LogSource, message));
+        {
+            return _logger.Invoke(new LogMessage(_info, LogSource, message));
+        }
 
         private Task CriticalAsync(string message, Exception error = null)
-            => _logger.Invoke(new LogMessage(_critical, LogSource, message, error));
+        {
+            return _logger.Invoke(new LogMessage(_critical, LogSource, message, error));
+        }
     }
 }

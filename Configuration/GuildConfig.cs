@@ -21,7 +21,7 @@ namespace PassiveBOT.Configuration
         public ulong MutedRole { get; set; } = 0;
         public ulong ModeratorRoleId { get; set; } = 0;
         public PartnerShip PartnerSetup { get; set; } = new PartnerShip();
-        
+
 
         //TRANSLATION
         public bool Premium { get; set; } = false;

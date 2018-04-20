@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -35,17 +34,17 @@ namespace PassiveBOT.Commands.Gaming
             var client = new WebClient();
             client.Headers.Add("TRN-Api-Key", Tokens.Load().FortniteToken);
             var stream = client.OpenRead(new Uri(url));
-            ;
+
             var reader = new StreamReader(stream ?? throw new InvalidOperationException());
             var fstats = JsonConvert.DeserializeObject<FortniteProfile>(reader.ReadToEnd());
-            FortniteProfile.CurrP2 CurrentSoloSeasonStats = fstats.stats.curr_p2;
-            FortniteProfile.P2 LifetimeSoloStats = fstats.stats.p2;
+            var CurrentSoloSeasonStats = fstats.stats.curr_p2;
+            var LifetimeSoloStats = fstats.stats.p2;
 
-            FortniteProfile.CurrP10 CurrentDuoStats = fstats.stats.curr_p10;
-            FortniteProfile.P10 LifetimeDuoStats = fstats.stats.p10;
+            var CurrentDuoStats = fstats.stats.curr_p10;
+            var LifetimeDuoStats = fstats.stats.p10;
 
-            FortniteProfile.CurrP9 CurrentSquadStats = fstats.stats.curr_p9;
-            FortniteProfile.P9 LifetimeSquadStats = fstats.stats.p9;
+            var CurrentSquadStats = fstats.stats.curr_p9;
+            var LifetimeSquadStats = fstats.stats.p9;
 
             var CurrentSolo = $"__**Current Solo Stats**__\n" +
                               $"KD: {CurrentSoloSeasonStats.kd.value}\n" +

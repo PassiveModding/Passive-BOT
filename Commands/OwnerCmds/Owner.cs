@@ -6,9 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
-using Newtonsoft.Json;
 using PassiveBOT.Configuration;
-using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.preconditions;
 

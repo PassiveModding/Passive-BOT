@@ -49,7 +49,7 @@ namespace PassiveBOT.Commands.ServerModeration
 
                 await ReplyAsync("Editing Channel Permissions");
                 var channellist = new List<string>();
-                var overwrite = new OverwritePermissions(createInstantInvite: PermValue.Deny,
+                var overwrite = new OverwritePermissions(PermValue.Deny,
                     readMessages: PermValue.Allow,
                     readMessageHistory: PermValue.Allow, addReactions: PermValue.Deny,
                     sendMessages: PermValue.Deny, attachFiles: PermValue.Deny, connect: PermValue.Deny,
@@ -60,17 +60,12 @@ namespace PassiveBOT.Commands.ServerModeration
                     speak: PermValue.Deny, useExternalEmojis: PermValue.Deny,
                     useVoiceActivation: PermValue.Deny);
                 foreach (var channel in Context.Guild.TextChannels)
-                {
                     try
                     {
                         if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole
                         )
-                        {
                             if (trole.Permissions.DenyValue != overwrite.DenyValue)
-                            {
                                 await channel.AddPermissionOverwriteAsync(asrole, overwrite);
-                            }
-                        }
 
                         channellist.Add($"Overwrite Added: {channel.Name}");
                     }
@@ -78,20 +73,14 @@ namespace PassiveBOT.Commands.ServerModeration
                     {
                         channellist.Add($"OVERWRITE ERROR: {channel.Name}");
                     }
-                }
 
                 foreach (var channel in Context.Guild.VoiceChannels)
-                {
                     try
                     {
                         if (channel.PermissionOverwrites.FirstOrDefault(x => x.TargetId == asrole.Id) is Overwrite trole
                         )
-                        {
                             if (trole.Permissions.DenyValue != overwrite.DenyValue)
-                            {
                                 await channel.AddPermissionOverwriteAsync(asrole, overwrite);
-                            }
-                        }
 
                         channellist.Add($"Overwrite Added: {channel.Name}");
                     }
@@ -99,7 +88,6 @@ namespace PassiveBOT.Commands.ServerModeration
                     {
                         channellist.Add($"OVERWRITE ERROR: {channel.Name}");
                     }
-                }
 
                 embed.AddField("Channels", string.Join("\n", channellist));
                 var userlist = new List<string>();
@@ -109,13 +97,11 @@ namespace PassiveBOT.Commands.ServerModeration
                 if (newusers.Any())
                 {
                     foreach (var user in newusers)
-                    {
                         if (user.Roles.FirstOrDefault(x => x.Id == asrole.Id) == null)
                         {
                             await user.AddRoleAsync(asrole);
                             userlist.Add(user.Username);
                         }
-                    }
 
                     embed.AddField("Users Muted", newusers.Any() ? string.Join("\n", userlist) : "N/A");
                 }
@@ -404,16 +390,11 @@ namespace PassiveBOT.Commands.ServerModeration
             var list = "__Text Channels__\n";
 
             foreach (var channel in Context.Guild.TextChannels.OrderBy(x => x.Position))
-            {
                 list += $"{channel.Mention}{(channel.Topic == null ? "" : $" - {channel.Topic}")}\n";
-            }
 
             list += "\n__Audio Channels__\n";
 
-            foreach (var channel in Context.Guild.VoiceChannels.OrderBy(x => x.Position))
-            {
-                list += $"{channel.Name}\n";
-            }
+            foreach (var channel in Context.Guild.VoiceChannels.OrderBy(x => x.Position)) list += $"{channel.Name}\n";
 
             await ReplyAsync(list);
         }

@@ -19,6 +19,28 @@ namespace PassiveBOT.Configuration
         public List<globalban> GlobalBans { get; set; } = new List<globalban>();
         public List<Alias> Aliases { get; set; } = new List<Alias>();
 
+        public static void SaveHome(Homeserver config)
+        {
+            var file = Path.Combine(Appdir, "setup/config/home.json");
+            var output = JsonConvert.SerializeObject(config, Formatting.Indented);
+            File.WriteAllText(file, output);
+        }
+
+        public static void CheckExistence()
+        {
+            if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")))
+            {
+                var newhome = new Homeserver();
+                SaveHome(newhome);
+            }
+        }
+
+        public static Homeserver Load()
+        {
+            var file = Path.Combine(Appdir, "setup/config/home.json");
+            return JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
+        }
+
         public class Alias
         {
             public string UserName { get; set; }
@@ -44,28 +66,6 @@ namespace PassiveBOT.Configuration
         {
             public string Name { get; set; } = "";
             public ulong ID { get; set; } = 0;
-        }
-
-        public static void SaveHome(Homeserver config)
-        {
-            var file = Path.Combine(Appdir, "setup/config/home.json");
-            var output = JsonConvert.SerializeObject(config, Formatting.Indented);
-            File.WriteAllText(file, output);
-        }
-
-        public static void CheckExistence()
-        {
-            if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config/home.json")))
-            {
-                var newhome = new Homeserver();
-                SaveHome(newhome);
-            }
-        }
-
-        public static Homeserver Load()
-        {
-            var file = Path.Combine(Appdir, "setup/config/home.json");
-            return JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -139,10 +138,7 @@ namespace PassiveBOT.Commands.Info
                             .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
                     }
                 };
-                foreach (var page in pages)
-                {
-                    fullpages.Add(page);
-                }
+                foreach (var page in pages) fullpages.Add(page);
 
                 var msg = new PaginatedMessage
                 {

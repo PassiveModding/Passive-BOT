@@ -124,7 +124,7 @@ namespace PassiveBOT.Commands.Media
 
             //post 
             var pages = new List<PaginatedMessage.Page>();
-            foreach (var image in posts.OrderByDescending(x => (new Random().Next())))
+            foreach (var image in posts.OrderByDescending(x => new Random().Next()))
             {
                 var iobj = RedditHelper.isimage(image.Url.ToString());
                 if (iobj.isimage && !iobj.url.Contains("gfy"))

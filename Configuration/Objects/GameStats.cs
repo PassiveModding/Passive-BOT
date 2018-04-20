@@ -5,6 +5,15 @@ namespace PassiveBOT.Configuration.Objects
 {
     public class FortniteProfile
     {
+        public string accountId { get; set; }
+        public int platformId { get; set; }
+        public string platformName { get; set; }
+        public string platformNameLong { get; set; }
+        public string epicUserHandle { get; set; }
+        public Stats stats { get; set; }
+        public List<LifeTimeStat> lifeTimeStats { get; set; }
+        public List<RecentMatch> recentMatches { get; set; }
+
         public class TrnRating
         {
             public string label { get; set; }
@@ -1033,15 +1042,6 @@ namespace PassiveBOT.Configuration.Objects
             public int score { get; set; }
             public int platform { get; set; }
         }
-
-        public string accountId { get; set; }
-        public int platformId { get; set; }
-        public string platformName { get; set; }
-        public string platformNameLong { get; set; }
-        public string epicUserHandle { get; set; }
-        public Stats stats { get; set; }
-        public List<LifeTimeStat> lifeTimeStats { get; set; }
-        public List<RecentMatch> recentMatches { get; set; }
     }
 
     public class R6Profile

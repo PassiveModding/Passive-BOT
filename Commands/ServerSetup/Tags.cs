@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -136,7 +135,7 @@ namespace PassiveBOT.Commands.ServerSetup
             public string Tagname { get; set; }
             public string Content { get; set; }
             public ulong Creator { get; set; }
-            public int uses { get; set; } = 0;
+            public int uses { get; set; }
         }
     }
 }

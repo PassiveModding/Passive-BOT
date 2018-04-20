@@ -72,7 +72,7 @@ namespace PassiveBOT.Commands.Text
         [Command("clapclap")]
         [Summary("clapclap <message>")]
         [Remarks("replace all spaces with claps")]
-        public async Task ClapClap([Remainder]string message)
+        public async Task ClapClap([Remainder] string message)
         {
             await ReplyAsync(message.Replace(" ", ":clap:"));
         }

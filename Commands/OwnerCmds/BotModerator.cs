@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services.Interactive;
@@ -21,7 +20,6 @@ namespace PassiveBOT.Commands.OwnerCmds
         {
             var pages = new List<PaginatedMessage.Page>();
             foreach (var guild in Context.Client.Guilds)
-            {
                 try
                 {
                     var guildobj = GuildConfig.GetServer(guild);
@@ -34,56 +32,41 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var ChannelOverWrites = pchannel.PermissionOverwrites;
 
                         foreach (var OverWrite in ChannelOverWrites)
-                        {
                             try
                             {
                                 var Name = "N/A";
                                 if (OverWrite.TargetType == PermissionTarget.Role)
                                 {
                                     var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
-                                    if (Role != null)
-                                    {
-                                        Name = Role.Name;
-                                    }
+                                    if (Role != null) Name = Role.Name;
                                 }
                                 else
                                 {
                                     var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
-                                    if (user != null)
-                                    {
-                                        Name = user.Username;
-                                    }
+                                    if (user != null) Name = user.Username;
                                 }
 
                                 if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
-                                {
                                     Checking += $"{Name} Cannot Read Msgs.\n";
-                                }
 
                                 if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
-                                {
                                     Checking += $"{Name} Cannot Read History.\n";
-                                }
                             }
                             catch
                             {
                                 //
                             }
-                        }
                     }
 
                     var pmessage = guildobj.PartnerSetup.Message;
-                    if (pmessage.Length > 1024)
-                    {
-                        pmessage = pmessage.Substring(0, 1024);
-                    }
+                    if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
 
                     pages.Add(new PaginatedMessage.Page
                     {
                         dynamictitle =
                             $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
                         description = $"__**Message:**__\n\n" +
-                                      $"{(pmessage ?? "N/A")}\n\n" +
+                                      $"{pmessage ?? "N/A"}\n\n" +
                                       $"__**Permissions:**__\n" +
                                       $"{Checking}\n\n" +
                                       $"__**Channel Info:**__\n" +
@@ -103,7 +86,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                 {
                     //
                 }
-            }
 
             var msg = new PaginatedMessage
             {
@@ -153,45 +135,32 @@ namespace PassiveBOT.Commands.OwnerCmds
                 var ChannelOverWrites = PChannel.PermissionOverwrites;
                 var Checking = "";
                 foreach (var OverWrite in ChannelOverWrites)
-                {
                     try
                     {
                         var Name = "N/A";
                         if (OverWrite.TargetType == PermissionTarget.Role)
                         {
                             var Role = Guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
-                            if (Role != null)
-                            {
-                                Name = Role.Name;
-                            }
+                            if (Role != null) Name = Role.Name;
                         }
                         else
                         {
                             var user = Guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
-                            if (user != null)
-                            {
-                                Name = user.Username;
-                            }
+                            if (user != null) Name = user.Username;
                         }
 
                         if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
-                        {
                             Checking += $"{Name} Cannot Read Msgs.\n";
-                        }
 
                         if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
-                        {
                             Checking += $"{Name} Cannot Read History.\n";
-                        }
                     }
                     catch
                     {
                         //
                     }
-                }
 
                 if (Checking != "")
-                {
                     pages.Add(new PaginatedMessage.Page
                     {
                         dynamictitle = "Partner Channel Perms",
@@ -199,7 +168,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                                       $"{Checking}" +
                                       $"\n---"
                     });
-                }
             }
 
             var msg = new PaginatedMessage
@@ -431,14 +399,12 @@ namespace PassiveBOT.Commands.OwnerCmds
             {
                 var pages = new List<PaginatedMessage.Page>();
                 foreach (var guild in Alias.Guilds)
-                {
                     pages.Add(new PaginatedMessage.Page
                     {
                         dynamictitle = guild.GuildName,
                         description = string.Join("\n",
                             guild.GuildAliases.OrderByDescending(x => x.DateChanged).Select(x => x.Name))
                     });
-                }
 
                 var paginated = new PaginatedMessage
                 {

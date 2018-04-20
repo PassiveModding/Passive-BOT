@@ -19,21 +19,17 @@ namespace PassiveBOT.Handlers
 {
     public class CommandHandler
     {
-        public class CMD
-        {
-            public string Name { get; set; }
-            public int Uses { get; set; }
-        }
-
         public static List<CMD> CommandUses = new List<CMD>();
 
         public static List<SubReddit> SubReddits = new List<SubReddit>();
-        public List<NoSpamGuild> NoSpam = new List<NoSpamGuild>();
-        private ApiAi _apiAi;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly TimerService _service;
+        private ApiAi _apiAi;
+
+        public List<Delays> AntiSpamMsgDelays = new List<Delays>();
         private bool DoOnce;
+        public List<NoSpamGuild> NoSpam = new List<NoSpamGuild>();
         public IServiceProvider Provider;
 
         public CommandHandler(IServiceProvider provider)
@@ -60,38 +56,9 @@ namespace PassiveBOT.Handlers
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        public class NoSpamGuild
-        {
-            public ulong guildID { get; set; }
-            public List<NoSpam> Users { get; set; } = new List<NoSpam>();
-
-            public class NoSpam
-            {
-                public ulong UserID { get; set; }
-                public List<msg> Messages { get; set; } = new List<msg>();
-
-                public class msg
-                {
-                    public string LastMessage { get; set; }
-                    public DateTime LastMessageDate { get; set; }
-                }
-            }
-        }
-
-        public List<Delays> AntiSpamMsgDelays = new List<Delays>();
-
-        public class Delays
-        {
-            public DateTime _delay { get; set; } = DateTime.UtcNow;
-            public ulong GuildID { get; set; }
-        }
-
         public async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
         {
-            if (context.Channel is IDMChannel)
-            {
-                return;
-            }
+            if (context.Channel is IDMChannel) return;
 
             var guild = GuildConfig.GetServer(context.Guild);
             try
@@ -125,10 +92,7 @@ namespace PassiveBOT.Handlers
 
         public async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context)
         {
-            if (context.Channel is IDMChannel)
-            {
-                return false;
-            }
+            if (context.Channel is IDMChannel) return false;
 
             var guild = GuildConfig.GetServer(context.Guild);
             if (guild.NoSpam)
@@ -186,15 +150,10 @@ namespace PassiveBOT.Handlers
                         {
                             var msgs = user.Messages.Where(x =>
                                 x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(10)).ToList();
-                            if (msgs.GroupBy(n => n.LastMessage.ToLower()).Any(c => c.Count() > 1))
-                            {
-                                deleted = true;
-                            }
+                            if (msgs.GroupBy(n => n.LastMessage.ToLower()).Any(c => c.Count() > 1)) deleted = true;
 
                             if (msgs.Count(x => x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(5)) > 3)
-                            {
                                 deleted = true;
-                            }
                         }
 
                         if (user.Messages.Count > 10)
@@ -217,7 +176,7 @@ namespace PassiveBOT.Handlers
                                 delay._delay = DateTime.UtcNow.AddSeconds(5);
                                 var emb = new EmbedBuilder
                                 {
-                                    Title = $"{context.User} - No Spamming!!",
+                                    Title = $"{context.User} - No Spamming!!"
                                 };
                                 await context.Channel.SendMessageAsync("", false, emb.Build());
                             }
@@ -262,18 +221,16 @@ namespace PassiveBOT.Handlers
 
             if (guild.RemoveMassMention && !((SocketGuildUser) context.User).GuildPermissions.Administrator &&
                 !((IGuildUser) context.User).RoleIds.Intersect(guild.InviteExcempt).Any())
-            {
                 if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
                 {
                     await message.DeleteAsync();
                     var emb = new EmbedBuilder
                     {
-                        Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once",
+                        Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once"
                     };
                     await context.Channel.SendMessageAsync("", false, emb.Build());
                     return true;
                 }
-            }
 
 
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
@@ -406,10 +363,7 @@ namespace PassiveBOT.Handlers
 
             InitialisePartnerProgram();
 
-            if (await CheckMessage(message, context))
-            {
-                return;
-            }
+            if (await CheckMessage(message, context)) return;
 
             await AutoMessage(message, context);
 
@@ -500,7 +454,6 @@ namespace PassiveBOT.Handlers
                 {
                     var name = srch.Commands.Select(x => x.Command.Name).FirstOrDefault();
                     if (name != null)
-                    {
                         if (CommandUses.Any(x => x.Name.ToLower() == name.ToLower()))
                         {
                             var cmd = CommandUses.First(x => x.Name.ToLower() == name.ToLower());
@@ -514,9 +467,38 @@ namespace PassiveBOT.Handlers
                                 Uses = 1
                             });
                         }
-                    }
                 }
             }
+        }
+
+        public class CMD
+        {
+            public string Name { get; set; }
+            public int Uses { get; set; }
+        }
+
+        public class NoSpamGuild
+        {
+            public ulong guildID { get; set; }
+            public List<NoSpam> Users { get; set; } = new List<NoSpam>();
+
+            public class NoSpam
+            {
+                public ulong UserID { get; set; }
+                public List<msg> Messages { get; set; } = new List<msg>();
+
+                public class msg
+                {
+                    public string LastMessage { get; set; }
+                    public DateTime LastMessageDate { get; set; }
+                }
+            }
+        }
+
+        public class Delays
+        {
+            public DateTime _delay { get; set; } = DateTime.UtcNow;
+            public ulong GuildID { get; set; }
         }
 
         public class SubReddit

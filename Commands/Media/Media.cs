@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Newtonsoft.Json;
 using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services;
 using PassiveBOT.preconditions;
@@ -157,6 +159,40 @@ namespace PassiveBOT.Commands.Media
             await ReplyAsync("", false, builder.Build());
         }
 
+        [Command("xkcd", RunMode = RunMode.Async)]
+        [Summary("xkcd <latest/number>")]
+        [Remarks("Get a rancom xkcd post")]
+        public async Task xkcd(string number = null)
+        {
+            var random = new Random();
+            using (var http = new HttpClient())
+            {
+                string res;
+                if (number == "latest")
+                    res = await http.GetStringAsync($"https://xkcd.com/info.0.json").ConfigureAwait(false);
+                else if (int.TryParse(number, out var result))
+                    res = await http.GetStringAsync($"https://xkcd.com/{result}/info.0.json").ConfigureAwait(false);
+                else
+                    res = await http.GetStringAsync($"https://xkcd.com/{random.Next(1, 1921)}/info.0.json")
+                        .ConfigureAwait(false);
+
+                var comic = JsonConvert.DeserializeObject<XkcdComic>(res);
+                var embed = new EmbedBuilder().WithColor(Color.Blue)
+                    .WithImageUrl(comic.ImageLink)
+                    .WithTitle($"{comic.Title}")
+                    .WithUrl($"https://xkcd.com/{comic.Num}")
+                    .AddField("Comic Number", $"#{comic.Num}", true)
+                    .AddField("Date", $"{comic.Month}/{comic.Year}", true);
+                var sent = await ReplyAsync("", false, embed.Build());
+
+                await Task.Delay(10000).ConfigureAwait(false);
+
+                await sent.ModifyAsync(m =>
+                    m.Embed = embed.AddField(efb =>
+                        efb.WithName("Alt").WithValue(comic.Alt.ToString()).WithIsInline(false)).Build());
+            }
+        }
+
         [Command("dog")]
         [Summary("dog")]
         [Remarks("Gets a random dog image from random.dog")]
@@ -301,6 +337,16 @@ namespace PassiveBOT.Commands.Media
                 });
 
             await ReplyAsync("", false, builder.Build());
+        }
+
+        public class XkcdComic
+        {
+            public int Num { get; set; }
+            public string Month { get; set; }
+            public string Year { get; set; }
+            [JsonProperty("safe_title")] public string Title { get; set; }
+            [JsonProperty("img")] public string ImageLink { get; set; }
+            public string Alt { get; set; }
         }
     }
 }

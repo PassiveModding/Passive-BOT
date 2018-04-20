@@ -274,7 +274,7 @@ namespace PassiveBOT.Commands.ServerSetup
                                  "" +
                                  "```");
                 var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
-                input = Int32.Parse(next.Content);
+                input = int.Parse(next.Content);
             }
             else
             {
@@ -349,7 +349,7 @@ namespace PassiveBOT.Commands.ServerSetup
                                  "" +
                                  "```");
                 var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
-                input = Int32.Parse(next.Content);
+                input = int.Parse(next.Content);
             }
             else
             {
@@ -696,10 +696,94 @@ namespace PassiveBOT.Commands.ServerSetup
                              "`(newprefix)`");
         }
 
+        [Command("SetMod")]
+        [Summary("SetMod <@role>")]
+        [Remarks("Set the Moderator Role For your server")]
+        public async Task SetMod(IRole modRole)
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.ModeratorRoleId = modRole.Id;
+
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"ModRole has been set as {modRole.Mention}");
+        }
+
+        [Command("ToggleModLog")]
+        [Summary("ToggleModLog")]
+        [Remarks("Toggle logging of kick, warn and ban commands")]
+        public async Task ToggleModLog()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.LogModCommands = !jsonObj.LogModCommands;
+
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"Log Mod Commands: {jsonObj.LogModCommands}\n" +
+                             $"Use the SetModLogChannel Command so set the channel where these will be sent!");
+        }
+
+        [Command("SetModLogChannel")]
+        [Summary("SetModLogChannel")]
+        [Remarks("Set Mod Logging Channel")]
+        public async Task SetModLogChannel()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.ModLogChannel = Context.Channel.Id;
+
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"Mod Log will now be sent in:\n" +
+                             $"{Context.Channel.Name}");
+        }
+
+        [Command("SetMuted")]
+        [Summary("SetMuted <@role>")]
+        [Remarks("Set the Mute Role For your server NOTE: Will try to reset all permissions for that role!")]
+        public async Task SetMute(SocketRole muteRole)
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+
+            jsonObj.MutedRole = muteRole.Id;
+            string perms;
+            var channels = "";
+            try
+            {
+                var unverifiedPerms =
+                    new OverwritePermissions(sendMessages: PermValue.Deny, addReactions: PermValue.Deny);
+                foreach (var channel in Context.Guild.TextChannels)
+                    try
+                    {
+                        await channel.AddPermissionOverwriteAsync(muteRole, unverifiedPerms);
+                        channels += $"`#{channel.Name}` Perms Modified\n";
+                    }
+                    catch
+                    {
+                        channels += $"`#{channel.Name}` Perms Not Modified\n";
+                    }
+
+                perms = "Role Can No longer Send Messages, or Add Reactions";
+            }
+            catch
+            {
+                perms = "Role Unable to be modified, ask an administrator to do this manually.";
+            }
+
+
+            GuildConfig.SaveServer(jsonObj);
+
+
+            await ReplyAsync($"ModRole has been set as {muteRole.Mention}\n" +
+                             $"{perms}\n" +
+                             $"{channels}");
+        }
+
         [Group("Blacklist")]
         public class Blacklist : InteractiveBase
         {
-
             [Command("")]
             [Summary("blacklist")]
             [Remarks("displays the blacklist for 5 seconds")]
@@ -796,7 +880,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 jsonObj.BlacklistBetterFilter = !jsonObj.BlacklistBetterFilter;
                 GuildConfig.SaveServer(jsonObj);
 
-                await ReplyAsync($"Blacklist BetterFilter status set to {(jsonObj.BlacklistBetterFilter ? "ON" : "OFF")}");
+                await ReplyAsync(
+                    $"Blacklist BetterFilter status set to {(jsonObj.BlacklistBetterFilter ? "ON" : "OFF")}");
             }
 
             [Command("message")]
@@ -811,91 +896,6 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync("The blacklist message is now:\n" +
                                  $"{jsonObj.BlacklistMessage}");
             }
-        }
-
-        [Command("SetMod")]
-        [Summary("SetMod <@role>")]
-        [Remarks("Set the Moderator Role For your server")]
-        public async Task SetMod(IRole modRole)
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-
-            jsonObj.ModeratorRoleId = modRole.Id;
-
-            GuildConfig.SaveServer(jsonObj);
-
-            await ReplyAsync($"ModRole has been set as {modRole.Mention}");
-        }
-
-        [Command("ToggleModLog")]
-        [Summary("ToggleModLog")]
-        [Remarks("Toggle logging of kick, warn and ban commands")]
-        public async Task ToggleModLog()
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-
-            jsonObj.LogModCommands = !jsonObj.LogModCommands;
-
-            GuildConfig.SaveServer(jsonObj);
-
-            await ReplyAsync($"Log Mod Commands: {jsonObj.LogModCommands}\n" +
-                             $"Use the SetModLogChannel Command so set the channel where these will be sent!");
-        }
-
-        [Command("SetModLogChannel")]
-        [Summary("SetModLogChannel")]
-        [Remarks("Set Mod Logging Channel")]
-        public async Task SetModLogChannel()
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-
-            jsonObj.ModLogChannel = Context.Channel.Id;
-
-            GuildConfig.SaveServer(jsonObj);
-
-            await ReplyAsync($"Mod Log will now be sent in:\n" +
-                             $"{Context.Channel.Name}");
-        }
-
-        [Command("SetMuted")]
-        [Summary("SetMuted <@role>")]
-        [Remarks("Set the Mute Role For your server NOTE: Will try to reset all permissions for that role!")]
-        public async Task SetMute(SocketRole muteRole)
-        {
-            var jsonObj = GuildConfig.GetServer(Context.Guild);
-
-            jsonObj.MutedRole = muteRole.Id;
-            string perms;
-            var channels = "";
-            try
-            {
-                var unverifiedPerms =
-                    new OverwritePermissions(sendMessages: PermValue.Deny, addReactions: PermValue.Deny);
-                foreach (var channel in Context.Guild.TextChannels)
-                    try
-                    {
-                        await channel.AddPermissionOverwriteAsync(muteRole, unverifiedPerms);
-                        channels += $"`#{channel.Name}` Perms Modified\n";
-                    }
-                    catch
-                    {
-                        channels += $"`#{channel.Name}` Perms Not Modified\n";
-                    }
-
-                perms = "Role Can No longer Send Messages, or Add Reactions";
-            }
-            catch
-            {
-                perms = "Role Unable to be modified, ask an administrator to do this manually.";
-            }
-
-
-            GuildConfig.SaveServer(jsonObj);
-
-
-            await ReplyAsync($"ModRole has been set as {muteRole.Mention}\n" +
-                             $"{perms}\n" +
-                             $"{channels}");
         }
     }
 }

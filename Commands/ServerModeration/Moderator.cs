@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Preconditions;
@@ -46,11 +45,11 @@ namespace PassiveBOT.Commands.ServerModeration
 
                 SendModLog(new EmbedBuilder()
                     .WithColor(Color.DarkTeal)
-                    .AddField($"Pruned Messages", 
+                    .AddField($"Pruned Messages",
                         $"{count} messages cleared")
                     .AddField("Moderator",
                         $"Mod: {Context.User.Username}\n" +
-                        $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                        $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                         $"Channel: {Context.Channel.Name}")
                     .WithCurrentTimestamp());
             }
@@ -82,7 +81,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     $"{newlist.Count} messages cleared")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
@@ -114,7 +113,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     $"{newlist.Count} messages cleared")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
@@ -126,9 +125,7 @@ namespace PassiveBOT.Commands.ServerModeration
             {
                 var channel = await Context.Guild.GetChannelAsync(server.ModLogChannel);
                 if (channel != null)
-                {
                     if (channel is IMessageChannel ModChannel)
-                    {
                         try
                         {
                             await ModChannel.SendMessageAsync("", false, embed.Build());
@@ -137,12 +134,9 @@ namespace PassiveBOT.Commands.ServerModeration
                         {
                             //
                         }
-                    }
-
-                }
             }
         }
-        
+
         [Command("pruneRole")]
         [Summary("pruneRole <@role>")]
         [Remarks("removes messages from a role in the last 100 messages")]
@@ -151,7 +145,9 @@ namespace PassiveBOT.Commands.ServerModeration
             await Context.Message.DeleteAsync().ConfigureAwait(false);
             var enumerable = await Context.Channel.GetMessagesAsync().Flatten().ConfigureAwait(false);
             var messages = enumerable as IMessage[] ?? enumerable.ToArray();
-            var newerlist = messages.ToList().Where(x => Context.Guild.GetUserAsync(x.Author.Id).Result != null && Context.Guild.GetUserAsync(x.Author.Id).Result.RoleIds.Contains(role.Id)).ToList();
+            var newerlist = messages.ToList().Where(x =>
+                Context.Guild.GetUserAsync(x.Author.Id).Result != null &&
+                Context.Guild.GetUserAsync(x.Author.Id).Result.RoleIds.Contains(role.Id)).ToList();
 
             try
             {
@@ -170,11 +166,11 @@ namespace PassiveBOT.Commands.ServerModeration
                     $"{newerlist.Count} messages cleared")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
-        
+
 
         [Command("Kick")]
         [Summary("kick <@user> <reason>")]
@@ -238,12 +234,12 @@ namespace PassiveBOT.Commands.ServerModeration
                 .WithColor(Color.DarkPurple)
                 .AddField($"Kicked User",
                     $"User: {user.Username}\n" +
-                    $"User Nick: {((IGuildUser)user)?.Nickname ?? "N/A"}\n" +
+                    $"User Nick: {((IGuildUser) user)?.Nickname ?? "N/A"}\n" +
                     $"UserID: {user.Id}\n" +
                     $"Reason: {reason}")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
@@ -355,13 +351,13 @@ namespace PassiveBOT.Commands.ServerModeration
                 .WithColor(Color.DarkOrange)
                 .AddField($"Warned User",
                     $"User: {user.Username}\n" +
-                    $"User Nick: {((IGuildUser)user)?.Nickname ?? "N/A"}\n" +
+                    $"User Nick: {((IGuildUser) user)?.Nickname ?? "N/A"}\n" +
                     $"UserID: {user.Id}\n" +
                     $"Reason: {reason}\n" +
                     $"Warnings Count: {config.Warnings.Count(x => x.UserId == user.Id)}")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
@@ -467,7 +463,7 @@ namespace PassiveBOT.Commands.ServerModeration
                     $"Reason: HackBan")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
@@ -533,12 +529,12 @@ namespace PassiveBOT.Commands.ServerModeration
                 .WithColor(Color.DarkRed)
                 .AddField($"Banned User",
                     $"User: {user.Username}\n" +
-                    $"User Nick: {((IGuildUser)user)?.Nickname ?? "N/A"}\n" +
+                    $"User Nick: {((IGuildUser) user)?.Nickname ?? "N/A"}\n" +
                     $"UserID: {user.Id}\n" +
                     $"Reason: {reason}")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
-                    $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                    $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                     $"Channel: {Context.Channel.Name}")
                 .WithCurrentTimestamp());
         }
@@ -651,11 +647,11 @@ namespace PassiveBOT.Commands.ServerModeration
                     .WithColor(Color.DarkMagenta)
                     .AddField($"Muted User",
                         $"User: {user.Username}\n" +
-                        $"User Nick: {(user)?.Nickname ?? "N/A"}\n" +
+                        $"User Nick: {user?.Nickname ?? "N/A"}\n" +
                         $"UserID: {user.Id}\n")
                     .AddField("Moderator",
                         $"Mod: {Context.User.Username}\n" +
-                        $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                        $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                         $"Channel: {Context.Channel.Name}")
                     .WithCurrentTimestamp());
             }
@@ -682,11 +678,11 @@ namespace PassiveBOT.Commands.ServerModeration
                     .WithColor(Color.Magenta)
                     .AddField($"Unmuted User",
                         $"User: {user.Username}\n" +
-                        $"User Nick: {(user)?.Nickname ?? "N/A"}\n" +
+                        $"User Nick: {user?.Nickname ?? "N/A"}\n" +
                         $"UserID: {user.Id}\n")
                     .AddField("Moderator",
                         $"Mod: {Context.User.Username}\n" +
-                        $"Mod Nick: {((IGuildUser)Context.User)?.Nickname ?? "N/A"}\n" +
+                        $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
                         $"Channel: {Context.Channel.Name}")
                     .WithCurrentTimestamp());
 
