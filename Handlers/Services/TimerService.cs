@@ -13,6 +13,9 @@ namespace PassiveBOT.Handlers.Services
         public static List<ulong> AcceptedServers = new List<ulong>();
         private readonly Timer _timer;
         public Random rndshuffle = new Random();
+        public static DateTime LastFireTime = DateTime.MinValue;
+        public static int FirePreiod = 60;
+
 
         public TimerService(DiscordSocketClient client)
         {
@@ -79,8 +82,10 @@ namespace PassiveBOT.Handlers.Services
                     {
                         Console.WriteLine(e);
                     }
+
+                    LastFireTime = DateTime.UtcNow;
                 },
-                null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
+                null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePreiod));
         }
 
         public void Stop()
@@ -90,7 +95,7 @@ namespace PassiveBOT.Handlers.Services
 
         public void Restart()
         {
-            _timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(60));
+            _timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePreiod));
         }
     }
 

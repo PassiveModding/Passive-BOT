@@ -95,8 +95,9 @@ namespace PassiveBOT.Handlers
             if (context.Channel is IDMChannel) return false;
 
             var guild = GuildConfig.GetServer(context.Guild);
-            if (guild.NoSpam)
+            if (guild.NoSpam || guild.Levels.LevellingEnabled)
             {
+                var detected = false;
                 var SpamGuild = NoSpam.FirstOrDefault(x => x.guildID == ((SocketGuildUser) context.User).Guild.Id);
                 if (SpamGuild == null)
                 {
@@ -140,7 +141,6 @@ namespace PassiveBOT.Handlers
                     }
                     else
                     {
-                        var deleted = false;
                         user.Messages.Add(new NoSpamGuild.NoSpam.msg
                         {
                             LastMessage = message.Content,
@@ -150,10 +150,10 @@ namespace PassiveBOT.Handlers
                         {
                             var msgs = user.Messages.Where(x =>
                                 x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(10)).ToList();
-                            if (msgs.GroupBy(n => n.LastMessage.ToLower()).Any(c => c.Count() > 1)) deleted = true;
+                            if (msgs.GroupBy(n => n.LastMessage.ToLower()).Any(c => c.Count() > 1)) detected = true;
 
                             if (msgs.Count(x => x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(5)) > 3)
-                                deleted = true;
+                                detected = true;
                         }
 
                         if (user.Messages.Count > 10)
@@ -165,7 +165,7 @@ namespace PassiveBOT.Handlers
                             user.Messages = msgs;
                         }
 
-                        if (deleted)
+                        if (detected && guild.NoSpam)
                         {
                             await message.DeleteAsync();
                             var delay = AntiSpamMsgDelays.FirstOrDefault(x => x.GuildID == guild.GuildId);
@@ -190,6 +190,84 @@ namespace PassiveBOT.Handlers
                             }
 
                             return true;
+                        }
+                        if (!detected && guild.Levels.LevellingEnabled)
+                        {
+                            var userlv = guild.Levels.Users.FirstOrDefault(x => x.userID == context.User.Id);
+                            if (userlv != null)
+                            {
+                                if (!userlv.banned)
+                                {
+                                    userlv.xp = userlv.xp + 10;
+                                    var requiredxp = (userlv.level * 50) + (userlv.level * userlv.level * 25);
+                                    if (userlv.xp >= requiredxp)
+                                    {
+                                        userlv.level++;
+                                        var roletoreceive =
+                                            guild.Levels.LevelRoles.FirstOrDefault(x => x.LevelToEnter == userlv.level);
+                                        string roleadded = null;
+                                        if (roletoreceive != null)
+                                        {
+                                            var role = context.Guild.GetRole(roletoreceive.RoleID);
+                                            if (role != null)
+                                            {
+                                                try
+                                                {
+                                                    await ((SocketGuildUser) context.User).AddRoleAsync(role);
+                                                    roleadded = $"Role Reward: {role.Name}\n";
+
+                                                }
+                                                catch
+                                                {
+                                                    //
+                                                }
+                                            }
+                                            else
+                                            {
+                                                guild.Levels.LevelRoles.Remove(roletoreceive);
+                                            }
+                                        }
+
+
+                                        var embed = new EmbedBuilder
+                                        {
+                                            Title = $"{context.User.Username} Levelled Up!",
+                                            ThumbnailUrl = context.User.GetAvatarUrl(),
+                                            Description = $"Level: {userlv.level - 1}\n" +
+                                                          $"{roleadded}" +
+                                                          $"XP: {requiredxp}\n" +
+                                                          $"Next Level At: {(userlv.level * 50 + (userlv.level * userlv.level * 25))} XP",
+                                            Color = Color.Blue
+                                        };
+                                        if (guild.Levels.UseLevelChannel)
+                                        {
+                                            var chan = context.Guild.GetChannel(guild.Levels.LevellingChannel);
+                                            if (chan != null)
+                                            {
+                                                await ((IMessageChannel) chan).SendMessageAsync("", false, embed.Build());
+                                            }
+                                        }
+
+                                        if (guild.Levels.UseLevelMessages)
+                                        {
+                                            await context.Channel.SendMessageAsync("", false, embed.Build());
+                                        }
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                guild.Levels.Users.Add(new GuildConfig.levelling.user
+                                {
+                                    userID = context.User.Id,
+                                    banned = false,
+                                    level = 1,
+                                    xp = 0
+                                });
+
+                            }
+                            GuildConfig.SaveServer(guild);
                         }
                     }
                 }

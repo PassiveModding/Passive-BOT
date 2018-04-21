@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -61,16 +62,21 @@ namespace PassiveBOT.Commands.ServerSetup
 
             var home = Homeserver.Load().PartnerUpdates;
             var chan = await Context.Client.GetChannelAsync(home);
-            if (chan is IMessageChannel channel)
+            if (chan is IGuildChannel channel)
             {
+                var perms = string.Join("\n", channel.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role).Select(x => $"__{Context.Guild.GetRole(x.TargetId).Name}__\n" +
+                                                                                                                       $"Read Messages: {x.Permissions.ReadMessages}\n" +
+                                                                                                                       $"Read History: {x.Permissions.ReadMessageHistory}\n"));
+
                 var embed = new EmbedBuilder
                 {
                     Title = "Partner Channel Set",
                     Description = $"{Context.Guild.Name}\n" +
                                   $"`{Context.Guild.Id}`\n" +
-                                  $"Channel: {Context.Channel.Name}"
+                                  $"Channel: {Context.Channel.Name}\n\n" +
+                                  $"{perms}"
                 };
-                await channel.SendMessageAsync("", false, embed.Build());
+                await ((IMessageChannel)channel).SendMessageAsync("", false, embed.Build());
             }
         }
 
@@ -337,6 +343,18 @@ namespace PassiveBOT.Commands.ServerSetup
                 $"Image URL: {guild.PartnerSetup.ImageUrl}\n" +
                 $"Show User Count: {guild.PartnerSetup.showusercount}\n" +
                 $"Message:\n{guild.PartnerSetup.Message}";
+            embed.Color = Color.Blue;
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        [Command("PartnerTime")]
+        [Summary("PartnerTime")]
+        [Remarks("See time until next partner message")]
+        public async Task Ptime()
+        {
+            var embed = new EmbedBuilder();
+            embed.Description =
+                $"Time until next partner message is: {(TimerService.LastFireTime + TimeSpan.FromMinutes(TimerService.FirePreiod) - DateTime.UtcNow).Minutes} minutes";
             embed.Color = Color.Blue;
             await ReplyAsync("", false, embed.Build());
         }
