@@ -97,6 +97,90 @@ namespace PassiveBOT.Commands.OwnerCmds
             await PagedReplyAsync(msg);
         }
 
+        [Command("ShortPartnerList+", RunMode = RunMode.Async)]
+        [Summary("ShortPartnerList+")]
+        [Remarks("Get a list of all unbanned partner servers")]
+        public async Task SPlist()
+        {
+            var pages = new List<PaginatedMessage.Page>();
+            foreach (var guild in Context.Client.Guilds)
+                try
+                {
+                    var guildobj = GuildConfig.GetServer(guild);
+                    if (!guildobj.PartnerSetup.IsPartner) continue;
+                    if (guildobj.PartnerSetup.banned) continue;
+                    var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                    var Checking = "";
+                    if (pchannel != null)
+                    {
+                        var ChannelOverWrites = pchannel.PermissionOverwrites;
+
+                        foreach (var OverWrite in ChannelOverWrites)
+                            try
+                            {
+                                var Name = "N/A";
+                                if (OverWrite.TargetType == PermissionTarget.Role)
+                                {
+                                    var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                    if (Role != null) Name = Role.Name;
+                                }
+                                else
+                                {
+                                    var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                    if (user != null) Name = user.Username;
+                                }
+
+                                if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                                    Checking += $"{Name} Cannot Read Msgs.\n";
+
+                                if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                    Checking += $"{Name} Cannot Read History.\n";
+                            }
+                            catch
+                            {
+                                //
+                            }
+                    }
+
+                    var pmessage = guildobj.PartnerSetup.Message;
+                    if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
+
+                    pages.Add(new PaginatedMessage.Page
+                    {
+                        dynamictitle =
+                            $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                        description = $"__**Message:**__\n\n" +
+                                      $"{pmessage ?? "N/A"}\n\n" +
+                                      $"__**Permissions:**__\n" +
+                                      $"{Checking}\n\n" +
+                                      $"__**Channel Info:**__\n" +
+                                      $"Topic: {pchannel.Topic}\n" +
+                                      $"Name: {pchannel.Name}\n" +
+                                      $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                      $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                      $"__**Guild Info:**__\n" +
+                                      $"Owner: {guild.Owner.Username}\n" +
+                                      $"Owner ID: {guild.OwnerId}\n" +
+                                      $"UserCount: {guild.MemberCount}\n" +
+                                      $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
+                        imageurl = guildobj.PartnerSetup.ImageUrl
+                    });
+                }
+                catch
+                {
+                    //
+                }
+
+            var msg = new PaginatedMessage
+            {
+                Title = "Partner Messages",
+                Pages = pages,
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
+        }
+
 
         [Command("PartnerInfo+", RunMode = RunMode.Async)]
         [Summary("PartnerInfo+ <ID>")]

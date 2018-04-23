@@ -56,7 +56,9 @@ namespace PassiveBOT.Commands.Info
                 foreach (var user in GuildObj.Levels.Users.OrderByDescending(x => x.xp))
                 {
                     userindex++;
-                    desc += $"`{userindex}` {Context.Guild.GetUser(user.userID).Username} LV: {user.level} XP: {user.xp}\n";
+                    var guser = Context.Guild.GetUser(user.userID);
+                    if (guser == null) continue;
+                    desc += $"`{userindex}` {guser.Username} LV: {user.level} XP: {user.xp}\n";
                     if (desc.Split("\n").Length > 20)
                     {
                         userlist.Add(new PaginatedMessage.Page
