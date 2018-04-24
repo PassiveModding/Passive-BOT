@@ -55,6 +55,16 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(GuildObj);
         }
 
+        [Command("ToggleIncrementalLevelling")]
+        [Summary("ToggleIncrementalLevelling")]
+        [Remarks("Toggle wether to give a user only one role reward or all")]
+        public async Task ToggleLevelIncrement()
+        {
+            var GuildObj = GuildConfig.GetServer(Context.Guild);
+            GuildObj.Levels.IncrementLevelRewards = !GuildObj.Levels.IncrementLevelRewards;
+            await ReplyAsync($"Users will only have one level reward at a time: {GuildObj.Levels.IncrementLevelRewards}");
+            GuildConfig.SaveServer(GuildObj);
+        }
 
         [Command("AddLevel")]
         [Summary("AddLevel <@role> <Level>")]

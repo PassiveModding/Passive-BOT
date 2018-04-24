@@ -86,6 +86,8 @@ namespace PassiveBOT.Configuration
 
             public bool UseLevelMessages { get; set; } = true;
 
+            public bool IncrementLevelRewards { get; set; } = true;
+
             public bool UseLevelChannel { get; set; } = false;
             public ulong LevellingChannel { get; set; }
 
