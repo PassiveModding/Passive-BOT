@@ -10,6 +10,8 @@ namespace PassiveBOT.Configuration
     public class GuildConfig
     {
         [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;
+        public string MentionAllMessage = null;
+        public string NoInviteMessage = null;
 
 
         public ulong GuildId { get; set; } //
@@ -32,10 +34,12 @@ namespace PassiveBOT.Configuration
         //public int Characters { get; set; } = 0;
 
 
-        public List<ulong> RoleList { get; set; } = new List<ulong>(); // a list of roles that users can join via command
+        public List<ulong> RoleList { get; set; } =
+            new List<ulong>(); // a list of roles that users can join via command
 
 
         public string Rss { get; set; } = "0"; // rss feed url
+
         public ulong RssChannel { get; set; } // channel to post custom rss feeds to
         //public List<Twitch> TwitchChannels { get; set; } = new List<Twitch>();
         //public ulong TwitchPostChannel { get; set; } = 0;
@@ -48,11 +52,9 @@ namespace PassiveBOT.Configuration
         public bool BlacklistBetterFilter { get; set; } = true;
         public bool Invite { get; set; } = false; // blacklist for discord invites
         public List<ulong> InviteExcempt { get; set; } = new List<ulong>();
-        public string NoInviteMessage = null;
 
         public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
         public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
-        public string MentionAllMessage = null;
 
         public bool NoSpam { get; set; } = false;
         public bool RemoveMassMention { get; set; } = false;
@@ -83,34 +85,6 @@ namespace PassiveBOT.Configuration
 
 
         public levelling Levels { get; set; } = new levelling();
-        public class levelling
-        {
-            public bool LevellingEnabled { get; set; } = true;
-
-            public bool UseLevelMessages { get; set; } = true;
-
-            public bool IncrementLevelRewards { get; set; } = true;
-
-            public bool UseLevelChannel { get; set; } = false;
-            public ulong LevellingChannel { get; set; }
-
-            public List<Level> LevelRoles { get; set; } = new List<Level>();
-            public class Level
-            {
-                public int LevelToEnter { get; set; }
-                public ulong RoleID { get; set; }
-            }
-            public List<user> Users { get; set; } = new List<user>();
-            public class user
-            {
-                public ulong userID { get; set; }
-                public int xp { get; set; } = 0;
-                public int level { get; set; } = 1;
-                public bool banned { get; set; } = false;
-            }
-        }
-
-
 
 
         public static void SaveServer(GuildConfig config)
@@ -259,6 +233,35 @@ namespace PassiveBOT.Configuration
             }
 
             return null;
+        }
+
+        public class levelling
+        {
+            public bool LevellingEnabled { get; set; } = true;
+
+            public bool UseLevelMessages { get; set; } = true;
+
+            public bool IncrementLevelRewards { get; set; } = true;
+
+            public bool UseLevelChannel { get; set; } = false;
+            public ulong LevellingChannel { get; set; }
+
+            public List<Level> LevelRoles { get; set; } = new List<Level>();
+            public List<user> Users { get; set; } = new List<user>();
+
+            public class Level
+            {
+                public int LevelToEnter { get; set; }
+                public ulong RoleID { get; set; }
+            }
+
+            public class user
+            {
+                public ulong userID { get; set; }
+                public int xp { get; set; } = 0;
+                public int level { get; set; } = 1;
+                public bool banned { get; set; } = false;
+            }
         }
 
         public class PartnerShip

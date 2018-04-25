@@ -51,7 +51,8 @@ namespace PassiveBOT.Commands.ServerSetup
         {
             var GuildObj = GuildConfig.GetServer(Context.Guild);
             GuildObj.Levels.UseLevelChannel = !GuildObj.Levels.UseLevelChannel;
-            await ReplyAsync($"Sending Level Up notifications to a specific channel is now set to: {GuildObj.Levels.UseLevelChannel}");
+            await ReplyAsync(
+                $"Sending Level Up notifications to a specific channel is now set to: {GuildObj.Levels.UseLevelChannel}");
             GuildConfig.SaveServer(GuildObj);
         }
 
@@ -62,7 +63,8 @@ namespace PassiveBOT.Commands.ServerSetup
         {
             var GuildObj = GuildConfig.GetServer(Context.Guild);
             GuildObj.Levels.IncrementLevelRewards = !GuildObj.Levels.IncrementLevelRewards;
-            await ReplyAsync($"Users will only have one level reward at a time: {GuildObj.Levels.IncrementLevelRewards}");
+            await ReplyAsync(
+                $"Users will only have one level reward at a time: {GuildObj.Levels.IncrementLevelRewards}");
             GuildConfig.SaveServer(GuildObj);
         }
 
@@ -77,6 +79,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"This role is already a level you may remove it using the removelevel command!");
                 return;
             }
+
             if (level <= 0)
             {
                 await ReplyAsync($"Levels must be greater than zero");
@@ -110,7 +113,6 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync($"ERROR: This role is not a level!");
             }
-            
         }
 
         [Command("BanUserLevel")]

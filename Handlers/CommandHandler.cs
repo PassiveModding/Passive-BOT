@@ -191,8 +191,8 @@ namespace PassiveBOT.Handlers
 
                             return true;
                         }
+
                         if (!detected && guild.Levels.LevellingEnabled)
-                        {
                             try
                             {
                                 var userlv = guild.Levels.Users.FirstOrDefault(x => x.userID == context.User.Id);
@@ -201,7 +201,7 @@ namespace PassiveBOT.Handlers
                                     if (!userlv.banned)
                                     {
                                         userlv.xp = userlv.xp + 10;
-                                        var requiredxp = (userlv.level * 50) + (userlv.level * userlv.level * 25);
+                                        var requiredxp = userlv.level * 50 + userlv.level * userlv.level * 25;
                                         if (userlv.xp >= requiredxp)
                                         {
                                             userlv.level++;
@@ -209,63 +209,56 @@ namespace PassiveBOT.Handlers
                                             if (guild.Levels.LevelRoles.Any())
                                             {
                                                 var rolesavailable =
-                                                    guild.Levels.LevelRoles.Where(x => x.LevelToEnter <= (userlv.level - 1)).ToList();
+                                                    guild.Levels.LevelRoles
+                                                        .Where(x => x.LevelToEnter <= userlv.level - 1).ToList();
                                                 var roletoreceive = new List<GuildConfig.levelling.Level>();
                                                 if (rolesavailable.Any())
-                                                {
                                                     if (guild.Levels.IncrementLevelRewards)
                                                     {
                                                         var maxrole = rolesavailable.Max(x => x.LevelToEnter);
-                                                        roletoreceive.Add(rolesavailable.FirstOrDefault(x => x.LevelToEnter == maxrole));
+                                                        roletoreceive.Add(
+                                                            rolesavailable.FirstOrDefault(
+                                                                x => x.LevelToEnter == maxrole));
                                                     }
                                                     else
                                                     {
                                                         roletoreceive = rolesavailable;
                                                     }
 
-                                                }
 
-
-                                                
                                                 if (roletoreceive.Count != 0)
                                                 {
-
                                                     foreach (var role in roletoreceive)
-                                                    {
                                                         if (!((IGuildUser) context.User).RoleIds.Contains(role.RoleID))
                                                         {
                                                             var grole = context.Guild.GetRole(role.RoleID);
                                                             if (grole != null)
-                                                            {
                                                                 try
                                                                 {
-                                                                    await ((SocketGuildUser) context.User).AddRoleAsync(grole);
+                                                                    await ((SocketGuildUser) context.User).AddRoleAsync(
+                                                                        grole);
                                                                     roleadded += $"Role Reward: {grole.Name}\n";
                                                                 }
                                                                 catch
                                                                 {
                                                                     //
                                                                 }
-                                                            }
                                                             else
-                                                            {
                                                                 guild.Levels.LevelRoles.Remove(role);
-                                                            }
                                                         }
-                                                    }
 
-                                                    if (roletoreceive.Count != rolesavailable.Count && roletoreceive.Count == 1)
+                                                    if (roletoreceive.Count != rolesavailable.Count &&
+                                                        roletoreceive.Count == 1)
                                                     {
                                                         rolesavailable.Remove(roletoreceive.First());
-                                                        var roles = rolesavailable.Select(x => context.Guild.GetRole(x.RoleID))
+                                                        var roles = rolesavailable
+                                                            .Select(x => context.Guild.GetRole(x.RoleID))
                                                             .Where(x => x != null);
 
-                                                        await ((SocketGuildUser)context.User).RemoveRolesAsync(roles);
+                                                        await ((SocketGuildUser) context.User).RemoveRolesAsync(roles);
                                                     }
-
                                                 }
                                             }
-
 
 
                                             var embed = new EmbedBuilder
@@ -275,23 +268,19 @@ namespace PassiveBOT.Handlers
                                                 Description = $"Level: {userlv.level - 1}\n" +
                                                               $"{roleadded}" +
                                                               $"XP: {requiredxp}\n" +
-                                                              $"Next Level At: {(userlv.level * 50 + (userlv.level * userlv.level * 25))} XP",
+                                                              $"Next Level At: {userlv.level * 50 + userlv.level * userlv.level * 25} XP",
                                                 Color = Color.Blue
                                             };
                                             if (guild.Levels.UseLevelChannel)
                                             {
                                                 var chan = context.Guild.GetChannel(guild.Levels.LevellingChannel);
                                                 if (chan != null)
-                                                {
-                                                    await ((IMessageChannel) chan).SendMessageAsync("", false, embed.Build());
-                                                }
+                                                    await ((IMessageChannel) chan).SendMessageAsync("", false,
+                                                        embed.Build());
                                             }
 
                                             if (guild.Levels.UseLevelMessages)
-                                            {
                                                 await context.Channel.SendMessageAsync("", false, embed.Build());
-                                            }
-
                                         }
                                     }
                                 }
@@ -304,16 +293,14 @@ namespace PassiveBOT.Handlers
                                         level = 1,
                                         xp = 0
                                     });
-
                                 }
+
                                 GuildConfig.SaveServer(guild);
                             }
                             catch (Exception e)
                             {
                                 Console.WriteLine(e);
                             }
-
-                        }
                     }
                 }
             }
@@ -357,8 +344,8 @@ namespace PassiveBOT.Handlers
 
 
             if (Regex.IsMatch(message.Content,
-                @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$") && !((SocketGuildUser)context.User).GuildPermissions.Administrator)
-            {
+                    @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$") &&
+                !((SocketGuildUser) context.User).GuildPermissions.Administrator)
                 if (guild.RemoveIPs)
                 {
                     await message.DeleteAsync();
@@ -369,7 +356,6 @@ namespace PassiveBOT.Handlers
                     await context.Channel.SendMessageAsync("", false, emb.Build());
                     return true;
                 }
-            }
 
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
                 try

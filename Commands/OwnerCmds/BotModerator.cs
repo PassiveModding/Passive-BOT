@@ -109,7 +109,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                     var guildobj = GuildConfig.GetServer(guild);
                     if (!guildobj.PartnerSetup.IsPartner) continue;
                     if (guildobj.PartnerSetup.banned) continue;
-                    var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                    var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
                     var Checking = "";
                     if (pchannel != null)
                     {

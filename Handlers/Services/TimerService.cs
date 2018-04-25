@@ -11,10 +11,10 @@ namespace PassiveBOT.Handlers.Services
     public class TimerService
     {
         public static List<ulong> AcceptedServers = new List<ulong>();
-        private readonly Timer _timer;
-        public Random rndshuffle = new Random();
         public static DateTime LastFireTime = DateTime.MinValue;
         public static int FirePreiod = 60;
+        private readonly Timer _timer;
+        public Random rndshuffle = new Random();
 
 
         public TimerService(DiscordSocketClient client)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -58,7 +57,7 @@ namespace PassiveBOT.Commands.ServerSetup
 
         [Command("NoIPs")]
         [Summary("NoIps")]
-        [Remarks("Toggle the auto-removal or IP addresses")]
+        [Remarks("Toggle the auto-removal of IP addresses")]
         public async Task NoIP()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
@@ -82,7 +81,6 @@ namespace PassiveBOT.Commands.ServerSetup
             else
                 await ReplyAsync("Invite links are now allowed to be sent");
         }
-
 
 
         [Command("NoInviteMessage")]
@@ -210,6 +208,7 @@ namespace PassiveBOT.Commands.ServerSetup
             else
                 await ReplyAsync("Everyone and Here mentions will no longer be deleted");
         }
+
         [Command("NoMentionMessage")]
         [Summary("NoMentionMessage <meggage>")]
         [Remarks("set the no mention message")]

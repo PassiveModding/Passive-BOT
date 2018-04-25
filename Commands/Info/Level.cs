@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -19,10 +17,7 @@ namespace PassiveBOT.Commands.Info
         [Remarks("Show a user's level and XP")]
         public async Task SetLevelChannel(IUser user = null)
         {
-            if (user == null)
-            {
-                user = Context.User;
-            }
+            if (user == null) user = Context.User;
             var GuildObj = GuildConfig.GetServer(Context.Guild);
             var userobj = GuildObj.Levels.Users.FirstOrDefault(x => x.userID == user.Id);
 
@@ -39,7 +34,7 @@ namespace PassiveBOT.Commands.Info
             }
             else
             {
-                await ReplyAsync($"User not in levelling system!");               
+                await ReplyAsync($"User not in levelling system!");
             }
         }
 
@@ -53,33 +48,33 @@ namespace PassiveBOT.Commands.Info
             var userindex = 1;
             var desc = "";
 
-                foreach (var user in GuildObj.Levels.Users.OrderByDescending(x => x.xp))
+            foreach (var user in GuildObj.Levels.Users.OrderByDescending(x => x.xp))
+            {
+                var guser = Context.Guild.GetUser(user.userID);
+                if (guser == null) continue;
+                desc += $"`{userindex}` {guser.Username} `LV: {user.level - 1} XP: {user.xp}`\n";
+                userindex++;
+                if (desc.Split("\n").Length > 20)
                 {
-                    
-                    var guser = Context.Guild.GetUser(user.userID);
-                    if (guser == null) continue;
-                    desc += $"`{userindex}` {guser.Username} `LV: {user.level - 1} XP: {user.xp}`\n";
-                    userindex++;
-                    if (desc.Split("\n").Length > 20)
+                    userlist.Add(new PaginatedMessage.Page
                     {
-                        userlist.Add(new PaginatedMessage.Page
-                        {
-                            description = desc
-                        });
-                        desc = "";
-                    }
+                        description = desc
+                    });
+                    desc = "";
                 }
-                userlist.Add(new PaginatedMessage.Page
-                {
-                    description = desc
-                });
-                var msg = new PaginatedMessage
-                {
-                    Title = "User Levels Leaderboard",
-                    Pages = userlist
-                };
+            }
 
-                await PagedReplyAsync(msg);
+            userlist.Add(new PaginatedMessage.Page
+            {
+                description = desc
+            });
+            var msg = new PaginatedMessage
+            {
+                Title = "User Levels Leaderboard",
+                Pages = userlist
+            };
+
+            await PagedReplyAsync(msg);
         }
     }
 }

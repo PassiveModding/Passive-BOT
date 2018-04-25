@@ -63,13 +63,12 @@ namespace PassiveBOT.Commands.ServerSetup
             var home = Homeserver.Load().PartnerUpdates;
             var chan = await Context.Client.GetChannelAsync(home);
             if (chan is IGuildChannel channel)
-            {
                 try
                 {
                     var perms = "";
                     if (channel.PermissionOverwrites.Any())
-                    {
-                        foreach (var perm in channel.PermissionOverwrites.Where(x => x.TargetType == PermissionTarget.Role))
+                        foreach (var perm in channel.PermissionOverwrites.Where(x =>
+                            x.TargetType == PermissionTarget.Role))
                         {
                             var role = Context.Guild.Roles.FirstOrDefault(x => x.Id == perm.TargetId);
                             if (role == null) continue;
@@ -77,7 +76,6 @@ namespace PassiveBOT.Commands.ServerSetup
                                      $"Read Messages: {perm.Permissions.ReadMessages}\n" +
                                      $"Read history: {perm.Permissions.ReadMessageHistory}\n";
                         }
-                    }
 
                     var embed = new EmbedBuilder
                     {
@@ -87,14 +85,12 @@ namespace PassiveBOT.Commands.ServerSetup
                                       $"Channel: {Context.Channel.Name}\n\n" +
                                       $"{perms}"
                     };
-                    await ((IMessageChannel)channel).SendMessageAsync("", false, embed.Build());
+                    await ((IMessageChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
-
-            }
         }
 
         [Command("PartnerImage")]
@@ -351,7 +347,6 @@ namespace PassiveBOT.Commands.ServerSetup
         [Remarks("See Partner Setup Info")]
         public async Task PInfo()
         {
-           
             var guild = GuildConfig.GetServer(Context.Guild);
             var embed = new EmbedBuilder
             {
