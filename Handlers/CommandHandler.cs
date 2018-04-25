@@ -356,6 +356,21 @@ namespace PassiveBOT.Handlers
                 }
 
 
+            if (Regex.IsMatch(message.Content,
+                @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$") && !((SocketGuildUser)context.User).GuildPermissions.Administrator)
+            {
+                if (guild.RemoveIPs)
+                {
+                    await message.DeleteAsync();
+                    var emb = new EmbedBuilder
+                    {
+                        Title = $"{context.User} - This server does not allow you to post IP addresses"
+                    };
+                    await context.Channel.SendMessageAsync("", false, emb.Build());
+                    return true;
+                }
+            }
+
             if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
                 try
                 {

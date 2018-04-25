@@ -15,6 +15,8 @@ namespace PassiveBOT.Configuration
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
         public string Prefix { get; set; } = Configuration.Load.Pre; //
+
+
         public bool antiraid { get; set; } = false;
         public bool chatwithmention { get; set; } = true;
         public ulong DjRoleId { get; set; } // restrict the music module to a specific role
@@ -24,10 +26,10 @@ namespace PassiveBOT.Configuration
 
 
         //TRANSLATION
-        public bool Premium { get; set; } = false;
+        //public bool Premium { get; set; } = false;
 
-        public DateTime TimeOffset { get; set; }
-        public int Characters { get; set; } = 0;
+        //public DateTime TimeOffset { get; set; }
+        //public int Characters { get; set; } = 0;
 
 
         public List<ulong> RoleList { get; set; } = new List<ulong>(); // a list of roles that users can join via command
@@ -35,8 +37,8 @@ namespace PassiveBOT.Configuration
 
         public string Rss { get; set; } = "0"; // rss feed url
         public ulong RssChannel { get; set; } // channel to post custom rss feeds to
-        public List<Twitch> TwitchChannels { get; set; } = new List<Twitch>();
-        public ulong TwitchPostChannel { get; set; } = 0;
+        //public List<Twitch> TwitchChannels { get; set; } = new List<Twitch>();
+        //public ulong TwitchPostChannel { get; set; } = 0;
 
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
@@ -54,6 +56,7 @@ namespace PassiveBOT.Configuration
 
         public bool NoSpam { get; set; } = false;
         public bool RemoveMassMention { get; set; } = false;
+        public bool RemoveIPs { get; set; } = false;
 
         public bool ErrorLog { get; set; } // allows for responses with errors 
 

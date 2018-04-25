@@ -56,6 +56,17 @@ namespace PassiveBOT.Commands.ServerSetup
                              $"{channels}");
         }
 
+        [Command("NoIPs")]
+        [Summary("NoIps")]
+        [Remarks("Toggle the auto-removal or IP addresses")]
+        public async Task NoIP()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            jsonObj.RemoveIPs = !jsonObj.RemoveIPs;
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"IPs Removal: {jsonObj.RemoveIPs}");
+        }
 
         [Command("NoInvite")]
         [Summary("NoInvite <true/false>")]
@@ -71,6 +82,8 @@ namespace PassiveBOT.Commands.ServerSetup
             else
                 await ReplyAsync("Invite links are now allowed to be sent");
         }
+
+
 
         [Command("NoInviteMessage")]
         [Summary("NoInviteMessage <message>")]

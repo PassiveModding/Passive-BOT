@@ -8,6 +8,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
@@ -677,6 +678,159 @@ namespace PassiveBOT.Commands.ServerSetup
 
             await ReplyAsync($"Mod Log will now be sent in:\n" +
                              $"{Context.Channel.Name}");
+        }
+
+
+        public EmbedBuilder SafeEmbed(EmbedBuilder input, string addition, string additiontitle, bool inline = false)
+        {
+            if (addition == null)
+            {
+                input.AddField(additiontitle, "NULL", inline);
+                return input;
+            }
+
+            input.AddField(additiontitle, addition, inline);
+            return input;
+        }
+
+        [Command("ServerSetup")]
+        [Summary("ServerSetup")]
+        [Remarks("View the PassiveBOT Server Config")]
+        public async Task ServerSetup()
+        {
+            var Guild = GuildConfig.GetServer(Context.Guild);
+            var pages = new List<PaginatedMessage.Page>();
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = $"Guild Info",
+                description = $"ID: {Guild.GuildId}\n" +
+                              $"Origin Name: {Guild.GuildName}\n" +
+                              $"Prefix: {Guild.Prefix ?? Config.Load().Prefix}\n"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Welcome and Goodbye",
+                description = $"__**Welcome**__\n" +
+                              $"Event: {Guild.WelcomeEvent}\n" +
+                              $"Message: {Guild.WelcomeMessage ?? "N/A"}\n" +
+                              $"Channel: {Context.Guild.GetChannel(Guild.WelcomeChannel)?.Name ?? "N/A"}\n\n" +
+                              $"__**Goodbye**__\n" +
+                              $"Event: {Guild.GoodbyeEvent}\n" +
+                              $"Message: {Guild.GoodbyeMessage ?? "N/A"}\n" +
+                              $"Channel: {Context.Guild.GetChannel(Guild.GoodByeChannel)?.Name ?? "N/A"}\n"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = $"Partner Program",
+                description = $"Signed Up: {Guild.PartnerSetup.IsPartner}\n" +
+                              $"Banned: {Guild.PartnerSetup.banned}\n" +
+                              $"Channel: {Context.Guild.GetChannel(Guild.PartnerSetup.PartherChannel)?.Name ?? "N/A"}\n" +
+                              $"Image URL: {Guild.PartnerSetup.ImageUrl ?? "N/A"}\n" +
+                              $"Show User Count: {Guild.PartnerSetup.showusercount}\n" +
+                              $"Message: \n" +
+                              $"{Guild.PartnerSetup.Message ?? "N/A"}"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = $"Spam Prevention",
+                description = $"NoSpam: {Guild.NoSpam}\n" +
+                              $"Remove IPs: {Guild.RemoveIPs}\n" +
+                              $"Remove Invites: {Guild.Invite}\n" +
+                              $"Remove Invites Message:\n" +
+                              $"{Guild.NoInviteMessage ?? "N/A"}\n\n" +
+                              $"Remove Invite Excempt Roles:\n" +
+                              $"{(Guild.InviteExcempt.Any() ? string.Join("\n", Context.Guild.Roles.Select(x => Guild.InviteExcempt.Contains(x.Id) ? x.Name : null).Where(x => x != null)) : "N/A")}\n\n" +
+                              $"Remove @Everyone and @Here: {Guild.MentionAll}\n" +
+                              $"Remove @Everyone and @Here Message:\n" +
+                              $"{Guild.MentionAllMessage}\n\n" +
+                              $"Remove @everyone and @here excempt:\n" +
+                              $"{(Guild.MentionallExcempt.Any() ? string.Join("\n", Context.Guild.Roles.Select(x => Guild.MentionallExcempt.Contains(x.Id) ? x.Name : null).Where(x => x != null)) : "N/A")}\n\n" +
+                              $"Remove Messages with 5+ Mentions: {Guild.RemoveMassMention}\n"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = $"Blacklist",
+                description = $"Using Blacklist: {Guild.Blacklist.Any()}\n" +
+                              $"Blacklist Message: {Guild.BlacklistMessage ?? "N/A"}\n" +
+                              $"Filter Special Characters and numbers: {Guild.BlacklistBetterFilter}\n" +
+                              $"Blacklisted Words:\n" +
+                              $"{(Guild.Blacklist.Any() ? string.Join("\n", Guild.Blacklist) : "N/A")}\n"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Kicks Warns and Bans",
+                description = $"Kicks: {(Guild.Kicking.Any() ? Guild.Kicking.Count.ToString() : "N/A")}\n" +
+                              $"Warns: {(Guild.Warnings.Any() ? Guild.Warnings.Count.ToString() : "N/A")}\n" +
+                              $"Bans: {(Guild.Banning.Any() ? Guild.Banning.Count.ToString() : "N/A")}\n"
+            });
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Event & Error Logging",
+                description = $"Event Logging: {Guild.EventLogging}\n" +
+                              $"Event Channel: {(Context.Guild.GetChannel(Guild.EventChannel)?.Name ?? "N/A")}\n" +
+                              $"Error Logging (dep): {Guild.ErrorLog}\n"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Tagging",
+                description = $"Using Tags: {Guild.Dict.Any()}\n" +
+                              $"Tag Names: \n{(Guild.Dict.Any() ? string.Join("\n", Guild.Dict.Select(x => x.Tagname)) : "N/A")}\n"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "AutoMessage",
+                description = $"Using Automessage: {Guild.AutoMessage.Any()}\n" +
+                              $"Auto Message Channels:\n" +
+                              $"{(Guild.AutoMessage.Any() ? string.Join("\n", Guild.AutoMessage.Select(x => Context.Guild.GetChannel(x.channelID)?.Name).Where(x => x != null)) : "N/A")}"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Levelling",
+                description = $"Enabled: {Guild.Levels.LevellingEnabled}\n" +
+                              $"Level Messages: {Guild.Levels.UseLevelMessages}\n" +
+                              $"Use Level Log Channel: {Guild.Levels.UseLevelChannel}\n" +
+                              $"Level Log Channel: {Context.Guild.GetChannel(Guild.Levels.LevellingChannel)?.Name ?? "N/A"}\n" +
+                              $"Increment Rewards: {Guild.Levels.IncrementLevelRewards}\n" +
+                              $"Levels: \n" +
+                              $"{(Guild.Levels.LevelRoles.Any() ? string.Join("\n", Guild.Levels.LevelRoles.Select(x => $"{(Context.Guild.GetRole(x.RoleID)?.Mention ?? "Removed Role")} Level Requirement: {x.LevelToEnter}")) : "N/A")}"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Mod Log",
+                description = $"Mod Role: {Context.Guild.GetRole(Guild.ModeratorRoleId)?.Name ?? "N/A"}\n" +
+                              $"Moderator Logging: {Guild.LogModCommands}\n" +
+                              $"Moderator Log Channel: {Context.Guild.GetChannel(Guild.ModLogChannel)?.Name ?? "N/A"}"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Current Giveaway",
+                description = $"Message: {Guild.Comp.Message ?? "N/A"}\n" +
+                              $"Creator: {Context.Guild.GetUser(Guild.Comp.Creator)?.Username ?? "N/A"}\n"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Starboard (dep)",
+                description = $"Starboard Channel: {Context.Guild.GetChannel(Guild.Starboard)?.Name ?? "N/A"}"
+            });
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                dynamictitle = "Twitch (dep)",
+                description = $"N/A"
+            });
+
+            await PagedReplyAsync(new PaginatedMessage
+            {
+                Pages = pages
+
+            });
+
         }
     }
 }
