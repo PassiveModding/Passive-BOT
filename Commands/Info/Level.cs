@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
@@ -36,6 +37,21 @@ namespace PassiveBOT.Commands.Info
             {
                 await ReplyAsync($"User not in levelling system!");
             }
+        }
+
+        [Command("ShowLevelRewards")]
+        [Summary("ShowLevelRewards")]
+        [Remarks("Show rewards available in this server for different levels")]
+        public async Task ShowLVRewards()
+        {
+            var GuildObj = GuildConfig.GetServer(Context.Guild);
+
+                var embed = new EmbedBuilder
+                {
+                    Title = $"Level Rewards in {Context.Guild.Name}",
+                    Description = $"Reward Roles:\n {(GuildObj.Levels.LevelRoles.Any() ? string.Join("\n", GuildObj.Levels.LevelRoles.Where(lr => Context.Guild.Roles.Select(x => x.Id).Contains(lr.RoleID)).Select(x => $"{Context.Guild.GetRole(x.RoleID)?.Mention ?? "ERROR"} LV: {x.LevelToEnter}")) : "N/A")}"
+                };
+                await ReplyAsync("", false, embed.Build());
         }
 
         [Command("ShowLeaderboard")]

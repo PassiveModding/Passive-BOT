@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -93,7 +94,7 @@ namespace PassiveBOT.Commands.ServerSetup
             });
 
             await ReplyAsync($"New Level Added: {role.Name}\n" +
-                             $"Level Requirement; {level}");
+                             $"Level Requirement: {level}");
             GuildConfig.SaveServer(GuildObj);
         }
 
@@ -117,7 +118,7 @@ namespace PassiveBOT.Commands.ServerSetup
 
         [Command("BanUserLevel")]
         [Summary("BanUserLevel <@user>")]
-        [Remarks("Ban a use from using the level system")]
+        [Remarks("Ban a user from using the level system")]
         public async Task AddLevel(IUser user)
         {
             var GuildObj = GuildConfig.GetServer(Context.Guild);
@@ -132,6 +133,23 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync($"ERROR: This user has not sent a message in the server before!");
             }
+        }
+
+        [Command("ResetLeaderboard")]
+        [Summary("ResetLeaderboard")]
+        [Remarks("Reset all user's levels and XP for the levelling system")]
+        public async Task LeaderboardReser([Remainder] string confirm = null)
+        {
+            if (confirm != "su8GhbY")
+            {
+                await ReplyAsync("Please run the command again and use the confirmation code: `su8GhbY`\n" +
+                                 "NOTE: This reset cannot be undone!");
+                return;
+            }
+            var GuildObj = GuildConfig.GetServer(Context.Guild);
+            GuildObj.Levels.Users = new List<GuildConfig.levelling.user>();
+            GuildConfig.SaveServer(GuildObj);
+            await ReplyAsync($"All user XP and Levels have been reset (note: Role Rewards will have to be manually reset if applicable)");
         }
     }
 }
