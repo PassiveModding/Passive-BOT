@@ -234,13 +234,20 @@ namespace PassiveBOT.Handlers
                                                                                         x.Permissions.AllowValue ||
                                                                                         y.Permissions.DenyValue !=
                                                                                         x.Permissions.DenyValue))
-                                                                                   .TargetId == x.TargetId);
+                                                                                   .TargetId == x.TargetId).ToList();
+
+                    var userlist = ((SocketTextChannel)s2).Users;
+                    var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
+                                     $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+
                     var homeserver = Homeserver.Load();
                     var embed = new EmbedBuilder
                     {
                         Title = $"Partner Channel Updated",
                         Description =
-                            $"{string.Join("\n", changes.Select(x => $"Role: {guild.GetRole(x.TargetId)?.Name}\n" + $"Read Messages: {x.Permissions.ReadMessages}\n" + $"Read History: {x.Permissions.ReadMessageHistory}\n" + $"Guild Name: {guild.Name}\n" + $"Guild ID: `{guild.Id}`\n" + $"Channel Name: {ChannelAfter.Name}"))}",
+                            $"{(changes.Any() ? string.Join("\n", changes.Select(x => $"Role: {guild.GetRole(x.TargetId)?.Name}\n" + $"Read Messages: {x.Permissions.ReadMessages}\n" + $"Read History: {x.Permissions.ReadMessageHistory}\n" + $"Guild Name: {guild.Name}\n" + $"Guild ID: `{guild.Id}`\n" + $"Channel Name: {ChannelAfter.Name}")) : "No Role Permissions Detected")}\n\n" +
+                            $"__**Channel Visibility**__\n" +
+                            $"{userstring}",
                         Color = Color.Blue,
                         Footer = new EmbedFooterBuilder
                         {
