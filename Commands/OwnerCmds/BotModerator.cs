@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -17,21 +18,348 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Command("PartnerList+", RunMode = RunMode.Async)]
         [Summary("PartnerList+")]
         [Remarks("Get a complete list of all partner servers")]
-        public async Task PListF2()
+        public async Task PListF2(int choice = 0)
         {
-            var pages = new List<PaginatedMessage.Page>();
-            foreach (var guild in Context.Client.Guilds)
-                try
-                {
-                    var guildobj = GuildConfig.GetServer(guild);
-                    if (!guildobj.PartnerSetup.IsPartner) continue;
 
-                    var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
-                    var Checking = "";
-                    if (pchannel != null)
+            if (choice <= 0 || choice >= 5)
+            {
+                await ReplyAsync($"Please choose a Sorting Mode:\n" +
+                                 $"`1` - Full List Includes all other checks\n" +
+                                 $"`2` - Short List, Removes all banned partners\n" +
+                                 $"`3` - Permissions Check, Shows visibility and all roles channel viewing permissions\n" +
+                                 $"`4` - Visibility, Shows where the visible users is not equal to the total users");
+                return;
+            }
+
+            if (choice == 1)
+            {
+                var pages = new List<PaginatedMessage.Page>();
+                foreach (var guild in Context.Client.Guilds)
+                    try
                     {
-                        var ChannelOverWrites = pchannel.PermissionOverwrites;
+                        var guildobj = GuildConfig.GetServer(guild);
+                        if (!guildobj.PartnerSetup.IsPartner) continue;
 
+                        var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                        var Checking = "";
+                        if (pchannel != null)
+                        {
+                            var ChannelOverWrites = pchannel.PermissionOverwrites;
+
+                            foreach (var OverWrite in ChannelOverWrites)
+                                try
+                                {
+                                    var Name = "N/A";
+                                    if (OverWrite.TargetType == PermissionTarget.Role)
+                                    {
+                                        var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (Role != null) Name = Role.Name;
+                                    }
+                                    else
+                                    {
+                                        var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (user != null) Name = user.Username;
+                                    }
+
+                                    if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                                        Checking += $"{Name} Cannot Read Msgs.\n";
+
+                                    if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                        Checking += $"{Name} Cannot Read History.\n";
+                                }
+                                catch
+                                {
+                                    //
+                                }
+                        }
+
+                        var pmessage = guildobj.PartnerSetup.Message;
+                        if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
+
+                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
+                                         $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+
+                        pages.Add(new PaginatedMessage.Page
+                        {
+                            dynamictitle =
+                                $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                            description = $"__**Message:**__\n\n" +
+                                          $"{pmessage ?? "N/A"}\n\n" +
+                                          $"__**Permissions:**__\n" +
+                                          $"{Checking}\n\n" +
+                                          $"__**Availability**__\n" +
+                                          $"{userstring}\n" +
+                                          $"__**Channel Info:**__\n" +
+                                          $"Topic: {pchannel.Topic}\n" +
+                                          $"Name: {pchannel.Name}\n" +
+                                          $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                          $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                          $"__**Guild Info:**__\n" +
+                                          $"Owner: {guild.Owner.Username}\n" +
+                                          $"Owner ID: {guild.OwnerId}\n" +
+                                          $"UserCount: {guild.MemberCount}\n" +
+                                          $"Guild ID: {guild.Id}\n" +
+                                          $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
+                            imageurl = guildobj.PartnerSetup.ImageUrl
+                        });
+                    }
+                    catch
+                    {
+                        //
+                    }
+
+                if (pages.Any())
+                {
+                    var msg = new PaginatedMessage
+                    {
+                        Title = "Partner Messages",
+                        Pages = pages,
+                        Color = new Color(114, 137, 218)
+                    };
+
+                    await PagedReplyAsync(msg);
+                }
+                else
+                {
+                    await ReplyAsync("No Servers detected.");
+                }
+            }
+            else if (choice == 2)
+            {
+                var pages = new List<PaginatedMessage.Page>();
+                foreach (var guild in Context.Client.Guilds)
+                    try
+                    {
+                        var guildobj = GuildConfig.GetServer(guild);
+                        if (!guildobj.PartnerSetup.IsPartner) continue;
+                        if (guildobj.PartnerSetup.banned) continue;
+                        var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                        var Checking = "";
+                        if (pchannel != null)
+                        {
+                            var ChannelOverWrites = pchannel.PermissionOverwrites;
+
+                            foreach (var OverWrite in ChannelOverWrites)
+                                try
+                                {
+                                    var Name = "N/A";
+                                    if (OverWrite.TargetType == PermissionTarget.Role)
+                                    {
+                                        var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (Role != null) Name = Role.Name;
+                                    }
+                                    else
+                                    {
+                                        var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (user != null) Name = user.Username;
+                                    }
+
+                                    if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                                        Checking += $"{Name} Cannot Read Msgs.\n";
+
+                                    if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                        Checking += $"{Name} Cannot Read History.\n";
+                                }
+                                catch
+                                {
+                                    //
+                                }
+                        }
+
+                        var pmessage = guildobj.PartnerSetup.Message;
+                        if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
+
+                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
+                                         $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+
+                        pages.Add(new PaginatedMessage.Page
+                        {
+                            dynamictitle =
+                                $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                            description = $"__**Message:**__\n\n" +
+                                          $"{pmessage ?? "N/A"}\n\n" +
+                                          $"__**Permissions:**__\n" +
+                                          $"{Checking}\n\n" +
+                                          $"__**Availability**__\n" +
+                                          $"{userstring}\n" +
+                                          $"__**Channel Info:**__\n" +
+                                          $"Topic: {pchannel.Topic}\n" +
+                                          $"Name: {pchannel.Name}\n" +
+                                          $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                          $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                          $"__**Guild Info:**__\n" +
+                                          $"Owner: {guild.Owner.Username}\n" +
+                                          $"Owner ID: {guild.OwnerId}\n" +
+                                          $"UserCount: {guild.MemberCount}\n" +
+                                          $"Guild ID: {guild.Id}\n" +
+                                          $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
+                            imageurl = guildobj.PartnerSetup.ImageUrl
+                        });
+                    }
+                    catch
+                    {
+                        //
+                    }
+
+                if (pages.Any())
+                {
+                    var msg = new PaginatedMessage
+                    {
+                        Title = "Partner Messages",
+                        Pages = pages,
+                        Color = new Color(114, 137, 218)
+                    };
+
+                    await PagedReplyAsync(msg);
+                }
+                else
+                {
+                    await ReplyAsync("No Unbanned Servers Detected.");
+                }
+            }
+            else if (choice == 3)
+            {
+                var pages = new List<PaginatedMessage.Page>();
+                foreach (var guild in Context.Client.Guilds)
+                    try
+                    {
+                        var guildobj = GuildConfig.GetServer(guild);
+                        if (!guildobj.PartnerSetup.IsPartner) continue;
+                        if (guildobj.PartnerSetup.banned) continue;
+                        var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                        var Checking = "";
+                        if (pchannel != null)
+                        {
+                            var ChannelOverWrites = pchannel.PermissionOverwrites;
+
+                            foreach (var OverWrite in ChannelOverWrites)
+                                try
+                                {
+                                    var Name = "N/A";
+                                    if (OverWrite.TargetType == PermissionTarget.Role)
+                                    {
+                                        var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (Role != null) Name = Role.Name;
+                                    }
+                                    else
+                                    {
+                                        var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (user != null) Name = user.Username;
+                                    }
+
+                                    if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                                        Checking += $"{Name} Cannot Read Msgs.\n";
+
+                                    if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                        Checking += $"{Name} Cannot Read History.\n";
+                                }
+                                catch
+                                {
+                                    //
+                                }
+                        }
+
+                        var pmessage = guildobj.PartnerSetup.Message;
+                        if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
+
+                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
+                            $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+                        if (Checking != "")
+                        {
+                            pages.Add(new PaginatedMessage.Page
+                            {
+                                dynamictitle =
+                                    $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                                description = $"__**Message:**__\n\n" +
+                                              $"{pmessage ?? "N/A"}\n\n" +
+                                              $"__**Permissions:**__\n" +
+                                              $"{Checking}\n\n" +
+                                              $"__**Availability**__\n" +
+                                              $"{userstring}\n" +
+                                              $"__**Channel Info:**__\n" +
+                                              $"Topic: {pchannel.Topic}\n" +
+                                              $"Name: {pchannel.Name}\n" +
+                                              $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                              $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                              $"__**Guild Info:**__\n" +
+                                              $"Owner: {guild.Owner.Username}\n" +
+                                              $"Owner ID: {guild.OwnerId}\n" +
+                                              $"UserCount: {guild.MemberCount}\n" +
+                                              $"Guild ID: {guild.Id}\n" +
+                                              $"Message Length: {guildobj.PartnerSetup.Message?.Length}",
+                                imageurl = guildobj.PartnerSetup.ImageUrl
+                            });
+                        }
+                        else if (userlist.Count != guild.Users.Count)
+                        {
+                            pages.Add(new PaginatedMessage.Page
+                            {
+                                dynamictitle =
+                                    $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                                description = $"__**Message:**__\n\n" +
+                                              $"{pmessage ?? "N/A"}\n\n" +
+                                              $"__**Availability**__\n" +
+                                              $"{userstring}\n" +
+                                              $"__**Channel Info:**__\n" +
+                                              $"Topic: {pchannel.Topic}\n" +
+                                              $"Name: {pchannel.Name}\n" +
+                                              $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                              $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                              $"__**Guild Info:**__\n" +
+                                              $"Owner: {guild.Owner.Username}\n" +
+                                              $"Owner ID: {guild.OwnerId}\n" +
+                                              $"UserCount: {guild.MemberCount}\n" +
+                                              $"Guild ID: {guild.Id}\n" +
+                                              $"Message Length: {guildobj.PartnerSetup.Message?.Length}",
+                                imageurl = guildobj.PartnerSetup.ImageUrl
+                            });
+                        }
+
+                    }
+                    catch
+                    {
+                        //
+                    }
+
+                if (pages.Any())
+                {
+                    var msg = new PaginatedMessage
+                    {
+                        Title = "Partner Permission Messages",
+                        Pages = pages,
+                        Color = new Color(114, 137, 218)
+                    };
+
+                    await PagedReplyAsync(msg);
+                }
+                else
+                {
+                    await ReplyAsync("No Servers with permissions edits visible.");
+                }
+            }
+            else if (choice == 4)
+            {
+                var pages = new List<PaginatedMessage.Page>();
+                foreach (var guild in Context.Client.Guilds)
+                    try
+                    {
+                        var guildobj = GuildConfig.GetServer(guild);
+                        if (!guildobj.PartnerSetup.IsPartner) continue;
+                        if (guildobj.PartnerSetup.banned) continue;
+                        var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+
+                        if (pchannel == null) continue;
+                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        if (userlist.Count == guild.Users.Count) continue;
+                        var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
+                                         $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+
+
+                        var ChannelOverWrites = pchannel.PermissionOverwrites;
+                        var Checking = "";
                         foreach (var OverWrite in ChannelOverWrites)
                             try
                             {
@@ -57,54 +385,61 @@ namespace PassiveBOT.Commands.OwnerCmds
                             {
                                 //
                             }
+
+
+                        var pmessage = guildobj.PartnerSetup.Message;
+                        if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
+
+
+                        pages.Add(new PaginatedMessage.Page
+                        {
+                            dynamictitle =
+                                $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                            description = $"__**Message:**__\n\n" +
+                                          $"{pmessage ?? "N/A"}\n\n" +
+                                          $"__**Permissions:**__\n" +
+                                          $"{Checking}\n\n" +
+                                          $"__**Availability**__\n" +
+                                          $"{userstring}\n" +
+                                          $"__**Channel Info:**__\n" +
+                                          $"Topic: {pchannel.Topic}\n" +
+                                          $"Name: {pchannel.Name}\n" +
+                                          $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                          $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                          $"__**Guild Info:**__\n" +
+                                          $"Owner: {guild.Owner.Username}\n" +
+                                          $"Owner ID: {guild.OwnerId}\n" +
+                                          $"UserCount: {guild.MemberCount}\n" +
+                                          $"Guild ID: {guild.Id}\n" +
+                                          $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
+                            imageurl = guildobj.PartnerSetup.ImageUrl
+                        });
+                    }
+                    catch
+                    {
+                        //
                     }
 
-                    var pmessage = guildobj.PartnerSetup.Message;
-                    if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
-
-                    var userlist = ((SocketTextChannel)pchannel).Users;
-                    var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
-                                     $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
-
-                    pages.Add(new PaginatedMessage.Page
-                    {
-                        dynamictitle =
-                            $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
-                        description = $"__**Message:**__\n\n" +
-                                      $"{pmessage ?? "N/A"}\n\n" +
-                                      $"__**Permissions:**__\n" +
-                                      $"{Checking}\n\n" +
-                                      $"__**Availability**__\n" +
-                                      $"{userstring}\n" +
-                                      $"__**Channel Info:**__\n" +
-                                      $"Topic: {pchannel.Topic}\n" +
-                                      $"Name: {pchannel.Name}\n" +
-                                      $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
-                                      $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
-                                      $"__**Guild Info:**__\n" +
-                                      $"Owner: {guild.Owner.Username}\n" +
-                                      $"Owner ID: {guild.OwnerId}\n" +
-                                      $"UserCount: {guild.MemberCount}\n" +
-                                      $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
-                        imageurl = guildobj.PartnerSetup.ImageUrl
-                    });
-                }
-                catch
+                if (pages.Any())
                 {
-                    //
+                    var msg = new PaginatedMessage
+                    {
+                        Title = "Partner Messages",
+                        Pages = pages,
+                        Color = new Color(114, 137, 218)
+                    };
+
+                    await PagedReplyAsync(msg);
+                }
+                else
+                {
+                    await ReplyAsync("No Servers with Visibility Changes detected.");
                 }
 
-            var msg = new PaginatedMessage
-            {
-                Title = "Partner Messages",
-                Pages = pages,
-                Color = new Color(114, 137, 218)
-            };
-
-            await PagedReplyAsync(msg);
+            }
         }
 
-        [Command("ShortPartnerList+", RunMode = RunMode.Async)]
+        /*[Command("ShortPartnerList+", RunMode = RunMode.Async)]
         [Summary("ShortPartnerList+")]
         [Remarks("Get a list of all unbanned partner servers")]
         public async Task SPlist()
@@ -194,8 +529,101 @@ namespace PassiveBOT.Commands.OwnerCmds
             await PagedReplyAsync(msg);
         }
 
+        [Command("CheckPartnerVisibility+", RunMode = RunMode.Async)]
+        [Summary("CheckPartnerVisibility+")]
+        [Remarks("list partner servers with less than 100% user visibility")]
+        public async Task CVCheck()
+        {
+            var pages = new List<PaginatedMessage.Page>();
+            foreach (var guild in Context.Client.Guilds)
+                try
+                {
+                    var guildobj = GuildConfig.GetServer(guild);
+                    if (!guildobj.PartnerSetup.IsPartner) continue;
+                    if (guildobj.PartnerSetup.banned) continue;
+                    var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                    
+                    if (pchannel == null) continue;
+                    var userlist = ((SocketTextChannel) pchannel).Users;
+                    if (userlist.Count == guild.Users.Count) continue;
+                    var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
+                                     $"Percent Visible: {((double) userlist.Count / guild.Users.Count) * 100}%";
 
-        /*[Command("Test+")]
+
+                    var ChannelOverWrites = pchannel.PermissionOverwrites;
+                    var Checking = "";
+                    foreach (var OverWrite in ChannelOverWrites)
+                        try
+                        {
+                            var Name = "N/A";
+                            if (OverWrite.TargetType == PermissionTarget.Role)
+                            {
+                                var Role = guild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                if (Role != null) Name = Role.Name;
+                            }
+                            else
+                            {
+                                var user = guild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                if (user != null) Name = user.Username;
+                            }
+
+                            if (OverWrite.Permissions.ReadMessages == PermValue.Deny)
+                                Checking += $"{Name} Cannot Read Msgs.\n";
+
+                            if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                Checking += $"{Name} Cannot Read History.\n";
+                        }
+                        catch
+                        {
+                            //
+                        }
+
+
+                    var pmessage = guildobj.PartnerSetup.Message;
+                    if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
+
+
+                    pages.Add(new PaginatedMessage.Page
+                    {
+                        dynamictitle =
+                            $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                        description = $"__**Message:**__\n\n" +
+                                      $"{pmessage ?? "N/A"}\n\n" +
+                                      $"__**Permissions:**__\n" +
+                                      $"{Checking}\n\n" +
+                                      $"__**Availability**__\n" +
+                                      $"{userstring}\n" +
+                                      $"__**Channel Info:**__\n" +
+                                      $"Topic: {pchannel.Topic}\n" +
+                                      $"Name: {pchannel.Name}\n" +
+                                      $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                      $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                      $"__**Guild Info:**__\n" +
+                                      $"Owner: {guild.Owner.Username}\n" +
+                                      $"Owner ID: {guild.OwnerId}\n" +
+                                      $"UserCount: {guild.MemberCount}\n" +
+                                      $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n",
+                        imageurl = guildobj.PartnerSetup.ImageUrl
+                    });
+                }
+                catch
+                {
+                    //
+                }
+                
+
+            var msg = new PaginatedMessage
+            {
+                Title = "Partner Messages",
+                Pages = pages,
+                Color = new Color(114, 137, 218)
+            };
+
+            await PagedReplyAsync(msg);
+        }
+
+
+        [Command("Test+")]
         [Summary("Test+")]
         [Remarks("Test")]
         public async Task TestCMD()
@@ -209,7 +637,7 @@ namespace PassiveBOT.Commands.OwnerCmds
 
             await ReplyAsync($"Users Visible/Total Users: {userlist.Count} / {Context.Guild.Users.Count}\n" +
                              $"Percent Visible: {((double)userlist.Count / Context.Guild.Users.Count) * 100}%");
-        }*/
+        }
 
 
         [Command("PartnerPermissionList+", RunMode = RunMode.Async)]
@@ -289,6 +717,30 @@ namespace PassiveBOT.Commands.OwnerCmds
                             imageurl = guildobj.PartnerSetup.ImageUrl
                         });
                     }
+                    else if (userlist.Count != guild.Users.Count)
+                    {
+                        pages.Add(new PaginatedMessage.Page
+                        {
+                            dynamictitle =
+                                $"{guild.Name} - {guild.Id} - `{(guildobj.PartnerSetup.banned ? "BANNED" : "PUBLIC")}`",
+                            description = $"__**Message:**__\n\n" +
+                                          $"{pmessage ?? "N/A"}\n\n" +
+                                          $"__**Availability**__\n" +
+                                          $"{userstring}\n" +
+                                          $"__**Channel Info:**__\n" +
+                                          $"Topic: {pchannel.Topic}\n" +
+                                          $"Name: {pchannel.Name}\n" +
+                                          $"Image: {guildobj.PartnerSetup.ImageUrl}\n" +
+                                          $"UserCount: {guildobj.PartnerSetup.showusercount}\n\n" +
+                                          $"__**Guild Info:**__\n" +
+                                          $"Owner: {guild.Owner.Username}\n" +
+                                          $"Owner ID: {guild.OwnerId}\n" +
+                                          $"UserCount: {guild.MemberCount}\n" +
+                                          $"Message Length: {guildobj.PartnerSetup.Message?.Length}\n" +
+                                          $"Guild ID: {guild.Id}",
+                            imageurl = guildobj.PartnerSetup.ImageUrl
+                        });
+                    }
 
                 }
                 catch
@@ -312,7 +764,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                 await ReplyAsync("All Clean.");
             }
 
-        }
+        }*/
 
         [Command("PartnerInfo+", RunMode = RunMode.Async)]
         [Summary("PartnerInfo+ <ID>")]
@@ -384,6 +836,13 @@ namespace PassiveBOT.Commands.OwnerCmds
                                       $"{Checking}" +
                                       $"\n---"
                     });
+                var userlist = ((SocketTextChannel)PChannel).Users;
+                pages.Add(new PaginatedMessage.Page
+                {
+                    dynamictitle = "Partner Channel Visibility",
+                    description = $"Users Visible/Total Users: {userlist.Count} / {Context.Guild.Users.Count}\n" +
+                                  $"Percent Visible: {((double)userlist.Count / Context.Guild.Users.Count) * 100}%"
+                });
             }
 
             var msg = new PaginatedMessage
@@ -439,6 +898,28 @@ namespace PassiveBOT.Commands.OwnerCmds
             {
                 await ReplyAsync("User Unavailable");
             }
+        }
+
+        [Command("GuildInfo+")]
+        [Summary("GuildInfo+ <UserID>")]
+        [Remarks("Get info about a given guild")]
+        public async Task GuildInfo(ulong GuildID = 0)
+        {
+            var guild = Context.Client.GetGuild(GuildID);
+            if (guild == null)
+            {
+                await ReplyAsync($"No Guild with ID `{GuildID}` includes the bot");
+                return;
+            }
+
+            await ReplyAsync($"Name: {guild.Name}\n" +
+                             $"Owner: {guild.Owner.Username}#{guild.Owner.Discriminator} (NICK: {guild.Owner.Nickname ?? "N/A"})\n" +
+                             $"Owner ID: {guild.OwnerId}\n" +
+                             $"Guild ID: {guild.Id}\n" +
+                             $"Text Channels: {guild.TextChannels.Count}\n" +
+                             $"Voice Channels: {guild.VoiceChannels.Count}\n" +
+                             $"User Count: {guild.MemberCount}\n" +
+                             $"Bot Count: {guild.Users.Count(x => x.IsBot)}");
         }
 
         [Command("NoCommands+")]
