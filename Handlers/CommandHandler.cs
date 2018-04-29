@@ -47,7 +47,7 @@ namespace PassiveBOT.Handlers
         {
             var inv =
                 $"https://discordapp.com/oauth2/authorize?client_id={_client.CurrentUser.Id}&scope=bot&permissions=2146958591";
-            ColourLog.LogInfo($"Invite: {inv}");
+            LogHandler.LogInfo($"Invite: {inv}");
             return Task.CompletedTask;
         }
 
@@ -576,12 +576,12 @@ namespace PassiveBOT.Handlers
                     //
                 }
 
-                await ColourLog.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E',
+                await LogHandler.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E',
                     $"{result.ErrorReason}"); // log errors as arrors
             }
             else
             {
-                await ColourLog.In3(
+                await LogHandler.In3(
                     $"{context.Message}", 'S', $"{server}", 'U', $"{context.User}"); //if there is no error log normally
 
                 Load.Commands++;

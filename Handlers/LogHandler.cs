@@ -5,7 +5,7 @@ using Serilog;
 namespace PassiveBOT.Handlers
 {
     //Replaced loghandler with colourlog cause thats sexy!
-    public class ColourLog
+    public class LogHandler
     {
         public static Task In3(string command, char type, string server, char res, string user)
         {

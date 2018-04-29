@@ -72,7 +72,7 @@ namespace PassiveBOT
                     ll = LogSeverity.Info;
                     break;
                 default:
-                    await ColourLog.In1Run($"Error Loading Debug Config, Set to default (Entry = {debug})");
+                    await LogHandler.In1Run($"Error Loading Debug Config, Set to default (Entry = {debug})");
                     break;
             }
 
@@ -90,7 +90,7 @@ namespace PassiveBOT
             }
             catch (Exception e)
             {
-                await ColourLog.In1Run("Token was rejected by Discord (Invalid Token or Connection Error)\n" +
+                await LogHandler.In1Run("Token was rejected by Discord (Invalid Token or Connection Error)\n" +
                                        $"{e}");
             }
 
@@ -130,13 +130,13 @@ namespace PassiveBOT
                 message.ToString().Contains("VOICE_STATE_UPDATE"))
                 return Task.CompletedTask;
             var msg = messagestr.Substring(21, messagestr.Length - 21);
-            ColourLog.In2("PassiveBOT", '?', $"{msg}", Color.Chartreuse);
+            LogHandler.In2("PassiveBOT", '?', $"{msg}", Color.Chartreuse);
             return Task.CompletedTask;
         }
 
         public static Task LogDebug(LogMessage msg)
         {
-            ColourLog.Debug(msg.ToString());
+            LogHandler.Debug(msg.ToString());
             return Task.CompletedTask;
         }
     }
