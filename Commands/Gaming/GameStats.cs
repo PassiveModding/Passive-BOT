@@ -21,7 +21,7 @@ namespace PassiveBOT.Commands.Gaming
         [Summary("FortniteStats <username>")]
         [Remarks("Get a fortnite user's profile")]
         [Ratelimit(1, 20, Measure.Seconds)]
-        public async Task FortStats([Remainder] string username)
+        public async Task FortStats(string platform, [Remainder] string username)
         {
             if (Tokens.Load().FortniteToken == null)
             {
@@ -30,7 +30,13 @@ namespace PassiveBOT.Commands.Gaming
                 return;
             }
 
-            var url = $"https://api.fortnitetracker.com/v1/profile/pc/{username}";
+            if (platform.ToLower() != "pc" && platform.ToLower() != "xbl" && platform.ToLower() != "psn")
+            {
+                await FortStats();
+                return;
+            }
+
+            var url = $"https://api.fortnitetracker.com/v1/profile/{platform.ToLower()}/{username}";
             var client = new WebClient();
             client.Headers.Add("TRN-Api-Key", Tokens.Load().FortniteToken);
             var stream = client.OpenRead(new Uri(url));
@@ -54,11 +60,7 @@ namespace PassiveBOT.Commands.Gaming
                               $"Score: {CurrentSoloSeasonStats.score.value}\n" +
                               $"Score/Game: {CurrentSoloSeasonStats.scorePerMatch.value}\n" +
                               $"Wins: {CurrentSoloSeasonStats.top1.value}\n" +
-                              $"Top3: {CurrentSoloSeasonStats.top3.value}\n" +
-                              $"Top5: {CurrentSoloSeasonStats.top5.value}\n" +
-                              //$"Top6: {CurrentSoloSeasonStats.top6.value}\n" +
                               $"Top10: {CurrentSoloSeasonStats.top10.value}\n" +
-                              //$"Top12: {CurrentSoloSeasonStats.top12.value}\n" +
                               $"Top25: {CurrentSoloSeasonStats.top25.value}\n" +
                               $"TRNRating: {CurrentSoloSeasonStats.trnRating.value}";
             var LifeSolo = $"__**Lifetime Solo Stats**__\n" +
@@ -69,11 +71,7 @@ namespace PassiveBOT.Commands.Gaming
                            $"Score: {LifetimeSoloStats.score.value}\n" +
                            $"Score/Game: {LifetimeSoloStats.scorePerMatch.value}\n" +
                            $"Wins: {LifetimeSoloStats.top1.value}\n" +
-                           $"Top3: {LifetimeSoloStats.top3.value}\n" +
-                           $"Top5: {LifetimeSoloStats.top5.value}\n" +
-                           //$"Top6: {LifetimeSoloStats.top6.value}\n" +
                            $"Top10: {LifetimeSoloStats.top10.value}\n" +
-                           //$"Top12: {LifetimeSoloStats.top12.value}\n" +
                            $"Top25: {LifetimeSoloStats.top25.value}\n" +
                            $"TRNRating: {LifetimeSoloStats.trnRating.value}";
             var CurrentDuo = $"__**Current Duo Stats**__\n" +
@@ -84,12 +82,8 @@ namespace PassiveBOT.Commands.Gaming
                              $"Score: {CurrentDuoStats.score.value}\n" +
                              $"Score/Game: {CurrentDuoStats.scorePerMatch.value}\n" +
                              $"Wins: {CurrentDuoStats.top1.value}\n" +
-                             $"Top3: {CurrentDuoStats.top3.value}\n" +
                              $"Top5: {CurrentDuoStats.top5.value}\n" +
-                             //$"Top6: {CurrentDuoStats.top6.value}\n" +
-                             $"Top10: {CurrentDuoStats.top10.value}\n" +
-                             //$"Top12: {CurrentDuoStats.top12.value}\n" +
-                             $"Top25: {CurrentDuoStats.top25.value}\n" +
+                             $"Top12: {CurrentDuoStats.top12.value}\n" +
                              $"TRNRating: {CurrentDuoStats.trnRating.value}";
             var LifetimeDuo = $"__**Lifetime Duo Stats**__\n" +
                               $"KD: {LifetimeDuoStats.kd.value}\n" +
@@ -99,12 +93,8 @@ namespace PassiveBOT.Commands.Gaming
                               $"Score: {LifetimeDuoStats.score.value}\n" +
                               $"Score/Game: {LifetimeDuoStats.scorePerMatch.value}\n" +
                               $"Wins: {LifetimeDuoStats.top1.value}\n" +
-                              $"Top3: {LifetimeDuoStats.top3.value}\n" +
                               $"Top5: {LifetimeDuoStats.top5.value}\n" +
-                              //$"Top6: {LifetimeDuoStats.top6.value}\n" +
-                              $"Top10: {LifetimeDuoStats.top10.value}\n" +
-                              //$"Top12: {LifetimeDuoStats.top12.value}\n" +
-                              $"Top25: {LifetimeDuoStats.top25.value}\n" +
+                              $"Top12: {LifetimeDuoStats.top12.value}\n" +
                               $"TRNRating: {LifetimeDuoStats.trnRating.value}";
 
             var CurrentSquad = $"__**Current Squad Stats**__\n" +
@@ -116,11 +106,7 @@ namespace PassiveBOT.Commands.Gaming
                                $"Score/Game: {CurrentSquadStats.scorePerMatch.value}\n" +
                                $"Wins: {CurrentSquadStats.top1.value}\n" +
                                $"Top3: {CurrentSquadStats.top3.value}\n" +
-                               $"Top5: {CurrentSquadStats.top5.value}\n" +
-                               //$"Top6: {CurrentSquadStats.top6.value}\n" +
-                               $"Top10: {CurrentSquadStats.top10.value}\n" +
-                               //$"Top12: {CurrentSquadStats.top12.value}\n" +
-                               $"Top25: {CurrentSquadStats.top25.value}\n" +
+                               $"Top6: {CurrentSquadStats.top6.value}\n" +
                                $"TRNRating: {CurrentSquadStats.trnRating.value}";
             var LifetimeSquad = $"__**Lifetime Squad Stats**__\n" +
                                 $"KD: {LifetimeSquadStats.kd.value}\n" +
@@ -131,11 +117,7 @@ namespace PassiveBOT.Commands.Gaming
                                 $"Score/Game: {LifetimeSquadStats.scorePerMatch.value}\n" +
                                 $"Wins: {LifetimeSquadStats.top1.value}\n" +
                                 $"Top3: {LifetimeSquadStats.top3.value}\n" +
-                                $"Top5: {LifetimeSquadStats.top5.value}\n" +
-                                //$"Top6: {LifetimeSquadStats.top6.value}\n" +
-                                $"Top10: {LifetimeSquadStats.top10.value}\n" +
-                                //$"Top12: {LifetimeSquadStats.top12.value}\n" +
-                                $"Top25: {LifetimeSquadStats.top25.value}\n" +
+                                $"Top6: {LifetimeSquadStats.top6.value}\n" +
                                 $"TRNRating: {LifetimeSquadStats.trnRating.value}";
 
             var user = $"Fortnite Profile of: {fstats.epicUserHandle}\n" +
@@ -148,11 +130,13 @@ namespace PassiveBOT.Commands.Gaming
                 $"Matches: {x.matches}\n" +
                 $"Minutes Played: {x.minutesPlayed}\n" +
                 $"Playlist: {x.playlist}\n" +
-                $"Top1: {x.top1}\n" +
-                $"Top3: {x.top3}\n" +
-                $"Top5: {x.top5}\n" +
-                $"Top10: {x.top10}\n" +
-                $"Top25: {x.top25}\n" +
+                $"{(x.top1 == 0 ? "" : $"Win: {x.top1}\n")}" +
+                $"{(x.top3 == 0 ? "" : $"Top3: {x.top3}\n")}" +
+                $"{(x.top5 == 0 ? "" : $"Top5: {x.top5}\n")}" +
+                $"{(x.top6 == 0 ? "" : $"Top6: {x.top6}\n")}" +
+                $"{(x.top10 == 0 ? "" : $"Top10: {x.top10}\n")}" +
+                $"{(x.top12 == 0 ? "" : $"Top12: {x.top12}\n")}" +
+                $"{(x.top25 == 0 ? "" : $"Top25: {x.top25}\n")}" +
                 $"Score: {x.score}").ToList();
             var pages = new List<string>
             {
@@ -177,6 +161,22 @@ namespace PassiveBOT.Commands.Gaming
             };
 
             await PagedReplyAsync(paginated);
+        }
+
+        [Command("FortniteStats")]
+        [Summary("FortniteStats <username>")]
+        [Remarks("Get a fortnite user's profile")]
+        [Ratelimit(1, 20, Measure.Seconds)]
+        public async Task FortStats([Remainder] string username = null)
+        {
+            await ReplyAsync("Please choose a platform, \n" +
+                             "`PC` - PC\n" +
+                             "`PSN` - Playstation\n" +
+                             "`XBL` - XBOX\n" +
+                             "use the command like this:\n" +
+                             $"`{Config.Load().Prefix}FortniteStats [Platform] [UserName]`\n" +
+                             $"Eg.\n" +
+                             $"`{Config.Load().Prefix}FortniteStats PC GamerGuy123`");
         }
 
         [Command("R6User")]
