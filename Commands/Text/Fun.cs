@@ -118,6 +118,17 @@ namespace PassiveBOT.Commands.Text
             }
         }
 
+        [Command("RandomNumber", RunMode = RunMode.Async)]
+        [Summary("RandomNumber")]
+        [Remarks("Generates a random number")]
+        public async Task GenRandom(int max = 0)
+        {
+            var random = new Random();
+            var selection = max == 0 ? random.Next() : random.Next(max);
+
+            await ReplyAsync($"{selection}");
+        }
+
         [Command("8ball")]
         [Summary("8ball <question?>")]
         [Remarks("ask me anything")]
