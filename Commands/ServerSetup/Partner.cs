@@ -60,6 +60,13 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(guild);
             await ReplyAsync($"Partner Channel set to {Context.Channel.Name}");
 
+            if ((decimal)((SocketTextChannel)Context.Channel).Users.Count /
+                ((SocketGuild)Context.Guild).Users.Count * 100 < 90)
+            {
+                await ReplyAsync(
+                    "NOTE: The partner channel is currently inactive as less that 90% of this server's users can view the channel. You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
+            }
+
             var home = Homeserver.Load().PartnerUpdates;
             var chan = await Context.Client.GetChannelAsync(home);
             if (chan is IGuildChannel channel)
