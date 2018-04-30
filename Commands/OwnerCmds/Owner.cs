@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -16,7 +17,7 @@ namespace PassiveBOT.Commands.OwnerCmds
     [RequireOwner]
     public class Owner : InteractiveBase
     {
-        public readonly CommandService Service;
+        private readonly CommandService Service;
         //public DiscordSocketClient Client;
 
 
@@ -228,15 +229,15 @@ namespace PassiveBOT.Commands.OwnerCmds
 
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
-        [Remarks("Get servers containing the privided string")]
+        [Remarks("Get servers containing the provided string")]
         public async Task GetAsync([Remainder] string s)
         {
-            var s2 = "";
+            var s2 = new StringBuilder();
             foreach (var guild in Context.Client.Guilds)
                 if (guild.Name.ToLower().Contains(s.ToLower()))
-                    s2 += $"{guild.Name} : {guild.Id}\n";
-            if (s2 != "")
-                await ReplyAsync(s2);
+                    s2.Append($"{guild.Name} : {guild.Id}\n");
+            if (s2.ToString() != "")
+                await ReplyAsync(s2.ToString());
             else
                 await ReplyAsync("No Servers containing the provided string available.");
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -62,27 +63,27 @@ namespace PassiveBOT.Commands.Info
             var GuildObj = GuildConfig.GetServer(Context.Guild);
             var userlist = new List<PaginatedMessage.Page>();
             var userindex = 1;
-            var desc = "";
+            StringBuilder desc = new StringBuilder();
 
             foreach (var user in GuildObj.Levels.Users.OrderByDescending(x => x.xp))
             {
                 var guser = Context.Guild.GetUser(user.userID);
                 if (guser == null) continue;
-                desc += $"`{userindex}` {guser.Username} `LV: {user.level - 1} XP: {user.xp}`\n";
+                desc.Append($"`{userindex}` {guser.Username} `LV: {user.level - 1} XP: {user.xp}`\n");
                 userindex++;
-                if (desc.Split("\n").Length > 20)
+                if (desc.ToString().Split("\n").Length > 20)
                 {
                     userlist.Add(new PaginatedMessage.Page
                     {
-                        description = desc
+                        description = desc.ToString()
                     });
-                    desc = "";
+                    desc.Clear();
                 }
             }
 
             userlist.Add(new PaginatedMessage.Page
             {
-                description = desc
+                description = desc.ToString()
             });
             var msg = new PaginatedMessage
             {

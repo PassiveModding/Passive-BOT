@@ -22,7 +22,7 @@ namespace PassiveBOT.Commands.Media
     [CheckNsfw]
     public class Nsfw : InteractiveBase
     {
-        public enum NsfwType
+        private enum NsfwType
         {
             Rule34,
             Yandere,
@@ -411,7 +411,7 @@ namespace PassiveBOT.Commands.Media
             }
         }
 
-        public static async Task<string> HentaiAsync(HttpClient HttpClient, Random Random, NsfwType NsfwType,
+        private static async Task<string> HentaiAsync(HttpClient HttpClient, Random Random, NsfwType NsfwType,
             List<string> Tags)
         {
             string Url = null;

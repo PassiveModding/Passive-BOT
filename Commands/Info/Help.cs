@@ -14,7 +14,7 @@ namespace PassiveBOT.Commands.Info
     {
         private readonly CommandService _service;
 
-        public Help(CommandService service)
+        private Help(CommandService service)
         {
             _service = service;
         }

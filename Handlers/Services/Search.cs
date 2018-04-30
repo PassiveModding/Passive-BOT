@@ -93,7 +93,7 @@ namespace PassiveBOT.Handlers.Services
 
     public static class SearchHelper
     {
-        public static async Task<Stream> GetResponseStreamAsync(string url,
+        private static async Task<Stream> GetResponseStreamAsync(string url,
             IEnumerable<KeyValuePair<string, string>> headers = null, RequestHttpMethod method = RequestHttpMethod.Get)
         {
             var cl = new HttpClient();

@@ -35,11 +35,11 @@ namespace PassiveBOT.Commands.ServerSetup
             if (i == 1)
             {
                 GuildConfig.Setup(Context.Guild);
-                await ConfigInfo();
+                await ServerSetup();
             }
             else if (i == 2)
             {
-                await ConfigInfo();
+                await ServerSetup();
             }
             else if (i == 3)
             {
@@ -61,7 +61,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
-
+        /*
         public async Task ConfigInfo()
         {
             var embed = new EmbedBuilder();
@@ -128,14 +128,14 @@ namespace PassiveBOT.Commands.ServerSetup
                 guildstring = $"{Context.Guild.Name}, {Context.Guild.Id}";
             }
 
-            /*try
+            try
             {
                 errorLogString = l.ErrorLog ? "Status: On" : "Status: Off";
             }
             catch
             {
                 errorLogString = "Status: Off";
-            }*/
+            }
             try
             {
                 rss = $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel).Name}";
@@ -254,7 +254,7 @@ namespace PassiveBOT.Commands.ServerSetup
 
 
             await ReplyAsync("", false, embed.Build());
-        }
+        }*/
 
         [Command("Welcome", RunMode = RunMode.Async)]
         [Remarks("Setup the Welcome Message for new users")]

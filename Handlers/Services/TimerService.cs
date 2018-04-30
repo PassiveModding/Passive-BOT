@@ -14,7 +14,7 @@ namespace PassiveBOT.Handlers.Services
         public static DateTime LastFireTime = DateTime.MinValue;
         public static int FirePreiod = 60;
         private readonly Timer _timer;
-        public Random rndshuffle = new Random();
+        private readonly Random rndshuffle = new Random();
 
 
         public TimerService(DiscordSocketClient client)
@@ -86,6 +86,7 @@ namespace PassiveBOT.Handlers.Services
                                 }
                                 else
                                 {
+                                    //auto-disable servers with a missing partner channel
                                     guildobj.PartnerSetup.IsPartner = false;
                                     GuildConfig.SaveServer(guildobj);
                                 }

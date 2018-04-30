@@ -15,7 +15,7 @@ namespace PassiveBOT.Handlers
     public class EventHandler
     {
         private readonly DiscordSocketClient client;
-        public List<Delays> AntiRLDelays = new List<Delays>();
+        private List<Delays> AntiRLDelays = new List<Delays>();
 
         public EventHandler(IServiceProvider provider)
         {
@@ -44,7 +44,7 @@ namespace PassiveBOT.Handlers
             client.ChannelUpdated += ChannelUpdatedEvent;
         }
 
-        public IServiceProvider Provider { get; }
+        private IServiceProvider Provider { get; }
 
         private async Task Client_GuildMemberUpdated(SocketGuildUser UserBefore, SocketGuildUser UserAfter)
         {
@@ -144,7 +144,7 @@ namespace PassiveBOT.Handlers
             Homeserver.SaveHome(HS);
         }
 
-        public async Task SendMessage(SocketGuild guild, GuildConfig gobject, EmbedBuilder embed, string txt = "")
+        private async Task SendMessage(SocketGuild guild, GuildConfig gobject, EmbedBuilder embed, string txt = "")
         {
             var delay = AntiRLDelays.FirstOrDefault(x => x.GuildID == guild.Id);
             if (delay != null)
@@ -175,7 +175,7 @@ namespace PassiveBOT.Handlers
         }
 
 
-        public async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
+        private async Task MessageUpdatedEvent(Cacheable<IMessage, ulong> messageOld, SocketMessage messageNew,
             ISocketMessageChannel cchannel)
         {
             if (messageNew.Author.IsBot)
@@ -214,7 +214,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task ChannelUpdatedEvent(SocketChannel s1, SocketChannel s2)
+        private async Task ChannelUpdatedEvent(SocketChannel s1, SocketChannel s2)
         {
             var ChannelBefore = s1 as SocketGuildChannel;
             var ChannelAfter = s2 as SocketGuildChannel;
@@ -282,7 +282,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task ChannelDeletedEvent(SocketChannel sChannel)
+        private async Task ChannelDeletedEvent(SocketChannel sChannel)
         {
             var guild = ((SocketGuildChannel) sChannel).Guild;
             var guildobj = GuildConfig.GetServer(guild);
@@ -302,7 +302,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task ChannelCreatedEvent(SocketChannel sChannel)
+        private async Task ChannelCreatedEvent(SocketChannel sChannel)
         {
             var guild = ((SocketGuildChannel) sChannel).Guild;
             var guildobj = GuildConfig.GetServer(guild);
@@ -345,7 +345,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task MessageDeletedEvent(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
+        private async Task MessageDeletedEvent(Cacheable<IMessage, ulong> message, ISocketMessageChannel channel)
         {
             var guild = ((SocketGuildChannel) channel).Guild;
             var guildobj = GuildConfig.GetServer(guild);
@@ -374,7 +374,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task UserUnbannedEvent(SocketUser user, SocketGuild guild)
+        private async Task UserUnbannedEvent(SocketUser user, SocketGuild guild)
         {
             var guildobj = GuildConfig.GetServer(guild);
             if (guildobj.EventLogging)
@@ -394,7 +394,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task UserBannedEvent(SocketUser user, SocketGuild guild)
+        private async Task UserBannedEvent(SocketUser user, SocketGuild guild)
         {
             var guildobj = GuildConfig.GetServer(guild);
             if (guildobj.EventLogging)
@@ -415,7 +415,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task UserJoinedEvent(SocketGuildUser user)
+        private async Task UserJoinedEvent(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
             if (guildobj.antiraid)
@@ -453,7 +453,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task UserLeftEvent(SocketGuildUser user)
+        private async Task UserLeftEvent(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
             if (guildobj.EventLogging)
@@ -474,7 +474,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public static async Task WelcomeMessage(SocketGuildUser user)
+        private static async Task WelcomeMessage(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
             if (!guildobj.WelcomeEvent) return;
@@ -502,7 +502,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task GoodbyeMessage(SocketGuildUser user)
+        private async Task GoodbyeMessage(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
             if (!guildobj.GoodbyeEvent) return;
@@ -518,7 +518,7 @@ namespace PassiveBOT.Handlers
                 await user.Guild.DefaultChannel.SendMessageAsync($"", false, embed.Build());
         }
 
-        public async Task NewGuildMessage(SocketGuild guild)
+        private async Task NewGuildMessage(SocketGuild guild)
         {
             var config = Path.Combine(AppContext.BaseDirectory + $"setup/server/{guild.Id}.json");
             if (!File.Exists(config))

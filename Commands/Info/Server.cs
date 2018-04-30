@@ -17,7 +17,7 @@ namespace PassiveBOT.Commands.Info
     [RequireContext(ContextType.Guild)]
     public class Server : InteractiveBase
     {
-        public EmbedBuilder SafeEmbed(EmbedBuilder input, string addition, string additiontitle, bool inline = false)
+        private EmbedBuilder SafeEmbed(EmbedBuilder input, string addition, string additiontitle, bool inline = false)
         {
             if (addition == null)
             {

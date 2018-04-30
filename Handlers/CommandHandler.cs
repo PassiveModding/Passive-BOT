@@ -29,8 +29,8 @@ namespace PassiveBOT.Handlers
 
         public List<Delays> AntiSpamMsgDelays = new List<Delays>();
         private bool DoOnce;
-        public List<NoSpamGuild> NoSpam = new List<NoSpamGuild>();
-        public IServiceProvider Provider;
+        private readonly List<NoSpamGuild> NoSpam = new List<NoSpamGuild>();
+        private readonly IServiceProvider Provider;
 
         public CommandHandler(IServiceProvider provider)
         {
@@ -56,7 +56,7 @@ namespace PassiveBOT.Handlers
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        public async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
+        private async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
         {
             if (context.Channel is IDMChannel) return;
 
@@ -90,7 +90,7 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        public async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context)
+        private async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context)
         {
             if (context.Channel is IDMChannel) return false;
 
@@ -449,7 +449,7 @@ namespace PassiveBOT.Handlers
             return false;
         }
 
-        public void InitialisePartnerProgram()
+        private void InitialisePartnerProgram()
         {
             if (DoOnce) return;
             try
@@ -489,7 +489,7 @@ namespace PassiveBOT.Handlers
             DoOnce = true;
         }
 
-        public async Task DoCommand(SocketMessage parameterMessage)
+        private async Task DoCommand(SocketMessage parameterMessage)
         {
             Load.Messages++;
             if (!(parameterMessage is SocketUserMessage message)) return;
@@ -613,7 +613,7 @@ namespace PassiveBOT.Handlers
             public int Uses { get; set; }
         }
 
-        public class NoSpamGuild
+        private class NoSpamGuild
         {
             public ulong guildID { get; set; }
             public List<NoSpam> Users { get; set; } = new List<NoSpam>();
