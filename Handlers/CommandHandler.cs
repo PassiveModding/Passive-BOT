@@ -26,6 +26,12 @@ namespace PassiveBOT.Handlers
         private readonly CommandService _commands;
         private readonly TimerService _service;
         private ApiAi _apiAi;
+        public static List<Con4GameList> Connect4List = new List<Con4GameList>();
+        public class Con4GameList
+        {
+            public ulong channelID { get; set; }
+            public bool gamerunning { get; set; } = false;
+        }
 
         public List<Delays> AntiSpamMsgDelays = new List<Delays>();
         private bool DoOnce;
@@ -167,29 +173,32 @@ namespace PassiveBOT.Handlers
 
                         if (detected && guild.NoSpam)
                         {
-                            await message.DeleteAsync();
-                            var delay = AntiSpamMsgDelays.FirstOrDefault(x => x.GuildID == guild.GuildId);
-                            if (delay != null)
+                            if (!guild.AntiSpamSkip.Any(x => message.Content.StartsWith(x)))
                             {
-                                if (delay._delay > DateTime.UtcNow)
-                                    return true;
-                                delay._delay = DateTime.UtcNow.AddSeconds(5);
-                                var emb = new EmbedBuilder
+                                await message.DeleteAsync();
+                                var delay = AntiSpamMsgDelays.FirstOrDefault(x => x.GuildID == guild.GuildId);
+                                if (delay != null)
                                 {
-                                    Title = $"{context.User} - No Spamming!!"
-                                };
-                                await context.Channel.SendMessageAsync("", false, emb.Build());
-                            }
-                            else
-                            {
-                                AntiSpamMsgDelays.Add(new Delays
+                                    if (delay._delay > DateTime.UtcNow)
+                                        return true;
+                                    delay._delay = DateTime.UtcNow.AddSeconds(5);
+                                    var emb = new EmbedBuilder
+                                    {
+                                        Title = $"{context.User} - No Spamming!!"
+                                    };
+                                    await context.Channel.SendMessageAsync("", false, emb.Build());
+                                }
+                                else
                                 {
-                                    _delay = DateTime.UtcNow.AddSeconds(5),
-                                    GuildID = guild.GuildId
-                                });
-                            }
+                                    AntiSpamMsgDelays.Add(new Delays
+                                    {
+                                        _delay = DateTime.UtcNow.AddSeconds(5),
+                                        GuildID = guild.GuildId
+                                    });
+                                }
 
-                            return true;
+                                return true;
+                            }
                         }
 
                         if (!detected && guild.Levels.LevellingEnabled)

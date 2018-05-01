@@ -39,7 +39,7 @@ namespace PassiveBOT.Handlers.Services
                 "?", "/", "|", "\\", "[", "]", " "
             };
             text = toremove.Aggregate(text, (current, str) => current.Replace(str, ""));
-
+            text = text.ToLower();
             text = text.Replace("1", "i").Replace("3", "e").Replace("4", "a").Replace("5", "s").Replace("6", "g")
                 .Replace("8", "b").Replace("9", "g");
             return text;

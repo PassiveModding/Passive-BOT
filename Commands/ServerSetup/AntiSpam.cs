@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -177,6 +178,77 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"NoSpam: {jsonObj.NoSpam}");
             else
                 await ReplyAsync($"NoSpam: {jsonObj.NoSpam}");
+        }
+
+        [Command("SkipAntiSpam")]
+        [Summary("SkipAntiSpam <message>")]
+        [Remarks("Skip antispam on messages starting with the given message (useful for gambling commands)")]
+        public async Task SkipAntiSpam([Remainder] string message = null)
+        {
+            if (message == null)
+            {
+                await ReplyAsync("Please provide a message that will be skipped.");
+                return;
+            }
+
+            var guild = GuildConfig.GetServer(Context.Guild);
+
+            if (guild.AntiSpamSkip.Any(x => string.Equals(x, message, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                await ReplyAsync($"`{message}` is already included in the SkipAntiSpam list");
+                return;
+            }
+            guild.AntiSpamSkip.Add(message);
+
+            GuildConfig.SaveServer(guild);
+            await ReplyAsync("Complete.");
+        }
+
+        [Command("RemSkipAntiSpam")]
+        [Summary("RemSkipAntiSpam <message>")]
+        [Remarks("Remove a message from anti spam skipper")]
+        public async Task RemSkipAntiSpam([Remainder] string message = null)
+        {
+            if (message == null)
+            {
+                await ReplyAsync("Please provide a message that will be removed.");
+                return;
+            }
+
+            var guild = GuildConfig.GetServer(Context.Guild);
+
+            if (!guild.AntiSpamSkip.Any(x => string.Equals(x, message, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                await ReplyAsync($"`{message}` is already not included in the SkipAntiSpam list");
+                return;
+            }
+            guild.AntiSpamSkip.Remove(message);
+
+            GuildConfig.SaveServer(guild);
+            await ReplyAsync("Complete.");
+        }
+
+        [Command("ClearSkipAntiSpam")]
+        [Summary("ClearSkipAntiSpam")]
+        [Remarks("Clear the SkipAntiSpam List")]
+        public async Task ClearAntiSpam()
+        {
+
+            var guild = GuildConfig.GetServer(Context.Guild);
+            guild.AntiSpamSkip = new List<string>();
+
+            GuildConfig.SaveServer(guild);
+            await ReplyAsync("Complete.");
+        }
+
+        [Command("SkipAntiSpamList")]
+        [Summary("SkipAntiSpamList")]
+        [Remarks("List of messages antispam will skip")]
+        public async Task SkipAntiSpam()
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            var embed = new EmbedBuilder {Description = string.Join("\n", guild.AntiSpamSkip)};
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("NoMassMention")]

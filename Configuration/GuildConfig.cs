@@ -57,6 +57,7 @@ namespace PassiveBOT.Configuration
         public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
 
         public bool NoSpam { get; set; } = false;
+        public List<string> AntiSpamSkip { get; set; } = new List<string>();
         public bool RemoveMassMention { get; set; } = false;
         public bool RemoveIPs { get; set; } = false;
 
@@ -85,7 +86,7 @@ namespace PassiveBOT.Configuration
 
 
         public levelling Levels { get; set; } = new levelling();
-
+        public gambling Gambling { get; set; } = new gambling();
 
         public static void SaveServer(GuildConfig config)
         {
@@ -318,6 +319,21 @@ namespace PassiveBOT.Configuration
             public string Reason { get; set; }
             public string Moderator { get; set; }
             public ulong UserId { get; set; }
+        }
+
+        public class gambling
+        {
+            public bool enabled { get; set; } = true;
+
+            public List<user> Users = new List<user>();
+            public class user
+            {
+                public ulong userID { get; set; }
+                public int coins { get; set; } = 200;
+                public bool banned { get; set; } = false;
+                public int totalpaidout { get; set; } = 0;
+                public int totalbet { get; set; } = 0;
+            }
         }
     }
 }
