@@ -401,7 +401,7 @@ namespace PassiveBOT.Commands.Gaming
                     }
                     else
                     {
-                        //await gamemessage.ModifyAsync(x => x.Content = errormsgs1);
+                        await gamemessage.ModifyAsync(x => x.Content = " ");
                     }
 
                     errormsgs = "";
@@ -428,6 +428,7 @@ namespace PassiveBOT.Commands.Gaming
                     {
                         //await ReplyAsync("You are not part of this game.");
                         errormsgs = $"{next.Author.Mention} You are not part of this game.";
+                        await next.DeleteAsync();
                         continue;
                     }
 
@@ -439,10 +440,11 @@ namespace PassiveBOT.Commands.Gaming
                         //Make sure that the message is in the correct format of connect4 [line]
                         if (parameters.Length != 2 || !int.TryParse(parameters[1], out int Column))
                         {
-                            errormsgs = $"{(currentplayer == 1 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)} \n" +
+                            errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)} \n" +
                                         $"Invalid Line input, here is an example input:\n" +
                                              "`connect4 3` - this will place a counter in line 3.\n" +
                                              "NOTE: Do not use the bot's prefix, just write `connect4 [line]`";
+                            await next.DeleteAsync();
                             continue;
                         }
 
@@ -450,9 +452,10 @@ namespace PassiveBOT.Commands.Gaming
                         if (Column < 0 || Column > 6)
                         {
                             //error invalid line.
-                            errormsgs = $"{(currentplayer == 1 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
+                            errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
                                         $"Invalid input, line number must be from 0-6 message in the format:\n" +
                                 "`connect4 [line]`";
+                            await next.DeleteAsync();
                             continue;
                         }
 
@@ -471,8 +474,9 @@ namespace PassiveBOT.Commands.Gaming
                         //Ensure that we only move to the next player's turn IF the current player actually makes a move in an available column.
                         if (!success)
                         {
-                            errormsgs = $"{(currentplayer == 1 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
+                            errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
                                         $"Error, please specify a line that isn't full";
+                            await next.DeleteAsync();
                             continue;
                         }
 
@@ -675,8 +679,9 @@ namespace PassiveBOT.Commands.Gaming
                     }
                     else
                     {
-                        errormsgs = $"{(currentplayer == 1 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
+                        errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
                                     "Unknown Player/Not your turn.";
+                        await next.DeleteAsync();
                     }
                 }
 
