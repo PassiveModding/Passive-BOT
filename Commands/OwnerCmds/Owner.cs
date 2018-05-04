@@ -10,6 +10,7 @@ using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.OwnerCmds
@@ -230,16 +231,37 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Command("GetServer+")]
         [Summary("Getserver+ <string>")]
         [Remarks("Get servers containing the provided string")]
-        public async Task GetAsync([Remainder] string s)
+        public async Task GetAsync([Remainder] string s = "")
         {
+            var pages = new List<PaginatedMessage.Page>();
             var s2 = new StringBuilder();
-            foreach (var guild in Context.Client.Guilds)
-                if (guild.Name.ToLower().Contains(s.ToLower()))
-                    s2.Append($"{guild.Name} : {guild.Id}\n");
-            if (s2.ToString() != "")
-                await ReplyAsync(s2.ToString());
-            else
-                await ReplyAsync("No Servers containing the provided string available.");
+            foreach (var guild in Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
+            {
+                if (guild.Name.ToLower().Contains(s.ToLower()) && s != "")
+                {
+                    s2.Append($"{guild.Name} : `{guild.Id}` : U- {guild.MemberCount}\n");
+                }
+                else
+                {
+                    s2.Append($"{guild.Name} : `{guild.Id}` : U- {guild.MemberCount}\n");
+                }
+
+                if (s2.ToString().Length <= 800) continue;
+                pages.Add(new PaginatedMessage.Page
+                {
+                    description = s2.ToString()
+                });
+                s2.Clear();
+            }
+            pages.Add(new PaginatedMessage.Page
+            {
+                description = s2.ToString()
+            });
+
+            await PagedReplyAsync(new PaginatedMessage
+            {
+                Pages = pages
+            });
         }
 
         [Command("Username+")]

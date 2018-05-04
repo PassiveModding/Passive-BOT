@@ -324,6 +324,38 @@ namespace PassiveBOT.Configuration
         public class gambling
         {
             public bool enabled { get; set; } = true;
+            public GamblingSet settings { get; set; } = new GamblingSet();
+            public class GamblingSet
+            {
+                public string CurrencyName { get; set; } = "Coins";
+            }
+
+            public TheStore Store = new TheStore(); 
+            public class TheStore
+            {
+
+                public List<Storeitem> ShowItems = new List<Storeitem>();
+                public class Storeitem
+                {
+                    public string ItemName { get; set; }
+
+                    //Possible Stats of items?
+                    public int Attack { get; set; } = 0;
+                    public int Defense { get; set; } = 0;
+
+
+                    public int cost { get; set; } = 0;
+
+                    //Ensure when using this, we use -1 as unlimited quantity.
+                    //This means that if we do have a limited quantity do not let it go below zero.
+                    public int quantity { get; set; } = -1;
+
+
+                    //Keep a log of how many have been purchased ever.
+                    public int total_purchased { get; set; } = 0;
+                }
+            }
+
 
             public List<user> Users = new List<user>();
             public class user

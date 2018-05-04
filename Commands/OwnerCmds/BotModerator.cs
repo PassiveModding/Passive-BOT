@@ -901,7 +901,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         }
 
         [Command("GuildInfo+")]
-        [Summary("GuildInfo+ <UserID>")]
+        [Summary("GuildInfo+ <GuildID>")]
         [Remarks("Get info about a given guild")]
         public async Task GuildInfo(ulong GuildID = 0)
         {
