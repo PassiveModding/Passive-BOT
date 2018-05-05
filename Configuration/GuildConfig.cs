@@ -338,11 +338,11 @@ namespace PassiveBOT.Configuration
                 public class Storeitem
                 {
                     public string ItemName { get; set; }
+                    public int ItemID { get; set; } = 0;
 
                     //Possible Stats of items?
                     public int Attack { get; set; } = 0;
                     public int Defense { get; set; } = 0;
-
 
                     public int cost { get; set; } = 0;
 
@@ -353,6 +353,12 @@ namespace PassiveBOT.Configuration
 
                     //Keep a log of how many have been purchased ever.
                     public int total_purchased { get; set; } = 0;
+
+                    public ulong InitialCreatorID { get; set; }
+
+
+                    //Remove item from store w/o actually removing it.
+                    public bool Hidden { get; set; } = false;
                 }
             }
 
@@ -365,6 +371,13 @@ namespace PassiveBOT.Configuration
                 public bool banned { get; set; } = false;
                 public int totalpaidout { get; set; } = 0;
                 public int totalbet { get; set; } = 0;
+
+                public List<item> Inventory = new List<item>();
+                public class item
+                {
+                    public int ItemID { get; set; }
+                    public int quantity { get; set; } = 0;
+                }
             }
         }
     }
