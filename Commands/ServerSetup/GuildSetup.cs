@@ -647,6 +647,20 @@ namespace PassiveBOT.Commands.ServerSetup
                              "`(newprefix)`");
         }
 
+        [Command("SetAdmin")]
+        [Summary("SetAdmin <@role>")]
+        [Remarks("Set the Admin Role For your server")]
+        public async Task SetAdmin(IRole modRole)
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            if (!jsonObj.RoleConfigurations.AdminRoleList.Contains(modRole.Id))
+                jsonObj.RoleConfigurations.AdminRoleList.Add(modRole.Id);
+
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"{modRole.Mention} has been added to the Administrator roles");
+        }
+
         [Command("SetMod")]
         [Summary("SetMod <@role>")]
         [Remarks("Set the Moderator Role For your server")]
