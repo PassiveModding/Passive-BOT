@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -20,7 +19,6 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Remarks("Get a complete list of all partner servers")]
         public async Task PListF2(int choice = 0)
         {
-
             if (choice <= 0 || choice >= 5)
             {
                 await ReplyAsync($"Please choose a Sorting Mode:\n" +
@@ -76,9 +74,9 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var pmessage = guildobj.PartnerSetup.Message;
                         if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
 
-                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userlist = ((SocketTextChannel) pchannel).Users;
                         var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
-                                         $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+                                         $"Percent Visible: {(double) userlist.Count / guild.Users.Count * 100}%";
 
                         pages.Add(new PaginatedMessage.Page
                         {
@@ -134,7 +132,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var guildobj = GuildConfig.GetServer(guild);
                         if (!guildobj.PartnerSetup.IsPartner) continue;
                         if (guildobj.PartnerSetup.banned) continue;
-                        var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                        var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
                         var Checking = "";
                         if (pchannel != null)
                         {
@@ -170,9 +168,9 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var pmessage = guildobj.PartnerSetup.Message;
                         if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
 
-                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userlist = ((SocketTextChannel) pchannel).Users;
                         var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
-                                         $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+                                         $"Percent Visible: {(double) userlist.Count / guild.Users.Count * 100}%";
 
                         pages.Add(new PaginatedMessage.Page
                         {
@@ -228,7 +226,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var guildobj = GuildConfig.GetServer(guild);
                         if (!guildobj.PartnerSetup.IsPartner) continue;
                         if (guildobj.PartnerSetup.banned) continue;
-                        var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                        var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
                         var Checking = "";
                         if (pchannel != null)
                         {
@@ -264,11 +262,10 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var pmessage = guildobj.PartnerSetup.Message;
                         if (pmessage.Length > 1024) pmessage = pmessage.Substring(0, 1024);
 
-                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userlist = ((SocketTextChannel) pchannel).Users;
                         var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
-                            $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+                                         $"Percent Visible: {(double) userlist.Count / guild.Users.Count * 100}%";
                         if (Checking != "")
-                        {
                             pages.Add(new PaginatedMessage.Page
                             {
                                 dynamictitle =
@@ -292,9 +289,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                                               $"Message Length: {guildobj.PartnerSetup.Message?.Length}",
                                 imageurl = guildobj.PartnerSetup.ImageUrl
                             });
-                        }
                         else if (userlist.Count != guild.Users.Count)
-                        {
                             pages.Add(new PaginatedMessage.Page
                             {
                                 dynamictitle =
@@ -316,8 +311,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                                               $"Message Length: {guildobj.PartnerSetup.Message?.Length}",
                                 imageurl = guildobj.PartnerSetup.ImageUrl
                             });
-                        }
-
                     }
                     catch
                     {
@@ -349,13 +342,13 @@ namespace PassiveBOT.Commands.OwnerCmds
                         var guildobj = GuildConfig.GetServer(guild);
                         if (!guildobj.PartnerSetup.IsPartner) continue;
                         if (guildobj.PartnerSetup.banned) continue;
-                        var pchannel = (ITextChannel)guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
+                        var pchannel = (ITextChannel) guild.GetChannel(guildobj.PartnerSetup.PartherChannel);
 
                         if (pchannel == null) continue;
-                        var userlist = ((SocketTextChannel)pchannel).Users;
+                        var userlist = ((SocketTextChannel) pchannel).Users;
                         if (userlist.Count == guild.Users.Count) continue;
                         var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
-                                         $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+                                         $"Percent Visible: {(double) userlist.Count / guild.Users.Count * 100}%";
 
 
                         var ChannelOverWrites = pchannel.PermissionOverwrites;
@@ -435,7 +428,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                 {
                     await ReplyAsync("No Servers with Visibility Changes detected.");
                 }
-
             }
         }
 
@@ -836,12 +828,12 @@ namespace PassiveBOT.Commands.OwnerCmds
                                       $"{Checking}" +
                                       $"\n---"
                     });
-                var userlist = ((SocketTextChannel)PChannel).Users;
+                var userlist = ((SocketTextChannel) PChannel).Users;
                 pages.Add(new PaginatedMessage.Page
                 {
                     dynamictitle = "Partner Channel Visibility",
                     description = $"Users Visible/Total Users: {userlist.Count} / {Context.Guild.Users.Count}\n" +
-                                  $"Percent Visible: {((double)userlist.Count / Context.Guild.Users.Count) * 100}%"
+                                  $"Percent Visible: {(double) userlist.Count / Context.Guild.Users.Count * 100}%"
                 });
             }
 

@@ -15,7 +15,7 @@ namespace PassiveBOT.Handlers
     public class EventHandler
     {
         private readonly DiscordSocketClient client;
-        private List<Delays> AntiRLDelays = new List<Delays>();
+        private readonly List<Delays> AntiRLDelays = new List<Delays>();
 
         public EventHandler(IServiceProvider provider)
         {
@@ -236,9 +236,9 @@ namespace PassiveBOT.Handlers
                                                                                         x.Permissions.DenyValue))
                                                                                    .TargetId == x.TargetId).ToList();
 
-                    var userlist = ((SocketTextChannel)s2).Users;
+                    var userlist = ((SocketTextChannel) s2).Users;
                     var userstring = $"Users Visible/Total Users: {userlist.Count} / {guild.Users.Count}\n" +
-                                     $"Percent Visible: {((double)userlist.Count / guild.Users.Count) * 100}%";
+                                     $"Percent Visible: {(double) userlist.Count / guild.Users.Count * 100}%";
 
                     var homeserver = Homeserver.Load();
                     var embed = new EmbedBuilder
@@ -307,9 +307,9 @@ namespace PassiveBOT.Handlers
             var guild = ((SocketGuildChannel) sChannel).Guild;
             var guildobj = GuildConfig.GetServer(guild);
             bool? mutesuccess = null;
-            if (guildobj.MutedRole != 0 && sChannel is ITextChannel channel)
+            if (guildobj.RoleConfigurations.MutedRole != 0 && sChannel is ITextChannel channel)
             {
-                var mutedrole = guild.GetRole(guildobj.MutedRole);
+                var mutedrole = guild.GetRole(guildobj.RoleConfigurations.MutedRole);
                 if (mutedrole != null)
                     try
                     {
@@ -418,7 +418,6 @@ namespace PassiveBOT.Handlers
         private async Task UserJoinedEvent(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
-            if (guildobj.antiraid)
             {
                 IRole role;
                 if (user.Guild.Roles.FirstOrDefault(x =>

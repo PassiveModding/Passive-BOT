@@ -45,10 +45,7 @@ namespace PassiveBOT.Commands.Gaming
         {
             await Setupuser(Context.Guild, Context.User);
             var guildobj = GuildConfig.GetServer(Context.Guild);
-            if (user == null)
-            {
-                user = Context.User;
-            }
+            if (user == null) user = Context.User;
             var guser = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == user.Id);
 
             var embed = new EmbedBuilder
@@ -80,16 +77,16 @@ namespace PassiveBOT.Commands.Gaming
                 await ReplyAsync($"Please place a bet, ie. 10 {guildobj.Gambling.settings.CurrencyName}!");
                 return;
             }
-            
+
             var guser = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
             if (bet > guser.coins)
             {
                 await ReplyAsync($"Your bet is too high, please place a bet less than or equal to {guser.coins}");
                 return;
             }
+
             //now we deduct the bet amount from the users balance
             guser.coins = guser.coins - bet;
-
 
 
             var itemlist = new List<string>
@@ -101,14 +98,10 @@ namespace PassiveBOT.Commands.Gaming
                 "🎄", //:christmas_tree: 
                 "👾", // space invaders
                 "⚽" // soccer ball
-
             };
 
             var selections = new string[3];
-            for (var i = 0; i < selections.Length; i++)
-            {
-                selections[i] = itemlist[new Random().Next(0, itemlist.Count)];
-            }
+            for (var i = 0; i < selections.Length; i++) selections[i] = itemlist[new Random().Next(0, itemlist.Count)];
 
             //Winning Combos
             //Three of any
@@ -116,17 +109,11 @@ namespace PassiveBOT.Commands.Gaming
             //3 XMAS Trees
             var multiplier = 0;
             if (selections.All(x => x == "🎄"))
-            {
                 multiplier = 30;
-            }
             else if (selections.All(x => x == selections[0]))
-            {
                 multiplier = 10;
-            }
             else if (selections.Count(x => x == "💯") > 0)
-            {
                 multiplier = selections.Count(x => x == "💯");
-            }
 
             var payout = bet * multiplier;
 
@@ -232,14 +219,12 @@ namespace PassiveBOT.Commands.Gaming
                     //We quit if there is a game already running
                     if (currentlobby.gamerunning)
                     {
-                        await ReplyAsync("A game of connect4 is already running in this channel. Please wait until it is completed.");
+                        await ReplyAsync(
+                            "A game of connect4 is already running in this channel. Please wait until it is completed.");
                         return;
                     }
-                    else
-                    {
-                        currentlobby.gamerunning = true;
-                    }
 
+                    currentlobby.gamerunning = true;
                 }
                 else
                 {
@@ -251,6 +236,7 @@ namespace PassiveBOT.Commands.Gaming
                     });
                     currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.channelID == Context.Channel.Id);
                 }
+
                 await Setupuser(Context.Guild, Context.User);
                 //Filter out invalid bets to make sure that games are played fairly
                 var initguildobj = GuildConfig.GetServer(Context.Guild);
@@ -263,11 +249,12 @@ namespace PassiveBOT.Commands.Gaming
                 }
 
                 //Here get the the player 1's profile and ensure they are able to bet
-                
+
                 var initplayer1 = initguildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
                 if (bet > initplayer1.coins)
                 {
-                    await ReplyAsync($"Your bet is too high, please place a bet less than or equal to {initplayer1.coins}");
+                    await ReplyAsync(
+                        $"Your bet is too high, please place a bet less than or equal to {initplayer1.coins}");
                     currentlobby.gamerunning = false;
                     return;
                 }
@@ -357,16 +344,11 @@ namespace PassiveBOT.Commands.Gaming
                 {
                     if (r == 0)
                     {
-                        for (var c = 0; c < 7; c++)
-                        {
-                            embed.Description += $":{numlist[c]}:";
-                        }
+                        for (var c = 0; c < 7; c++) embed.Description += $":{numlist[c]}:";
                         embed.Description += "\n";
                     }
-                    for (var c = 0; c < 7; c++)
-                    {
-                        embed.Description += $"{none}";
-                    }
+
+                    for (var c = 0; c < 7; c++) embed.Description += $"{none}";
 
                     embed.Description += "\n";
                 }
@@ -377,7 +359,7 @@ namespace PassiveBOT.Commands.Gaming
                                      $":red_circle: - {Context.Guild.GetUser(player2.userID)?.Mention}";
                 embed.Footer = new EmbedFooterBuilder
                 {
-                  Text = $"it is {Context.User.Username}'s turn"
+                    Text = $"it is {Context.User.Username}'s turn"
                 };
 
                 var gamemessage = await ReplyAsync("", false, embed.Build());
@@ -396,18 +378,14 @@ namespace PassiveBOT.Commands.Gaming
                 {
                     var errormsgs1 = errormsgs;
                     if (!string.IsNullOrEmpty(errormsgs1))
-                    {
                         await gamemessage.ModifyAsync(x => x.Content = errormsgs1);
-                    }
                     else
-                    {
                         await gamemessage.ModifyAsync(x => x.Content = " ");
-                    }
 
                     errormsgs = "";
                     //Using InteractiveBase we wait until a message is sent in the current game
                     var next = await NextMessageAsync(false, true, TimeSpan.FromMinutes(1));
-                    
+
                     //If the player doesn't show up mark them as forfeitting and award a win to the other player.
                     if (next == null || msgtime < DateTime.UtcNow)
                     {
@@ -416,7 +394,7 @@ namespace PassiveBOT.Commands.Gaming
 
                         var w = currentplayer == 1 ? player2.userID : player1.userID;
                         var l = currentplayer == 1 ? player1.userID : player2.userID;
-                        await Connect4Win(w,l, bet, "Player Forfitted.");
+                        await Connect4Win(w, l, bet, "Player Forfitted.");
                         return;
                     }
 
@@ -433,17 +411,19 @@ namespace PassiveBOT.Commands.Gaming
                     }
 
                     //Ensure that the current message is from a player AND it is also their turn.
-                    if ((next.Author.Id == player1.userID && currentplayer == 1) || (next.Author.Id == player2.userID && currentplayer == 2))
+                    if (next.Author.Id == player1.userID && currentplayer == 1 ||
+                        next.Author.Id == player2.userID && currentplayer == 2)
                     {
                         //filter out invalid line submissions
                         var parameters = next.Content.Split(" ");
                         //Make sure that the message is in the correct format of connect4 [line]
-                        if (parameters.Length != 2 || !int.TryParse(parameters[1], out int Column))
+                        if (parameters.Length != 2 || !int.TryParse(parameters[1], out var Column))
                         {
-                            errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)} \n" +
-                                        $"Invalid Line input, here is an example input:\n" +
-                                             "`connect4 3` - this will place a counter in line 3.\n" +
-                                             "NOTE: Do not use the bot's prefix, just write `connect4 [line]`";
+                            errormsgs =
+                                $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)} \n" +
+                                $"Invalid Line input, here is an example input:\n" +
+                                "`connect4 3` - this will place a counter in line 3.\n" +
+                                "NOTE: Do not use the bot's prefix, just write `connect4 [line]`";
                             await next.DeleteAsync();
                             continue;
                         }
@@ -452,14 +432,15 @@ namespace PassiveBOT.Commands.Gaming
                         if (Column < 0 || Column > 6)
                         {
                             //error invalid line.
-                            errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
-                                        $"Invalid input, line number must be from 0-6 message in the format:\n" +
+                            errormsgs =
+                                $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
+                                $"Invalid input, line number must be from 0-6 message in the format:\n" +
                                 "`connect4 [line]`";
                             await next.DeleteAsync();
                             continue;
                         }
 
-                        bool success = false;
+                        var success = false;
                         //moving from the top of the board downwards
                         for (var Row = 5; Row >= 0; Row--)
                         {
@@ -474,8 +455,9 @@ namespace PassiveBOT.Commands.Gaming
                         //Ensure that we only move to the next player's turn IF the current player actually makes a move in an available column.
                         if (!success)
                         {
-                            errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
-                                        $"Error, please specify a line that isn't full";
+                            errormsgs =
+                                $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
+                                $"Error, please specify a line that isn't full";
                             await next.DeleteAsync();
                             continue;
                         }
@@ -486,29 +468,18 @@ namespace PassiveBOT.Commands.Gaming
                         {
                             if (r == 0)
                             {
-                                for (var c = 0; c < 7; c++)
-                                {
-                                    embed.Description += $":{numlist[c]}:";
-                                }
+                                for (var c = 0; c < 7; c++) embed.Description += $":{numlist[c]}:";
 
                                 embed.Description += "\n";
                             }
 
                             for (var c = 0; c < 7; c++)
-                            {
                                 if (lines[r, c] == 0)
-                                {
                                     embed.Description += $"{none}";
-                                }
                                 else if (lines[r, c] == 1)
-                                {
                                     embed.Description += $"{blue}";
-                                }
                                 else if (lines[r, c] == 2)
-                                {
                                     embed.Description += $"{red}";
-                                }
-                            }
 
                             embed.Description += "\n";
                         }
@@ -519,7 +490,8 @@ namespace PassiveBOT.Commands.Gaming
                                              $":red_circle: - {Context.Guild.GetUser(player2.userID)?.Mention} {(currentplayer == 2 ? "" : "<-")}";
                         embed.Footer = new EmbedFooterBuilder
                         {
-                            Text = $"it is {(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Username : Context.Guild.GetUser(player2.userID)?.Username)}'s turn"
+                            Text =
+                                $"it is {(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Username : Context.Guild.GetUser(player2.userID)?.Username)}'s turn"
                         };
                         await gamemessage.ModifyAsync(x => x.Embed = embed.Build());
 
@@ -529,13 +501,9 @@ namespace PassiveBOT.Commands.Gaming
                         for (var i = 0; i <= 6; i++)
                         {
                             if (lines[lasty, i] == currentplayer)
-                            {
                                 connectioncount++;
-                            }
                             else
-                            {
                                 connectioncount = 0;
-                            }
 
                             if (connectioncount < 4) continue;
                             //await ReplyAsync($"Player {currentplayer} Wins! Horizontal");
@@ -549,13 +517,9 @@ namespace PassiveBOT.Commands.Gaming
                         for (var i = 0; i <= 5; i++)
                         {
                             if (lines[i, lastx] == currentplayer)
-                            {
                                 connectioncount++;
-                            }
                             else
-                            {
                                 connectioncount = 0;
-                            }
 
                             if (connectioncount >= 4)
                             {
@@ -679,8 +643,9 @@ namespace PassiveBOT.Commands.Gaming
                     }
                     else
                     {
-                        errormsgs = $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
-                                    "Unknown Player/Not your turn.";
+                        errormsgs =
+                            $"{(currentplayer == 2 ? Context.Guild.GetUser(player1.userID)?.Mention : Context.Guild.GetUser(player2.userID)?.Mention)}\n" +
+                            "Unknown Player/Not your turn.";
                         await next.DeleteAsync();
                     }
                 }
@@ -695,12 +660,8 @@ namespace PassiveBOT.Commands.Gaming
                 //If there is an error, we need to ensure that the current channel can still initiate new games.
                 await ReplyAsync(e.ToString());
                 var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.channelID == Context.Channel.Id);
-                if (currentlobby != null)
-                {
-                    currentlobby.gamerunning = false;
-                }
+                if (currentlobby != null) currentlobby.gamerunning = false;
             }
-
         }
 
         public async Task Connect4Win(ulong winnerID, ulong loserID, int bet, string winmethod)

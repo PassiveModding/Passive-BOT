@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -30,6 +28,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"Currency Name has been set to -> `{name}`");
                 guildobj.Gambling.settings.CurrencyName = name;
             }
+
             GuildConfig.SaveServer(guildobj);
         }
 
@@ -49,7 +48,7 @@ namespace PassiveBOT.Commands.ServerSetup
             [Command("AddItem")]
             [Summary("store AddItem <Price> <Quantity> <Item Name>")]
             [Remarks("add an item to the servers default store")]
-            public async Task AddStoreItem(int ItmCost, int ItmQuantity, [Remainder]string ItemName)
+            public async Task AddStoreItem(int ItmCost, int ItmQuantity, [Remainder] string ItemName)
             {
                 var guildobj = GuildConfig.GetServer(Context.Guild);
                 var newitem = new GuildConfig.gambling.TheStore.Storeitem
@@ -68,11 +67,12 @@ namespace PassiveBOT.Commands.ServerSetup
             [Command("EditItem")]
             [Summary("store EditItem <Item Name>")]
             [Remarks("Edit an item in the store")]
-            public async Task EditStoreItem([Remainder]string ItemName)
+            public async Task EditStoreItem([Remainder] string ItemName)
             {
                 var guildobj = GuildConfig.GetServer(Context.Guild);
 
-                var selecteditem = guildobj.Gambling.Store.ShowItems.Where(x => x.Hidden == false).FirstOrDefault(x => string.Equals(x.ItemName, ItemName, StringComparison.CurrentCultureIgnoreCase));
+                var selecteditem = guildobj.Gambling.Store.ShowItems.Where(x => x.Hidden == false).FirstOrDefault(x =>
+                    string.Equals(x.ItemName, ItemName, StringComparison.CurrentCultureIgnoreCase));
                 if (selecteditem == null)
                 {
                     await ReplyAsync("There are no items in the store with that name.");
@@ -92,18 +92,18 @@ namespace PassiveBOT.Commands.ServerSetup
                                     $"The item's attack would be changed to 50.";
 
 
-
                 GuildConfig.SaveServer(guildobj);
             }
 
             [Command("RemoveItem")]
             [Summary("store RemoveItem <Item Name>")]
             [Remarks("remove an item from the servers default store")]
-            public async Task RemoveStoreItem([Remainder]string ItemName)
+            public async Task RemoveStoreItem([Remainder] string ItemName)
             {
                 var guildobj = GuildConfig.GetServer(Context.Guild);
 
-                var selecteditem = guildobj.Gambling.Store.ShowItems.FirstOrDefault(x => string.Equals(x.ItemName, ItemName, StringComparison.CurrentCultureIgnoreCase));
+                var selecteditem = guildobj.Gambling.Store.ShowItems.FirstOrDefault(x =>
+                    string.Equals(x.ItemName, ItemName, StringComparison.CurrentCultureIgnoreCase));
                 if (selecteditem == null)
                 {
                     await ReplyAsync("There are no items in the store with that name.");
@@ -113,7 +113,6 @@ namespace PassiveBOT.Commands.ServerSetup
                 selecteditem.Hidden = true;
                 GuildConfig.SaveServer(guildobj);
                 await ReplyAsync($"{ItemName} has been removed from the store");
-
             }
         }
     }

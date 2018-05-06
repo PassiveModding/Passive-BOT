@@ -10,64 +10,22 @@ namespace PassiveBOT.Configuration
     public class GuildConfig
     {
         [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;
-        public string MentionAllMessage = null;
-        public string NoInviteMessage = null;
 
 
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
         public string Prefix { get; set; } = Configuration.Load.Pre; //
 
-
-        public bool antiraid { get; set; } = false;
         public bool chatwithmention { get; set; } = true;
-        public ulong DjRoleId { get; set; } // restrict the music module to a specific role
-        public ulong MutedRole { get; set; } = 0;
-        public ulong ModeratorRoleId { get; set; } = 0;
+
         public PartnerShip PartnerSetup { get; set; } = new PartnerShip();
 
-
-        //TRANSLATION
-        //public bool Premium { get; set; } = false;
-
-        //public DateTime TimeOffset { get; set; }
-        //public int Characters { get; set; } = 0;
-
-
-        public List<ulong> RoleList { get; set; } =
-            new List<ulong>(); // a list of roles that users can join via command
-
-
-        public string Rss { get; set; } = "0"; // rss feed url
-
-        public ulong RssChannel { get; set; } // channel to post custom rss feeds to
-        //public List<Twitch> TwitchChannels { get; set; } = new List<Twitch>();
-        //public ulong TwitchPostChannel { get; set; } = 0;
-
+        public roleConfigurations RoleConfigurations { get; set; } = new roleConfigurations();
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
-        //public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
-        public List<BlacklistWords> BlacklistWordSet = new List<BlacklistWords>();
-        public class BlacklistWords
-        {
-            public List<string> WordList = new List<string>(); //Words for the specified blacklist message
-            public string BlacklistResponse { get; set; } = null;
-        }
+        public antispams Antispams { get; set; } = new antispams();
 
-
-        public string DefaultBlacklistMessage { get; set; } = "";
-        public bool BlacklistBetterFilter { get; set; } = true;
-        public bool Invite { get; set; } = false; // blacklist for discord invites
-        public List<ulong> InviteExcempt { get; set; } = new List<ulong>();
-
-        public bool MentionAll { get; set; } = false; //blacklist for @everyone and @here 
-        public List<ulong> MentionallExcempt { get; set; } = new List<ulong>();
-
-        public bool NoSpam { get; set; } = false;
-        public List<string> AntiSpamSkip { get; set; } = new List<string>();
-        public bool RemoveMassMention { get; set; } = false;
-        public bool RemoveIPs { get; set; } = false;
 
         public bool ErrorLog { get; set; } // allows for responses with errors 
 
@@ -130,6 +88,22 @@ namespace PassiveBOT.Configuration
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
         }
 
+        public class roleConfigurations
+        {
+            // a list of roles that users can join via command
+            public List<ulong> SubRoleList { get; set; } = new List<ulong>();
+
+
+            //public ulong DjRoleId { get; set; } // restrict the music module to a specific role
+            public ulong MutedRole { get; set; } = 0;
+
+            //public ulong ModeratorRoleId { get; set; } = 0;
+            public List<ulong> ModeratorRoleList { get; set; } = new List<ulong>();
+            public List<ulong> AdminRoleList { get; set; } = new List<ulong>();
+        }
+
+
+        /*
         public static string SetWMessage(IGuild guild, string input)
         {
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
@@ -183,7 +157,7 @@ namespace PassiveBOT.Configuration
         }
 
 
-        public static string SetWelcomeStatus(IGuild guild, bool status)
+        /*public static string SetWelcomeStatus(IGuild guild, bool status)
         {
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
@@ -198,9 +172,9 @@ namespace PassiveBOT.Configuration
             }
 
             return null;
-        }
+        }*/
 
-        public static string SetDj(IGuild guild, ulong role)
+        /*public static string SetDj(IGuild guild, ulong role)
         {
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             if (File.Exists(file))
@@ -215,33 +189,89 @@ namespace PassiveBOT.Configuration
             }
 
             return null;
-        }
+        }*/
 
-        public static string RssSet(IGuild guild, ulong chan, string url, bool add)
+
+        public class antispams
         {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
-            if (File.Exists(file))
+            public blacklist Blacklist = new blacklist();
+            public antispam Antispam { get; set; } = new antispam();
+            public advertising Advertising { get; set; } = new advertising();
+            public mention Mention { get; set; } = new mention();
+            public privacy Privacy { get; set; } = new privacy();
+
+            public List<IgnoreRole> IngoreRoles { get; set; } = new List<IgnoreRole>();
+
+            public class antispam
             {
-                var jsonObj = GetServer(guild);
+                //remove repetitive messages and messages posted in quick succession
+                public bool NoSpam { get; set; } = false;
 
-                if (add)
-                {
-                    jsonObj.Rss = url;
-                    jsonObj.RssChannel = chan;
-                }
-                else
-                {
-                    jsonObj.Rss = "0";
-                }
+                //words to skip while using antispam
+                public List<string> AntiSpamSkip { get; set; } = new List<string>();
 
-                SaveServer(jsonObj);
+                //Toggle wether or not to use antispam on bot commands
+                public bool IgnoreCommandMessages { get; set; } = true;
+
+                public bool antiraid { get; set; } = false;
             }
-            else
+
+            public class blacklist
             {
-                return "please run the setup command before using configuration commands";
+                //the blacklist word groupings
+                public List<BlacklistWords> BlacklistWordSet = new List<BlacklistWords>();
+                public string DefaultBlacklistMessage { get; set; } = "";
+
+                //toggle wether or not to filter diatrics and replace certain numbers with their letter counterparts etc.
+                public bool BlacklistBetterFilter { get; set; } = true;
+
+                public class BlacklistWords
+                {
+                    //Words for the specified blacklist message
+                    public List<string> WordList = new List<string>();
+
+                    //Custom response for certain words.
+                    public string BlacklistResponse { get; set; } = null;
+                }
             }
 
-            return null;
+            public class advertising
+            {
+                public string NoInviteMessage = null;
+
+                //blacklist for discord invites
+                public bool Invite { get; set; } = false;
+            }
+
+            public class mention
+            {
+                public string MentionAllMessage = null;
+
+                //blacklist for @everyone and @here 
+                public bool MentionAll { get; set; } = false;
+
+                //Remove 5+ mentions of roles or users
+                public bool RemoveMassMention { get; set; } = false;
+            }
+
+            public class privacy
+            {
+                //remove all ip addresses posted in the format x.x.x.x
+                public bool RemoveIPs { get; set; } = false;
+            }
+
+            public class IgnoreRole
+            {
+                public ulong RoleID { get; set; }
+
+                //false = filter
+                //true = bypass filter
+                public bool AntiSpam { get; set; } = false;
+                public bool Blacklist { get; set; } = false;
+                public bool Advertising { get; set; } = false;
+                public bool Mention { get; set; } = false;
+                public bool Privacy { get; set; } = false;
+            }
         }
 
         public class levelling
@@ -331,18 +361,22 @@ namespace PassiveBOT.Configuration
 
         public class gambling
         {
+            public TheStore Store = new TheStore();
+
+
+            public List<user> Users = new List<user>();
             public bool enabled { get; set; } = true;
             public GamblingSet settings { get; set; } = new GamblingSet();
+
             public class GamblingSet
             {
                 public string CurrencyName { get; set; } = "Coins";
             }
 
-            public TheStore Store = new TheStore(); 
             public class TheStore
             {
-
                 public List<Storeitem> ShowItems = new List<Storeitem>();
+
                 public class Storeitem
                 {
                     public string ItemName { get; set; }
@@ -370,17 +404,15 @@ namespace PassiveBOT.Configuration
                 }
             }
 
-
-            public List<user> Users = new List<user>();
             public class user
             {
+                public List<item> Inventory = new List<item>();
                 public ulong userID { get; set; }
                 public int coins { get; set; } = 200;
                 public bool banned { get; set; } = false;
                 public int totalpaidout { get; set; } = 0;
                 public int totalbet { get; set; } = 0;
 
-                public List<item> Inventory = new List<item>();
                 public class item
                 {
                     public int ItemID { get; set; }

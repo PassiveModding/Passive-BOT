@@ -10,7 +10,6 @@ using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
-using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.Info
 {
@@ -29,8 +28,6 @@ namespace PassiveBOT.Commands.Info
             return input;
         }
 
-
-        [CheckModerator]
         [Command("serverinfo")]
         [Summary("serverinfo")]
         [Remarks("Displays information about the current server")]
@@ -110,7 +107,7 @@ namespace PassiveBOT.Commands.Info
                     var jsonObj = GuildConfig.GetServer(Context.Guild);
                     var embed = new EmbedBuilder();
                     var roles = "";
-                    foreach (var roleid in jsonObj.RoleList)
+                    foreach (var roleid in jsonObj.RoleConfigurations.SubRoleList)
                         try
                         {
                             roles += $"{Context.Guild.GetRole(roleid).Name}\n";
@@ -129,7 +126,7 @@ namespace PassiveBOT.Commands.Info
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
                 var embed = new EmbedBuilder();
-                if (jsonObj.RoleList.Contains(role.Id))
+                if (jsonObj.RoleConfigurations.SubRoleList.Contains(role.Id))
                 {
                     var u = (IGuildUser) Context.User;
                     if (u.RoleIds.Contains(role.Id))

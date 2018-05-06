@@ -11,7 +11,7 @@ using PassiveBOT.strings;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
-    [CheckModerator]
+    [RequireModerator]
     [RequireContext(ContextType.Guild)]
     public class Partner : ModuleBase
     {
@@ -60,12 +60,10 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(guild);
             await ReplyAsync($"Partner Channel set to {Context.Channel.Name}");
 
-            if ((decimal)((SocketTextChannel)Context.Channel).Users.Count /
-                ((SocketGuild)Context.Guild).Users.Count * 100 < 90)
-            {
+            if ((decimal) ((SocketTextChannel) Context.Channel).Users.Count /
+                ((SocketGuild) Context.Guild).Users.Count * 100 < 90)
                 await ReplyAsync(
                     "NOTE: The partner channel is currently inactive as less that 90% of this server's users can view the channel. You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
-            }
 
             var home = Homeserver.Load().PartnerUpdates;
             var chan = await Context.Client.GetChannelAsync(home);
@@ -73,8 +71,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 try
                 {
                     var perms = "";
-                    if (((SocketTextChannel)Context.Channel).PermissionOverwrites.Any())
-                        foreach (var perm in ((SocketTextChannel)Context.Channel).PermissionOverwrites.Where(x =>
+                    if (((SocketTextChannel) Context.Channel).PermissionOverwrites.Any())
+                        foreach (var perm in ((SocketTextChannel) Context.Channel).PermissionOverwrites.Where(x =>
                             x.TargetType == PermissionTarget.Role))
                         {
                             var role = Context.Guild.Roles.FirstOrDefault(x => x.Id == perm.TargetId);
@@ -84,9 +82,10 @@ namespace PassiveBOT.Commands.ServerSetup
                                      $"Read history: {perm.Permissions.ReadMessageHistory}\n";
                         }
 
-                    var userlist = ((SocketTextChannel)Context.Channel).Users;
-                    var userstring = $"Users Visible/Total Users: {userlist.Count} / {((SocketGuild)Context.Guild).Users.Count}\n" +
-                                     $"Percent Visible: {((double)userlist.Count / ((SocketGuild)Context.Guild).Users.Count) * 100}%";
+                    var userlist = ((SocketTextChannel) Context.Channel).Users;
+                    var userstring =
+                        $"Users Visible/Total Users: {userlist.Count} / {((SocketGuild) Context.Guild).Users.Count}\n" +
+                        $"Percent Visible: {(double) userlist.Count / ((SocketGuild) Context.Guild).Users.Count * 100}%";
 
                     var embed = new EmbedBuilder
                     {

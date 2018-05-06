@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,13 +9,129 @@ using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
+using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class AntiSpam : InteractiveBase
     {
+        [Command("ignore")]
+        [Summary("ignore <selection> <@role>")]
+        [Remarks("choose a role to ignore when using antispam commands")]
+        public async Task IgnoreRole(string selection, IRole role = null)
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            if (role == null)
+            {
+                await IgnoreRole();
+                return;
+            }
+
+            var intselections = selection.Split(',');
+            var ignore = guild.Antispams.IngoreRoles.FirstOrDefault(x => x.RoleID == role.Id);
+            var addrole = false;
+            if (ignore == null)
+            {
+                ignore = new GuildConfig.antispams.IgnoreRole
+                {
+                    RoleID = role.Id
+                };
+                addrole = true;
+            }
+
+
+            if (int.TryParse(intselections[0], out var zerocheck))
+            {
+                if (zerocheck == 0)
+                {
+                    guild.Antispams.IngoreRoles.Remove(ignore);
+                    await ReplyAsync("Success, Role has been removed form the ignore list");
+                }
+                else
+                {
+                    foreach (var s in intselections)
+                        if (int.TryParse(s, out var sint))
+                        {
+                            if (sint < 1 || sint > 5)
+                            {
+                                await ReplyAsync($"Invalid Input {s}\n" +
+                                                 $"only 1-5 are accepted.");
+                                return;
+                            }
+
+                            switch (sint)
+                            {
+                                case 1:
+                                    ignore.AntiSpam = true;
+                                    break;
+                                case 2:
+                                    ignore.Blacklist = true;
+                                    break;
+                                case 3:
+                                    ignore.Mention = true;
+                                    break;
+                                case 4:
+                                    ignore.Advertising = true;
+                                    break;
+                                case 5:
+                                    ignore.Privacy = true;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            await ReplyAsync($"Invalid Input {s}");
+                            return;
+                        }
+
+                    var embed = new EmbedBuilder
+                    {
+                        Description = $"{role.Mention}\n" +
+                                      $"Ignore Antispam\n" +
+                                      $"Bypass Antispam: {ignore.AntiSpam}\n" +
+                                      $"Bypass Blacklist: {ignore.Blacklist}\n" +
+                                      $"Bypass Mention Everyone and 5+ Role Mentions: {ignore.Mention}\n" +
+                                      $"Bypass Invite Link Removal: {ignore.Advertising}\n" +
+                                      $"Bypass IP Removal: {ignore.Privacy}"
+                    };
+                    await ReplyAsync("", false, embed.Build());
+                }
+
+                if (addrole) guild.Antispams.IngoreRoles.Add(ignore);
+                GuildConfig.SaveServer(guild);
+            }
+            else
+            {
+                await ReplyAsync("Input Error!");
+            }
+        }
+
+        [Command("ignore")]
+        [Summary("ignore")]
+        [Remarks("ignore role setup information")]
+        public async Task IgnoreRole()
+        {
+            await ReplyAsync("", false, new EmbedBuilder
+            {
+                Description =
+                    $"You can select roles to ignore from all spam type checks in this module using the ignore command.\n" +
+                    $"__Key__\n" +
+                    $"`1` - Antispam\n" +
+                    $"`2` - Blacklist\n" +
+                    $"`3` - Mention\n" +
+                    $"`4` - Invite\n" +
+                    $"`5` - IP Addresses\n\n" +
+                    $"__usage__\n" +
+                    $"`{Config.Load().Prefix} 1 @role` - this allows the role to spam without being limited/removed\n" +
+                    $"You can use commas to use multiple settings on the same role." +
+                    $"`{Config.Load().Prefix} 1,2,3 @role` - this allows the role to spam, use blacklisted words and bypass mention filtering without being removed\n" +
+                    $"`{Config.Load().Prefix} 0 @role` - resets the ignore config and will add all limits back to the role"
+            }.Build());
+        }
+
+
         [Command("SetMuted")]
         [Summary("SetMuted <@role>")]
         [Remarks("Set the Mute Role For your server NOTE: Will try to reset all permissions for that role!")]
@@ -24,7 +139,7 @@ namespace PassiveBOT.Commands.ServerSetup
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
 
-            jsonObj.MutedRole = muteRole.Id;
+            jsonObj.RoleConfigurations.MutedRole = muteRole.Id;
             string perms;
             var channels = "";
             try
@@ -64,10 +179,10 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task NoIP()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.RemoveIPs = !jsonObj.RemoveIPs;
+            jsonObj.Antispams.Privacy.RemoveIPs = !jsonObj.Antispams.Privacy.RemoveIPs;
             GuildConfig.SaveServer(jsonObj);
 
-            await ReplyAsync($"IPs Removal: {jsonObj.RemoveIPs}");
+            await ReplyAsync($"IPs Removal: {jsonObj.Antispams.Privacy.RemoveIPs}");
         }
 
         [Command("NoInvite")]
@@ -76,10 +191,10 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task NoInvite()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.Invite = !jsonObj.Invite;
+            jsonObj.Antispams.Advertising.Invite = !jsonObj.Antispams.Advertising.Invite;
             GuildConfig.SaveServer(jsonObj);
 
-            if (jsonObj.Invite)
+            if (jsonObj.Antispams.Advertising.Invite)
                 await ReplyAsync("Invite links will now be deleted!");
             else
                 await ReplyAsync("Invite links are now allowed to be sent");
@@ -92,80 +207,13 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task NoinviteMSG([Remainder] string noinvmessage = null)
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.NoInviteMessage = noinvmessage;
+            jsonObj.Antispams.Advertising.NoInviteMessage = noinvmessage;
             GuildConfig.SaveServer(jsonObj);
 
-            await ReplyAsync("The blacklist message is now:\n" +
-                             $"{jsonObj.NoInviteMessage ?? "Default"}");
+            await ReplyAsync("The No Invites message is now:\n" +
+                             $"{jsonObj.Antispams.Advertising.NoInviteMessage ?? "Default"}");
         }
 
-        [Command("InviteExcempt")]
-        [Summary("InviteExcempt <@role>")]
-        [Remarks("Set roles that are excempt from the Invite Block command")]
-        public async Task InvExcempt(IRole role = null)
-        {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var config = GuildConfig.GetServer(Context.Guild);
-            if (role == null)
-            {
-                var embed = new EmbedBuilder();
-                foreach (var r in config.InviteExcempt)
-                    try
-                    {
-                        var rol = Context.Guild.GetRole(r);
-                        embed.Description += $"{rol.Name}\n";
-                    }
-                    catch
-                    {
-                        //
-                    }
-
-                embed.Title = "Roles Excempt from Invite Block";
-                await ReplyAsync("", false, embed.Build());
-                return;
-            }
-
-            config.InviteExcempt.Add(role.Id);
-
-            GuildConfig.SaveServer(config);
-            await ReplyAsync($"{role.Mention} has been added to those excempt from the Invite Blocker");
-        }
-
-        [Command("RemoveInviteExcempt")]
-        [Summary("RemoveInviteExcempt <@role>")]
-        [Remarks("Remove roles that are excempt from the Invite Block command")]
-        public async Task UndoInvExcempt(IRole role = null)
-        {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var config = GuildConfig.GetServer(Context.Guild);
-            if (role == null)
-            {
-                var embed = new EmbedBuilder();
-                foreach (var r in config.InviteExcempt)
-                    try
-                    {
-                        var rol = Context.Guild.GetRole(r);
-                        embed.Description += $"{rol.Name}\n";
-                    }
-                    catch
-                    {
-                        //
-                    }
-
-                embed.Title = "Roles Excempt from Invite Block";
-                await ReplyAsync("", false, embed.Build());
-                return;
-            }
-
-            config.InviteExcempt.Remove(role.Id);
-
-            GuildConfig.SaveServer(config);
-            await ReplyAsync($"{role.Mention} has been removed from those excempt from the Invite Blocker");
-        }
 
         [Command("NoSpam")]
         [Summary("NoSpam")]
@@ -173,13 +221,10 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task SpamToggle()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.NoSpam = !jsonObj.NoSpam;
+            jsonObj.Antispams.Antispam.NoSpam = !jsonObj.Antispams.Antispam.NoSpam;
             GuildConfig.SaveServer(jsonObj);
 
-            if (jsonObj.NoSpam)
-                await ReplyAsync($"NoSpam: {jsonObj.NoSpam}");
-            else
-                await ReplyAsync($"NoSpam: {jsonObj.NoSpam}");
+            await ReplyAsync($"NoSpam: {jsonObj.Antispams.Antispam.NoSpam}");
         }
 
         [Command("SkipAntiSpam")]
@@ -195,12 +240,14 @@ namespace PassiveBOT.Commands.ServerSetup
 
             var guild = GuildConfig.GetServer(Context.Guild);
 
-            if (guild.AntiSpamSkip.Any(x => string.Equals(x, message, StringComparison.CurrentCultureIgnoreCase)))
+            if (guild.Antispams.Antispam.AntiSpamSkip.Any(x =>
+                string.Equals(x, message, StringComparison.CurrentCultureIgnoreCase)))
             {
                 await ReplyAsync($"`{message}` is already included in the SkipAntiSpam list");
                 return;
             }
-            guild.AntiSpamSkip.Add(message);
+
+            guild.Antispams.Antispam.AntiSpamSkip.Add(message);
 
             GuildConfig.SaveServer(guild);
             await ReplyAsync("Complete.");
@@ -219,12 +266,14 @@ namespace PassiveBOT.Commands.ServerSetup
 
             var guild = GuildConfig.GetServer(Context.Guild);
 
-            if (!guild.AntiSpamSkip.Any(x => string.Equals(x, message, StringComparison.CurrentCultureIgnoreCase)))
+            if (!guild.Antispams.Antispam.AntiSpamSkip.Any(x =>
+                string.Equals(x, message, StringComparison.CurrentCultureIgnoreCase)))
             {
                 await ReplyAsync($"`{message}` is already not included in the SkipAntiSpam list");
                 return;
             }
-            guild.AntiSpamSkip.Remove(message);
+
+            guild.Antispams.Antispam.AntiSpamSkip.Remove(message);
 
             GuildConfig.SaveServer(guild);
             await ReplyAsync("Complete.");
@@ -235,9 +284,8 @@ namespace PassiveBOT.Commands.ServerSetup
         [Remarks("Clear the SkipAntiSpam List")]
         public async Task ClearAntiSpam()
         {
-
             var guild = GuildConfig.GetServer(Context.Guild);
-            guild.AntiSpamSkip = new List<string>();
+            guild.Antispams.Antispam.AntiSpamSkip = new List<string>();
 
             GuildConfig.SaveServer(guild);
             await ReplyAsync("Complete.");
@@ -249,7 +297,7 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task SkipAntiSpam()
         {
             var guild = GuildConfig.GetServer(Context.Guild);
-            var embed = new EmbedBuilder {Description = string.Join("\n", guild.AntiSpamSkip)};
+            var embed = new EmbedBuilder {Description = string.Join("\n", guild.Antispams.Antispam.AntiSpamSkip)};
             await ReplyAsync("", false, embed.Build());
         }
 
@@ -259,10 +307,10 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task NoMassMention()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.RemoveMassMention = !jsonObj.RemoveMassMention;
+            jsonObj.Antispams.Mention.RemoveMassMention = !jsonObj.Antispams.Mention.RemoveMassMention;
             GuildConfig.SaveServer(jsonObj);
 
-            if (jsonObj.RemoveMassMention)
+            if (jsonObj.Antispams.Mention.RemoveMassMention)
                 await ReplyAsync("Mass Mentions will now be deleted!");
             else
                 await ReplyAsync("Mass Mentions are now allowed to be sent");
@@ -274,10 +322,10 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task NoMention()
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.MentionAll = !jsonObj.MentionAll;
+            jsonObj.Antispams.Mention.MentionAll = !jsonObj.Antispams.Mention.MentionAll;
             GuildConfig.SaveServer(jsonObj);
 
-            if (jsonObj.MentionAll)
+            if (jsonObj.Antispams.Mention.MentionAll)
                 await ReplyAsync("Everyone and Here mentions will be deleted");
             else
                 await ReplyAsync("Everyone and Here mentions will no longer be deleted");
@@ -289,79 +337,11 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task NoMentionMSG([Remainder] string noMentionmsg = null)
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            jsonObj.MentionAllMessage = noMentionmsg;
+            jsonObj.Antispams.Mention.MentionAllMessage = noMentionmsg;
             GuildConfig.SaveServer(jsonObj);
 
             await ReplyAsync("The blacklist message is now:\n" +
-                             $"{jsonObj.MentionAllMessage ?? "Default"}");
-        }
-
-        [Command("MentionExcempt")]
-        [Summary("MentionExcempt <@role>")]
-        [Remarks("Set roles that are excempt from the Mention Block command")]
-        public async Task MentionExcempt(IRole role = null)
-        {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var config = GuildConfig.GetServer(Context.Guild);
-            if (role == null)
-            {
-                var embed = new EmbedBuilder();
-                foreach (var r in config.MentionallExcempt)
-                    try
-                    {
-                        var rol = Context.Guild.GetRole(r);
-                        embed.Description += $"{rol.Name}\n";
-                    }
-                    catch
-                    {
-                        //
-                    }
-
-                embed.Title = "Roles Excempt from Mention Blocker";
-                await ReplyAsync("", false, embed.Build());
-                return;
-            }
-
-            config.MentionallExcempt.Add(role.Id);
-
-            GuildConfig.SaveServer(config);
-            await ReplyAsync($"{role.Mention} has been added to those excempt from the Mention Blocker");
-        }
-
-        [Command("RemoveMentionExcempt")]
-        [Summary("RemoveMentionExcempt <@role>")]
-        [Remarks("Remove roles that are excempt from the Mention Blocker command")]
-        public async Task UndoMentionExcempt(IRole role = null)
-        {
-            var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
-            if (!File.Exists(file))
-                GuildConfig.Setup(Context.Guild);
-            var config = GuildConfig.GetServer(Context.Guild);
-            if (role == null)
-            {
-                var embed = new EmbedBuilder();
-                foreach (var r in config.MentionallExcempt)
-                    try
-                    {
-                        var rol = Context.Guild.GetRole(r);
-                        embed.Description += $"{rol.Name}\n";
-                    }
-                    catch
-                    {
-                        //
-                    }
-
-                embed.Title = "Roles Excempt from Mention Blocker";
-                await ReplyAsync("", false, embed.Build());
-                return;
-            }
-
-            config.MentionallExcempt.Remove(role.Id);
-
-            GuildConfig.SaveServer(config);
-            await ReplyAsync($"{role.Mention} has been removed from those excempt from the Mention Blocker");
+                             $"{jsonObj.Antispams.Mention.MentionAllMessage ?? "Default"}");
         }
 
         [Group("Blacklist")]
@@ -375,7 +355,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
                 var pages = new List<PaginatedMessage.Page>();
                 var sb = new StringBuilder();
-                foreach (var blacklistw in jsonObj.BlacklistWordSet)
+                foreach (var blacklistw in jsonObj.Antispams.Blacklist.BlacklistWordSet)
                 {
                     if (sb.ToString().Length >= 800)
                     {
@@ -389,8 +369,9 @@ namespace PassiveBOT.Commands.ServerSetup
                     sb.Append($"**Word(s)**\n" +
                               $"{string.Join("\n", blacklistw.WordList)}\n" +
                               $"**Response**\n" +
-                              $"{blacklistw?.BlacklistResponse ?? jsonObj.DefaultBlacklistMessage}\n\n");
+                              $"{blacklistw?.BlacklistResponse ?? jsonObj.Antispams.Blacklist.DefaultBlacklistMessage}\n\n");
                 }
+
                 pages.Add(new PaginatedMessage.Page
                 {
                     description = sb.ToString()
@@ -404,39 +385,62 @@ namespace PassiveBOT.Commands.ServerSetup
                 await PagedReplyAsync(pager, true, true, true);
             }
 
+            [Command("formathelp")]
+            [Summary("blacklist formathelp")]
+            [Remarks("help with adding multiple phrases or words to the blacklist at once")]
+            public async Task FormatHelp()
+            {
+                await ReplyAsync("", false, new EmbedBuilder
+                {
+                    Description = $"__**Sentences and Multiple Words**__\n" +
+                                  $"To add a sentence to the blacklist, use the add command like so:\n" +
+                                  $"`{Config.Load().Prefix}blacklist add this_is_a_sentence <response>`" +
+                                  $"You may leave the response empty to use the default blacklist message as your response\n" +
+                                  $"To add multiple words at once to the blacklist separate words using commas like so:\n" +
+                                  $"`{Config.Load().Prefix}blacklist add word1,word2,sentence_1,word3,sentence2 <response>`\n" +
+                                  $"Note that this will also work for the blacklist delete command\n\n" +
+                                  $"**__Responses__**\n" +
+                                  $"You can add custom text into the response by using the following custom tags:\n" +
+                                  "{user} - the user's username\n" +
+                                  "{user.mention} - @ the user\n" +
+                                  "{guild} - the guild's name\n" +
+                                  "{channel} - the current channel name\n" +
+                                  "{channel.mention} - #channel mention"
+                });
+            }
+
             [Command("add")]
             [Summary("blacklist add <word> <response>")]
-            [Remarks("adds a word to the blacklist, leave response blank to use the default message, use the same response for different blacklisted words to be grouped. Also separate sentences like so: hi_there_person for the keyword")]
-            public async Task Ab(string keyword, [Remainder]string response = null)
+            [Remarks(
+                "adds a word to the blacklist, leave response blank to use the default message, use the same response for different blacklisted words to be grouped. Also separate sentences like so: hi_there_person for the keyword")]
+            public async Task Ab(string keyword, [Remainder] string response = null)
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
 
                 keyword = keyword.Replace("_", " ");
-
-                if (!jsonObj.BlacklistWordSet.Any(x => x.WordList.Contains(keyword)))
+                var keywords = keyword.Split(',').Select(x => x.ToLower()).ToList();
+                if (!jsonObj.Antispams.Blacklist.BlacklistWordSet.Any(x => x.WordList.Contains(keyword)))
                 {
-                    var blacklistunit = jsonObj.BlacklistWordSet.FirstOrDefault(x => x.BlacklistResponse == response);
+                    var blacklistunit =
+                        jsonObj.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(
+                            x => x.BlacklistResponse == response);
                     if (blacklistunit != null)
                     {
-                        blacklistunit.WordList.Add(keyword.ToLower());
+                        blacklistunit.WordList.AddRange(keywords);
                         await Context.Message.DeleteAsync();
                         await ReplyAsync("Added to the Blacklist");
                     }
                     else
                     {
-                        blacklistunit = new GuildConfig.BlacklistWords
+                        blacklistunit = new GuildConfig.antispams.blacklist.BlacklistWords
                         {
-                            WordList = new List<string>
-                            {
-                                keyword.ToLower()
-                            },
+                            WordList = keywords,
                             BlacklistResponse = response
                         };
-                        jsonObj.BlacklistWordSet.Add(blacklistunit);
+                        jsonObj.Antispams.Blacklist.BlacklistWordSet.Add(blacklistunit);
                         await Context.Message.DeleteAsync();
                         await ReplyAsync("Added to the Blacklist");
                     }
-
                 }
                 else
                 {
@@ -451,25 +455,27 @@ namespace PassiveBOT.Commands.ServerSetup
             [Command("del")]
             [Summary("blacklist del <word>")]
             [Remarks("removes a word from the blacklist")]
-            public async Task Db(string keyword)
+            public async Task Db(string initkeyword)
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
-                keyword = keyword.Replace("_", " ");
-                var blacklistunit = jsonObj.BlacklistWordSet.FirstOrDefault(x => x.WordList.Contains(keyword.ToLower()));
-                if (blacklistunit != null)
+                initkeyword = initkeyword.Replace("_", " ");
+                var keywords = initkeyword.Split(',').Select(x => x.ToLower()).ToList();
+                foreach (var keyword in keywords)
                 {
-
-                    blacklistunit.WordList.Remove(keyword.ToLower());
-                    if (blacklistunit.WordList.Count == 0)
+                    var blacklistunit =
+                        jsonObj.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(x =>
+                            x.WordList.Contains(keyword.ToLower()));
+                    if (blacklistunit != null)
                     {
-                        jsonObj.BlacklistWordSet.Remove(blacklistunit);
+                        blacklistunit.WordList.Remove(keyword.ToLower());
+                        if (blacklistunit.WordList.Count == 0)
+                            jsonObj.Antispams.Blacklist.BlacklistWordSet.Remove(blacklistunit);
+                        await ReplyAsync($"{keyword} is has been removed from the blacklist");
                     }
-                    await ReplyAsync($"{keyword} is has been removed from the blacklist");
-                }
-                else
-                {
-                    await ReplyAsync($"{keyword} is not in the blacklist");
-                    return;
+                    else
+                    {
+                        await ReplyAsync($"{keyword} is not in the blacklist");
+                    }
                 }
 
                 GuildConfig.SaveServer(jsonObj);
@@ -481,7 +487,8 @@ namespace PassiveBOT.Commands.ServerSetup
             public async Task Clear()
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
-                jsonObj.BlacklistWordSet = new List<GuildConfig.BlacklistWords>();
+                jsonObj.Antispams.Blacklist.BlacklistWordSet =
+                    new List<GuildConfig.antispams.blacklist.BlacklistWords>();
                 GuildConfig.SaveServer(jsonObj);
 
                 await ReplyAsync("The blacklist has been cleared.");
@@ -493,11 +500,11 @@ namespace PassiveBOT.Commands.ServerSetup
             public async Task BFToggle()
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
-                jsonObj.BlacklistBetterFilter = !jsonObj.BlacklistBetterFilter;
+                jsonObj.Antispams.Blacklist.BlacklistBetterFilter = !jsonObj.Antispams.Blacklist.BlacklistBetterFilter;
                 GuildConfig.SaveServer(jsonObj);
 
                 await ReplyAsync(
-                    $"Blacklist BetterFilter status set to {(jsonObj.BlacklistBetterFilter ? "ON" : "OFF")}");
+                    $"Blacklist BetterFilter status set to {(jsonObj.Antispams.Blacklist.BlacklistBetterFilter ? "ON" : "OFF")}");
             }
 
             [Command("defaultmessage")]
@@ -506,11 +513,11 @@ namespace PassiveBOT.Commands.ServerSetup
             public async Task BlMessage([Remainder] string blmess = "")
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
-                jsonObj.DefaultBlacklistMessage = blmess;
+                jsonObj.Antispams.Blacklist.DefaultBlacklistMessage = blmess;
                 GuildConfig.SaveServer(jsonObj);
 
                 await ReplyAsync("The default blacklist message is now:\n" +
-                                 $"{jsonObj.DefaultBlacklistMessage}");
+                                 $"{jsonObj.Antispams.Blacklist.DefaultBlacklistMessage}");
             }
         }
     }

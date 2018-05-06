@@ -22,16 +22,6 @@ namespace PassiveBOT.Commands.Media
     [CheckNsfw]
     public class Nsfw : InteractiveBase
     {
-        private enum NsfwType
-        {
-            Rule34,
-            Yandere,
-            Gelbooru,
-            Konachan,
-            Danbooru,
-            Cureninja
-        }
-
         [Command("RedditNSFW", RunMode = RunMode.Async)]
         [Summary("RedditNSFW <sub>")]
         [Remarks("Get a random post from first 150 in hot of a sub")]
@@ -489,6 +479,16 @@ namespace PassiveBOT.Commands.Media
 
             Result = Result.EndsWith("/") ? Result.Substring(0, Result.Length - 1) : Result;
             return Result;
+        }
+
+        private enum NsfwType
+        {
+            Rule34,
+            Yandere,
+            Gelbooru,
+            Konachan,
+            Danbooru,
+            Cureninja
         }
     }
 }

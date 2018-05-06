@@ -146,10 +146,12 @@ namespace PassiveBOT.Commands.ServerSetup
                                  "NOTE: This reset cannot be undone!");
                 return;
             }
+
             var GuildObj = GuildConfig.GetServer(Context.Guild);
             GuildObj.Levels.Users = new List<GuildConfig.levelling.user>();
             GuildConfig.SaveServer(GuildObj);
-            await ReplyAsync($"All user XP and Levels have been reset (note: Role Rewards will have to be manually reset if applicable)");
+            await ReplyAsync(
+                $"All user XP and Levels have been reset (note: Role Rewards will have to be manually reset if applicable)");
         }
     }
 }

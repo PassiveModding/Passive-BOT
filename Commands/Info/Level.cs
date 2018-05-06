@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
@@ -47,12 +46,13 @@ namespace PassiveBOT.Commands.Info
         {
             var GuildObj = GuildConfig.GetServer(Context.Guild);
 
-                var embed = new EmbedBuilder
-                {
-                    Title = $"Level Rewards in {Context.Guild.Name}",
-                    Description = $"Reward Roles:\n {(GuildObj.Levels.LevelRoles.Any() ? string.Join("\n", GuildObj.Levels.LevelRoles.Where(lr => Context.Guild.Roles.Select(x => x.Id).Contains(lr.RoleID)).Select(x => $"{Context.Guild.GetRole(x.RoleID)?.Mention ?? "ERROR"} LV: {x.LevelToEnter}")) : "N/A")}"
-                };
-                await ReplyAsync("", false, embed.Build());
+            var embed = new EmbedBuilder
+            {
+                Title = $"Level Rewards in {Context.Guild.Name}",
+                Description =
+                    $"Reward Roles:\n {(GuildObj.Levels.LevelRoles.Any() ? string.Join("\n", GuildObj.Levels.LevelRoles.Where(lr => Context.Guild.Roles.Select(x => x.Id).Contains(lr.RoleID)).Select(x => $"{Context.Guild.GetRole(x.RoleID)?.Mention ?? "ERROR"} LV: {x.LevelToEnter}")) : "N/A")}"
+            };
+            await ReplyAsync("", false, embed.Build());
         }
 
         [Command("ShowLeaderboard")]
@@ -63,7 +63,7 @@ namespace PassiveBOT.Commands.Info
             var GuildObj = GuildConfig.GetServer(Context.Guild);
             var userlist = new List<PaginatedMessage.Page>();
             var userindex = 1;
-            StringBuilder desc = new StringBuilder();
+            var desc = new StringBuilder();
 
             foreach (var user in GuildObj.Levels.Users.OrderByDescending(x => x.xp))
             {

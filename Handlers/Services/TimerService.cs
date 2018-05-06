@@ -45,17 +45,21 @@ namespace PassiveBOT.Handlers.Services
                                         //next select a random server from the previous list to share
                                         var newitem = newitems[new Random().Next(0, newitems.Count)];
 
-                                        var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem)).PartnerSetup;
+                                        var selectedguild = GuildConfig.GetServer(client.GetGuild(newitem))
+                                            .PartnerSetup;
                                         //ensure the selected guild is not banned
                                         if (selectedguild.banned) continue;
                                         //also ensure that the selected guild is using the partner channel, it is a legitimate channel and their message isn't empty
-                                        if (!selectedguild.IsPartner || !(client.GetChannel(selectedguild.PartherChannel) is IGuildChannel otherchannel) || selectedguild.Message == null) continue;
+                                        if (!selectedguild.IsPartner ||
+                                            !(client.GetChannel(selectedguild.PartherChannel) is IGuildChannel
+                                                otherchannel) || selectedguild.Message == null) continue;
                                         //In order to filter out people trying to cheat the systen, we filter out servers where less than 90% of users can actually see the channel
                                         if ((decimal) ((SocketTextChannel) otherchannel).Users.Count /
-                                            ((SocketGuild) otherchannel.Guild).Users.Count*100 < 90)
+                                            ((SocketGuild) otherchannel.Guild).Users.Count * 100 < 90)
                                         {
                                             //Ideally we notify the infringing guild that they are being ignored in the partner program until they change their settings.
-                                            await ((ITextChannel)otherchannel).SendMessageAsync($"{(decimal)((SocketTextChannel)otherchannel).Users.Count * 100 / ((SocketGuild)otherchannel.Guild).Users.Count}% Visibility - The partner channel is currently inactive as less that 90% of this server's users can view the channel. You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
+                                            await ((ITextChannel) otherchannel).SendMessageAsync(
+                                                $"{(decimal) ((SocketTextChannel) otherchannel).Users.Count * 100 / ((SocketGuild) otherchannel.Guild).Users.Count}% Visibility - The partner channel is currently inactive as less that 90% of this server's users can view the channel. You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
                                             continue;
                                         }
 

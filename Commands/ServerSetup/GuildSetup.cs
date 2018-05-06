@@ -85,7 +85,7 @@ namespace PassiveBOT.Commands.ServerSetup
             try
             {
                 subrolelist = "";
-                foreach (var role in l.RoleList)
+                foreach (var role in l.RoleConfigurations.SubRoleList)
                     subrolelist += $"{Context.Guild.GetRole(role).Name}\n";
             }
             catch
@@ -281,42 +281,42 @@ namespace PassiveBOT.Commands.ServerSetup
                 input = option;
             }
 
+            var Guild = GuildConfig.GetServer(Context.Guild);
 
             if (input == 1)
             {
                 await ReplyAsync(
                     "Please reply with the welcome message you want to be sent when a user joins the server ie. `Welcome to Our Server!!`");
                 var next2 = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
-                GuildConfig.SetWMessage(Context.Guild, next2.Content);
-                GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
+                Guild.WelcomeMessage = next2.Content;
+                Guild.WelcomeChannel = Context.Channel.Id;
                 await ReplyAsync("The Welcome Message for this server has been set to:\n" +
                                  $"**{next2.Content}**\n" +
                                  $"In the channel **{Context.Channel.Name}**");
             }
             else if (input == 2)
             {
-                GuildConfig.SetWChannel(Context.Guild, Context.Channel.Id);
+                Guild.WelcomeChannel = Context.Channel.Id;
                 await ReplyAsync($"Welcome Events will be sent in the channel: **{Context.Channel.Name}**");
             }
             else if (input == 3)
             {
-                GuildConfig.SetWelcomeStatus(Context.Guild, true);
+                Guild.WelcomeEvent = true;
                 await ReplyAsync("Welcome Messageing for this server has been set to: true");
             }
             else if (input == 4)
             {
-                GuildConfig.SetWelcomeStatus(Context.Guild, false);
+                Guild.WelcomeEvent = false;
                 await ReplyAsync("Welcome Messageing for this server has been set to: false");
             }
             else if (input == 5)
             {
-                var l = GuildConfig.GetServer(Context.Guild);
                 var embed = new EmbedBuilder();
                 try
                 {
-                    embed.AddField("Message", l.WelcomeMessage);
-                    embed.AddField("Channel", Context.Guild.GetChannel(l.WelcomeChannel).Name);
-                    embed.AddField("Status", l.WelcomeEvent ? "On" : "Off");
+                    embed.AddField("Message", Guild.WelcomeMessage);
+                    embed.AddField("Channel", Context.Guild.GetChannel(Guild.WelcomeChannel).Name);
+                    embed.AddField("Status", Guild.WelcomeEvent ? "On" : "Off");
                     await ReplyAsync("", false, embed.Build());
                 }
                 catch
@@ -329,6 +329,8 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync("ERROR: you did not supply a valid option. type only `1` etc.");
             }
+
+            GuildConfig.SaveServer(Guild);
         }
 
         [Command("GoodBye", RunMode = RunMode.Async)]
@@ -362,10 +364,9 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync(
                     "Please reply with the Goodbye message you want to be sent when a user leaves the server ie. `Goodbye you noob!!`");
-                var next2 = await NextMessageAsync(timeout: TimeSpan.FromSeconds(30));
+                var next2 = await NextMessageAsync(timeout: TimeSpan.FromSeconds(60));
                 jsonObj.GoodbyeMessage = next2.Content;
                 jsonObj.GoodByeChannel = Context.Channel.Id;
-                GuildConfig.SaveServer(jsonObj);
 
                 await ReplyAsync("The Goodbye Message for this server has been set to:\n" +
                                  $"**{next2.Content}**\n" +
@@ -374,19 +375,16 @@ namespace PassiveBOT.Commands.ServerSetup
             else if (input == 2)
             {
                 jsonObj.GoodByeChannel = Context.Channel.Id;
-                GuildConfig.SaveServer(jsonObj);
                 await ReplyAsync($"Goodbye Events will be sent in the channel: **{Context.Channel.Name}**");
             }
             else if (input == 3)
             {
                 jsonObj.GoodbyeEvent = true;
-                GuildConfig.SaveServer(jsonObj);
                 await ReplyAsync("GoodBye Messaging for this server has been set to: On");
             }
             else if (input == 4)
             {
                 jsonObj.GoodbyeEvent = false;
-                GuildConfig.SaveServer(jsonObj);
                 await ReplyAsync("GoodBye Messaging for this server has been set to: Off");
             }
             else if (input == 5)
@@ -409,6 +407,8 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await ReplyAsync("ERROR: you did not supply a valid option. type only `1` etc.");
             }
+
+            GuildConfig.SaveServer(jsonObj);
         }
 
         [Command("EventLogging")]
@@ -425,6 +425,18 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
             else
                 await ReplyAsync("Events will no longer be logged");
+        }
+
+        [Command("ApiAI")]
+        [Summary("ApiAI")]
+        [Remarks("Toggles the use of chatting when you @ the bot")]
+        public async Task ApiAIToggle()
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            jsonObj.chatwithmention = !jsonObj.chatwithmention;
+            GuildConfig.SaveServer(jsonObj);
+            await ReplyAsync(
+                $"Using {Context.Client.CurrentUser.Mention} at the start of a message will allow the use or random chat messages is set to: {jsonObj.chatwithmention}");
         }
 
         [Command("AutoMessage", RunMode = RunMode.Async)]
@@ -548,11 +560,11 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task Arole(IRole role)
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-            if (jsonObj.RoleList == null)
-                jsonObj.RoleList = new List<ulong>();
-            if (!jsonObj.RoleList.Contains(role.Id))
+            if (jsonObj.RoleConfigurations.SubRoleList == null)
+                jsonObj.RoleConfigurations.SubRoleList = new List<ulong>();
+            if (!jsonObj.RoleConfigurations.SubRoleList.Contains(role.Id))
             {
-                jsonObj.RoleList.Add(role.Id);
+                jsonObj.RoleConfigurations.SubRoleList.Add(role.Id);
                 await ReplyAsync($"{role.Name} is now joinable");
             }
             else
@@ -571,9 +583,9 @@ namespace PassiveBOT.Commands.ServerSetup
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
 
-            if (jsonObj.RoleList.Contains(role.Id))
+            if (jsonObj.RoleConfigurations.SubRoleList.Contains(role.Id))
             {
-                jsonObj.RoleList.Remove(role.Id);
+                jsonObj.RoleConfigurations.SubRoleList.Remove(role.Id);
                 await ReplyAsync($"{role.Name} is has been removed from the subscribable roles list");
             }
             else
@@ -641,12 +653,12 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task SetMod(IRole modRole)
         {
             var jsonObj = GuildConfig.GetServer(Context.Guild);
-
-            jsonObj.ModeratorRoleId = modRole.Id;
+            if (!jsonObj.RoleConfigurations.ModeratorRoleList.Contains(modRole.Id))
+                jsonObj.RoleConfigurations.ModeratorRoleList.Add(modRole.Id);
 
             GuildConfig.SaveServer(jsonObj);
 
-            await ReplyAsync($"ModRole has been set as {modRole.Mention}");
+            await ReplyAsync($"{modRole.Mention} has been added to the moderator roles");
         }
 
         [Command("ToggleModLog")]
@@ -732,29 +744,32 @@ namespace PassiveBOT.Commands.ServerSetup
                 },
                 new PaginatedMessage.Page
                 {
-                    dynamictitle = $"Spam Prevention",
-                    description = $"NoSpam: {Guild.NoSpam}\n" +
-                                  $"Remove IPs: {Guild.RemoveIPs}\n" +
-                                  $"Remove Invites: {Guild.Invite}\n" +
+                    dynamictitle = $"AntiSpam 1.Prevention",
+                    description = $"NoSpam: {Guild.Antispams.Antispam.NoSpam}\n" +
+                                  $"Remove IPs: {Guild.Antispams.Privacy.RemoveIPs}\n" +
+                                  $"Remove Invites: {Guild.Antispams.Advertising.Invite}\n" +
                                   $"Remove Invites Message:\n" +
-                                  $"{Guild.NoInviteMessage ?? "N/A"}\n\n" +
-                                  $"Remove Invite Excempt Roles:\n" +
-                                  $"{(Guild.InviteExcempt.Any() ? string.Join("\n", Context.Guild.Roles.Select(x => Guild.InviteExcempt.Contains(x.Id) ? x.Name : null).Where(x => x != null)) : "N/A")}\n\n" +
-                                  $"Remove @Everyone and @Here: {Guild.MentionAll}\n" +
+                                  $"{Guild.Antispams.Advertising.NoInviteMessage ?? "N/A"}\n\n" +
+                                  $"Remove @Everyone and @Here: {Guild.Antispams.Mention.MentionAll}\n" +
                                   $"Remove @Everyone and @Here Message:\n" +
-                                  $"{Guild.MentionAllMessage}\n\n" +
+                                  $"{Guild.Antispams.Mention.MentionAllMessage}\n\n" +
                                   $"Remove @everyone and @here excempt:\n" +
-                                  $"{(Guild.MentionallExcempt.Any() ? string.Join("\n", Context.Guild.Roles.Select(x => Guild.MentionallExcempt.Contains(x.Id) ? x.Name : null).Where(x => x != null)) : "N/A")}\n\n" +
-                                  $"Remove Messages with 5+ Mentions: {Guild.RemoveMassMention}\n"
+                                  $"Remove Messages with 5+ Mentions: {Guild.Antispams.Mention.RemoveMassMention}\n"
                 },
                 new PaginatedMessage.Page
                 {
-                    dynamictitle = $"Blacklist",
-                    description = $"Using Blacklist: {Guild.BlacklistWordSet.Any()}\n" +
-                                  $"Default Blacklist Message: {Guild.DefaultBlacklistMessage ?? "N/A"}\n" +
-                                  $"Filter Special Characters and numbers: {Guild.BlacklistBetterFilter}\n" +
+                    dynamictitle = $"AntiSpam 2.Blacklist",
+                    description = $"Using Blacklist: {Guild.Antispams.Blacklist.BlacklistWordSet.Any()}\n" +
+                                  $"Default Blacklist Message: {Guild.Antispams.Blacklist.DefaultBlacklistMessage ?? "N/A"}\n" +
+                                  $"Filter Special Characters and numbers: {Guild.Antispams.Blacklist.BlacklistBetterFilter}\n" +
                                   $"Blacklisted Words:\n" +
                                   $"Use the `{Config.Load().Prefix}blacklist` message to show this\n"
+                },
+                new PaginatedMessage.Page
+                {
+                    dynamictitle = $"AntiSpam 3.Excempt",
+                    description =
+                        $"{(Guild.Antispams.IngoreRoles.Any() ? string.Join("\n", Guild.Antispams.IngoreRoles.Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"__{Context.Guild.GetRole(x.RoleID).Name}__\nBypass Antispam: {x.AntiSpam}\nBypass Blacklist: {x.Blacklist}\nBypass Mention: {x.Mention}\nBypass Invite: {x.Advertising}\nBypass Filtering: {x.Privacy}\n")) : "N/A")}"
                 },
                 new PaginatedMessage.Page
                 {
@@ -796,10 +811,17 @@ namespace PassiveBOT.Commands.ServerSetup
                 },
                 new PaginatedMessage.Page
                 {
-                    dynamictitle = "Mod Log",
-                    description = $"Mod Role: {Context.Guild.GetRole(Guild.ModeratorRoleId)?.Name ?? "N/A"}\n" +
-                                  $"Moderator Logging: {Guild.LogModCommands}\n" +
-                                  $"Moderator Log Channel: {Context.Guild.GetChannel(Guild.ModLogChannel)?.Name ?? "N/A"}"
+                    dynamictitle = "Moderators",
+                    description =
+                        $"Mod Roles: {(Guild.RoleConfigurations.ModeratorRoleList.Any() ? string.Join("\n", Guild.RoleConfigurations.ModeratorRoleList.Where(mr => Context.Guild.Roles.Any(x => x.Id == mr)).Select(mr => Context.Guild.GetRole(mr)?.Name)) : "N/A")}\n" +
+                        $"Moderator Logging: {Guild.LogModCommands}\n" +
+                        $"Moderator Log Channel: {Context.Guild.GetChannel(Guild.ModLogChannel)?.Name ?? "N/A"}"
+                },
+                new PaginatedMessage.Page
+                {
+                    dynamictitle = "Administrators",
+                    description =
+                        $"Admin Roles: {(Guild.RoleConfigurations.AdminRoleList.Any() ? string.Join("\n", Guild.RoleConfigurations.AdminRoleList.Where(ar => Context.Guild.Roles.Any(x => x.Id == ar)).Select(ar => Context.Guild.GetRole(ar)?.Name)) : "N/A")}"
                 },
                 new PaginatedMessage.Page
                 {

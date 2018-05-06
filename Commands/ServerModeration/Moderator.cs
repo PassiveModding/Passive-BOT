@@ -11,7 +11,7 @@ using PassiveBOT.Preconditions;
 namespace PassiveBOT.Commands.ServerModeration
 {
     [RequireContext(ContextType.Guild)]
-    [CheckModerator]
+    [RequireModerator]
     public class Moderator : ModuleBase
     {
         [Command("prune")]
@@ -312,7 +312,7 @@ namespace PassiveBOT.Commands.ServerModeration
             if (reason == null)
             {
                 embed.AddField("Error", "Please Specify a reason for warning the user, ie\n" +
-                                        "`.warn @noobnoob being a noob");
+                                        $"`{Config.Load().Prefix}warn @noobnoob being a noob");
                 await ReplyAsync("", false, embed.Build());
                 return;
             }
@@ -421,14 +421,9 @@ namespace PassiveBOT.Commands.ServerModeration
         [Command("HackBan")]
         [Summary("HackBan <User ID>")]
         [Remarks("Bans the specified user from a server they are not in (Admin)")]
+        [RequireAdmin]
         public async Task BanUser(ulong UserID)
         {
-            if (!((SocketGuildUser) Context.User).GuildPermissions.Administrator)
-            {
-                await ReplyAsync("Admin Only!");
-                return;
-            }
-
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
@@ -606,17 +601,11 @@ namespace PassiveBOT.Commands.ServerModeration
             // 3. If the muted role is not setup, unavailable or does not exist, return.
             // 4. Try to mute the user.
 
-            if (user.RoleIds.Contains(GuildConfig.GetServer(Context.Guild).ModeratorRoleId) ||
-                user.GuildPermissions.Administrator)
-            {
-                await ReplyAsync("ERROR: User is a moderator or administrator");
-                return;
-            }
 
             IRole mutedrole;
             try
             {
-                var mrole = GuildConfig.GetServer(Context.Guild).MutedRole;
+                var mrole = GuildConfig.GetServer(Context.Guild).RoleConfigurations.MutedRole;
                 if (mrole == 0)
                 {
                     await ReplyAsync("The servers muted role is not setup");
@@ -667,7 +656,7 @@ namespace PassiveBOT.Commands.ServerModeration
         [Remarks("Unmute a user")]
         public async Task Unmute(IGuildUser user)
         {
-            var muteId = GuildConfig.GetServer(Context.Guild).MutedRole;
+            var muteId = GuildConfig.GetServer(Context.Guild).RoleConfigurations.MutedRole;
             var muterole = Context.Guild.GetRole(muteId);
             if (user.RoleIds.Contains(muteId))
             {

@@ -91,7 +91,7 @@ namespace PassiveBOT
             catch (Exception e)
             {
                 await LogHandler.In1Run("Token was rejected by Discord (Invalid Token or Connection Error)\n" +
-                                       $"{e}");
+                                        $"{e}");
             }
 
             var serviceProvider = ConfigureServices();

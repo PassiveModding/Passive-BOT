@@ -12,7 +12,7 @@ using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.ServerModeration
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class Admin : InteractiveBase
     {
@@ -22,10 +22,10 @@ namespace PassiveBOT.Commands.ServerModeration
         public async Task AntiRaid()
         {
             var guild = GuildConfig.GetServer(Context.Guild);
-            guild.antiraid = !guild.antiraid;
+            guild.Antispams.Antispam.antiraid = !guild.Antispams.Antispam.antiraid;
             GuildConfig.SaveServer(guild);
-            await ReplyAsync($"Anti Raid Mode: {guild.antiraid}");
-            if (guild.antiraid)
+            await ReplyAsync($"Anti Raid Mode: {guild.Antispams.Antispam.antiraid}");
+            if (guild.Antispams.Antispam.antiraid)
             {
                 var embed = new EmbedBuilder();
                 IRole asrole;
