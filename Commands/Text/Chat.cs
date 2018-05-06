@@ -29,7 +29,6 @@ namespace PassiveBOT.Commands.Text
         [Remarks("calculates the given input. use brackets where possible in complex calculations.")]
         public async Task Calculate([Remainder] string input)
         {
-              
             input = input.Replace(" ", "").ToLower();
             var working = $"{input}\n";
 
@@ -65,6 +64,7 @@ namespace PassiveBOT.Commands.Text
                         var sum = Math.Pow(intbase, intpow);
                         sec = sec.Replace(match.ToString(), sum.ToString(CultureInfo.InvariantCulture));
                     }
+
                     working = $"simplify: {sec1} => {sec}\n";
                 }
 
@@ -74,40 +74,39 @@ namespace PassiveBOT.Commands.Text
                 working += $"{input}\n";
             }
 
-                //Replace special integers
-                if (input.Contains("e"))
+            //Replace special integers
+            if (input.Contains("e"))
+            {
+                input = Regex.Replace(input, @"([0-9])e", $"$1*{Math.E}");
+                input = Regex.Replace(input, @"e([0-9])", $"{Math.E}*$1");
+                input = input.Replace("e", $"{Math.E}");
+                working += $"{input}\n";
+            }
+
+
+            //Fix Powers
+            if (input.Contains("^"))
+            {
+                var matches = Regex.Matches(input, @"[-+]?([0-9]*\.[0-9]+|[0-9]+)\^[-+]?([0-9]*\.[0-9]+|[0-9]+)");
+                foreach (var match in matches)
                 {
-                    input = Regex.Replace(input, @"([0-9])e", $"$1*{Math.E}");
-                    input = Regex.Replace(input, @"e([0-9])", $"{Math.E}*$1");
-                    input = input.Replace("e", $"{Math.E}");
-                    working += $"{input}\n";
+                    var intlist = Regex.Matches(match.ToString(), @"[-+]?([0-9]*\.[0-9]+|[0-9]+)");
+                    var intbase = double.Parse(intlist[0].ToString());
+                    var intpow = double.Parse(intlist[1].ToString());
+                    var sum = Math.Pow(intbase, intpow);
+                    input = input.Replace(match.ToString(), sum.ToString(CultureInfo.InvariantCulture));
                 }
 
+                working += $"{input}\n";
+            }
 
+            var output = new DataTable().Compute(input, null).ToString();
 
-                //Fix Powers
-                if (input.Contains("^"))
-                {
-                    var matches = Regex.Matches(input, @"[-+]?([0-9]*\.[0-9]+|[0-9]+)\^[-+]?([0-9]*\.[0-9]+|[0-9]+)");
-                    foreach (var match in matches)
-                    {
-                        var intlist = Regex.Matches(match.ToString(), @"[-+]?([0-9]*\.[0-9]+|[0-9]+)");
-                        var intbase = double.Parse(intlist[0].ToString());
-                        var intpow = double.Parse(intlist[1].ToString());
-                        var sum = Math.Pow(intbase, intpow);
-                        input = input.Replace(match.ToString(), sum.ToString(CultureInfo.InvariantCulture));
-                    }
-
-                    working += $"{input}\n";
-                }
-
-                var output = new DataTable().Compute(input, null).ToString();
-
-                await ReplyAsync($"__**Working**__\n" +
-                                 $@"{working.Replace("*", @"\*")}" +
-                                 $"\n" +
-                                 $"__**Final**__\n" +
-                                 $@"{Regex.Escape(input)} = {output}");
+            await ReplyAsync($"__**Working**__\n" +
+                             $@"{working.Replace("*", @"\*")}" +
+                             $"\n" +
+                             $"__**Final**__\n" +
+                             $@"{Regex.Escape(input)} = {output}");
         }
 
         [Command("quote")]
