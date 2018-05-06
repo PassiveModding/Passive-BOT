@@ -418,6 +418,7 @@ namespace PassiveBOT.Handlers
         private async Task UserJoinedEvent(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
+            if (guildobj.Antispams.Antispam.antiraid)
             {
                 IRole role;
                 if (user.Guild.Roles.FirstOrDefault(x =>
