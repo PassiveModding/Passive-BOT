@@ -237,10 +237,15 @@ namespace PassiveBOT.Commands.OwnerCmds
             var s2 = new StringBuilder();
             foreach (var guild in Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
             {
-                if (guild.Name.ToLower().Contains(s.ToLower()) && s != "")
-                    s2.Append($"{guild.Name} : `{guild.Id}` : U- {guild.MemberCount}\n");
+                if (s != "")
+                {
+                    if (guild.Name.ToLower().Contains(s.ToLower()))
+                        s2.Append($"{guild.Name} : `{guild.Id}` : U- {guild.MemberCount}\n");
+                }
                 else
+                {
                     s2.Append($"{guild.Name} : `{guild.Id}` : U- {guild.MemberCount}\n");
+                }
 
                 if (s2.ToString().Length <= 800) continue;
                 pages.Add(new PaginatedMessage.Page
