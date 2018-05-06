@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Data;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -18,6 +19,15 @@ namespace PassiveBOT.Commands.Text
             input = input.Replace("@everyone", "Everyone");
             input = input.Replace("@here", "Here");
             await ReplyAsync("\u200B" + input);
+        }
+
+        [Command("calculate")]
+        [Summary("calculate <math expression>")]
+        [Remarks("calculates the given input")]
+        public async Task Calculate([Remainder] string input)
+        {
+            var output = new DataTable().Compute(input, null).ToString();
+            await ReplyAsync($"{input} = {output}");
         }
 
         [Command("quote")]
