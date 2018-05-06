@@ -750,11 +750,11 @@ namespace PassiveBOT.Commands.ServerSetup
                 new PaginatedMessage.Page
                 {
                     dynamictitle = $"Blacklist",
-                    description = $"Using Blacklist: {Guild.Blacklist.Any()}\n" +
-                                  $"Blacklist Message: {Guild.BlacklistMessage ?? "N/A"}\n" +
+                    description = $"Using Blacklist: {Guild.BlacklistWordSet.Any()}\n" +
+                                  $"Default Blacklist Message: {Guild.DefaultBlacklistMessage ?? "N/A"}\n" +
                                   $"Filter Special Characters and numbers: {Guild.BlacklistBetterFilter}\n" +
                                   $"Blacklisted Words:\n" +
-                                  $"{(Guild.Blacklist.Any() ? string.Join("\n", Guild.Blacklist) : "N/A")}\n"
+                                  $"Use the `{Config.Load().Prefix}blacklist` message to show this\n"
                 },
                 new PaginatedMessage.Page
                 {

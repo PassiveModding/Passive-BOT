@@ -412,40 +412,38 @@ namespace PassiveBOT.Handlers
             try
             {
                 var blacklistdetected = false;
+                var blacklistmessage = guild.DefaultBlacklistMessage;
                 if (guild.BlacklistBetterFilter)
                 {
-                    if (guild.Blacklist.Any(x =>
-                            ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(context.Message.Content))
-                                .ToLower().Contains(x.ToLower())) &&
-                        !((IGuildUser) context.User).GuildPermissions.Administrator)
+                    var detectedblacklistmodule = guild.BlacklistWordSet.FirstOrDefault(blist =>
+                        blist.WordList.Any(x =>
+                            ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(context.Message.Content)).ToLower().Contains(x.ToLower())) &&
+                            !((IGuildUser) context.User).GuildPermissions.Administrator);
+                    if (detectedblacklistmodule != null)
+                    {
                         blacklistdetected = true;
+                        blacklistmessage = detectedblacklistmodule.BlacklistResponse ?? guild.DefaultBlacklistMessage;
+                    }
                 }
                 else
                 {
-                    if (guild.Blacklist
-                            .Any(b => context.Message.Content.ToLower().Contains(b.ToLower())) &&
-                        !((IGuildUser) context.User).GuildPermissions.Administrator)
+                    var detectedblacklistmodule = guild.BlacklistWordSet.FirstOrDefault(blist =>
+                        blist.WordList.Any(x => context.Message.Content.ToLower().Contains(x.ToLower()) &&
+                                                !((IGuildUser) context.User).GuildPermissions.Administrator));
+                    if (detectedblacklistmodule != null)
+                    {
                         blacklistdetected = true;
+                        blacklistmessage = detectedblacklistmodule.BlacklistResponse ?? guild.DefaultBlacklistMessage;
+                    }
                 }
 
                 if (blacklistdetected)
                 {
                     await message.DeleteAsync();
-                    var blmessage = "";
-                    try
-                    {
-                        blmessage = guild.BlacklistMessage;
-                    }
-                    catch
-                    {
-                        //
-                    }
 
-                    if (blmessage != "")
+                    if (!string.IsNullOrEmpty(blacklistmessage))
                     {
-                        var r = context.Channel.SendMessageAsync(blmessage);
-                        //Task.Delay(5000);
-                        //r.DeleteAsync();
+                        await context.Channel.SendMessageAsync(blacklistmessage);
                         return true;
                     }
                 }

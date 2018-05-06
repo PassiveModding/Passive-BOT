@@ -47,8 +47,16 @@ namespace PassiveBOT.Configuration
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
-        public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
-        public string BlacklistMessage { get; set; } = "";
+        //public List<string> Blacklist { get; set; } = new List<string>(); // keyword blacklist
+        public List<BlacklistWords> BlacklistWordSet = new List<BlacklistWords>();
+        public class BlacklistWords
+        {
+            public List<string> WordList = new List<string>(); //Words for the specified blacklist message
+            public string BlacklistResponse { get; set; } = null;
+        }
+
+
+        public string DefaultBlacklistMessage { get; set; } = "";
         public bool BlacklistBetterFilter { get; set; } = true;
         public bool Invite { get; set; } = false; // blacklist for discord invites
         public List<ulong> InviteExcempt { get; set; } = new List<ulong>();
