@@ -270,13 +270,21 @@ namespace PassiveBOT.Handlers
                                                             if (roletoreceive.Count != rolesavailable.Count &&
                                                                 roletoreceive.Count == 1)
                                                             {
-                                                                rolesavailable.Remove(roletoreceive.First());
-                                                                var roles = rolesavailable
-                                                                    .Select(x => context.Guild.GetRole(x.RoleID))
-                                                                    .Where(x => x != null);
+                                                                try
+                                                                {
+                                                                    rolesavailable.Remove(roletoreceive.First());
+                                                                    var roles = rolesavailable
+                                                                        .Select(x => context.Guild.GetRole(x.RoleID))
+                                                                        .Where(x => x != null);
 
-                                                                await ((SocketGuildUser) context.User).RemoveRolesAsync(
-                                                                    roles);
+                                                                    await ((SocketGuildUser) context.User).RemoveRolesAsync(
+                                                                        roles);
+                                                                }
+                                                                catch 
+                                                                {
+                                                                    //
+                                                                }
+
                                                             }
                                                         }
                                                     }
@@ -294,16 +302,32 @@ namespace PassiveBOT.Handlers
                                                     };
                                                     if (guild.Levels.UseLevelChannel)
                                                     {
-                                                        var chan = context.Guild.GetChannel(guild.Levels
-                                                            .LevellingChannel);
-                                                        if (chan != null)
-                                                            await ((IMessageChannel) chan).SendMessageAsync("", false,
-                                                                embed.Build());
+                                                        try
+                                                        {
+                                                            var chan = context.Guild.GetChannel(guild.Levels
+                                                                .LevellingChannel);
+                                                            if (chan != null)
+                                                                await ((IMessageChannel) chan).SendMessageAsync("", false,
+                                                                    embed.Build());
+                                                        }
+                                                        catch
+                                                        {
+                                                            //
+                                                        }
+
                                                     }
 
                                                     if (guild.Levels.UseLevelMessages)
-                                                        await context.Channel.SendMessageAsync("", false,
-                                                            embed.Build());
+                                                        try
+                                                        {
+                                                            await context.Channel.SendMessageAsync("", false,
+                                                                embed.Build());
+                                                        }
+                                                        catch
+                                                        {
+                                                            //
+                                                        }
+
                                                 }
                                             }
                                         }
