@@ -194,7 +194,7 @@ namespace PassiveBOT.Configuration
 
         public class antispams
         {
-            public blacklist Blacklist = new blacklist();
+            public blacklist Blacklist { get; set; } = new blacklist();
             public antispam Antispam { get; set; } = new antispam();
             public advertising Advertising { get; set; } = new advertising();
             public mention Mention { get; set; } = new mention();
@@ -219,7 +219,7 @@ namespace PassiveBOT.Configuration
             public class blacklist
             {
                 //the blacklist word groupings
-                public List<BlacklistWords> BlacklistWordSet = new List<BlacklistWords>();
+                public List<BlacklistWords> BlacklistWordSet { get; set; } = new List<BlacklistWords>();
                 public string DefaultBlacklistMessage { get; set; } = "";
 
                 //toggle wether or not to filter diatrics and replace certain numbers with their letter counterparts etc.
@@ -228,7 +228,7 @@ namespace PassiveBOT.Configuration
                 public class BlacklistWords
                 {
                     //Words for the specified blacklist message
-                    public List<string> WordList = new List<string>();
+                    public List<string> WordList { get; set; } = new List<string>();
 
                     //Custom response for certain words.
                     public string BlacklistResponse { get; set; } = null;
@@ -237,7 +237,7 @@ namespace PassiveBOT.Configuration
 
             public class advertising
             {
-                public string NoInviteMessage = null;
+                public string NoInviteMessage { get; set; } = null;
 
                 //blacklist for discord invites
                 public bool Invite { get; set; } = false;
@@ -245,7 +245,7 @@ namespace PassiveBOT.Configuration
 
             public class mention
             {
-                public string MentionAllMessage = null;
+                public string MentionAllMessage { get; set; }= null;
 
                 //blacklist for @everyone and @here 
                 public bool MentionAll { get; set; } = false;
@@ -361,10 +361,10 @@ namespace PassiveBOT.Configuration
 
         public class gambling
         {
-            public TheStore Store = new TheStore();
+            public TheStore Store { get; set; }= new TheStore();
 
 
-            public List<user> Users = new List<user>();
+            public List<user> Users { get; set; }= new List<user>();
             public bool enabled { get; set; } = true;
             public GamblingSet settings { get; set; } = new GamblingSet();
 
@@ -375,7 +375,7 @@ namespace PassiveBOT.Configuration
 
             public class TheStore
             {
-                public List<Storeitem> ShowItems = new List<Storeitem>();
+                public List<Storeitem> ShowItems { get; set; } = new List<Storeitem>();
 
                 public class Storeitem
                 {
@@ -398,6 +398,10 @@ namespace PassiveBOT.Configuration
 
                     public ulong InitialCreatorID { get; set; }
 
+                    
+                    public bool HasDurability { get; set; } = false;
+                    public int Durability { get; set; } = 100;
+                    public int DurabilityModifier { get; set; } = 5;
 
                     //Remove item from store w/o actually removing it.
                     public bool Hidden { get; set; } = false;
@@ -406,7 +410,7 @@ namespace PassiveBOT.Configuration
 
             public class user
             {
-                public List<item> Inventory = new List<item>();
+                public List<item> Inventory { get; set; }= new List<item>();
                 public ulong userID { get; set; }
                 public int coins { get; set; } = 200;
                 public bool banned { get; set; } = false;
@@ -416,6 +420,9 @@ namespace PassiveBOT.Configuration
                 public class item
                 {
                     public int ItemID { get; set; }
+
+                    public int Durability { get; set; } = 100;
+
                     public int quantity { get; set; } = 0;
                 }
             }

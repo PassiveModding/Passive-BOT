@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -32,11 +33,14 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(guildobj);
         }
 
-        [Group("Store")]
-        public class Store : ModuleBase
+
+
+
+        [Group("StoreSetup")]
+        public class Store : InteractiveBase
         {
             [Command("SetupInfo")]
-            [Summary("store SetupInfo")]
+            [Summary("StoreSetup SetupInfo")]
             [Remarks("help on setting up the store.")]
             public async Task StoreInfo()
             {
@@ -45,8 +49,64 @@ namespace PassiveBOT.Commands.ServerSetup
                                  "Note for unlimited quantity, use `-1` as the value");
             }
 
+            [Command("InitialiseStore")]
+            [Summary("StoreSetup InitialiseStore <Price> <Quantity> <Item Name>")]
+            [Remarks("initialise the store!")]
+            public async Task InitStore()
+            {
+                var guildobj = GuildConfig.GetServer(Context.Guild);
+                var sitems = new List<GuildConfig.gambling.TheStore.Storeitem>
+                {
+                        new GuildConfig.gambling.TheStore.Storeitem
+                        {
+                            ItemName = ":wrench:",
+                            ItemID = -15,
+                            Hidden = true,
+                            cost = 15
+                        },
+                        new GuildConfig.gambling.TheStore.Storeitem
+                        {
+                            ItemName = ":evergreen_tree:",
+                            ItemID = -10,
+                            Hidden = true,
+                            cost = 10
+                        },
+                        new GuildConfig.gambling.TheStore.Storeitem
+                        {
+                            ItemName = ":full_moon:",
+                            ItemID = -5,
+                            Hidden = true,
+                            cost = 12
+                        },
+                        new GuildConfig.gambling.TheStore.Storeitem
+                        {
+                            ItemName = ":zap:",
+                            ItemID = -16,
+                            Hidden = true,
+                            cost = 50
+                        },
+                        new GuildConfig.gambling.TheStore.Storeitem
+                        {
+                            ItemName = ":apple:",
+                            ItemID = -11,
+                            Hidden = true,
+                            cost = 25
+                        },
+                        new GuildConfig.gambling.TheStore.Storeitem
+                        {
+                            ItemName = ":gem:",
+                            ItemID = -6,
+                            Hidden = true,
+                            cost = 100
+                        }
+                };
+                guildobj.Gambling.Store.ShowItems.AddRange(sitems);
+                GuildConfig.SaveServer(guildobj);
+                await ReplyAsync("Added");
+            }
+
             [Command("AddItem")]
-            [Summary("store AddItem <Price> <Quantity> <Item Name>")]
+            [Summary("StoreSetup AddItem <Price> <Quantity> <Item Name>")]
             [Remarks("add an item to the servers default store")]
             public async Task AddStoreItem(int ItmCost, int ItmQuantity, [Remainder] string ItemName)
             {
@@ -59,13 +119,21 @@ namespace PassiveBOT.Commands.ServerSetup
                     InitialCreatorID = Context.User.Id,
                     ItemID = guildobj.Gambling.Store.ShowItems.Count
                 };
-
+                var embed = new EmbedBuilder();
+                embed.Title = ItemName + " Added";
+                embed.Description = $"`1` Attack: {newitem.Attack}\n" +
+                                    $"`2` Defense: {newitem.Defense}\n" +
+                                    $"`3` Cost: {newitem.cost}\n" +
+                                    $"`4` Quantity: {newitem.quantity}\n" +
+                                    $"`5` Total Purchased: {newitem.total_purchased}\n" +
+                                    $"`6` Name: {newitem.ItemName}\n";
+                await ReplyAsync("", false, embed.Build());
                 guildobj.Gambling.Store.ShowItems.Add(newitem);
                 GuildConfig.SaveServer(guildobj);
             }
 
-            [Command("EditItem")]
-            [Summary("store EditItem <Item Name>")]
+            [Command("EditItem", RunMode = RunMode.Async)]
+            [Summary("StoreSetup EditItem <Item Name>")]
             [Remarks("Edit an item in the store")]
             public async Task EditStoreItem([Remainder] string ItemName)
             {
@@ -91,12 +159,94 @@ namespace PassiveBOT.Commands.ServerSetup
                                     $"`1 50`\n" +
                                     $"The item's attack would be changed to 50.";
 
+                var next = await NextMessageAsync(timeout: TimeSpan.FromMinutes(1));
+                var paramlist = next.Content.Split(' ');
+                var inputnumber = paramlist[0];
+                var inputvalue = next.Content.Substring(inputnumber.Length, next.Content.Length - inputnumber.Length);
+                string editlog = "";
+                if (int.TryParse(inputnumber, out var selectionResult))
+                {
+                    if (selectionResult == 1)
+                    {
+                        if (int.TryParse(inputvalue, out var EditValue))
+                        {
+                            editlog = $"Attack Value: {selecteditem.Attack} -> {EditValue}";
+                            selecteditem.Attack = EditValue;
+                        }
+                        else
+                        {
+                            await ReplyAsync("Input 1 detected, invalid edit value");
+                            return;
+                        }
+                    }
+                    else if (selectionResult == 2)
+                    {
+                        if (int.TryParse(inputvalue, out var EditValue))
+                        {
+                            editlog = $"Defense Value: {selecteditem.Defense} -> {EditValue}";
+                            selecteditem.Defense = EditValue;
+                        }
+                        else
+                        {
+                            await ReplyAsync("Input 2 detected, invalid edit value");
+                            return;
+                        }
+                    }
+                    else if (selectionResult == 3)
+                    {
+                        if (int.TryParse(inputvalue, out var EditValue))
+                        {
+                            editlog = $"Cost: {selecteditem.cost} -> {EditValue}";
+                            selecteditem.cost = EditValue;
+                        }
+                        else
+                        {
+                            await ReplyAsync("Input 3 detected, invalid edit value");
+                            return;
+                        }
+                    }
+                    else if (selectionResult == 4)
+                    {
+                        if (int.TryParse(inputvalue, out var EditValue))
+                        {
+                            editlog = $"Quantity: {selecteditem.quantity} -> {EditValue}";
+                            selecteditem.quantity = EditValue;
+                        }
+                        else
+                        {
+                            await ReplyAsync("Input 4 detected, invalid edit value");
+                            return;
+                        }
+                    }
+                    else if (selectionResult == 5)
+                    {
+                        if (int.TryParse(inputvalue, out var EditValue))
+                        {
+                            editlog = $"Total Purchased: {selecteditem.total_purchased} -> {EditValue}";
+                            selecteditem.total_purchased = EditValue;
+                        }
+                        else
+                        {
+                            await ReplyAsync("Input 5 detected, invalid edit value");
+                            return;
+                        }
+                    }
+                    else if (selectionResult == 6)
+                    {
+                        selecteditem.ItemName = inputvalue;
+                    }
+                }
+                else
+                {
+                    await ReplyAsync("Invalid Input. please input just a number and the desired new value");
+                }
 
+                await ReplyAsync($"{editlog}");
                 GuildConfig.SaveServer(guildobj);
             }
 
             [Command("RemoveItem")]
-            [Summary("store RemoveItem <Item Name>")]
+            [Summary("StoreSetup RemoveItem <Item Name>")]
             [Remarks("remove an item from the servers default store")]
             public async Task RemoveStoreItem([Remainder] string ItemName)
             {
@@ -107,6 +257,12 @@ namespace PassiveBOT.Commands.ServerSetup
                 if (selecteditem == null)
                 {
                     await ReplyAsync("There are no items in the store with that name.");
+                    return;
+                }
+
+                if (selecteditem.ItemID < 0)
+                {
+                    await ReplyAsync("You cannot remove the default items");
                     return;
                 }
 
