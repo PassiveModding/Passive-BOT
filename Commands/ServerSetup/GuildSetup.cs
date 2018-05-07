@@ -825,6 +825,14 @@ namespace PassiveBOT.Commands.ServerSetup
                 },
                 new PaginatedMessage.Page
                 {
+                    dynamictitle = "Gambling",
+                    description = $"Guild Wealth: {Guild.Gambling.Users.Sum(x => x.coins)}\n" +
+                                  $"Currency Name: {Guild.Gambling.settings.CurrencyName}\n" +
+                                  $"Store Items: {Guild.Gambling.Store.ShowItems.Count}\n" +
+                                  $"Enabled: {Guild.Gambling.enabled}"
+                },
+                new PaginatedMessage.Page
+                {
                     dynamictitle = "Moderators",
                     description =
                         $"Mod Roles: {(Guild.RoleConfigurations.ModeratorRoleList.Any() ? string.Join("\n", Guild.RoleConfigurations.ModeratorRoleList.Where(mr => Context.Guild.Roles.Any(x => x.Id == mr)).Select(mr => Context.Guild.GetRole(mr)?.Name)) : "N/A")}\n" +

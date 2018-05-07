@@ -77,7 +77,7 @@ namespace PassiveBOT.preconditions
                 timeoutstr = $"{timeoutlength.Seconds} Seconds";
             */
             if (timeout.TimesInvoked > _invokeLimit)
-                return Task.FromResult(PreconditionResult.FromError($"Timeout"));// for another {timeoutstr}"));
+                return Task.FromResult(PreconditionResult.FromError($"Timeout")); // for another {timeoutstr}"));
             _invokeTracker[context.User.Id] = timeout;
             return Task.FromResult(PreconditionResult.FromSuccess());
         }

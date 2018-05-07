@@ -285,7 +285,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
-                    var match = officialinvites.FirstOrDefault(x => x.Url == invite);
+                    var match = officialinvites.FirstOrDefault(x =>
+                        string.Equals(x.Url, invite, StringComparison.CurrentCultureIgnoreCase));
                     if (match == null) mismatch = true;
                 }
 

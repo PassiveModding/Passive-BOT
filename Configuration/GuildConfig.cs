@@ -245,7 +245,7 @@ namespace PassiveBOT.Configuration
 
             public class mention
             {
-                public string MentionAllMessage { get; set; }= null;
+                public string MentionAllMessage { get; set; } = null;
 
                 //blacklist for @everyone and @here 
                 public bool MentionAll { get; set; } = false;
@@ -361,10 +361,10 @@ namespace PassiveBOT.Configuration
 
         public class gambling
         {
-            public TheStore Store { get; set; }= new TheStore();
+            public TheStore Store { get; set; } = new TheStore();
 
 
-            public List<user> Users { get; set; }= new List<user>();
+            public List<user> Users { get; set; } = new List<user>();
             public bool enabled { get; set; } = true;
             public GamblingSet settings { get; set; } = new GamblingSet();
 
@@ -398,7 +398,7 @@ namespace PassiveBOT.Configuration
 
                     public ulong InitialCreatorID { get; set; }
 
-                    
+
                     public bool HasDurability { get; set; } = false;
                     public int Durability { get; set; } = 100;
                     public int DurabilityModifier { get; set; } = 5;
@@ -410,7 +410,7 @@ namespace PassiveBOT.Configuration
 
             public class user
             {
-                public List<item> Inventory { get; set; }= new List<item>();
+                public List<item> Inventory { get; set; } = new List<item>();
                 public ulong userID { get; set; }
                 public int coins { get; set; } = 200;
                 public bool banned { get; set; } = false;

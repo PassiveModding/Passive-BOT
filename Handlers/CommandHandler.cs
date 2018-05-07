@@ -175,7 +175,8 @@ namespace PassiveBOT.Handlers
 
                         if (detected && guild.Antispams.Antispam.NoSpam)
                             if (!BypassAntispam)
-                                if (!guild.Antispams.Antispam.AntiSpamSkip.Any(x => message.Content.ToLower().Contains(x.ToLower())))
+                                if (!guild.Antispams.Antispam.AntiSpamSkip.Any(x =>
+                                    message.Content.ToLower().Contains(x.ToLower())))
                                 {
                                     await message.DeleteAsync();
                                     var delay = AntiSpamMsgDelays.FirstOrDefault(x => x.GuildID == guild.GuildId);
@@ -328,30 +329,22 @@ namespace PassiveBOT.Handlers
                 }
             }
 
-
-            if (message.Content.Contains("discord.gg") && !BypassInvite)
-                try
+            if (guild.Antispams.Advertising.Invite && !BypassInvite)
+                if (message.Content.Contains("discord.gg"))
                 {
-                    if (context.Channel is IGuildChannel)
-                        if (guild.Antispams.Advertising.Invite)
-                        {
-                            await message.DeleteAsync();
-                            var emb = new EmbedBuilder
-                            {
-                                Description =
-                                    guild.Antispams.Advertising.NoInviteMessage ??
-                                    $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry"
-                            };
-                            await context.Channel.SendMessageAsync("", false, emb.Build());
-                            //if
-                            // 1. The server Has Invite Deletions turned on
-                            // 2. The user is not an admin
-                            // 3. The user does not have one of the invite excempt roles
-                        }
-                }
-                catch
-                {
-                    //
+                    await message.DeleteAsync();
+                    var emb = new EmbedBuilder
+                    {
+                        Description =
+                            guild.Antispams.Advertising.NoInviteMessage ??
+                            $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry"
+                    };
+                    await context.Channel.SendMessageAsync("", false, emb.Build());
+                    //if
+                    // 1. The server Has Invite Deletions turned on
+                    // 2. The user is not an admin
+                    // 3. The user does not have one of the invite excempt roles
+                    return true;
                 }
 
             if (guild.Antispams.Mention.RemoveMassMention && !BypassMention)
@@ -486,10 +479,10 @@ namespace PassiveBOT.Handlers
                     {
                         //GuildConfig.Setup(guild);
                         var guildconfig = GuildConfig.GetServer(guild);
-                        if (guildconfig.PartnerSetup.PartherChannel != 0)
-                            if (guildconfig.PartnerSetup.IsPartner &&
-                                _client.GetChannel(guildconfig.PartnerSetup.PartherChannel) is IMessageChannel)
-                                TimerService.AcceptedServers.Add(guild.Id);
+                        if (guildconfig.PartnerSetup.PartherChannel == 0) continue;
+                        if (guildconfig.PartnerSetup.IsPartner &&
+                            _client.GetChannel(guildconfig.PartnerSetup.PartherChannel) is IMessageChannel)
+                            TimerService.AcceptedServers.Add(guild.Id);
                     }
                     catch //(Exception e)
                     {
@@ -522,11 +515,18 @@ namespace PassiveBOT.Handlers
             var guild = GuildConfig.GetServer(context.Guild);
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention)
             {
-                var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "",
-                    RegexOptions.Multiline);
+                var mcontent = context.Message.MentionedUsers.Aggregate(message.Content,
+                    (current, mentionedUser) => current.Replace(mentionedUser.Mention, mentionedUser.Username));
+                mcontent = context.Message.MentionedRoles.Aggregate(mcontent,
+                    (current, mentionedRole) => current.Replace(mentionedRole.Mention, mentionedRole.Name));
+                mcontent = context.Message.MentionedChannels.Aggregate(mcontent,
+                    (current, mentionedChannel) =>
+                        current.Replace(((ITextChannel) mentionedChannel).Mention, mentionedChannel.Name));
+                //var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "",
+                //    RegexOptions.Multiline);
                 try
                 {
-                    var response = _apiAi.TextRequest(newmessage);
+                    var response = _apiAi.TextRequest(mcontent);
                     if (response.Result.Fulfillment.Speech != "")
                         await context.Channel.SendMessageAsync(response.Result.Fulfillment.Speech);
                 }

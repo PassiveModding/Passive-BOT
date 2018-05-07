@@ -1,11 +1,9 @@
-﻿using Discord.Commands;
-using PassiveBOT.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
+using PassiveBOT.Configuration;
 
 namespace PassiveBOT.Commands.Gaming
 {
@@ -18,10 +16,7 @@ namespace PassiveBOT.Commands.Gaming
         public async Task ViewInventory(IUser user = null)
         {
             await Setupuser(Context.Guild, Context.User);
-            if (user == null)
-            {
-                user = Context.User;
-            }
+            if (user == null) user = Context.User;
 
             var guildobj = GuildConfig.GetServer(Context.Guild);
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == user.Id);
@@ -39,13 +34,15 @@ namespace PassiveBOT.Commands.Gaming
             }
 
             var embed = new EmbedBuilder();
-            var uitems = uprofile.Inventory.Select(x => guildobj.Gambling.Store.ShowItems.FirstOrDefault(s => s.ItemID == x.ItemID)).Where(x => x != null);
+            var uitems = uprofile.Inventory
+                .Select(x => guildobj.Gambling.Store.ShowItems.FirstOrDefault(s => s.ItemID == x.ItemID))
+                .Where(x => x != null);
             foreach (var item in uitems)
             {
                 var uitem = uprofile.Inventory.First(x => x.ItemID == item.ItemID);
                 embed.AddField(item.ItemName, $"Quantity: {uitem.quantity}\n" +
-                                            $"{(item.HasDurability ? $"Durability: {uitem.Durability}\n": "")}" +
-                                            $"Value: {item.cost}");
+                                              $"{(item.HasDurability ? $"Durability: {uitem.Durability}\n" : "")}" +
+                                              $"Value: {item.cost}");
             }
 
             await ReplyAsync("", false, embed.Build());
@@ -56,24 +53,21 @@ namespace PassiveBOT.Commands.Gaming
         [Remarks("Browse the Store")]
         public async Task ViewStore()
         {
-
             var guildobj = GuildConfig.GetServer(Context.Guild);
 
             var embed = new EmbedBuilder();
-            foreach (var item in guildobj.Gambling.Store.ShowItems)//.Where(x => x.Hidden == false))
+            foreach (var item in guildobj.Gambling.Store.ShowItems) //.Where(x => x.Hidden == false))
             {
                 var desc = $"Cost: {item.cost}\n" +
-                    $"Quantity In Stock: {item.quantity}\n" +
-                    $"ID: {item.ItemID}\n" +
-                    $"All time purchased: {item.total_purchased}\n";
+                           $"Quantity In Stock: {item.quantity}\n" +
+                           $"ID: {item.ItemID}\n" +
+                           $"All time purchased: {item.total_purchased}\n";
 
                 if (item.HasDurability)
-                {
                     desc += $"Attack: {item.Attack}\n" +
-                    $"Defence: {item.Defense}\n" +
-                    $"Durability: {item.Durability}\n" +
-                    $"DurabilityModifier: {item.DurabilityModifier}\n";
-                }
+                            $"Defence: {item.Defense}\n" +
+                            $"Durability: {item.Durability}\n" +
+                            $"DurabilityModifier: {item.DurabilityModifier}\n";
                 embed.AddField(item.ItemName, desc);
             }
 
@@ -95,7 +89,8 @@ namespace PassiveBOT.Commands.Gaming
         {
             await Setupuser(Context.Guild, Context.User);
             var guildobj = GuildConfig.GetServer(Context.Guild);
-            var selecteditem = guildobj.Gambling.Store.ShowItems.Where(x => x.Hidden == false).FirstOrDefault(x => string.Equals(name, x.ItemName, StringComparison.InvariantCultureIgnoreCase));
+            var selecteditem = guildobj.Gambling.Store.ShowItems.Where(x => x.Hidden == false).FirstOrDefault(x =>
+                string.Equals(name, x.ItemName, StringComparison.InvariantCultureIgnoreCase));
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
             if (selecteditem == null)
             {
@@ -103,9 +98,10 @@ namespace PassiveBOT.Commands.Gaming
                 return;
             }
 
-            if (uprofile.coins - selecteditem.cost*quantity < 0)
+            if (uprofile.coins - selecteditem.cost * quantity < 0)
             {
-                await ReplyAsync($"Insufficient Funds. This item costs {selecteditem.cost} {guildobj.Gambling.settings.CurrencyName}");
+                await ReplyAsync(
+                    $"Insufficient Funds. This item costs {selecteditem.cost} {guildobj.Gambling.settings.CurrencyName}");
                 return;
             }
 
@@ -123,27 +119,20 @@ namespace PassiveBOT.Commands.Gaming
 
             var invitem = uprofile.Inventory.FirstOrDefault(x => x.ItemID == selecteditem.ItemID);
             if (invitem == null || selecteditem.HasDurability || invitem.Durability < 100)
-            {
                 uprofile.Inventory.Add(new GuildConfig.gambling.user.item
                 {
                     ItemID = selecteditem.ItemID,
                     quantity = quantity,
                     Durability = selecteditem.Durability
                 });
-            }
             else
-            {
                 invitem.quantity = invitem.quantity + quantity;
-            }
 
-            uprofile.coins = uprofile.coins - selecteditem.cost*quantity;
+            uprofile.coins = uprofile.coins - selecteditem.cost * quantity;
             selecteditem.total_purchased = selecteditem.total_purchased + quantity;
-            if (selecteditem.quantity != -1)
-            {
-                selecteditem.quantity = selecteditem.quantity - quantity;
-            }
+            if (selecteditem.quantity != -1) selecteditem.quantity = selecteditem.quantity - quantity;
             await ReplyAsync($"You have successfully purchased `{quantity}` {selecteditem.ItemName}\n" +
-                $"Balance: {uprofile.coins} {guildobj.Gambling.settings.CurrencyName}");
+                             $"Balance: {uprofile.coins} {guildobj.Gambling.settings.CurrencyName}");
             GuildConfig.SaveServer(guildobj);
         }
 
@@ -160,11 +149,11 @@ namespace PassiveBOT.Commands.Gaming
         [Remarks("sell items to the store")]
         public async Task SellItem(int quantity, [Remainder] string name = null)
         {
-
             await Setupuser(Context.Guild, Context.User);
             var guildobj = GuildConfig.GetServer(Context.Guild);
 
-            var selecteditem = guildobj.Gambling.Store.ShowItems.FirstOrDefault(x => string.Equals(name, x.ItemName, StringComparison.InvariantCultureIgnoreCase));
+            var selecteditem = guildobj.Gambling.Store.ShowItems.FirstOrDefault(x =>
+                string.Equals(name, x.ItemName, StringComparison.InvariantCultureIgnoreCase));
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
             if (selecteditem == null)
             {
@@ -172,36 +161,28 @@ namespace PassiveBOT.Commands.Gaming
                 return;
             }
 
-            var invitem = uprofile.Inventory.Where(x => x.Durability == 100).FirstOrDefault(x => x.ItemID == selecteditem.ItemID);
+            var invitem = uprofile.Inventory.Where(x => x.Durability == 100)
+                .FirstOrDefault(x => x.ItemID == selecteditem.ItemID);
             if (invitem == null)
             {
-                await ReplyAsync($"You do not own this item (or you have already used it and it's durability has decreased.)");
+                await ReplyAsync(
+                    $"You do not own this item (or you have already used it and it's durability has decreased.)");
                 return;
             }
-            else
+
+            if (invitem.quantity < quantity)
             {
-                if (invitem.quantity < quantity)
-                {
-                    await ReplyAsync($"You cannot sell this many of that item");
-                    return;
-                }
-
-                if (invitem.quantity - quantity == 0)
-                {
-                    uprofile.Inventory.Remove(invitem);
-                }
-                else
-                {
-                    invitem.quantity = invitem.quantity - quantity;
-                }
-
-                uprofile.coins = uprofile.coins + selecteditem.cost * quantity;
-                if (selecteditem.quantity != -1)
-                {
-                    selecteditem.quantity = selecteditem.quantity + quantity;
-                }
-                
+                await ReplyAsync($"You cannot sell this many of that item");
+                return;
             }
+
+            if (invitem.quantity - quantity == 0)
+                uprofile.Inventory.Remove(invitem);
+            else
+                invitem.quantity = invitem.quantity - quantity;
+
+            uprofile.coins = uprofile.coins + selecteditem.cost * quantity;
+            if (selecteditem.quantity != -1) selecteditem.quantity = selecteditem.quantity + quantity;
             GuildConfig.SaveServer(guildobj);
         }
 
@@ -210,7 +191,6 @@ namespace PassiveBOT.Commands.Gaming
         [Remarks("sell all stone, wood, wrenches, gems, apples and powerpacks to the store")]
         public async Task QuickSell()
         {
-
             await Setupuser(Context.Guild, Context.User);
             var guildobj = GuildConfig.GetServer(Context.Guild);
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
@@ -222,9 +202,11 @@ namespace PassiveBOT.Commands.Gaming
             var gems = uprofile.Inventory.Where(x => x.ItemID == -6).Sum(x => x.quantity) * 100;
 
             uprofile.coins = uprofile.coins + stone + wrenches + wood + power + apples + gems;
-            uprofile.Inventory = uprofile.Inventory.Where(x => x.ItemID != -5 && x.ItemID != -15 && x.ItemID != -10 && x.ItemID != -6 && x.ItemID != -16 && x.ItemID != -11).ToList();
+            uprofile.Inventory = uprofile.Inventory.Where(x =>
+                x.ItemID != -5 && x.ItemID != -15 && x.ItemID != -10 && x.ItemID != -6 && x.ItemID != -16 &&
+                x.ItemID != -11).ToList();
             await ReplyAsync($"Gained: {stone + wrenches + wood + power + apples + gems}\n" +
-                $"Balance: {uprofile.coins}");
+                             $"Balance: {uprofile.coins}");
             GuildConfig.SaveServer(guildobj);
         }
 

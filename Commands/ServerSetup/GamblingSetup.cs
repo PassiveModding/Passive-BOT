@@ -34,8 +34,6 @@ namespace PassiveBOT.Commands.ServerSetup
         }
 
 
-
-
         [Group("StoreSetup")]
         public class Store : InteractiveBase
         {
@@ -57,48 +55,48 @@ namespace PassiveBOT.Commands.ServerSetup
                 var guildobj = GuildConfig.GetServer(Context.Guild);
                 var sitems = new List<GuildConfig.gambling.TheStore.Storeitem>
                 {
-                        new GuildConfig.gambling.TheStore.Storeitem
-                        {
-                            ItemName = ":wrench:",
-                            ItemID = -15,
-                            Hidden = true,
-                            cost = 15
-                        },
-                        new GuildConfig.gambling.TheStore.Storeitem
-                        {
-                            ItemName = ":evergreen_tree:",
-                            ItemID = -10,
-                            Hidden = true,
-                            cost = 10
-                        },
-                        new GuildConfig.gambling.TheStore.Storeitem
-                        {
-                            ItemName = ":full_moon:",
-                            ItemID = -5,
-                            Hidden = true,
-                            cost = 12
-                        },
-                        new GuildConfig.gambling.TheStore.Storeitem
-                        {
-                            ItemName = ":zap:",
-                            ItemID = -16,
-                            Hidden = true,
-                            cost = 50
-                        },
-                        new GuildConfig.gambling.TheStore.Storeitem
-                        {
-                            ItemName = ":apple:",
-                            ItemID = -11,
-                            Hidden = true,
-                            cost = 25
-                        },
-                        new GuildConfig.gambling.TheStore.Storeitem
-                        {
-                            ItemName = ":gem:",
-                            ItemID = -6,
-                            Hidden = true,
-                            cost = 100
-                        }
+                    new GuildConfig.gambling.TheStore.Storeitem
+                    {
+                        ItemName = ":wrench:",
+                        ItemID = -15,
+                        Hidden = true,
+                        cost = 15
+                    },
+                    new GuildConfig.gambling.TheStore.Storeitem
+                    {
+                        ItemName = ":evergreen_tree:",
+                        ItemID = -10,
+                        Hidden = true,
+                        cost = 10
+                    },
+                    new GuildConfig.gambling.TheStore.Storeitem
+                    {
+                        ItemName = ":full_moon:",
+                        ItemID = -5,
+                        Hidden = true,
+                        cost = 12
+                    },
+                    new GuildConfig.gambling.TheStore.Storeitem
+                    {
+                        ItemName = ":zap:",
+                        ItemID = -16,
+                        Hidden = true,
+                        cost = 50
+                    },
+                    new GuildConfig.gambling.TheStore.Storeitem
+                    {
+                        ItemName = ":apple:",
+                        ItemID = -11,
+                        Hidden = true,
+                        cost = 25
+                    },
+                    new GuildConfig.gambling.TheStore.Storeitem
+                    {
+                        ItemName = ":gem:",
+                        ItemID = -6,
+                        Hidden = true,
+                        cost = 100
+                    }
                 };
                 guildobj.Gambling.Store.ShowItems.AddRange(sitems);
                 GuildConfig.SaveServer(guildobj);
@@ -163,11 +161,10 @@ namespace PassiveBOT.Commands.ServerSetup
                 var paramlist = next.Content.Split(' ');
                 var inputnumber = paramlist[0];
                 var inputvalue = next.Content.Substring(inputnumber.Length, next.Content.Length - inputnumber.Length);
-                string editlog = "";
+                var editlog = "";
                 if (int.TryParse(inputnumber, out var selectionResult))
                 {
                     if (selectionResult == 1)
-                    {
                         if (int.TryParse(inputvalue, out var EditValue))
                         {
                             editlog = $"Attack Value: {selecteditem.Attack} -> {EditValue}";
@@ -178,9 +175,7 @@ namespace PassiveBOT.Commands.ServerSetup
                             await ReplyAsync("Input 1 detected, invalid edit value");
                             return;
                         }
-                    }
                     else if (selectionResult == 2)
-                    {
                         if (int.TryParse(inputvalue, out var EditValue))
                         {
                             editlog = $"Defense Value: {selecteditem.Defense} -> {EditValue}";
@@ -191,9 +186,7 @@ namespace PassiveBOT.Commands.ServerSetup
                             await ReplyAsync("Input 2 detected, invalid edit value");
                             return;
                         }
-                    }
                     else if (selectionResult == 3)
-                    {
                         if (int.TryParse(inputvalue, out var EditValue))
                         {
                             editlog = $"Cost: {selecteditem.cost} -> {EditValue}";
@@ -204,9 +197,7 @@ namespace PassiveBOT.Commands.ServerSetup
                             await ReplyAsync("Input 3 detected, invalid edit value");
                             return;
                         }
-                    }
                     else if (selectionResult == 4)
-                    {
                         if (int.TryParse(inputvalue, out var EditValue))
                         {
                             editlog = $"Quantity: {selecteditem.quantity} -> {EditValue}";
@@ -217,9 +208,7 @@ namespace PassiveBOT.Commands.ServerSetup
                             await ReplyAsync("Input 4 detected, invalid edit value");
                             return;
                         }
-                    }
                     else if (selectionResult == 5)
-                    {
                         if (int.TryParse(inputvalue, out var EditValue))
                         {
                             editlog = $"Total Purchased: {selecteditem.total_purchased} -> {EditValue}";
@@ -230,11 +219,8 @@ namespace PassiveBOT.Commands.ServerSetup
                             await ReplyAsync("Input 5 detected, invalid edit value");
                             return;
                         }
-                    }
                     else if (selectionResult == 6)
-                    {
                         selecteditem.ItemName = inputvalue;
-                    }
                 }
                 else
                 {

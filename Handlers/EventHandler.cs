@@ -14,8 +14,8 @@ namespace PassiveBOT.Handlers
 {
     public class EventHandler
     {
-        private readonly DiscordSocketClient client;
         private readonly List<Delays> AntiRLDelays = new List<Delays>();
+        private readonly DiscordSocketClient client;
 
         public EventHandler(IServiceProvider provider)
         {
