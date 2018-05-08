@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -9,6 +11,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using PassiveBOT.Configuration;
+using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.preconditions;
@@ -25,6 +28,74 @@ namespace PassiveBOT.Commands.OwnerCmds
         public Owner(CommandService Cserv)
         {
             Service = Cserv;
+        }
+
+        [Command("Toxicity+", RunMode = RunMode.Async)]
+        [Summary("Toxicity+")]
+        [Remarks("Evaluate Toxicity of a message")]
+        public async Task Toxicity([Remainder] string message = null)
+        {
+            try
+            {
+                var token = Tokens.Load().PerspectiveAPI;
+                if (token != null)
+                {
+                    var pages = new List<PaginatedMessage.Page>();
+                    var requestlist = new List<string>
+                    {
+                        "ATTACK_ON_AUTHOR",
+                        "ATTACK_ON_COMMENTER",
+                        "INCOHERENT",
+                        "INFLAMMATORY",
+                        "LIKELY_TO_REJECT",
+                        "OBSCENE",
+                        "SEVERE_TOXICITY",
+                        "SPAM",
+                        "TOXICITY",
+                        "UNSUBSTANTIAL"
+                    };
+
+                    foreach (var request in requestlist)
+                    {
+                        try
+                        {
+                            var timer = new Stopwatch();
+                            timer.Start();
+                            var requestedAttributeses =
+                                new Dictionary<string, Perspective.RequestedAttributes> { { request, new Perspective.RequestedAttributes() } };
+                            var req = new Perspective.AnalyzeCommentRequest(message, requestedAttributeses);
+                            var res = new Perspective.Api(token).GetResponseString(req);
+                            timer.Stop();
+                            var t1 = timer.ElapsedMilliseconds;
+                            pages.Add(new PaginatedMessage.Page
+                            {
+                                dynamictitle = request,
+                                description = $"__Time__\n" +
+                                              $"{t1}\n" +
+                                              $"__Response__\n" +
+                                              $"{res}"
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+
+
+                    }
+                    var pager = new PaginatedMessage
+                    {
+                        Pages = pages
+                    };
+
+                    await PagedReplyAsync(pager);
+                }
+            }
+            catch (Exception e)
+            {
+                await ReplyAsync(e.ToString());
+            }
+
         }
 
         [Command("UpdateStats+")]
@@ -379,6 +450,23 @@ namespace PassiveBOT.Commands.OwnerCmds
 
                 var TokenConfig = Tokens.Load();
                 TokenConfig.SupportServer = URL;
+                Tokens.SaveTokens(TokenConfig);
+                await ReplyAsync("Done");
+            }
+
+            [Command("SetPerspectiveToken+")]
+            [Summary("Token SetPerspectiveToken+")]
+            [Remarks("set the google perspective api toxicity token")]
+            public async Task Perspective([Remainder] string token = null)
+            {
+                if (token == null)
+                {
+                    await ReplyAsync("Please input a token");
+                    return;
+                }
+
+                var TokenConfig = Tokens.Load();
+                TokenConfig.PerspectiveAPI = token;
                 Tokens.SaveTokens(TokenConfig);
                 await ReplyAsync("Done");
             }

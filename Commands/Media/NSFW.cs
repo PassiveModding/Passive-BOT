@@ -36,7 +36,7 @@ namespace PassiveBOT.Commands.Media
             var rnd = new Random();
             List<Post> posts;
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
-                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
                 posts = checkcache.Posts;
@@ -50,10 +50,10 @@ namespace PassiveBOT.Commands.Media
                 await ReplyAsync("Refreshing Cache");
                 posts = sub.Hot.Take(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
                 CommandHandler.SubReddits.RemoveAll(x =>
-                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                    string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
-                    title = subreddit,
+                    Title = subreddit,
                     LastUpdate = DateTime.UtcNow,
                     Posts = posts
                 });
@@ -86,7 +86,7 @@ namespace PassiveBOT.Commands.Media
             }
 
             var subredditobj = CommandHandler.SubReddits.FirstOrDefault(x =>
-                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             List<Post> posts;
             if (subredditobj != null && subredditobj.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
@@ -102,10 +102,10 @@ namespace PassiveBOT.Commands.Media
                 await ReplyAsync("Refreshing Cache");
                 posts = sub.Hot.GetListing(150).Where(x => RedditHelper.isimage(x.Url.ToString()).isimage).ToList();
                 CommandHandler.SubReddits.RemoveAll(x =>
-                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                    string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
-                    title = subreddit,
+                    Title = subreddit,
                     LastUpdate = DateTime.UtcNow,
                     Posts = posts,
                     Hits = 0

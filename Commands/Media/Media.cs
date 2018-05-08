@@ -26,7 +26,7 @@ namespace PassiveBOT.Commands.Media
 
             var rnd = new Random();
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
-                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
                 var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
@@ -42,10 +42,10 @@ namespace PassiveBOT.Commands.Media
                 var post = num1[rnd.Next(24)];
                 await ReplyAsync($"{post.Title}\nhttps://reddit.com{post.Permalink}");
                 CommandHandler.SubReddits.RemoveAll(x =>
-                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                    string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
-                    title = subreddit,
+                    Title = subreddit,
                     LastUpdate = DateTime.UtcNow,
                     Posts = num1
                 });
@@ -61,7 +61,7 @@ namespace PassiveBOT.Commands.Media
             if (subreddit == null) await ReplyAsync("Please give a subreddit to browse.");
             var rnd = new Random();
             var checkcache = CommandHandler.SubReddits.FirstOrDefault(x =>
-                string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             if (checkcache != null && checkcache.LastUpdate > DateTime.UtcNow - TimeSpan.FromHours(6))
             {
                 var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
@@ -107,10 +107,10 @@ namespace PassiveBOT.Commands.Media
                 await ReplyAsync(obj.url);
                 await ReplyAsync("", false, embed.Build());
                 CommandHandler.SubReddits.RemoveAll(x =>
-                    string.Equals(x.title, subreddit, StringComparison.CurrentCultureIgnoreCase));
+                    string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
                 CommandHandler.SubReddits.Add(new CommandHandler.SubReddit
                 {
-                    title = subreddit,
+                    Title = subreddit,
                     LastUpdate = DateTime.UtcNow,
                     Posts = num1
                 });

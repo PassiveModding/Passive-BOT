@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -272,22 +273,27 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
-            if (!input.Contains("discord.gg") && !input.Contains("discord.me"))
+            if (!Regex.Match(input, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success && !input.Contains("discord.me"))
             {
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too!");
                 return;
             }
 
-            if (input.Contains("discord.gg"))
+            if (Regex.Match(input, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
-                var invites = input.Split(' ').Where(x => x.Contains("discord.gg")).ToList();
+                var invites = Regex.Matches(input,
+                        @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                    .ToList();
                 var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
-                    var match = officialinvites.FirstOrDefault(x =>
-                        string.Equals(x.Url, invite, StringComparison.CurrentCultureIgnoreCase));
-                    if (match == null) mismatch = true;
+                    var match = officialinvites.FirstOrDefault(x => invite.ToString().ToLower().Contains(x.Code.ToLower()));
+                    if (match == null)
+                    {
+                        mismatch = true;
+                        await ReplyAsync(invite.ToString());
+                    }
                 }
 
                 if (mismatch)
@@ -316,19 +322,26 @@ namespace PassiveBOT.Commands.ServerSetup
             var chan = await Context.Client.GetChannelAsync(home);
             if (chan is IMessageChannel channel)
             {
-                var embed2 = new EmbedBuilder
+                try
                 {
-                    Title = "Partner Msg. Updated",
-                    Description = $"{Context.Guild.Name}\n" +
-                                  $"`{Context.Guild.Id}`\n" +
-                                  $"{guild.PartnerSetup.Message}",
-                    Footer = new EmbedFooterBuilder
+                    var embed2 = new EmbedBuilder
                     {
-                        Text =
-                            $"{((SocketGuild) Context.Guild).Owner.Username}#{((SocketGuild) Context.Guild).Owner.Discriminator}"
-                    }
-                };
-                await channel.SendMessageAsync("", false, embed2.Build());
+                        Title = "Partner Msg. Updated",
+                        Description = $"{Context.Guild.Name}\n" +
+                                      $"`{Context.Guild.Id}`\n" +
+                                      $"{guild.PartnerSetup.Message}",
+                        Footer = new EmbedFooterBuilder
+                        {
+                            Text =
+                                $"{((SocketGuild) Context.Guild).Owner.Username}#{((SocketGuild) Context.Guild).Owner.Discriminator}"
+                        }
+                    };
+                    await channel.SendMessageAsync("", false, embed2.Build());
+                }
+                catch
+                {
+                    //
+                }
             }
         }
 

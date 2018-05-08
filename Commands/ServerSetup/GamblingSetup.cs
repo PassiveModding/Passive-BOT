@@ -48,7 +48,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
 
             [Command("InitialiseStore")]
-            [Summary("StoreSetup InitialiseStore <Price> <Quantity> <Item Name>")]
+            [Summary("StoreSetup InitialiseStore")]
             [Remarks("initialise the store!")]
             public async Task InitStore()
             {

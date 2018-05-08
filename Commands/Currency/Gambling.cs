@@ -213,28 +213,28 @@ namespace PassiveBOT.Commands.Gaming
             try
             {
                 //Here we check wether or not there is currently a game running the the current lobby as there is no simple way to differentiate games at the moment (will add later)
-                var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.channelID == Context.Channel.Id);
+                var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
                 if (currentlobby != null)
                 {
                     //We quit if there is a game already running
-                    if (currentlobby.gamerunning)
+                    if (currentlobby.Gamerunning)
                     {
                         await ReplyAsync(
                             "A game of connect4 is already running in this channel. Please wait until it is completed.");
                         return;
                     }
 
-                    currentlobby.gamerunning = true;
+                    currentlobby.Gamerunning = true;
                 }
                 else
                 {
                     //Add a lobby in the case that there hasn't been a game played in the cureent one yet.
                     CommandHandler.Connect4List.Add(new CommandHandler.Con4GameList
                     {
-                        channelID = Context.Channel.Id,
-                        gamerunning = true
+                        ChannelID = Context.Channel.Id,
+                        Gamerunning = true
                     });
-                    currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.channelID == Context.Channel.Id);
+                    currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
                 }
 
                 await Setupuser(Context.Guild, Context.User);
@@ -244,7 +244,7 @@ namespace PassiveBOT.Commands.Gaming
                 {
                     //Ensure there is no negative or zero bet games.
                     await ReplyAsync($"Please place a bet, ie. 10 {initguildobj.Gambling.settings.CurrencyName}!");
-                    currentlobby.gamerunning = false;
+                    currentlobby.Gamerunning = false;
                     return;
                 }
 
@@ -255,7 +255,7 @@ namespace PassiveBOT.Commands.Gaming
                 {
                     await ReplyAsync(
                         $"Your bet is too high, please place a bet less than or equal to {initplayer1.coins}");
-                    currentlobby.gamerunning = false;
+                    currentlobby.Gamerunning = false;
                     return;
                 }
 
@@ -303,7 +303,7 @@ namespace PassiveBOT.Commands.Gaming
                         timeoutattempts++;
                         if (timeoutattempts < 6) continue;
                         await ReplyAsync("Connect4: Timed out!");
-                        currentlobby.gamerunning = false;
+                        currentlobby.Gamerunning = false;
                         return;
                     }
 
@@ -311,7 +311,7 @@ namespace PassiveBOT.Commands.Gaming
                     messagewashout++;
                     if (messagewashout <= 25) continue;
                     await ReplyAsync("Connect4: Timed out!");
-                    currentlobby.gamerunning = false;
+                    currentlobby.Gamerunning = false;
                     return;
                 }
 
@@ -637,7 +637,7 @@ namespace PassiveBOT.Commands.Gaming
 
                             await ReplyAsync(
                                 "The Game is a draw. User Balances have not been modified. Good Game!");
-                            currentlobby.gamerunning = false;
+                            currentlobby.Gamerunning = false;
                             return;
                         }
                     }
@@ -659,16 +659,16 @@ namespace PassiveBOT.Commands.Gaming
             {
                 //If there is an error, we need to ensure that the current channel can still initiate new games.
                 await ReplyAsync(e.ToString());
-                var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.channelID == Context.Channel.Id);
-                if (currentlobby != null) currentlobby.gamerunning = false;
+                var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
+                if (currentlobby != null) currentlobby.Gamerunning = false;
             }
         }
 
         public async Task Connect4Win(ulong winnerID, ulong loserID, int bet, string winmethod)
         {
             //make sure we allow other connect4 games to be played in the current channel now.
-            var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.channelID == Context.Channel.Id);
-            currentlobby.gamerunning = false;
+            var currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
+            currentlobby.Gamerunning = false;
 
             //Get the users and modify their scores and stats.
             var finalguildobj = GuildConfig.GetServer(Context.Guild);

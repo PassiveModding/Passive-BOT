@@ -12,6 +12,7 @@ namespace PassiveBOT.Configuration
         public string DiscordBotsListUrl { get; set; } = null;
         public string FortniteToken { get; set; } = null;
         public string SupportServer { get; set; } = "https://discord.me/passive";
+        public string PerspectiveAPI { get; set; } = null;
 
         public static Tokens Load()
         {
@@ -34,22 +35,5 @@ namespace PassiveBOT.Configuration
                 SaveTokens(NewTokens);
             }
         }
-
-        /*
-                ColourLog.In1Run(
-                    @"To enable the twitch commands, please enter a twitch api token, otherwise hit enter to continue");
-                Console.Write("Token: ");
-                cfg.twitchtoken = Console.ReadLine();
-
-                ColourLog.In1Run(
-                    @"To ServerCount on DiscordBots.org, please enter your api token, otherwise hit enter to continue");
-                Console.Write("Token: ");
-                cfg.DBLtoken = Console.ReadLine();
-
-                ColourLog.In1Run(
-                    @"Enter your discordbots.org url, otherwise hit enter to continue");
-                Console.Write("Link: ");
-                cfg.DBLLink = Console.ReadLine();
-         */
     }
 }

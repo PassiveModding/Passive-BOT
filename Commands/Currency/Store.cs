@@ -5,7 +5,7 @@ using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 
-namespace PassiveBOT.Commands.Gaming
+namespace PassiveBOT.Commands.Currency
 {
     [RequireContext(ContextType.Guild)]
     public class Store : ModuleBase

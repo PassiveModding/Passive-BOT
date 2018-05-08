@@ -11,6 +11,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
+using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers.Services;
 using PassiveBOT.strings;
 using RedditSharp.Things;
@@ -30,7 +31,7 @@ namespace PassiveBOT.Handlers
         private readonly IServiceProvider Provider;
         private ApiAi _apiAi;
 
-        public List<Delays> AntiSpamMsgDelays = new List<Delays>();
+        public List<EventHandler.Delays> AntiSpamMsgDelays = new List<EventHandler.Delays>();
         private bool DoOnce;
 
         public CommandHandler(IServiceProvider provider)
@@ -57,7 +58,7 @@ namespace PassiveBOT.Handlers
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
-        private async Task AutoMessage(SocketUserMessage message, SocketCommandContext context)
+        private async Task AutoMessage(SocketCommandContext context)
         {
             if (context.Channel is IDMChannel) return;
 
@@ -97,29 +98,30 @@ namespace PassiveBOT.Handlers
 
             var guild = GuildConfig.GetServer(context.Guild);
             var excemtcheck =
-                guild.Antispams.IngoreRoles.Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID)).ToList();
+                guild.Antispams.IngoreRoles.Where(x => ((IGuildUser)context.User).RoleIds.Contains(x.RoleID)).ToList();
             var BypassAntispam = excemtcheck.Any(x => x.AntiSpam);
             var BypassMention = excemtcheck.Any(x => x.Mention);
             var BypassInvite = excemtcheck.Any(x => x.Advertising);
             var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
             var BypassIP = excemtcheck.Any(x => x.Privacy);
+            var BypassToxicity = excemtcheck.Any(x => x.Toxicity);
             if (guild.Antispams.Antispam.NoSpam || guild.Levels.LevellingEnabled)
             {
                 var detected = false;
-                var SpamGuild = NoSpam.FirstOrDefault(x => x.guildID == ((SocketGuildUser) context.User).Guild.Id);
+                var SpamGuild = NoSpam.FirstOrDefault(x => x.GuildID == ((SocketGuildUser)context.User).Guild.Id);
                 if (SpamGuild == null)
                 {
                     NoSpam.Add(new NoSpamGuild
                     {
-                        guildID = ((SocketGuildUser) context.User).Guild.Id,
+                        GuildID = ((SocketGuildUser)context.User).Guild.Id,
                         Users = new List<NoSpamGuild.NoSpam>
                         {
                             new NoSpamGuild.NoSpam
                             {
                                 UserID = context.User.Id,
-                                Messages = new List<NoSpamGuild.NoSpam.msg>
+                                Messages = new List<NoSpamGuild.NoSpam.Msg>
                                 {
-                                    new NoSpamGuild.NoSpam.msg
+                                    new NoSpamGuild.NoSpam.Msg
                                     {
                                         LastMessage = message.Content,
                                         LastMessageDate = DateTime.UtcNow
@@ -137,9 +139,9 @@ namespace PassiveBOT.Handlers
                         SpamGuild.Users.Add(new NoSpamGuild.NoSpam
                         {
                             UserID = context.User.Id,
-                            Messages = new List<NoSpamGuild.NoSpam.msg>
+                            Messages = new List<NoSpamGuild.NoSpam.Msg>
                             {
-                                new NoSpamGuild.NoSpam.msg
+                                new NoSpamGuild.NoSpam.Msg
                                 {
                                     LastMessage = message.Content,
                                     LastMessageDate = DateTime.UtcNow
@@ -149,7 +151,7 @@ namespace PassiveBOT.Handlers
                     }
                     else
                     {
-                        user.Messages.Add(new NoSpamGuild.NoSpam.msg
+                        user.Messages.Add(new NoSpamGuild.NoSpam.Msg
                         {
                             LastMessage = message.Content,
                             LastMessageDate = DateTime.UtcNow
@@ -193,7 +195,7 @@ namespace PassiveBOT.Handlers
                                     }
                                     else
                                     {
-                                        AntiSpamMsgDelays.Add(new Delays
+                                        AntiSpamMsgDelays.Add(new EventHandler.Delays
                                         {
                                             _delay = DateTime.UtcNow.AddSeconds(5),
                                             GuildID = guild.GuildId
@@ -247,14 +249,14 @@ namespace PassiveBOT.Handlers
                                                         if (roletoreceive.Count != 0)
                                                         {
                                                             foreach (var role in roletoreceive)
-                                                                if (!((IGuildUser) context.User).RoleIds.Contains(
+                                                                if (!((IGuildUser)context.User).RoleIds.Contains(
                                                                     role.RoleID))
                                                                 {
                                                                     var grole = context.Guild.GetRole(role.RoleID);
                                                                     if (grole != null)
                                                                         try
                                                                         {
-                                                                            await ((SocketGuildUser) context.User)
+                                                                            await ((SocketGuildUser)context.User)
                                                                                 .AddRoleAsync(
                                                                                     grole);
                                                                             roleadded += $"Role Reward: {grole.Name}\n";
@@ -277,10 +279,10 @@ namespace PassiveBOT.Handlers
                                                                         .Select(x => context.Guild.GetRole(x.RoleID))
                                                                         .Where(x => x != null);
 
-                                                                    await ((SocketGuildUser) context.User).RemoveRolesAsync(
+                                                                    await ((SocketGuildUser)context.User).RemoveRolesAsync(
                                                                         roles);
                                                                 }
-                                                                catch 
+                                                                catch
                                                                 {
                                                                     //
                                                                 }
@@ -307,7 +309,7 @@ namespace PassiveBOT.Handlers
                                                             var chan = context.Guild.GetChannel(guild.Levels
                                                                 .LevellingChannel);
                                                             if (chan != null)
-                                                                await ((IMessageChannel) chan).SendMessageAsync("", false,
+                                                                await ((IMessageChannel)chan).SendMessageAsync("", false,
                                                                     embed.Build());
                                                         }
                                                         catch
@@ -352,10 +354,10 @@ namespace PassiveBOT.Handlers
                     }
                 }
             }
-
+            //if (Regex.Match(context.Message.Content, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             if (guild.Antispams.Advertising.Invite && !BypassInvite)
-                if (message.Content.Contains("discord.gg"))
-                {
+                if (Regex.Match(context.Message.Content, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
+                    {
                     await message.DeleteAsync();
                     var emb = new EmbedBuilder
                     {
@@ -473,11 +475,63 @@ namespace PassiveBOT.Handlers
                         result = Regex.Replace(result, "{guild}", context.Guild.Name, RegexOptions.IgnoreCase);
                         result = Regex.Replace(result, "{channel}", context.Channel.Name, RegexOptions.IgnoreCase);
                         result = Regex.Replace(result, "{channel.mention}",
-                            ((SocketTextChannel) context.Channel).Mention, RegexOptions.IgnoreCase);
+                            ((SocketTextChannel)context.Channel).Mention, RegexOptions.IgnoreCase);
                         await context.Channel.SendMessageAsync(result);
                         return true;
                     }
                 }
+            }
+
+            if (guild.Antispams.Toxicity.UsePerspective && !BypassToxicity)
+            {
+                var token = Tokens.Load().PerspectiveAPI;
+                if (token != null)
+                {
+                    try
+                    {
+                        var requestedAttributeses =
+                            new Dictionary<string, Perspective.RequestedAttributes> { { "TOXICITY", new Perspective.RequestedAttributes() } };
+                        var req = new Perspective.AnalyzeCommentRequest(context.Message.Content, requestedAttributeses);
+                        var res = new Perspective.Api(token).SendRequest(req);
+                        if (res.attributeScores.TOXICITY.summaryScore.value * 100 > guild.Antispams.Toxicity.ToxicityThreshHold)
+                        {
+                            await message.DeleteAsync();
+                            var emb = new EmbedBuilder
+                            {
+                                Title = $"Toxicity Threshhold Breached",
+                                Description = $"{context.User.Mention}"
+                            };
+                            await context.Channel.SendMessageAsync("", false, emb.Build());
+
+                            if (context.Client.GetChannel(guild.ModLogChannel) is IMessageChannel modchannel)
+                            {
+                                try
+                                {
+                                    emb.Description = "Message Auto-Removed.\n" +
+                                                      $"User: {context.User.Mention}\n" +
+                                                      $"Channel: {context.Channel.Name}\n" +
+                                                      $"Toxicity %: {res.attributeScores.TOXICITY.summaryScore.value * 100}\n" +
+                                                      "Message: \n" +
+                                                      $"{context.Message.Content}";
+                                    await modchannel.SendMessageAsync("", false, emb.Build());
+                                }
+                                catch
+                                {
+                                    //
+                                }
+                                
+                            }
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                        //
+                    }
+
+                }
+
+
             }
 
             return false;
@@ -491,9 +545,9 @@ namespace PassiveBOT.Handlers
                 var config = new AIConfiguration(Tokens.Load().DialogFlowToken, SupportedLanguage.English);
                 _apiAi = new ApiAi(config);
             }
-            catch (Exception e)
+            catch
             {
-                //Console.WriteLine(e);
+                //
             }
 
             try
@@ -501,23 +555,22 @@ namespace PassiveBOT.Handlers
                 foreach (var guild in _client.Guilds)
                     try
                     {
-                        //GuildConfig.Setup(guild);
                         var guildconfig = GuildConfig.GetServer(guild);
                         if (guildconfig.PartnerSetup.PartherChannel == 0) continue;
                         if (guildconfig.PartnerSetup.IsPartner &&
                             _client.GetChannel(guildconfig.PartnerSetup.PartherChannel) is IMessageChannel)
                             TimerService.AcceptedServers.Add(guild.Id);
                     }
-                    catch //(Exception e)
+                    catch //
                     {
-                        //Console.WriteLine(e);
+                        //
                     }
 
                 _service.Restart();
             }
-            catch //(Exception e)
+            catch
             {
-                //Console.WriteLine(e);
+                //
             }
 
             DoOnce = true;
@@ -535,7 +588,7 @@ namespace PassiveBOT.Handlers
 
             if (await CheckMessage(message, context)) return;
 
-            await AutoMessage(message, context);
+            await AutoMessage(context);
             var guild = GuildConfig.GetServer(context.Guild);
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention)
             {
@@ -545,7 +598,7 @@ namespace PassiveBOT.Handlers
                     (current, mentionedRole) => current.Replace(mentionedRole.Mention, mentionedRole.Name));
                 mcontent = context.Message.MentionedChannels.Aggregate(mcontent,
                     (current, mentionedChannel) =>
-                        current.Replace(((ITextChannel) mentionedChannel).Mention, mentionedChannel.Name));
+                        current.Replace(((ITextChannel)mentionedChannel).Mention, mentionedChannel.Name));
                 //var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "",
                 //    RegexOptions.Multiline);
                 try
@@ -578,25 +631,27 @@ namespace PassiveBOT.Handlers
             {
                 try
                 {
-                    if (!(result.ErrorReason == "Unknown command." ||
-                          result.ErrorReason == "The input text has too many parameters." ||
-                          result.ErrorReason == "The input text has too few parameters." ||
-                          result.ErrorReason == "Timeout" ||
-                          result.ErrorReason == "This command may only be invoked in an NSFW channel." ||
-                          result.ErrorReason == "Command can only be run by the owner of the bot" ||
-                          result.ErrorReason == "This command is locked to NSFW Channels. Pervert."))
+                    if (!(result.ErrorReason.ToLower().Contains("unknown") ||
+                          result.ErrorReason.ToLower().Contains("parameters") ||
+                          result.ErrorReason.ToLower().Contains("timeout") ||
+                          result.ErrorReason.ToLower().Contains("nsfw") ||
+                          result.ErrorReason.ToLower().Contains("owner") ||
+                          result.ErrorReason.ToLower().Contains("failed to parse")))
                     {
                         var s = Homeserver.Load().Error;
                         var c = context.Client.GetChannel(s);
-                        var embed = new EmbedBuilder
+                        if (c != null)
                         {
-                            Title = $"ERROR: {context.Message}",
-                            Description = $"REASON:\n" +
-                                          $"{result.ErrorReason}"
-                        };
-                        embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
-                        embed.Color = Color.Red;
-                        await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
+                            var embed = new EmbedBuilder
+                            {
+                                Title = $"ERROR: {context.Message}",
+                                Description = "REASON:\n" +
+                                              $"{result.ErrorReason}"
+                            };
+                            embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
+                            embed.Color = Color.Red;
+                            await ((ITextChannel)c).SendMessageAsync("", false, embed.Build());
+                        }
                     }
                 }
                 catch
@@ -631,9 +686,9 @@ namespace PassiveBOT.Handlers
                 {
                     var name = srch.Commands.Select(x => x.Command.Name).FirstOrDefault();
                     if (name != null)
-                        if (CommandUses.Any(x => x.Name.ToLower() == name.ToLower()))
+                        if (CommandUses.Any(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase)))
                         {
-                            var cmd = CommandUses.First(x => x.Name.ToLower() == name.ToLower());
+                            var cmd = CommandUses.First(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
                             cmd.Uses++;
                         }
                         else
@@ -650,8 +705,8 @@ namespace PassiveBOT.Handlers
 
         public class Con4GameList
         {
-            public ulong channelID { get; set; }
-            public bool gamerunning { get; set; } = false;
+            public ulong ChannelID { get; set; }
+            public bool Gamerunning { get; set; } = false;
         }
 
         public class CMD
@@ -662,15 +717,15 @@ namespace PassiveBOT.Handlers
 
         private class NoSpamGuild
         {
-            public ulong guildID { get; set; }
+            public ulong GuildID { get; set; }
             public List<NoSpam> Users { get; set; } = new List<NoSpam>();
 
             public class NoSpam
             {
                 public ulong UserID { get; set; }
-                public List<msg> Messages { get; set; } = new List<msg>();
+                public List<Msg> Messages { get; set; } = new List<Msg>();
 
-                public class msg
+                public class Msg
                 {
                     public string LastMessage { get; set; }
                     public DateTime LastMessageDate { get; set; }
@@ -686,7 +741,7 @@ namespace PassiveBOT.Handlers
 
         public class SubReddit
         {
-            public string title { get; set; }
+            public string Title { get; set; }
             public List<Post> Posts { get; set; }
             public DateTime LastUpdate { get; set; }
             public int Hits { get; set; } = 0;

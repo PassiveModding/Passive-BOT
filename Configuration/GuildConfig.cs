@@ -199,8 +199,16 @@ namespace PassiveBOT.Configuration
             public advertising Advertising { get; set; } = new advertising();
             public mention Mention { get; set; } = new mention();
             public privacy Privacy { get; set; } = new privacy();
+            public toxicity Toxicity { get; set; } = new toxicity();
 
             public List<IgnoreRole> IngoreRoles { get; set; } = new List<IgnoreRole>();
+
+            public class toxicity
+            {
+                public bool UsePerspective { get; set; } = false;
+                public int ToxicityThreshHold { get; set; } = 90;
+            }
+
 
             public class antispam
             {
@@ -271,6 +279,7 @@ namespace PassiveBOT.Configuration
                 public bool Advertising { get; set; } = false;
                 public bool Mention { get; set; } = false;
                 public bool Privacy { get; set; } = false;
+                public bool Toxicity { get; set; } = false;
             }
         }
 

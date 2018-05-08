@@ -982,7 +982,7 @@ namespace PassiveBOT.Commands.OwnerCmds
             var curpage = "";
             foreach (var sub in CommandHandler.SubReddits)
             {
-                curpage += $"__{sub.title}__\n" +
+                curpage += $"__{sub.Title}__\n" +
                            $"Cached Posts: {sub.Posts.Count}\n" +
                            $"NSFW Posts: {sub.Posts.Count(x => x.NSFW)}\n" +
                            $"Last Refresh: {sub.LastUpdate}\n" +

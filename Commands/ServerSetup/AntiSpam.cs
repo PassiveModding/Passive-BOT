@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -10,9 +12,11 @@ using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.Preconditions;
+using PassiveBOT.Configuration.Objects;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
+
     [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class AntiSpam : InteractiveBase
@@ -54,7 +58,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     foreach (var s in intselections)
                         if (int.TryParse(s, out var sint))
                         {
-                            if (sint < 1 || sint > 5)
+                            if (sint < 1 || sint > 6)
                             {
                                 await ReplyAsync($"Invalid Input {s}\n" +
                                                  $"only 1-5 are accepted.");
@@ -78,6 +82,9 @@ namespace PassiveBOT.Commands.ServerSetup
                                 case 5:
                                     ignore.Privacy = true;
                                     break;
+                                case 6:
+                                    ignore.Toxicity = true;
+                                    break;
                             }
                         }
                         else
@@ -89,12 +96,13 @@ namespace PassiveBOT.Commands.ServerSetup
                     var embed = new EmbedBuilder
                     {
                         Description = $"{role.Mention}\n" +
-                                      $"Ignore Antispam\n" +
+                                      "__Ignore Antispam Detections__\n" +
                                       $"Bypass Antispam: {ignore.AntiSpam}\n" +
                                       $"Bypass Blacklist: {ignore.Blacklist}\n" +
                                       $"Bypass Mention Everyone and 5+ Role Mentions: {ignore.Mention}\n" +
                                       $"Bypass Invite Link Removal: {ignore.Advertising}\n" +
-                                      $"Bypass IP Removal: {ignore.Privacy}"
+                                      $"Bypass IP Removal: {ignore.Privacy}\n" +
+                                      $"Bypass Toxicity Check: {ignore.Toxicity}"
                     };
                     await ReplyAsync("", false, embed.Build());
                 }
@@ -122,7 +130,8 @@ namespace PassiveBOT.Commands.ServerSetup
                     $"`2` - Blacklist\n" +
                     $"`3` - Mention\n" +
                     $"`4` - Invite\n" +
-                    $"`5` - IP Addresses\n\n" +
+                    $"`5` - IP Addresses\n" +
+                    $"`6` - Toxicity\n\n" +
                     $"__usage__\n" +
                     $"`{Config.Load().Prefix} 1 @role` - this allows the role to spam without being limited/removed\n" +
                     $"You can use commas to use multiple settings on the same role." +
@@ -171,6 +180,22 @@ namespace PassiveBOT.Commands.ServerSetup
             await ReplyAsync($"Muted Role has been set as {muteRole.Mention}\n" +
                              $"{perms}\n" +
                              $"{channels}");
+        }
+
+        [Command("NoToxicity")]
+        [Summary("NoToxicity <threshhold amount>")]
+        [Remarks("Toggle the auto-removal of Toxic Messages")]
+        public async Task Toxicity(int threshhold = 90)
+        {
+            var jsonObj = GuildConfig.GetServer(Context.Guild);
+            jsonObj.Antispams.Toxicity.UsePerspective = !jsonObj.Antispams.Toxicity.UsePerspective;
+            jsonObj.Antispams.Toxicity.ToxicityThreshHold = threshhold;
+            GuildConfig.SaveServer(jsonObj);
+
+            await ReplyAsync($"Toxicity Removal: {jsonObj.Antispams.Toxicity.UsePerspective}\n" +
+                             $"Threshhold: {jsonObj.Antispams.Toxicity.ToxicityThreshHold}% (will delete messages detected as this amount toxic!)\n\n" +
+                             $"NOTE: In using Toxicity detection, the time it takes for commands to run will be increased slightly as this requires a web-request per message.\n" +
+                             $"Consider disabling Toxicity Detection if you experience such issues.");
         }
 
         [Command("NoIPs")]
@@ -297,7 +322,7 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task SkipAntiSpam()
         {
             var guild = GuildConfig.GetServer(Context.Guild);
-            var embed = new EmbedBuilder {Description = string.Join("\n", guild.Antispams.Antispam.AntiSpamSkip)};
+            var embed = new EmbedBuilder { Description = string.Join("\n", guild.Antispams.Antispam.AntiSpamSkip) };
             await ReplyAsync("", false, embed.Build());
         }
 
