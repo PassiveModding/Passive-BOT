@@ -21,6 +21,8 @@ namespace PassiveBOT.Handlers
         {
             Provider = provider;
             client = Provider.GetService<DiscordSocketClient>();
+            client.Ready += Client_Ready;
+
 
             client.JoinedGuild += NewGuildMessage;
 
@@ -42,6 +44,11 @@ namespace PassiveBOT.Handlers
             client.ChannelCreated += ChannelCreatedEvent;
             client.ChannelDestroyed += ChannelDeletedEvent;
             client.ChannelUpdated += ChannelUpdatedEvent;
+        }
+
+        private async Task Client_Ready()
+        {
+            await client.SetGameAsync($"{Config.Load().Prefix}help / {Load.Gamesite}");
         }
 
         private IServiceProvider Provider { get; }

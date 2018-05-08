@@ -58,7 +58,6 @@ namespace PassiveBOT
             Config.CheckExistence();
             Homeserver.CheckExistence();
             Tokens.CheckExistence();
-            var prefix = Config.Load().Prefix;
             var debug = Config.Load().Debug.ToUpper();
             var token = Config.Load().Token;
 
@@ -105,9 +104,6 @@ namespace PassiveBOT
             else
                 Client.Log += LogMessageInfo;
 
-            //setgame loop
-            await Task.Delay(5000);
-            await Client.SetGameAsync($"{prefix}help / {Load.Gamesite}");
             await Task.Delay(-1);
         }
 
