@@ -111,7 +111,7 @@ namespace PassiveBOT.Commands.Currency
                 return;
             }
 
-            if (selecteditem.quantity - quantity < 0)
+            if (selecteditem.quantity - quantity < 0 && selecteditem.quantity > 0)
             {
                 await ReplyAsync($"There are not enough of this item in stock to buy that many at the moment.");
                 return;
