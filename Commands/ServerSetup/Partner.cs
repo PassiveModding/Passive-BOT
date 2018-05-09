@@ -275,7 +275,8 @@ namespace PassiveBOT.Commands.ServerSetup
 
             if (!Regex.Match(input, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success && !input.Contains("discord.me"))
             {
-                await ReplyAsync("You should include an invite link to your server in the Partner Message too!");
+                await ReplyAsync("You should include an invite link to your server in the Partner Message too\n" +
+                                 $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}");
                 return;
             }
 
@@ -300,7 +301,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 {
                     await ReplyAsync("Only invites from this server are allowed in the partner message!\n" +
                                      "Also please ensure that the invite link you are using is set to never expire\n\n" +
-                                     "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server");
+                                     "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
+                                     $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}");
                     return;
                 }
             }
