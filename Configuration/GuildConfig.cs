@@ -26,6 +26,7 @@ namespace PassiveBOT.Configuration
 
         public antispams Antispams { get; set; } = new antispams();
 
+        public visibilityconfig Visibilityconfig { get; set; } = new visibilityconfig();
 
         public bool ErrorLog { get; set; } // allows for responses with errors 
 
@@ -61,14 +62,6 @@ namespace PassiveBOT.Configuration
             File.WriteAllText(file, output);
         }
 
-        /*
-        public static GuildConfig Load(ulong id, IGuild contextGuild)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{id}.json");
-            if (!File.Exists(file)) Setup(contextGuild);
-            return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
-        }
-        */
         public static void Setup(IGuild guild)
         {
             if (File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) return;
@@ -93,6 +86,12 @@ namespace PassiveBOT.Configuration
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
         }
 
+        public class visibilityconfig
+        {
+            public List<string> BlacklistedModules { get; set; } = new List<string>();
+            public List<string> BlacklistedCommands { get; set; } = new List<string>();
+        }
+
         public class roleConfigurations
         {
             // a list of roles that users can join via command
@@ -106,95 +105,6 @@ namespace PassiveBOT.Configuration
             public List<ulong> ModeratorRoleList { get; set; } = new List<ulong>();
             public List<ulong> AdminRoleList { get; set; } = new List<ulong>();
         }
-
-
-        /*
-        public static string SetWMessage(IGuild guild, string input)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
-            if (File.Exists(file))
-            {
-                var jsonObj = GetServer(guild);
-                jsonObj.WelcomeMessage = input;
-                jsonObj.WelcomeEvent = true;
-                SaveServer(jsonObj);
-            }
-            else
-            {
-                return "please run the setup command before using configuration commands";
-            }
-
-            return null;
-        }
-
-        public static string SetWChannel(IGuild guild, ulong channel)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
-            if (File.Exists(file))
-            {
-                var jsonObj = GetServer(guild);
-                jsonObj.WelcomeChannel = channel;
-                SaveServer(jsonObj);
-            }
-            else
-            {
-                return "please run the setup command before using configuration commands";
-            }
-
-            return null;
-        }
-
-        public static string SetError(IGuild guild, bool status)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
-            if (File.Exists(file))
-            {
-                var jsonObj = GetServer(guild);
-                jsonObj.ErrorLog = status;
-                SaveServer(jsonObj);
-            }
-            else
-            {
-                return "please run the setup command before using configuration commands";
-            }
-
-            return null;
-        }
-
-
-        /*public static string SetWelcomeStatus(IGuild guild, bool status)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
-            if (File.Exists(file))
-            {
-                var jsonObj = GetServer(guild);
-                jsonObj.WelcomeEvent = status;
-                SaveServer(jsonObj);
-            }
-            else
-            {
-                return "please run the setup command before using configuration commands";
-            }
-
-            return null;
-        }*/
-
-        /*public static string SetDj(IGuild guild, ulong role)
-        {
-            var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
-            if (File.Exists(file))
-            {
-                var jsonObj = GetServer(guild);
-                jsonObj.DjRoleId = role;
-                SaveServer(jsonObj);
-            }
-            else
-            {
-                return "please run the setup command before using configuration commands";
-            }
-
-            return null;
-        }*/
 
 
         public class antispams

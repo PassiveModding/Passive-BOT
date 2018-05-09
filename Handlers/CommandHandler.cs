@@ -543,7 +543,32 @@ namespace PassiveBOT.Handlers
 
 
             }
+            /*
+            if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
+            {
+                var guser = (IGuildUser)context.User;
+                //if (!guser.GuildPermissions.Administrator &&
+               //     !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
+                {
+                    var argPos = 0;
+                    var cmdsearch = _commands.Search(context, argPos);
+                    if (cmdsearch.IsSuccess)
+                    {
+                        await context.Channel.SendMessageAsync("CMD Exists");
+                        var detectedcmd = cmdsearch.Commands.FirstOrDefault();
+                        if (guild.Visibilityconfig.BlacklistedCommands.Any(x =>
+                                string.Equals(x, detectedcmd.Command.Name, StringComparison.CurrentCultureIgnoreCase))||
+                            guild.Visibilityconfig.BlacklistedModules.Any(x => 
+                                string.Equals(x, detectedcmd.Command.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
+                        {
+                            await context.Channel.SendMessageAsync("CMD/Module Hidden");
+                            return true;
+                        }
+                    }
+                }
 
+            }
+            */
             return false;
         }
 
