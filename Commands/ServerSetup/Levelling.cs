@@ -5,10 +5,11 @@ using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class Levelling : InteractiveBase
     {

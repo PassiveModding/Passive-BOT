@@ -8,10 +8,11 @@ using Discord.Commands;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
+using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
-    [RequireUserPermission(GuildPermission.Administrator)]
+    [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class GuildSetup : InteractiveBase
     {
