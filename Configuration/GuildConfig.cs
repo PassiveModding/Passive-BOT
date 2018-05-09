@@ -14,7 +14,7 @@ namespace PassiveBOT.Configuration
 
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
-        public string Prefix { get; set; } = Configuration.Load.Pre; //
+        public string Prefix { get; set; } = Load.Pre; //
 
         public bool chatwithmention { get; set; } = true;
 
@@ -61,13 +61,14 @@ namespace PassiveBOT.Configuration
             File.WriteAllText(file, output);
         }
 
+        /*
         public static GuildConfig Load(ulong id, IGuild contextGuild)
         {
             var file = Path.Combine(Appdir, $"setup/server/{id}.json");
             if (!File.Exists(file)) Setup(contextGuild);
             return JsonConvert.DeserializeObject<GuildConfig>(File.ReadAllText(file));
         }
-
+        */
         public static void Setup(IGuild guild)
         {
             if (File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) return;
@@ -82,6 +83,10 @@ namespace PassiveBOT.Configuration
 
         public static GuildConfig GetServer(IGuild guild)
         {
+            if (guild == null)
+            {
+                return null;
+            }
             if (!File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) Setup(guild);
 
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");

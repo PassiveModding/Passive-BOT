@@ -15,6 +15,7 @@ using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers.Services;
 using PassiveBOT.strings;
 using RedditSharp.Things;
+using TwitchLib.Models.Client;
 
 namespace PassiveBOT.Handlers
 {
@@ -491,8 +492,7 @@ namespace PassiveBOT.Handlers
                       message.HasStringPrefix(Load.Pre, ref argPos) ||
                       message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos)))
                 {
-                    var lmes = message.Content.ToLower();
-                    if (_commands.Commands.Any(x => lmes.Contains(x.Name.ToLower()) || x.Aliases.Any(a => lmes.Contains(a.ToLower()))))
+                    if (_commands.Search(context, argPos).IsSuccess)
                     {
                         CheckUsingToxicity = false;
                     }

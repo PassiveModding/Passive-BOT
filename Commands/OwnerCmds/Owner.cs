@@ -258,26 +258,42 @@ namespace PassiveBOT.Commands.OwnerCmds
         [Command("LeaveServer+", RunMode = RunMode.Async)]
         [Summary("LeaveServer+ <guild ID> [Optional]<reason>")]
         [Remarks("Makes the bot leave the specified guild")]
-        public async Task LeaveAsync(ulong id, [Remainder] string reason = "No reason provided by the owner.")
+        public async Task LeaveAsync(ulong id, [Remainder] string reason = null)
         {
-            if (id <= 0)
-                await ReplyAsync("Please enter a valid Guild ID");
+            await LeaveGuild(id, true, reason);
+        }
+
+        public async Task<bool> LeaveGuild(ulong id, bool respond_on_leave, string reason = null)
+        {
             var gld = Context.Client.GetGuild(id);
-            //var ch = await gld.GetDefaultChannelAsync();
-            foreach (var channel in gld.TextChannels)
+            if (gld == null)
+            {
+                return false;
+            }
+
+            foreach (var channel in gld.TextChannels.OrderByDescending(x => x.Users.Count))
+            {
                 try
                 {
-                    await channel.SendMessageAsync($"Goodbye. `{reason}`");
+                    await channel.SendMessageAsync($"Goodbye. I am leaving this Server!\n" +
+                                                   $"__**Reason**__\n" +
+                                                   $"{reason ?? "No reason Provided."}");
                     break;
                 }
                 catch
                 {
                     //
                 }
+            }
 
-            //await Task.Delay(500);
             await gld.LeaveAsync();
-            await ReplyAsync("Message has been sent and I've left the guild!");
+
+            if (respond_on_leave)
+            {
+                await ReplyAsync("Message has been sent and I've left the guild!");
+            }
+
+            return true;
         }
 
         [Command("ReduceServers+", RunMode = RunMode.Async)]
@@ -286,16 +302,18 @@ namespace PassiveBOT.Commands.OwnerCmds
         public async Task ReduceAsync()
         {
             var i = 0;
-            await ReplyAsync("Leaving all servers with less than 15 members.");
-            foreach (var guild in Context.Client.Guilds)
-                if (guild.MemberCount < 15)
+            var guildstoleave = Context.Client.Guilds.Where(x => x.MemberCount < 15).ToList();
+            await ReplyAsync("Leaving all servers with less than 15 members.\n" +
+                             $"Attepting to leave {guildstoleave.Count} guilds.");
+            foreach (var guild in guildstoleave)
+            { 
+                if (await LeaveGuild(guild.Id, false,
+                    "PassiveBOT is leaving this server due to low usercount. Please feel free to invite it back by going to our dev server and using the invite command:\n" +
+                    $"{Tokens.Load().SupportServer}"))
                 {
-                    await LeaveAsync(guild.Id,
-                        "PassiveBOT is leaving this server due to low usercount. Please feel free to invite it back by going to our dev server and using the invite command:\n" +
-                        $"{Tokens.Load().SupportServer}");
                     i++;
                 }
-
+            }
             await ReplyAsync($"{i} servers left.");
         }
 
