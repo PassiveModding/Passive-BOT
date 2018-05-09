@@ -484,15 +484,25 @@ namespace PassiveBOT.Handlers
 
             if (guild.Antispams.Toxicity.UsePerspective && !BypassToxicity)
             {
+                var argPos = 0;
+                bool CheckUsingToxicity = true;
+                //Filter out commands to reduce lag when executing commands.
+                if (((message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention) ||
+                      message.HasStringPrefix(Load.Pre, ref argPos) ||
+                      message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos)))
+                {
+                    var lmes = message.Content.ToLower();
+                    if (_commands.Commands.Any(x => lmes.Contains(x.Name.ToLower()) || x.Aliases.Any(a => lmes.Contains(a.ToLower()))))
+                    {
+                        CheckUsingToxicity = false;
+                    }
+                }
                 var token = Tokens.Load().PerspectiveAPI;
-                if (token != null)
+                if (token != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
                 {
                     try
                     {
-                        var requestedAttributeses =
-                            new Dictionary<string, Perspective.RequestedAttributes> { { "TOXICITY", new Perspective.RequestedAttributes() } };
-                        var req = new Perspective.AnalyzeCommentRequest(context.Message.Content, requestedAttributeses);
-                        var res = new Perspective.Api(token).SendRequest(req);
+                        var res = new Perspective.Api(token).QueryToxicity(message.Content);
                         if (res.attributeScores.TOXICITY.summaryScore.value * 100 > guild.Antispams.Toxicity.ToxicityThreshHold)
                         {
                             await message.DeleteAsync();

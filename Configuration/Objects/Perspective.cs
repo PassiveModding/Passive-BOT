@@ -43,6 +43,15 @@ namespace PassiveBOT.Configuration.Objects
                 }
             }
 
+
+            public AnalyzeCommentResponse QueryToxicity(string input)
+            {
+                var requestedAttributeses =
+                    new Dictionary<string, RequestedAttributes> { { "TOXICITY", new Perspective.RequestedAttributes() } };
+                var req = new AnalyzeCommentRequest(input, requestedAttributeses);
+                var res = SendRequest(req);
+                return res;
+            }
         }
 
 

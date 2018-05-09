@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using PassiveBOT.Configuration;
+using PassiveBOT.Configuration.Objects;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.Text
@@ -21,6 +23,19 @@ namespace PassiveBOT.Commands.Text
         {
             input = input.Replace("@everyone", "Everyone");
             input = input.Replace("@here", "Here");
+
+            var gobj = GuildConfig.GetServer(Context.Guild);
+            if (gobj.Antispams.Toxicity.UsePerspective)
+            {
+                var token = Tokens.Load().PerspectiveAPI;
+                var res = new Perspective.Api(token).QueryToxicity(input);
+                if (res.attributeScores.TOXICITY.summaryScore.value * 100 > gobj.Antispams.Toxicity.ToxicityThreshHold)
+                {
+                    await ReplyAsync("I cannot repeat that message.");
+                    return;
+                }
+            }
+
             await ReplyAsync("\u200B" + input);
         }
 
