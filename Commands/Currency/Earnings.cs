@@ -24,7 +24,7 @@ namespace PassiveBOT.Commands.Currency
             var rnd = new Random();
             var guildobj = GuildConfig.GetServer(Context.Guild);
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
-            var rvalue = rnd.Next(0, 5);
+            var rvalue = rnd.Next(1, 8);
             var rreward = rnd.Next(0, 10);
             var CheckStone = uprofile.Inventory.FirstOrDefault(x => x.ItemID == -5);
             if (CheckStone == null)
@@ -64,7 +64,7 @@ namespace PassiveBOT.Commands.Currency
             var rnd = new Random();
             var guildobj = GuildConfig.GetServer(Context.Guild);
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
-            var rvalue = rnd.Next(0, 5);
+            var rvalue = rnd.Next(1, 10);
             var rreward = rnd.Next(0, 10);
             var CheckWood = uprofile.Inventory.FirstOrDefault(x => x.ItemID == -10);
             if (CheckWood == null)
@@ -104,7 +104,7 @@ namespace PassiveBOT.Commands.Currency
             var rnd = new Random();
             var guildobj = GuildConfig.GetServer(Context.Guild);
             var uprofile = guildobj.Gambling.Users.FirstOrDefault(x => x.userID == Context.User.Id);
-            var rvalue = rnd.Next(0, 5);
+            var rvalue = rnd.Next(1, 6);
             var rreward = rnd.Next(0, 10);
             var CheckWrench = uprofile.Inventory.FirstOrDefault(x => x.ItemID == -15);
             if (CheckWrench == null)

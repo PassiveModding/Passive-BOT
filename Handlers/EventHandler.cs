@@ -32,7 +32,7 @@ namespace PassiveBOT.Handlers
 
             //user
             client.GuildMemberUpdated += Client_GuildMemberUpdated;
-            ;
+            
             client.UserLeft += UserLeftEvent;
             client.UserJoined += UserJoinedEvent;
             client.UserBanned += UserBannedEvent;
