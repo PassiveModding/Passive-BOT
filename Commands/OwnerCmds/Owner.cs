@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -56,13 +55,15 @@ namespace PassiveBOT.Commands.OwnerCmds
                     };
 
                     foreach (var request in requestlist)
-                    {
                         try
                         {
                             var timer = new Stopwatch();
                             timer.Start();
                             var requestedAttributeses =
-                                new Dictionary<string, Perspective.RequestedAttributes> { { request, new Perspective.RequestedAttributes() } };
+                                new Dictionary<string, Perspective.RequestedAttributes>
+                                {
+                                    {request, new Perspective.RequestedAttributes()}
+                                };
                             var req = new Perspective.AnalyzeCommentRequest(message, requestedAttributeses);
                             var res = new Perspective.Api(token).GetResponseString(req);
                             timer.Stop();
@@ -81,8 +82,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                             Console.WriteLine(e);
                         }
 
-
-                    }
                     var pager = new PaginatedMessage
                     {
                         Pages = pages
@@ -95,7 +94,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             {
                 await ReplyAsync(e.ToString());
             }
-
         }
 
         [Command("UpdateStats+")]
@@ -149,7 +147,7 @@ namespace PassiveBOT.Commands.OwnerCmds
                                   $"Toxicity: {gobj.Antispams.Toxicity.UsePerspective} // {gobj.Antispams.Toxicity.ToxicityThreshHold}\n";
                     s2.Append($"{embdesc}\n");
                 }
-                
+
 
                 if (s2.ToString().Length <= 800) continue;
                 pages.Add(new PaginatedMessage.Page
@@ -315,13 +313,9 @@ namespace PassiveBOT.Commands.OwnerCmds
         public async Task<bool> LeaveGuild(ulong id, bool respond_on_leave, string reason = null)
         {
             var gld = Context.Client.GetGuild(id);
-            if (gld == null)
-            {
-                return false;
-            }
+            if (gld == null) return false;
 
             foreach (var channel in gld.TextChannels.OrderByDescending(x => x.Users.Count))
-            {
                 try
                 {
                     await channel.SendMessageAsync($"Goodbye. I am leaving this Server!\n" +
@@ -333,14 +327,10 @@ namespace PassiveBOT.Commands.OwnerCmds
                 {
                     //
                 }
-            }
 
             await gld.LeaveAsync();
 
-            if (respond_on_leave)
-            {
-                await ReplyAsync("Message has been sent and I've left the guild!");
-            }
+            if (respond_on_leave) await ReplyAsync("Message has been sent and I've left the guild!");
 
             return true;
         }
@@ -355,14 +345,10 @@ namespace PassiveBOT.Commands.OwnerCmds
             await ReplyAsync("Leaving all servers with less than 15 members.\n" +
                              $"Attepting to leave {guildstoleave.Count} guilds.");
             foreach (var guild in guildstoleave)
-            { 
                 if (await LeaveGuild(guild.Id, false,
                     "PassiveBOT is leaving this server due to low usercount. Please feel free to invite it back by going to our dev server and using the invite command:\n" +
                     $"{Tokens.Load().SupportServer}"))
-                {
                     i++;
-                }
-            }
             await ReplyAsync($"{i} servers left.");
         }
 

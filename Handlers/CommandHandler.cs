@@ -98,17 +98,17 @@ namespace PassiveBOT.Handlers
 
             var guild = GuildConfig.GetServer(context.Guild);
             var excemtcheck =
-                guild.Antispams.IngoreRoles.Where(x => ((IGuildUser)context.User).RoleIds.Contains(x.RoleID)).ToList();
+                guild.Antispams.IngoreRoles.Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID)).ToList();
 
             if (guild.Antispams.Antispam.NoSpam || guild.Levels.LevellingEnabled)
             {
                 var detected = false;
-                var SpamGuild = NoSpam.FirstOrDefault(x => x.GuildID == ((SocketGuildUser)context.User).Guild.Id);
+                var SpamGuild = NoSpam.FirstOrDefault(x => x.GuildID == ((SocketGuildUser) context.User).Guild.Id);
                 if (SpamGuild == null)
                 {
                     NoSpam.Add(new NoSpamGuild
                     {
-                        GuildID = ((SocketGuildUser)context.User).Guild.Id,
+                        GuildID = ((SocketGuildUser) context.User).Guild.Id,
                         Users = new List<NoSpamGuild.NoSpam>
                         {
                             new NoSpamGuild.NoSpam
@@ -247,14 +247,14 @@ namespace PassiveBOT.Handlers
                                                         if (roletoreceive.Count != 0)
                                                         {
                                                             foreach (var role in roletoreceive)
-                                                                if (!((IGuildUser)context.User).RoleIds.Contains(
+                                                                if (!((IGuildUser) context.User).RoleIds.Contains(
                                                                     role.RoleID))
                                                                 {
                                                                     var grole = context.Guild.GetRole(role.RoleID);
                                                                     if (grole != null)
                                                                         try
                                                                         {
-                                                                            await ((SocketGuildUser)context.User)
+                                                                            await ((SocketGuildUser) context.User)
                                                                                 .AddRoleAsync(
                                                                                     grole);
                                                                             roleadded += $"Role Reward: {grole.Name}\n";
@@ -269,7 +269,6 @@ namespace PassiveBOT.Handlers
 
                                                             if (roletoreceive.Count != rolesavailable.Count &&
                                                                 roletoreceive.Count == 1)
-                                                            {
                                                                 try
                                                                 {
                                                                     rolesavailable.Remove(roletoreceive.First());
@@ -277,15 +276,14 @@ namespace PassiveBOT.Handlers
                                                                         .Select(x => context.Guild.GetRole(x.RoleID))
                                                                         .Where(x => x != null);
 
-                                                                    await ((SocketGuildUser)context.User).RemoveRolesAsync(
-                                                                        roles);
+                                                                    await ((SocketGuildUser) context.User)
+                                                                        .RemoveRolesAsync(
+                                                                            roles);
                                                                 }
                                                                 catch
                                                                 {
                                                                     //
                                                                 }
-
-                                                            }
                                                         }
                                                     }
 
@@ -301,21 +299,19 @@ namespace PassiveBOT.Handlers
                                                         Color = Color.Blue
                                                     };
                                                     if (guild.Levels.UseLevelChannel)
-                                                    {
                                                         try
                                                         {
                                                             var chan = context.Guild.GetChannel(guild.Levels
                                                                 .LevellingChannel);
                                                             if (chan != null)
-                                                                await ((IMessageChannel)chan).SendMessageAsync("", false,
+                                                                await ((IMessageChannel) chan).SendMessageAsync("",
+                                                                    false,
                                                                     embed.Build());
                                                         }
                                                         catch
                                                         {
                                                             //
                                                         }
-
-                                                    }
 
                                                     if (guild.Levels.UseLevelMessages)
                                                         try
@@ -327,7 +323,6 @@ namespace PassiveBOT.Handlers
                                                         {
                                                             //
                                                         }
-
                                                 }
                                             }
                                         }
@@ -357,7 +352,6 @@ namespace PassiveBOT.Handlers
             {
                 var BypassInvite = excemtcheck.Any(x => x.Advertising);
                 if (!BypassInvite)
-                {
                     if (Regex.Match(context.Message.Content,
                             @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                         .Success)
@@ -376,31 +370,28 @@ namespace PassiveBOT.Handlers
                         // 3. The user does not have one of the invite excempt roles
                         return true;
                     }
-                }
             }
 
             if (guild.Antispams.Mention.RemoveMassMention || guild.Antispams.Mention.MentionAll)
             {
                 var BypassMention = excemtcheck.Any(x => x.Mention);
-                
+
                 if (!BypassMention)
                 {
                     if (guild.Antispams.Mention.RemoveMassMention)
-                    {
                         if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
                         {
                             await message.DeleteAsync();
                             var emb = new EmbedBuilder
                             {
-                                Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once"
+                                Title =
+                                    $"{context.User} - This server does not allow you to mention 5+ roles or uses at once"
                             };
                             await context.Channel.SendMessageAsync("", false, emb.Build());
                             return true;
                         }
-                    }
 
                     if (guild.Antispams.Mention.MentionAll)
-                    {
                         if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
                         {
                             await message.DeleteAsync();
@@ -425,11 +416,8 @@ namespace PassiveBOT.Handlers
                             // 2. The user is not an admin
                             // 3. The user does not have one of the mention excempt roles
                         }
-                    }
-
                 }
             }
-
 
 
             if (guild.Antispams.Privacy.RemoveIPs)
@@ -437,7 +425,6 @@ namespace PassiveBOT.Handlers
                 var BypassIP = excemtcheck.Any(x => x.Privacy);
 
                 if (!BypassIP)
-                {
                     if (Regex.IsMatch(message.Content,
                         @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
                     {
@@ -449,7 +436,6 @@ namespace PassiveBOT.Handlers
                         await context.Channel.SendMessageAsync("", false, emb.Build());
                         return true;
                     }
-                }
             }
 
             if (guild.Antispams.Blacklist.BlacklistWordSet.Any())
@@ -522,21 +508,16 @@ namespace PassiveBOT.Handlers
                 if (!BypassToxicity)
                 {
                     var argPos = 0;
-                    bool CheckUsingToxicity = true;
+                    var CheckUsingToxicity = true;
                     //Filter out commands to reduce lag when executing commands.
-                    if (((message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention) ||
-                         message.HasStringPrefix(Load.Pre, ref argPos) ||
-                         message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos)))
-                    {
+                    if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention ||
+                        message.HasStringPrefix(Load.Pre, ref argPos) ||
+                        message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))
                         if (_commands.Search(context, argPos).IsSuccess)
-                        {
                             CheckUsingToxicity = false;
-                        }
-                    }
 
                     var token = Tokens.Load().PerspectiveAPI;
                     if (token != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
-                    {
                         try
                         {
                             var res = new Perspective.Api(token).QueryToxicity(message.Content);
@@ -552,7 +533,6 @@ namespace PassiveBOT.Handlers
                                 await context.Channel.SendMessageAsync("", false, emb.Build());
 
                                 if (context.Client.GetChannel(guild.ModLogChannel) is IMessageChannel modchannel)
-                                {
                                     try
                                     {
                                         emb.Description = "Message Auto-Removed.\n" +
@@ -568,8 +548,6 @@ namespace PassiveBOT.Handlers
                                         //
                                     }
 
-                                }
-
                                 return true;
                             }
                         }
@@ -578,13 +556,10 @@ namespace PassiveBOT.Handlers
                             //
                         }
 
-
-                    }
-            var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
+                    var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
                 }
-
-
             }
+
             /*
             if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
             {
@@ -675,7 +650,7 @@ namespace PassiveBOT.Handlers
                     (current, mentionedRole) => current.Replace(mentionedRole.Mention, mentionedRole.Name));
                 mcontent = context.Message.MentionedChannels.Aggregate(mcontent,
                     (current, mentionedChannel) =>
-                        current.Replace(((ITextChannel)mentionedChannel).Mention, mentionedChannel.Name));
+                        current.Replace(((ITextChannel) mentionedChannel).Mention, mentionedChannel.Name));
                 //var newmessage = Regex.Replace(context.Message.Content, @"^\!?<@[0-9]+>\s*", "",
                 //    RegexOptions.Multiline);
                 try
@@ -727,7 +702,7 @@ namespace PassiveBOT.Handlers
                             };
                             embed.WithFooter(x => { x.Text = $"{context.Message.CreatedAt} || {context.Guild.Name}"; });
                             embed.Color = Color.Red;
-                            await ((ITextChannel)c).SendMessageAsync("", false, embed.Build());
+                            await ((ITextChannel) c).SendMessageAsync("", false, embed.Build());
                         }
                     }
                 }
@@ -763,9 +738,11 @@ namespace PassiveBOT.Handlers
                 {
                     var name = srch.Commands.Select(x => x.Command.Name).FirstOrDefault();
                     if (name != null)
-                        if (CommandUses.Any(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase)))
+                        if (CommandUses.Any(x =>
+                            string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase)))
                         {
-                            var cmd = CommandUses.First(x => string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
+                            var cmd = CommandUses.First(x =>
+                                string.Equals(x.Name, name, StringComparison.CurrentCultureIgnoreCase));
                             cmd.Uses++;
                         }
                         else

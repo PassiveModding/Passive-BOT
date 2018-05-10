@@ -76,10 +76,7 @@ namespace PassiveBOT.Configuration
 
         public static GuildConfig GetServer(IGuild guild)
         {
-            if (guild == null)
-            {
-                return null;
-            }
+            if (guild == null) return null;
             if (!File.Exists(Path.Combine(Appdir, $"setup/server/{guild.Id}.json"))) Setup(guild);
 
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");

@@ -273,14 +273,18 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
-            if (!Regex.Match(input, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success && !input.Contains("discord.me"))
+            if (!Regex.Match(input,
+                        @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                    .Success && !input.Contains("discord.me"))
             {
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too\n" +
                                  $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}");
                 return;
             }
 
-            if (Regex.Match(input, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
+            if (Regex.Match(input,
+                    @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                .Success)
             {
                 var invites = Regex.Matches(input,
                         @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
@@ -289,7 +293,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
-                    var match = officialinvites.FirstOrDefault(x => invite.ToString().ToLower().Contains(x.Code.ToLower()));
+                    var match = officialinvites.FirstOrDefault(x =>
+                        invite.ToString().ToLower().Contains(x.Code.ToLower()));
                     if (match == null)
                     {
                         mismatch = true;
@@ -323,7 +328,6 @@ namespace PassiveBOT.Commands.ServerSetup
             var home = Homeserver.Load().PartnerUpdates;
             var chan = await Context.Client.GetChannelAsync(home);
             if (chan is IMessageChannel channel)
-            {
                 try
                 {
                     var embed2 = new EmbedBuilder
@@ -344,7 +348,6 @@ namespace PassiveBOT.Commands.ServerSetup
                 {
                     //
                 }
-            }
         }
 
         [Command("PartnerPreview")]

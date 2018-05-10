@@ -32,7 +32,7 @@ namespace PassiveBOT.Handlers
 
             //user
             client.GuildMemberUpdated += Client_GuildMemberUpdated;
-            
+
             client.UserLeft += UserLeftEvent;
             client.UserJoined += UserJoinedEvent;
             client.UserBanned += UserBannedEvent;
@@ -46,12 +46,12 @@ namespace PassiveBOT.Handlers
             client.ChannelUpdated += ChannelUpdatedEvent;
         }
 
+        private IServiceProvider Provider { get; }
+
         private async Task Client_Ready()
         {
             await client.SetGameAsync($"{Config.Load().Prefix}help / {Load.Gamesite}");
         }
-
-        private IServiceProvider Provider { get; }
 
         private async Task Client_GuildMemberUpdated(SocketGuildUser UserBefore, SocketGuildUser UserAfter)
         {

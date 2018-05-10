@@ -168,14 +168,16 @@ namespace PassiveBOT.Commands.Info
             var commands = mod.Commands.Select(x => $"`{isserver}{x.Summary}` - {x.Remarks}").ToList();
             if (commands.Count > 8)
             {
-                embed.AddField($"{mod.Name} Commands (1)", commands.Count == 0 ? "N/A" : string.Join("\n", commands.Take(commands.Count / 2)));
-                embed.AddField($"{mod.Name} Commands (2)", commands.Count == 0 ? "N/A" : string.Join("\n", commands.Skip(commands.Count / 2)));
+                embed.AddField($"{mod.Name} Commands (1)",
+                    commands.Count == 0 ? "N/A" : string.Join("\n", commands.Take(commands.Count / 2)));
+                embed.AddField($"{mod.Name} Commands (2)",
+                    commands.Count == 0 ? "N/A" : string.Join("\n", commands.Skip(commands.Count / 2)));
             }
             else
             {
                 embed.AddField($"{mod.Name} Commands", commands.Count == 0 ? "N/A" : string.Join("\n", commands));
             }
-            
+
             await ReplyAsync("", false, embed.Build());
         }
 

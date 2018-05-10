@@ -16,6 +16,13 @@ namespace PassiveBOT.Commands.ServerSetup
     [RequireContext(ContextType.Guild)]
     public class GuildSetup : InteractiveBase
     {
+        private readonly CommandService _service;
+
+        private GuildSetup(CommandService service)
+        {
+            _service = service;
+        }
+
         [Command("Setup", RunMode = RunMode.Async)]
         [Summary("Setup")]
         [Remarks("Initialises the servers configuration file")]
@@ -706,34 +713,29 @@ namespace PassiveBOT.Commands.ServerSetup
                              $"{Context.Channel.Name}");
         }
 
-        private readonly CommandService _service;
-
-        private GuildSetup(CommandService service)
-        {
-            _service = service;
-        }
-
         [Command("HideModule")]
         [Summary("HideModule <modulename>")]
         [Remarks("Disable a module from being used by users")]
-        public async Task HideModule([Remainder]string modulename = null)
+        public async Task HideModule([Remainder] string modulename = null)
         {
             if (_service.Modules.Any(x => string.Equals(x.Name, modulename, StringComparison.CurrentCultureIgnoreCase)))
             {
                 var jsonObj = GuildConfig.GetServer(Context.Guild);
                 jsonObj.Visibilityconfig.BlacklistedModules.Add(modulename.ToLower());
                 GuildConfig.SaveServer(jsonObj);
-                await ReplyAsync($"Commands from {modulename} will no longer be accessible or visible to regular users");
+                await ReplyAsync(
+                    $"Commands from {modulename} will no longer be accessible or visible to regular users");
             }
             else
             {
                 await ReplyAsync($"No module found with this name.");
             }
         }
+
         [Command("HideCommand")]
         [Summary("HideCommand <commandname>")]
         [Remarks("Disable a command from being used by users")]
-        public async Task HideCommand([Remainder]string cmdname = null)
+        public async Task HideCommand([Remainder] string cmdname = null)
         {
             if (_service.Commands.Any(x => string.Equals(x.Name, cmdname, StringComparison.CurrentCultureIgnoreCase)))
             {
@@ -747,10 +749,11 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"No command found with this name.");
             }
         }
+
         [Command("UnHideModule")]
         [Summary("UnHideModule <modulename>")]
         [Remarks("Re-Enable a module to be used by users")]
-        public async Task UnHideModule([Remainder]string modulename = null)
+        public async Task UnHideModule([Remainder] string modulename = null)
         {
             if (_service.Modules.Any(x => string.Equals(x.Name, modulename, StringComparison.CurrentCultureIgnoreCase)))
             {
@@ -764,10 +767,11 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"No module found with this name.");
             }
         }
+
         [Command("UnHideCommand")]
         [Summary("UnHideCommand <commandname>")]
         [Remarks("Re-Enable a command to be used by users")]
-        public async Task UnHideCommand([Remainder]string cmdname = null)
+        public async Task UnHideCommand([Remainder] string cmdname = null)
         {
             if (_service.Commands.Any(x => string.Equals(x.Name, cmdname, StringComparison.CurrentCultureIgnoreCase)))
             {
@@ -785,24 +789,25 @@ namespace PassiveBOT.Commands.ServerSetup
         [Command("HiddenCommands")]
         [Summary("HiddenCommands")]
         [Remarks("list all hidden commands and modules")]
-        public async Task HiddenCMDs([Remainder]string cmdname = null)
+        public async Task HiddenCMDs([Remainder] string cmdname = null)
         {
             var embed = new EmbedBuilder();
             var jsonObj = GuildConfig.GetServer(Context.Guild);
             if (jsonObj.Visibilityconfig.BlacklistedModules.Any())
-            {
                 embed.AddField("Blacklisted Modules",
                     $"{string.Join("\n", jsonObj.Visibilityconfig.BlacklistedModules)}");
-            }
 
             if (jsonObj.Visibilityconfig.BlacklistedCommands.Any())
             {
                 var desc = "";
                 foreach (var cmd in jsonObj.Visibilityconfig.BlacklistedCommands)
                 {
-                    var cmdcummary = _service.Commands.FirstOrDefault(x => string.Equals(x.Name, cmd, StringComparison.CurrentCultureIgnoreCase))?.Summary ?? cmd;
+                    var cmdcummary = _service.Commands.FirstOrDefault(x =>
+                                             string.Equals(x.Name, cmd, StringComparison.CurrentCultureIgnoreCase))
+                                         ?.Summary ?? cmd;
                     desc += $"{cmdcummary}\n";
                 }
+
                 embed.AddField("Blacklisted Commands",
                     $"{desc}");
             }

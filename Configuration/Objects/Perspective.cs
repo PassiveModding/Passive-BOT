@@ -11,7 +11,6 @@ namespace PassiveBOT.Configuration.Objects
     {
         public class Api
         {
-            private string ApiKey { get; }
             private readonly string URL;
 
             public Api(string apikey)
@@ -20,11 +19,14 @@ namespace PassiveBOT.Configuration.Objects
                 URL = $"https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key={ApiKey}";
             }
 
+            private string ApiKey { get; }
+
             public AnalyzeCommentResponse SendRequest(AnalyzeCommentRequest request)
             {
                 using (var client = new HttpClient())
                 {
-                    var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                    var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8,
+                        "application/json");
                     var response = client.PostAsync(URL, content).Result;
                     response.EnsureSuccessStatusCode();
                     var data = response.Content.ReadAsStringAsync().Result;
@@ -36,7 +38,9 @@ namespace PassiveBOT.Configuration.Objects
             public string GetResponseString(AnalyzeCommentRequest request)
             {
                 using (var client = new HttpClient())
-                {var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+                {
+                    var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8,
+                        "application/json");
                     var response = client.PostAsync(URL, content).Result;
                     response.EnsureSuccessStatusCode();
                     return response.Content.ReadAsStringAsync().Result;
@@ -47,7 +51,7 @@ namespace PassiveBOT.Configuration.Objects
             public AnalyzeCommentResponse QueryToxicity(string input)
             {
                 var requestedAttributeses =
-                    new Dictionary<string, RequestedAttributes> { { "TOXICITY", new Perspective.RequestedAttributes() } };
+                    new Dictionary<string, RequestedAttributes> {{"TOXICITY", new RequestedAttributes()}};
                 var req = new AnalyzeCommentRequest(input, requestedAttributeses);
                 var res = SendRequest(req);
                 return res;
@@ -57,22 +61,22 @@ namespace PassiveBOT.Configuration.Objects
 
         public class AnalyzeCommentRequest
         {
-            public Comment comment;
-            public Dictionary<string, RequestedAttributes> requestedAttributes;
-            public string[] languages = { "en" };
-            public bool doNotStore;
             public string clientToken;
+            public Comment comment;
+            public bool doNotStore;
+            public string[] languages = {"en"};
+            public Dictionary<string, RequestedAttributes> requestedAttributes;
 
-            public AnalyzeCommentRequest(string comment, Dictionary<string, RequestedAttributes> requestedAttributeses = null, bool doNotStore = true, string clienttoken = null)
+            public AnalyzeCommentRequest(string comment,
+                Dictionary<string, RequestedAttributes> requestedAttributeses = null, bool doNotStore = true,
+                string clienttoken = null)
             {
                 this.comment = new Comment(comment);
                 this.doNotStore = doNotStore;
                 if (requestedAttributeses == null)
                     requestedAttributes.Add("TOXICITY", new RequestedAttributes());
                 else
-                {
                     requestedAttributes = requestedAttributeses;
-                }
                 clientToken = clienttoken;
             }
         }
@@ -96,6 +100,7 @@ namespace PassiveBOT.Configuration.Objects
                         public int begin { get; set; }
                         public int end { get; set; }
                         public Score score { get; set; }
+
                         public class Score
                         {
                             public double value { get; set; }
@@ -114,14 +119,14 @@ namespace PassiveBOT.Configuration.Objects
 
         public class Comment
         {
-            public string text { get; set; }
-            public string type { get; set; }
-
             public Comment(string text, string type = "PLAIN_TEXT")
             {
                 this.text = text;
                 this.type = type;
             }
+
+            public string text { get; set; }
+            public string type { get; set; }
 
             public static implicit operator string(Comment v)
             {
@@ -131,8 +136,8 @@ namespace PassiveBOT.Configuration.Objects
 
         public class RequestedAttributes
         {
-            public string scoreType;
             public float scoreThreshold;
+            public string scoreType;
 
             public RequestedAttributes(string scoretype = "PROBABILITY", float scorethreshold = 0)
             {

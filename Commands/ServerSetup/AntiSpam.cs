@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Handlers.Services.Interactive;
-using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.Preconditions;
-using PassiveBOT.Configuration.Objects;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
-
     [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class AntiSpam : InteractiveBase
@@ -322,7 +316,7 @@ namespace PassiveBOT.Commands.ServerSetup
         public async Task SkipAntiSpam()
         {
             var guild = GuildConfig.GetServer(Context.Guild);
-            var embed = new EmbedBuilder { Description = string.Join("\n", guild.Antispams.Antispam.AntiSpamSkip) };
+            var embed = new EmbedBuilder {Description = string.Join("\n", guild.Antispams.Antispam.AntiSpamSkip)};
             await ReplyAsync("", false, embed.Build());
         }
 
