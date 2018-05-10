@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
@@ -24,10 +25,13 @@ namespace PassiveBOT.Handlers.Services
                     try
                     {
                         //First filter out any servers which do not appear in the bot's guild list (ie. They removed the bot from the server)
-                        AcceptedServers = AcceptedServers.Where(x => client.Guilds.Any(y => y.Id == x)).ToList();
+                        AcceptedServers = client.Guilds.Where(x => AcceptedServers.Contains(x.Id)).Select(x => x.Id)
+                            .ToList();
                         var newlist = AcceptedServers.ToList();
+                        var gcon = Tokens.Load().SupportServer;
                         //Randomly Shuffle in order to provide a level of randomness in which servers get shared where. We also ensure that newlist isn't being modified during the loop by casting it to a second list.
                         foreach (var guildid in newlist.ToList().OrderBy(x => rndshuffle.Next()))
+                        {
                             try
                             {
                                 //Try to get the server's saved config
@@ -40,7 +44,7 @@ namespace PassiveBOT.Handlers.Services
                                 {
                                     try
                                     {
-                                        //make sure we filter out the current server in the random list so that servers dont receive their own pertner message
+                                        //make sure we filter out the current server in the random list so that servers dont receive their own partner message
                                         var newitems = newlist.Where(x => x != guildid).ToList();
                                         //next select a random server from the previous list to share
                                         var newitem = newitems[new Random().Next(0, newitems.Count)];
@@ -74,14 +78,15 @@ namespace PassiveBOT.Handlers.Services
                                             Footer = new EmbedFooterBuilder
                                             {
                                                 Text = selectedguild.showusercount
-                                                    ? $"User Count: {((SocketGuild) otherchannel.Guild).MemberCount}"
-                                                    : null
+                                                    ? $"User Count: {((SocketGuild) otherchannel.Guild).MemberCount} || Get PassiveBOT: {gcon}"
+                                                    : $"Get PassiveBOT: {gcon}"
                                             }
                                         };
                                         //send the partner message to the original server
                                         await channel.SendMessageAsync("", false, embed.Build());
                                         //remove the given item from the list so we don't have any repeats
                                         newlist.Remove(newitem);
+                                        await Task.Delay(500);
                                     }
                                     catch //(Exception e)
                                     {
@@ -99,12 +104,13 @@ namespace PassiveBOT.Handlers.Services
                             {
                                 Console.WriteLine(e);
                             }
+                        }
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                     }
-
+                
                     LastFireTime = DateTime.UtcNow;
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePreiod));
