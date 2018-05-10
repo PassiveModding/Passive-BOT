@@ -113,7 +113,6 @@ namespace PassiveBOT
                 .AddSingleton(Client)
                 .AddSingleton(new InteractiveService(Client))
                 .AddSingleton(new TimerService(Client))
-                .AddSingleton(new ReliabilityService(Client))
                 .AddSingleton(new CommandService(
                     new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
             return services.BuildServiceProvider();

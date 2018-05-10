@@ -60,20 +60,21 @@ namespace PassiveBOT.Commands.Info
         [Remarks("all help commands")]
         public async Task HelpAsync([Remainder] string modulearg = null)
         {
+
+            var gobj = GuildConfig.GetServer(Context.Guild);
             string isserver;
             if (Context.Channel is IPrivateChannel)
                 isserver = Load.Pre;
             else
-                isserver = GuildConfig.GetServer(Context.Guild)?.Prefix == null
-                    ? Load.Pre
-                    : GuildConfig.GetServer(Context.Guild)?.Prefix;
+                isserver = gobj?.Prefix ?? Load.Pre;
 
             if (modulearg == null) //ShortHelp
             {
                 var pages = new List<PaginatedMessage.Page>();
-                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0))
+                foreach (var module in _service.Modules.Where(x => x.Commands.Count > 0 && !gobj.Visibilityconfig.BlacklistedModules.Any(bm => string.Equals(bm, x.Name, StringComparison.CurrentCultureIgnoreCase))))
                 {
-                    var list = module.Commands.Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}")
+                    var list = module.Commands.Where(x => !gobj.Visibilityconfig.BlacklistedCommands.Any(bc => string.Equals(x.Name, bc, StringComparison.CurrentCultureIgnoreCase)))
+                        .Select(command => $"`{isserver}{command.Summary}` - {command.Remarks}")
                         .ToList();
 
                     if (module.Commands.Count <= 0) continue;
@@ -119,6 +120,7 @@ namespace PassiveBOT.Commands.Info
                     {
                         dynamictitle = $"PassiveBOT | Modules | Prefix: {isserver}",
                         description = $"Here is a list of all the PassiveBOT command modules\n" +
+                                      $"There are {_service.Commands.Count()} commands\n" +
                                       $"Click the arrows to view each one!\n" +
                                       $"{(Context.Channel is IDMChannel ? "\n" : "Or Click :1234: and reply with the page number you would like\n\n")}" +
                                       string.Join("\n", moduleselect)
@@ -126,16 +128,16 @@ namespace PassiveBOT.Commands.Info
                     new PaginatedMessage.Page
                     {
                         dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
-                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0)
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0 && !gobj.Visibilityconfig.BlacklistedModules.Any(bm => string.Equals(bm, x.Name, StringComparison.CurrentCultureIgnoreCase)))
                             .Take(_service.Modules.Count() / 2)
-                            .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
+                            .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Where(c => !gobj.Visibilityconfig.BlacklistedCommands.Any(bc => string.Equals(c.Name, bc, StringComparison.CurrentCultureIgnoreCase))).Select(c => c.Name))}"))
                     },
                     new PaginatedMessage.Page
                     {
                         dynamictitle = $"PassiveBOT | All Commands | Prefix: {isserver}",
-                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0)
+                        description = string.Join("\n", _service.Modules.Where(x => x.Commands.Count > 0&& !gobj.Visibilityconfig.BlacklistedModules.Any(bm => string.Equals(bm, x.Name, StringComparison.CurrentCultureIgnoreCase)))
                             .Skip(_service.Modules.Count() / 2)
-                            .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Select(c => c.Name))}"))
+                            .Select(x => $"__**{x.Name}**__\n{string.Join(", ", x.Commands.Where(c => !gobj.Visibilityconfig.BlacklistedCommands.Any(bc => string.Equals(c.Name, bc, StringComparison.CurrentCultureIgnoreCase))).Select(c => c.Name))}"))
                     }
                 };
                 foreach (var page in pages) fullpages.Add(page);

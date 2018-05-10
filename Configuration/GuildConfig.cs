@@ -113,7 +113,7 @@ namespace PassiveBOT.Configuration
             public privacy Privacy { get; set; } = new privacy();
             public toxicity Toxicity { get; set; } = new toxicity();
 
-            public List<IgnoreRole> IngoreRoles { get; set; } = new List<IgnoreRole>();
+            public List<IgnoreRole> IgnoreRoles { get; set; } = new List<IgnoreRole>();
 
             public class toxicity
             {
@@ -143,7 +143,7 @@ namespace PassiveBOT.Configuration
                 public string DefaultBlacklistMessage { get; set; } = "";
 
                 //toggle wether or not to filter diatrics and replace certain numbers with their letter counterparts etc.
-                public bool BlacklistBetterFilter { get; set; } = true;
+                public bool BlacklistBetterFilter { get; set; } = false;
 
                 public class BlacklistWords
                 {

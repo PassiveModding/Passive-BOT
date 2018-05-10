@@ -33,15 +33,10 @@ namespace PassiveBOT.Handlers.Services
 
         public static string doreplacements(string text)
         {
-            var toremove = new[]
-            {
-                "-", "_", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "{", "}", "\"", "'", "+", "=", "<", ">",
-                "?", "/", "|", "\\", "[", "]", " "
-            };
-            text = toremove.Aggregate(text, (current, str) => current.Replace(str, ""));
-            text = text.ToLower();
-            text = text.Replace("1", "i").Replace("3", "e").Replace("4", "a").Replace("5", "s").Replace("6", "g")
+            text = text.Except("-_%^&*(){}\"'+=<>?/|\\[] ").ToString();
+            text = text.Replace("1", "i").Replace("$", "s").Replace("#", "h").Replace("@", "a").Replace("!", "i").Replace("3", "e").Replace("4", "a").Replace("5", "s").Replace("6", "g")
                 .Replace("8", "b").Replace("9", "g");
+            text = text.ToLower();
             return text;
         }
     }

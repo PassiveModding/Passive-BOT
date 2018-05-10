@@ -787,6 +787,7 @@ namespace PassiveBOT.Commands.ServerSetup
         }
 
         [Command("HiddenCommands")]
+        [Alias("HiddenModules")]
         [Summary("HiddenCommands")]
         [Remarks("list all hidden commands and modules")]
         public async Task HiddenCMDs([Remainder] string cmdname = null)
@@ -876,7 +877,7 @@ namespace PassiveBOT.Commands.ServerSetup
                                   $"Remove @Everyone and @Here: {Guild.Antispams.Mention.MentionAll}\n" +
                                   $"Remove @Everyone and @Here Message:\n" +
                                   $"{Guild.Antispams.Mention.MentionAllMessage}\n\n" +
-                                  $"Remove @everyone and @here excempt:\n" +
+                                  $"Remove @everyone and @here exempt:\n" +
                                   $"Remove Messages with 5+ Mentions: {Guild.Antispams.Mention.RemoveMassMention}\n"
                 },
                 new PaginatedMessage.Page
@@ -890,9 +891,9 @@ namespace PassiveBOT.Commands.ServerSetup
                 },
                 new PaginatedMessage.Page
                 {
-                    dynamictitle = $"AntiSpam 3.Excempt",
+                    dynamictitle = $"AntiSpam 3.Exempt",
                     description =
-                        $"{(Guild.Antispams.IngoreRoles.Any() ? string.Join("\n", Guild.Antispams.IngoreRoles.Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"__{Context.Guild.GetRole(x.RoleID).Name}__\nBypass Antispam: {x.AntiSpam}\nBypass Blacklist: {x.Blacklist}\nBypass Mention: {x.Mention}\nBypass Invite: {x.Advertising}\nBypass Filtering: {x.Privacy}\n")) : "N/A")}"
+                        $"{(Guild.Antispams.IgnoreRoles.Any() ? string.Join("\n", Guild.Antispams.IgnoreRoles.Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"__{Context.Guild.GetRole(x.RoleID).Name}__\nBypass Antispam: {x.AntiSpam}\nBypass Blacklist: {x.Blacklist}\nBypass Mention: {x.Mention}\nBypass Invite: {x.Advertising}\nBypass Filtering: {x.Privacy}\n")) : "N/A")}"
                 },
                 new PaginatedMessage.Page
                 {

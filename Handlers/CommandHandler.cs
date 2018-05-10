@@ -97,8 +97,7 @@ namespace PassiveBOT.Handlers
             if (context.Channel is IDMChannel) return false;
 
             var guild = GuildConfig.GetServer(context.Guild);
-            var excemtcheck =
-                guild.Antispams.IngoreRoles.Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID)).ToList();
+            var exemptcheck = guild.Antispams.IgnoreRoles.Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID)).ToList();
 
             if (guild.Antispams.Antispam.NoSpam || guild.Levels.LevellingEnabled)
             {
@@ -172,7 +171,7 @@ namespace PassiveBOT.Handlers
 
                         if (detected && guild.Antispams.Antispam.NoSpam)
                         {
-                            var BypassAntispam = excemtcheck.Any(x => x.AntiSpam);
+                            var BypassAntispam = exemptcheck.Any(x => x.AntiSpam);
                             if (!BypassAntispam)
                                 if (!guild.Antispams.Antispam.AntiSpamSkip.Any(x =>
                                     message.Content.ToLower().Contains(x.ToLower())))
@@ -350,7 +349,7 @@ namespace PassiveBOT.Handlers
 
             if (guild.Antispams.Advertising.Invite)
             {
-                var BypassInvite = excemtcheck.Any(x => x.Advertising);
+                var BypassInvite = exemptcheck.Any(x => x.Advertising);
                 if (!BypassInvite)
                     if (Regex.Match(context.Message.Content,
                             @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
@@ -374,7 +373,7 @@ namespace PassiveBOT.Handlers
 
             if (guild.Antispams.Mention.RemoveMassMention || guild.Antispams.Mention.MentionAll)
             {
-                var BypassMention = excemtcheck.Any(x => x.Mention);
+                var BypassMention = exemptcheck.Any(x => x.Mention);
 
                 if (!BypassMention)
                 {
@@ -422,7 +421,7 @@ namespace PassiveBOT.Handlers
 
             if (guild.Antispams.Privacy.RemoveIPs)
             {
-                var BypassIP = excemtcheck.Any(x => x.Privacy);
+                var BypassIP = exemptcheck.Any(x => x.Privacy);
 
                 if (!BypassIP)
                     if (Regex.IsMatch(message.Content,
@@ -438,9 +437,22 @@ namespace PassiveBOT.Handlers
                     }
             }
 
-            if (guild.Antispams.Blacklist.BlacklistWordSet.Any())
+            CommandInfo CMDCheck = null;
+            var argPos = 0;
+            if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention ||
+                message.HasStringPrefix(Load.Pre, ref argPos) ||
+                message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))
             {
-                var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
+                var cmdSearch = _commands.Search(context, argPos);
+                if (cmdSearch.IsSuccess)
+                {
+                    CMDCheck = cmdSearch.Commands.FirstOrDefault().Command;
+                }
+            }
+
+            if (guild.Antispams.Blacklist.BlacklistWordSet.Any() && CMDCheck == null)
+            {
+                var BypassBlacklist = exemptcheck.Any(x => x.Blacklist);
 
                 if (!BypassBlacklist)
                 {
@@ -501,20 +513,15 @@ namespace PassiveBOT.Handlers
                 }
             }
 
-            if (guild.Antispams.Toxicity.UsePerspective)
+
+
+                if (guild.Antispams.Toxicity.UsePerspective)
             {
-                var BypassToxicity = excemtcheck.Any(x => x.Toxicity);
+                var BypassToxicity = exemptcheck.Any(x => x.Toxicity);
 
                 if (!BypassToxicity)
                 {
-                    var argPos = 0;
-                    var CheckUsingToxicity = true;
-                    //Filter out commands to reduce lag when executing commands.
-                    if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention ||
-                        message.HasStringPrefix(Load.Pre, ref argPos) ||
-                        message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos))
-                        if (_commands.Search(context, argPos).IsSuccess)
-                            CheckUsingToxicity = false;
+                    var CheckUsingToxicity = CMDCheck == null;
 
                     var token = Tokens.Load().PerspectiveAPI;
                     if (token != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
@@ -527,7 +534,7 @@ namespace PassiveBOT.Handlers
                                 await message.DeleteAsync();
                                 var emb = new EmbedBuilder
                                 {
-                                    Title = $"Toxicity Threshhold Breached",
+                                    Title = "Toxicity Threshhold Breached",
                                     Description = $"{context.User.Mention}"
                                 };
                                 await context.Channel.SendMessageAsync("", false, emb.Build());
@@ -555,37 +562,29 @@ namespace PassiveBOT.Handlers
                         {
                             //
                         }
-
-                    var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
                 }
             }
 
-            /*
+            
             if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
             {
-                var guser = (IGuildUser)context.User;
-                //if (!guser.GuildPermissions.Administrator &&
-               //     !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
-                {
-                    var argPos = 0;
-                    var cmdsearch = _commands.Search(context, argPos);
-                    if (cmdsearch.IsSuccess)
+                    if (CMDCheck != null)
                     {
-                        await context.Channel.SendMessageAsync("CMD Exists");
-                        var detectedcmd = cmdsearch.Commands.FirstOrDefault();
-                        if (guild.Visibilityconfig.BlacklistedCommands.Any(x =>
-                                string.Equals(x, detectedcmd.Command.Name, StringComparison.CurrentCultureIgnoreCase))||
-                            guild.Visibilityconfig.BlacklistedModules.Any(x => 
-                                string.Equals(x, detectedcmd.Command.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
+                        var guser = (IGuildUser)context.User;
+                        if (!guser.GuildPermissions.Administrator &&
+                            !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
                         {
-                            await context.Channel.SendMessageAsync("CMD/Module Hidden");
-                            return true;
+                            if (guild.Visibilityconfig.BlacklistedCommands.Any(x =>
+                                    string.Equals(x, CMDCheck.Name, StringComparison.CurrentCultureIgnoreCase)) ||
+                                guild.Visibilityconfig.BlacklistedModules.Any(x =>
+                                    string.Equals(x, CMDCheck.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
+                            {
+                                return true;
+                            }
                         }
                     }
-                }
-
             }
-            */
+            
             return false;
         }
 

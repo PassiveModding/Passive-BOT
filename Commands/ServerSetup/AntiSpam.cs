@@ -28,7 +28,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
 
             var intselections = selection.Split(',');
-            var ignore = guild.Antispams.IngoreRoles.FirstOrDefault(x => x.RoleID == role.Id);
+            var ignore = guild.Antispams.IgnoreRoles.FirstOrDefault(x => x.RoleID == role.Id);
             var addrole = false;
             if (ignore == null)
             {
@@ -44,7 +44,7 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 if (zerocheck == 0)
                 {
-                    guild.Antispams.IngoreRoles.Remove(ignore);
+                    guild.Antispams.IgnoreRoles.Remove(ignore);
                     await ReplyAsync("Success, Role has been removed form the ignore list");
                 }
                 else
@@ -101,7 +101,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     await ReplyAsync("", false, embed.Build());
                 }
 
-                if (addrole) guild.Antispams.IngoreRoles.Add(ignore);
+                if (addrole) guild.Antispams.IgnoreRoles.Add(ignore);
                 GuildConfig.SaveServer(guild);
             }
             else
