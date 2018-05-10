@@ -352,7 +352,7 @@ namespace PassiveBOT.Handlers
                 var BypassInvite = exemptcheck.Any(x => x.Advertising);
                 if (!BypassInvite)
                     if (Regex.Match(context.Message.Content,
-                            @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                            @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                         .Success)
                     {
                         await message.DeleteAsync();

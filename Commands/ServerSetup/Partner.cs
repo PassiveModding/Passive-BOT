@@ -274,7 +274,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
 
             if (!Regex.Match(input,
-                        @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                        @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                     .Success && !input.Contains("discord.me"))
             {
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too\n" +
@@ -283,18 +283,17 @@ namespace PassiveBOT.Commands.ServerSetup
             }
 
             if (Regex.Match(input,
-                    @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                    @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                 .Success)
             {
                 var invites = Regex.Matches(input,
-                        @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                        @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                     .ToList();
                 var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
-                    var match = officialinvites.FirstOrDefault(x =>
-                        invite.ToString().ToLower().Contains(x.Code.ToLower()));
+                    var match = officialinvites.FirstOrDefault(x => invite.ToString().ToLower().Contains(x.Code.ToLower()));
                     if (match == null)
                     {
                         mismatch = true;
