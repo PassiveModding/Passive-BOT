@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.Preconditions;
@@ -526,7 +527,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     if (Context.Guild.TextChannels.Any(x => x.Id == channel.channelID))
                         embed.AddField(Context.Guild.TextChannels.First(x => x.Id == channel.channelID).Name,
                             $"Message: {channel.automessage}\n" +
-                            $"Message Count: {channel.messages}\n" +
+                            $"Message Count: {CommandHandler.AutomessageList.FirstOrDefault(x => x.GuildID == Context.Guild.Id).Channels.FirstOrDefault(x => x.channelID == Context.Channel.Id).messages}\n" +
                             $"Enabled: {channel.enabled}\n" +
                             $"Msg/AutoMessage: {channel.sendlimit}");
 
@@ -536,6 +537,20 @@ namespace PassiveBOT.Commands.ServerSetup
             else
             {
                 await ReplyAsync("ERROR: you did not supply an option. type only `1` etc.");
+            }
+
+            var AGuild = CommandHandler.AutomessageList.FirstOrDefault(x => x.GuildID == Context.Guild.Id);
+            if (AGuild == null)
+            {
+                CommandHandler.AutomessageList.Add(new CommandHandler.AutoMessages
+                {
+                    GuildID = Context.Guild.Id,
+                    Channels = serverobj.AutoMessage
+                });
+            }
+            else
+            {
+                AGuild.Channels = serverobj.AutoMessage;
             }
 
             GuildConfig.SaveServer(serverobj);

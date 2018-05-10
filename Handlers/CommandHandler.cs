@@ -25,6 +25,7 @@ namespace PassiveBOT.Handlers
         public static List<SubReddit> SubReddits = new List<SubReddit>();
         public static List<Con4GameList> Connect4List = new List<Con4GameList>();
         public static List<LevellingObj> Levels = new List<LevellingObj>();
+        public static List<AutoMessages> AutomessageList = new List<AutoMessages>();
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly TimerService _service;
@@ -63,33 +64,26 @@ namespace PassiveBOT.Handlers
         {
             if (context.Channel is IDMChannel) return;
 
-            var guild = GuildConfig.GetServer(context.Guild);
-            try
+            var gauto = AutomessageList.FirstOrDefault(x => x.GuildID == context.Guild.Id)?.Channels.FirstOrDefault(x => x.channelID == context.Channel.Id);
+            if (gauto != null)
             {
-                if (!(context.Channel is IDMChannel))
-                    if (File.Exists(Path.Combine(AppContext.BaseDirectory, $"setup/server/{context.Guild.Id}.json")) &&
-                        guild.AutoMessage.Any(x => x.channelID == context.Channel.Id))
+                gauto.messages++;
+                if (gauto.messages > gauto.sendlimit)
+                {
+                    var guild = GuildConfig.GetServer(context.Guild);
+                    var autochannel = guild.AutoMessage.FirstOrDefault(x => x.channelID == context.Channel.Id);
+                    if (autochannel != null && autochannel.enabled)
                     {
-                        var chan = guild.AutoMessage.First(x => x.channelID == context.Channel.Id);
-                        if (chan.enabled)
+                        var embed = new EmbedBuilder
                         {
-                            chan.messages++;
-                            if (chan.messages >= chan.sendlimit)
-                            {
-                                var embed = new EmbedBuilder();
-                                embed.AddField("AutoMessage", chan.automessage);
-                                embed.Color = Color.Green;
-                                await context.Channel.SendMessageAsync("", false, embed.Build());
-                                chan.messages = 0;
-                            }
-
-                            GuildConfig.SaveServer(guild);
-                        }
+                            Title = "AutoMessage",
+                            Description = autochannel.automessage,
+                            Color = Color.Green
+                        };
+                        await context.Channel.SendMessageAsync("", false, embed.Build());
+                        gauto.messages = 0;
                     }
-            }
-            catch
-            {
-                //
+                }
             }
         }
 
@@ -581,11 +575,22 @@ namespace PassiveBOT.Handlers
                         var guildconfig = GuildConfig.GetServer(guild);
 
                         if (guildconfig.Levels.LevellingEnabled)
+                        {
                             Levels.Add(new LevellingObj
                             {
                                 GuildID = guildconfig.GuildId,
                                 Users = guildconfig.Levels.Users
                             });
+                        }
+
+                        if (guildconfig.AutoMessage.Any())
+                        {
+                            AutomessageList.Add(new AutoMessages
+                            {
+                                GuildID = guildconfig.GuildId,
+                                Channels = guildconfig.AutoMessage
+                            });
+                        }
 
                         if (guildconfig.PartnerSetup.PartherChannel == 0) continue;
                         if (guildconfig.PartnerSetup.IsPartner &&
@@ -772,6 +777,12 @@ namespace PassiveBOT.Handlers
             public ulong GuildID { get; set; }
             public List<GuildConfig.levelling.user> Users { get; set; } = new List<GuildConfig.levelling.user>();
             public int UpdatesSinceLastSave { get; set; }
+        }
+
+        public class AutoMessages
+        {
+            public ulong GuildID { get; set; }
+            public List<GuildConfig.autochannels> Channels { get; set; } = new List<GuildConfig.autochannels>();
         }
 
         public class Delays
