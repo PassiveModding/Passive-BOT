@@ -255,8 +255,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
-            if (NsfwStr.Profanity.Any(x =>
-                ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(input.ToLower())).ToLower()
+            if (NsfwStr.Profanity.Any(x => ProfanityFilter.RemoveDiacritics(input.ToLower())
                     .Contains(x.ToLower())))
             {
                 await ReplyAsync("Profanity Detected, unable to set message!");

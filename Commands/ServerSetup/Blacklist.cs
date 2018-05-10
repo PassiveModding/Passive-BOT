@@ -163,6 +163,7 @@ namespace PassiveBOT.Commands.ServerSetup
             await ReplyAsync("The blacklist has been cleared.");
         }
 
+        /*
         [Command("BFToggle")]
         [Summary("blacklist BFToggle")]
         [Remarks("Toggles whether or not to filter special characters for spam")]
@@ -175,7 +176,7 @@ namespace PassiveBOT.Commands.ServerSetup
             await ReplyAsync(
                 $"Blacklist BetterFilter status set to {(jsonObj.Antispams.Blacklist.BlacklistBetterFilter ? "ON" : "OFF")}");
         }
-
+        */
         [Command("defaultmessage")]
         [Summary("blacklist defaultmessage <message>")]
         [Remarks("set the default blacklist message")]

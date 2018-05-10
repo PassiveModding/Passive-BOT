@@ -459,7 +459,7 @@ namespace PassiveBOT.Handlers
                     var blacklistdetected = false;
                     var blacklistmessage = guild.Antispams.Blacklist.DefaultBlacklistMessage;
 
-                    if (guild.Antispams.Blacklist.BlacklistBetterFilter)
+                    /*if (guild.Antispams.Blacklist.BlacklistBetterFilter)
                     {
                         var detectedblacklistmodule = guild.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(blist =>
                             blist.WordList.Any(x =>
@@ -476,7 +476,7 @@ namespace PassiveBOT.Handlers
                         }
                     }
                     else
-                    {
+                    {*/
                         var detectedblacklistmodule = guild.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(blist =>
                             blist.WordList.Any(x => context.Message.Content.ToLower().Contains(x.ToLower())));
                         if (detectedblacklistmodule != null)
@@ -485,7 +485,7 @@ namespace PassiveBOT.Handlers
                             blacklistmessage = detectedblacklistmodule.BlacklistResponse ??
                                                guild.Antispams.Blacklist.DefaultBlacklistMessage;
                         }
-                    }
+                    //}
 
                     if (blacklistdetected)
                     {

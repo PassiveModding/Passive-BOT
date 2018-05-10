@@ -30,7 +30,7 @@ namespace PassiveBOT.Handlers.Services
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
-
+        /*
         public static string doreplacements(string text)
         {
             text = text.Except("-_%^&*(){}\"'+=<>?/|\\[] ").ToString();
@@ -39,6 +39,7 @@ namespace PassiveBOT.Handlers.Services
             text = text.ToLower();
             return text;
         }
+        */
     }
 
 
