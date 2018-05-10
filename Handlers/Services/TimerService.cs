@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 
@@ -37,9 +38,8 @@ namespace PassiveBOT.Handlers.Services
                                 //Try to get the server's saved config
                                 var guildobj = GuildConfig.GetServer(client.GetGuild(guildid));
                                 //Filter out servers which are either banned or do not use the partner program
-                                if (!guildobj.PartnerSetup.IsPartner) continue;
-                                if (guildobj.PartnerSetup.banned) continue;
-                                //Ensure that the pertner channel still exists
+                                if (!guildobj.PartnerSetup.IsPartner || guildobj.PartnerSetup.banned) continue;
+                                //Ensure that the partner channel still exists
                                 if (client.GetChannel(guildobj.PartnerSetup.PartherChannel) is IMessageChannel channel)
                                 {
                                     try
@@ -125,9 +125,16 @@ namespace PassiveBOT.Handlers.Services
         {
             _timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePreiod));
         }
+
+        public void ChangeRate(int newperiod = 60)
+        {
+            FirePreiod = newperiod;
+            _timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePreiod));
+        }
     }
 
-    /*public class TimerModule : ModuleBase
+    [RequireOwner]
+    public class TimerModule : ModuleBase
     {
         private readonly TimerService _service;
 
@@ -136,14 +143,28 @@ namespace PassiveBOT.Handlers.Services
             _service = service;
         }
 
+        [Command("StopPartnerService+")]
+        [Summary("StopPartnerService+")]
+        [Remarks("Stop the partner service until restarted.")]
         public void StopCmd()
         {
             _service.Stop();
         }
 
+        [Command("RestartPartnerService++")]
+        [Summary("RestartPartnerService+")]
+        [Remarks("Restart the partner service.")]
         public void RestartCmd()
         {
             _service.Restart();
         }
-    }*/
+
+        [Command("ChangePartnerRate+")]
+        [Summary("ChangePartnerRate+ <newrate>")]
+        [Remarks("Restart the partner service with a new rate of posting.")]
+        public void ChangeRateCmd(int NewRate = 60)
+        {
+            _service.ChangeRate(NewRate);
+        }
+    }
 }
