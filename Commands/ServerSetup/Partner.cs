@@ -256,7 +256,7 @@ namespace PassiveBOT.Commands.ServerSetup
             }
 
             if (NsfwStr.Profanity.Any(x => ProfanityFilter.RemoveDiacritics(input.ToLower())
-                    .Contains(x.ToLower())))
+                .Contains(x.ToLower())))
             {
                 await ReplyAsync("Profanity Detected, unable to set message!");
                 return;
@@ -292,7 +292,8 @@ namespace PassiveBOT.Commands.ServerSetup
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
-                    var match = officialinvites.FirstOrDefault(x => invite.ToString().ToLower().Contains(x.Code.ToLower()));
+                    var match = officialinvites.FirstOrDefault(x =>
+                        invite.ToString().ToLower().Contains(x.Code.ToLower()));
                     if (match == null)
                     {
                         mismatch = true;

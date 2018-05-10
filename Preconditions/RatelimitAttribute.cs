@@ -63,24 +63,16 @@ namespace PassiveBOT.preconditions
                 : new CommandTimeout(now);
 
             timeout.TimesInvoked++;
-            
+
             string timeoutstr;
             var timeleft = _invokeLimitPeriod.Subtract(now - timeout.FirstInvoke);
             if (timeleft.Minutes > 0)
-            {
                 if (timeleft.Hours > 0)
-                {
                     timeoutstr = timeleft.Days > 0 ? $"{timeleft.Days} Days" : $"{timeleft.Hours} Hours";
-                }
                 else
-                {
                     timeoutstr = $"{timeleft.Minutes} Minutes";
-                }
-            }
             else
-            {
                 timeoutstr = $"{timeleft.Seconds} Seconds";
-            }
 
             if (timeout.TimesInvoked > _invokeLimit)
                 return Task.FromResult(PreconditionResult.FromError($"Timeout for another {timeoutstr}"));

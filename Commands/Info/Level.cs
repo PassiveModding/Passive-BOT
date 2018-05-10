@@ -20,7 +20,8 @@ namespace PassiveBOT.Commands.Info
         public async Task SetLevelChannel(IUser user = null)
         {
             if (user == null) user = Context.User;
-            var userobj = CommandHandler.Levels.FirstOrDefault(x => x.GuildID == Context.Guild.Id)?.Users.FirstOrDefault(x => x.userID == user.Id);
+            var userobj = CommandHandler.Levels.FirstOrDefault(x => x.GuildID == Context.Guild.Id)?.Users
+                .FirstOrDefault(x => x.userID == user.Id);
 
             if (userobj != null)
             {
@@ -64,7 +65,8 @@ namespace PassiveBOT.Commands.Info
             var userindex = 1;
             var desc = new StringBuilder();
 
-            foreach (var user in CommandHandler.Levels.FirstOrDefault(x => x.GuildID == Context.Guild.Id).Users.OrderByDescending(x => x.xp))
+            foreach (var user in CommandHandler.Levels.FirstOrDefault(x => x.GuildID == Context.Guild.Id).Users
+                .OrderByDescending(x => x.xp))
             {
                 var guser = Context.Guild.GetUser(user.userID);
                 if (guser == null) continue;

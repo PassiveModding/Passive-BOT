@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -12,13 +11,9 @@ using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using PassiveBOT.Configuration;
 using PassiveBOT.Configuration.Objects;
-using PassiveBOT.Handlers;
-using PassiveBOT.Handlers.Services;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.preconditions;
-using PassiveBOT.strings;
-using EventHandler = System.EventHandler;
 
 namespace PassiveBOT.Commands.OwnerCmds
 {

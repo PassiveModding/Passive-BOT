@@ -30,6 +30,7 @@ namespace PassiveBOT.Handlers.Services
 
             return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
+
         /*
         public static string doreplacements(string text)
         {
