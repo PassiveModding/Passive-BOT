@@ -121,6 +121,55 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
         }
 
+        [Command("ViewAntispamServers+")]
+        [Summary("ViewAntispamServers+")]
+        [Remarks("List all servers using antispam")]
+        public async Task AntispamServers()
+        {
+            var pages = new List<PaginatedMessage.Page>();
+            var s2 = new StringBuilder();
+            foreach (var guild in Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
+            {
+                var gobj = GuildConfig.GetServer(guild);
+                if (gobj == null) continue;
+                if (gobj.Antispams.Antispam.NoSpam || gobj.Antispams.Antispam.antiraid ||
+                    gobj.Antispams.Advertising.Invite || gobj.Antispams.Blacklist.BlacklistWordSet.Any() ||
+                    gobj.Antispams.Mention.MentionAll || gobj.Antispams.Mention.RemoveMassMention ||
+                    gobj.Antispams.Privacy.RemoveIPs || gobj.Antispams.Toxicity.UsePerspective)
+                {
+                    var embdesc = $"Name: {guild.Name} || `{guild.Id}`\n" +
+                                  $"Members: {guild.MemberCount}\n" +
+                                  $"NoSpam: {gobj.Antispams.Antispam.NoSpam}\n" +
+                                  $"AntiRaid: {gobj.Antispams.Antispam.antiraid}\n" +
+                                  $"AntiAD: {gobj.Antispams.Advertising.Invite}\n" +
+                                  $"Blacklist: {gobj.Antispams.Blacklist.BlacklistWordSet.Any()}\n" +
+                                  $"MentionAll: {gobj.Antispams.Mention.MentionAll}\n" +
+                                  $"MassMention: {gobj.Antispams.Mention.RemoveMassMention}\n" +
+                                  $"AntiIP: {gobj.Antispams.Privacy.RemoveIPs}\n" +
+                                  $"Toxicity: {gobj.Antispams.Toxicity.UsePerspective} // {gobj.Antispams.Toxicity.ToxicityThreshHold}\n";
+                    s2.Append($"{embdesc}\n");
+                }
+                
+
+                if (s2.ToString().Length <= 800) continue;
+                pages.Add(new PaginatedMessage.Page
+                {
+                    description = s2.ToString()
+                });
+                s2.Clear();
+            }
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                description = s2.ToString()
+            });
+
+            await PagedReplyAsync(new PaginatedMessage
+            {
+                Pages = pages
+            });
+        }
+
         [Command("PartnerUpdates+")]
         [Summary("PartnerUpdates+")]
         [Remarks("Set the PartnerUpdatesChannel")]

@@ -15,7 +15,6 @@ using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers.Services;
 using PassiveBOT.strings;
 using RedditSharp.Things;
-using TwitchLib.Models.Client;
 
 namespace PassiveBOT.Handlers
 {
@@ -100,12 +99,7 @@ namespace PassiveBOT.Handlers
             var guild = GuildConfig.GetServer(context.Guild);
             var excemtcheck =
                 guild.Antispams.IngoreRoles.Where(x => ((IGuildUser)context.User).RoleIds.Contains(x.RoleID)).ToList();
-            var BypassAntispam = excemtcheck.Any(x => x.AntiSpam);
-            var BypassMention = excemtcheck.Any(x => x.Mention);
-            var BypassInvite = excemtcheck.Any(x => x.Advertising);
-            var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
-            var BypassIP = excemtcheck.Any(x => x.Privacy);
-            var BypassToxicity = excemtcheck.Any(x => x.Toxicity);
+
             if (guild.Antispams.Antispam.NoSpam || guild.Levels.LevellingEnabled)
             {
                 var detected = false;
@@ -177,6 +171,8 @@ namespace PassiveBOT.Handlers
                         }
 
                         if (detected && guild.Antispams.Antispam.NoSpam)
+                        {
+                            var BypassAntispam = excemtcheck.Any(x => x.AntiSpam);
                             if (!BypassAntispam)
                                 if (!guild.Antispams.Antispam.AntiSpamSkip.Any(x =>
                                     message.Content.ToLower().Contains(x.ToLower())))
@@ -205,6 +201,7 @@ namespace PassiveBOT.Handlers
 
                                     return true;
                                 }
+                        }
 
                         if (!detected && guild.Levels.LevellingEnabled)
                         {
@@ -355,190 +352,235 @@ namespace PassiveBOT.Handlers
                     }
                 }
             }
-            //if (Regex.Match(context.Message.Content, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
-            if (guild.Antispams.Advertising.Invite && !BypassInvite)
-                if (Regex.Match(context.Message.Content, @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
-                    {
-                    await message.DeleteAsync();
-                    var emb = new EmbedBuilder
-                    {
-                        Description =
-                            guild.Antispams.Advertising.NoInviteMessage ??
-                            $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry"
-                    };
-                    await context.Channel.SendMessageAsync("", false, emb.Build());
-                    //if
-                    // 1. The server Has Invite Deletions turned on
-                    // 2. The user is not an admin
-                    // 3. The user does not have one of the invite excempt roles
-                    return true;
-                }
 
-            if (guild.Antispams.Mention.RemoveMassMention && !BypassMention)
-                if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
-                {
-                    await message.DeleteAsync();
-                    var emb = new EmbedBuilder
-                    {
-                        Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once"
-                    };
-                    await context.Channel.SendMessageAsync("", false, emb.Build());
-                    return true;
-                }
-
-
-            if (guild.Antispams.Privacy.RemoveIPs && !BypassIP)
-                if (Regex.IsMatch(message.Content,
-                    @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
-                {
-                    await message.DeleteAsync();
-                    var emb = new EmbedBuilder
-                    {
-                        Title = $"{context.User} - This server does not allow you to post IP addresses"
-                    };
-                    await context.Channel.SendMessageAsync("", false, emb.Build());
-                    return true;
-                }
-
-
-            if (guild.Antispams.Mention.MentionAll && !BypassMention)
-                if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
-                {
-                    await message.DeleteAsync();
-
-                    var rnd = new Random();
-                    var res = rnd.Next(0, FunStr.Everyone.Length);
-                    var emb = new EmbedBuilder();
-                    if (guild.Antispams.Mention.MentionAllMessage != null)
-                    {
-                        emb.Description = guild.Antispams.Mention.MentionAllMessage;
-                    }
-                    else
-                    {
-                        emb.Title = $"{context.User} - the admins might get angry";
-                        emb.ImageUrl = FunStr.Everyone[res];
-                    }
-
-                    await context.Channel.SendMessageAsync("", false, emb.Build());
-                    return true;
-                    //if
-                    // 1. The server Has Mention Deletions turned on
-                    // 2. The user is not an admin
-                    // 3. The user does not have one of the mention excempt roles
-                }
-
-
-            if (guild.Antispams.Blacklist.BlacklistWordSet.Any() && !BypassBlacklist)
+            if (guild.Antispams.Advertising.Invite)
             {
-                var blacklistdetected = false;
-                var blacklistmessage = guild.Antispams.Blacklist.DefaultBlacklistMessage;
-
-                if (guild.Antispams.Blacklist.BlacklistBetterFilter)
+                var BypassInvite = excemtcheck.Any(x => x.Advertising);
+                if (!BypassInvite)
                 {
-                    var detectedblacklistmodule = guild.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(blist =>
-                        blist.WordList.Any(x =>
-                            ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(context.Message.Content))
-                                .ToLower().Contains(ProfanityFilter.doreplacements(ProfanityFilter.RemoveDiacritics(x))
-                                    .ToLower())));
-                    if (detectedblacklistmodule != null)
+                    if (Regex.Match(context.Message.Content,
+                            @"^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                        .Success)
                     {
-                        blacklistdetected = true;
-                        blacklistmessage = detectedblacklistmodule.BlacklistResponse ??
-                                           guild.Antispams.Blacklist.DefaultBlacklistMessage;
-                    }
-                }
-                else
-                {
-                    var detectedblacklistmodule = guild.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(blist =>
-                        blist.WordList.Any(x => context.Message.Content.ToLower().Contains(x.ToLower())));
-                    if (detectedblacklistmodule != null)
-                    {
-                        blacklistdetected = true;
-                        blacklistmessage = detectedblacklistmodule.BlacklistResponse ??
-                                           guild.Antispams.Blacklist.DefaultBlacklistMessage;
-                    }
-                }
-
-                if (blacklistdetected)
-                {
-                    await message.DeleteAsync();
-
-                    if (!string.IsNullOrEmpty(blacklistmessage))
-                    {
-                        //var responsemessage = blacklistmessage.Replace("{user}", context.User.Username)
-                        //    .Replace("{user.mention}", context.User.Mention).Replace("{guild}", context.Guild.Name)
-                        //    .Replace("{channel}", context.Channel.Name).Replace("{channel.mention}",
-                        //        ((SocketTextChannel) context.Channel).Mention);
-
-                        var result = Regex.Replace(blacklistmessage, "{user}", context.User.Username,
-                            RegexOptions.IgnoreCase);
-                        result = Regex.Replace(result, "{user.mention}", context.User.Mention, RegexOptions.IgnoreCase);
-                        result = Regex.Replace(result, "{guild}", context.Guild.Name, RegexOptions.IgnoreCase);
-                        result = Regex.Replace(result, "{channel}", context.Channel.Name, RegexOptions.IgnoreCase);
-                        result = Regex.Replace(result, "{channel.mention}",
-                            ((SocketTextChannel)context.Channel).Mention, RegexOptions.IgnoreCase);
-                        await context.Channel.SendMessageAsync(result);
+                        await message.DeleteAsync();
+                        var emb = new EmbedBuilder
+                        {
+                            Description =
+                                guild.Antispams.Advertising.NoInviteMessage ??
+                                $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry"
+                        };
+                        await context.Channel.SendMessageAsync("", false, emb.Build());
+                        //if
+                        // 1. The server Has Invite Deletions turned on
+                        // 2. The user is not an admin
+                        // 3. The user does not have one of the invite excempt roles
                         return true;
                     }
                 }
             }
 
-            if (guild.Antispams.Toxicity.UsePerspective && !BypassToxicity)
+            if (guild.Antispams.Mention.RemoveMassMention || guild.Antispams.Mention.MentionAll)
             {
-                var argPos = 0;
-                bool CheckUsingToxicity = true;
-                //Filter out commands to reduce lag when executing commands.
-                if (((message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention) ||
-                      message.HasStringPrefix(Load.Pre, ref argPos) ||
-                      message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos)))
+                var BypassMention = excemtcheck.Any(x => x.Mention);
+                
+                if (!BypassMention)
                 {
-                    if (_commands.Search(context, argPos).IsSuccess)
+                    if (guild.Antispams.Mention.RemoveMassMention)
                     {
-                        CheckUsingToxicity = false;
-                    }
-                }
-                var token = Tokens.Load().PerspectiveAPI;
-                if (token != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
-                {
-                    try
-                    {
-                        var res = new Perspective.Api(token).QueryToxicity(message.Content);
-                        if (res.attributeScores.TOXICITY.summaryScore.value * 100 > guild.Antispams.Toxicity.ToxicityThreshHold)
+                        if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
                         {
                             await message.DeleteAsync();
                             var emb = new EmbedBuilder
                             {
-                                Title = $"Toxicity Threshhold Breached",
-                                Description = $"{context.User.Mention}"
+                                Title = $"{context.User} - This server does not allow you to mention 5+ roles or uses at once"
                             };
                             await context.Channel.SendMessageAsync("", false, emb.Build());
-
-                            if (context.Client.GetChannel(guild.ModLogChannel) is IMessageChannel modchannel)
-                            {
-                                try
-                                {
-                                    emb.Description = "Message Auto-Removed.\n" +
-                                                      $"User: {context.User.Mention}\n" +
-                                                      $"Channel: {context.Channel.Name}\n" +
-                                                      $"Toxicity %: {res.attributeScores.TOXICITY.summaryScore.value * 100}\n" +
-                                                      "Message: \n" +
-                                                      $"{context.Message.Content}";
-                                    await modchannel.SendMessageAsync("", false, emb.Build());
-                                }
-                                catch
-                                {
-                                    //
-                                }
-                                
-                            }
                             return true;
                         }
                     }
-                    catch
+
+                    if (guild.Antispams.Mention.MentionAll)
                     {
-                        //
+                        if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
+                        {
+                            await message.DeleteAsync();
+
+                            var rnd = new Random();
+                            var res = rnd.Next(0, FunStr.Everyone.Length);
+                            var emb = new EmbedBuilder();
+                            if (guild.Antispams.Mention.MentionAllMessage != null)
+                            {
+                                emb.Description = guild.Antispams.Mention.MentionAllMessage;
+                            }
+                            else
+                            {
+                                emb.Title = $"{context.User} - the admins might get angry";
+                                emb.ImageUrl = FunStr.Everyone[res];
+                            }
+
+                            await context.Channel.SendMessageAsync("", false, emb.Build());
+                            return true;
+                            //if
+                            // 1. The server Has Mention Deletions turned on
+                            // 2. The user is not an admin
+                            // 3. The user does not have one of the mention excempt roles
+                        }
                     }
 
+                }
+            }
+
+
+
+            if (guild.Antispams.Privacy.RemoveIPs)
+            {
+                var BypassIP = excemtcheck.Any(x => x.Privacy);
+
+                if (!BypassIP)
+                {
+                    if (Regex.IsMatch(message.Content,
+                        @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
+                    {
+                        await message.DeleteAsync();
+                        var emb = new EmbedBuilder
+                        {
+                            Title = $"{context.User} - This server does not allow you to post IP addresses"
+                        };
+                        await context.Channel.SendMessageAsync("", false, emb.Build());
+                        return true;
+                    }
+                }
+            }
+
+            if (guild.Antispams.Blacklist.BlacklistWordSet.Any())
+            {
+                var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
+
+                if (!BypassBlacklist)
+                {
+                    var blacklistdetected = false;
+                    var blacklistmessage = guild.Antispams.Blacklist.DefaultBlacklistMessage;
+
+                    if (guild.Antispams.Blacklist.BlacklistBetterFilter)
+                    {
+                        var detectedblacklistmodule = guild.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(blist =>
+                            blist.WordList.Any(x =>
+                                ProfanityFilter
+                                    .doreplacements(ProfanityFilter.RemoveDiacritics(context.Message.Content))
+                                    .ToLower().Contains(ProfanityFilter
+                                        .doreplacements(ProfanityFilter.RemoveDiacritics(x))
+                                        .ToLower())));
+                        if (detectedblacklistmodule != null)
+                        {
+                            blacklistdetected = true;
+                            blacklistmessage = detectedblacklistmodule.BlacklistResponse ??
+                                               guild.Antispams.Blacklist.DefaultBlacklistMessage;
+                        }
+                    }
+                    else
+                    {
+                        var detectedblacklistmodule = guild.Antispams.Blacklist.BlacklistWordSet.FirstOrDefault(blist =>
+                            blist.WordList.Any(x => context.Message.Content.ToLower().Contains(x.ToLower())));
+                        if (detectedblacklistmodule != null)
+                        {
+                            blacklistdetected = true;
+                            blacklistmessage = detectedblacklistmodule.BlacklistResponse ??
+                                               guild.Antispams.Blacklist.DefaultBlacklistMessage;
+                        }
+                    }
+
+                    if (blacklistdetected)
+                    {
+                        await message.DeleteAsync();
+
+                        if (!string.IsNullOrEmpty(blacklistmessage))
+                        {
+                            //var responsemessage = blacklistmessage.Replace("{user}", context.User.Username)
+                            //    .Replace("{user.mention}", context.User.Mention).Replace("{guild}", context.Guild.Name)
+                            //    .Replace("{channel}", context.Channel.Name).Replace("{channel.mention}",
+                            //        ((SocketTextChannel) context.Channel).Mention);
+
+                            var result = Regex.Replace(blacklistmessage, "{user}", context.User.Username,
+                                RegexOptions.IgnoreCase);
+                            result = Regex.Replace(result, "{user.mention}", context.User.Mention,
+                                RegexOptions.IgnoreCase);
+                            result = Regex.Replace(result, "{guild}", context.Guild.Name, RegexOptions.IgnoreCase);
+                            result = Regex.Replace(result, "{channel}", context.Channel.Name, RegexOptions.IgnoreCase);
+                            result = Regex.Replace(result, "{channel.mention}",
+                                ((SocketTextChannel) context.Channel).Mention, RegexOptions.IgnoreCase);
+                            await context.Channel.SendMessageAsync(result);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            if (guild.Antispams.Toxicity.UsePerspective)
+            {
+                var BypassToxicity = excemtcheck.Any(x => x.Toxicity);
+
+                if (!BypassToxicity)
+                {
+                    var argPos = 0;
+                    bool CheckUsingToxicity = true;
+                    //Filter out commands to reduce lag when executing commands.
+                    if (((message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention) ||
+                         message.HasStringPrefix(Load.Pre, ref argPos) ||
+                         message.HasStringPrefix(GuildConfig.GetServer(context.Guild).Prefix, ref argPos)))
+                    {
+                        if (_commands.Search(context, argPos).IsSuccess)
+                        {
+                            CheckUsingToxicity = false;
+                        }
+                    }
+
+                    var token = Tokens.Load().PerspectiveAPI;
+                    if (token != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
+                    {
+                        try
+                        {
+                            var res = new Perspective.Api(token).QueryToxicity(message.Content);
+                            if (res.attributeScores.TOXICITY.summaryScore.value * 100 >
+                                guild.Antispams.Toxicity.ToxicityThreshHold)
+                            {
+                                await message.DeleteAsync();
+                                var emb = new EmbedBuilder
+                                {
+                                    Title = $"Toxicity Threshhold Breached",
+                                    Description = $"{context.User.Mention}"
+                                };
+                                await context.Channel.SendMessageAsync("", false, emb.Build());
+
+                                if (context.Client.GetChannel(guild.ModLogChannel) is IMessageChannel modchannel)
+                                {
+                                    try
+                                    {
+                                        emb.Description = "Message Auto-Removed.\n" +
+                                                          $"User: {context.User.Mention}\n" +
+                                                          $"Channel: {context.Channel.Name}\n" +
+                                                          $"Toxicity %: {res.attributeScores.TOXICITY.summaryScore.value * 100}\n" +
+                                                          "Message: \n" +
+                                                          $"{context.Message.Content}";
+                                        await modchannel.SendMessageAsync("", false, emb.Build());
+                                    }
+                                    catch
+                                    {
+                                        //
+                                    }
+
+                                }
+
+                                return true;
+                            }
+                        }
+                        catch
+                        {
+                            //
+                        }
+
+
+                    }
+            var BypassBlacklist = excemtcheck.Any(x => x.Blacklist);
                 }
 
 
