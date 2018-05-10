@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 
@@ -19,8 +20,7 @@ namespace PassiveBOT.Commands.Info
         public async Task SetLevelChannel(IUser user = null)
         {
             if (user == null) user = Context.User;
-            var GuildObj = GuildConfig.GetServer(Context.Guild);
-            var userobj = GuildObj.Levels.Users.FirstOrDefault(x => x.userID == user.Id);
+            var userobj = CommandHandler.Levels.FirstOrDefault(x => x.GuildID == Context.Guild.Id)?.Users.FirstOrDefault(x => x.userID == user.Id);
 
             if (userobj != null)
             {
@@ -60,12 +60,11 @@ namespace PassiveBOT.Commands.Info
         [Remarks("Show the user level leaderboard for this server")]
         public async Task ShowLeaderboard()
         {
-            var GuildObj = GuildConfig.GetServer(Context.Guild);
             var userlist = new List<PaginatedMessage.Page>();
             var userindex = 1;
             var desc = new StringBuilder();
 
-            foreach (var user in GuildObj.Levels.Users.OrderByDescending(x => x.xp))
+            foreach (var user in CommandHandler.Levels.FirstOrDefault(x => x.GuildID == Context.Guild.Id).Users.OrderByDescending(x => x.xp))
             {
                 var guser = Context.Guild.GetUser(user.userID);
                 if (guser == null) continue;
