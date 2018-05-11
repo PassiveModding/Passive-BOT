@@ -23,6 +23,7 @@ namespace PassiveBOT.Handlers.Services
         {
             _timer = new Timer(async _ =>
                 {
+                    return;
                     try
                     {
                         //First filter out any servers which do not appear in the bot's guild list (ie. They removed the bot from the server)

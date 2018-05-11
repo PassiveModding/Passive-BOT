@@ -110,7 +110,7 @@ namespace PassiveBOT.Handlers
 
                 var guild = GuildConfig.GetServer(context.Guild);
                 var exemptcheck = guild.Antispams.IgnoreRoles.Where(x => ((IGuildUser)context.User).RoleIds.Contains(x.RoleID)).ToList();
-                /*
+
                 if (guild.Antispams.Antispam.NoSpam)
                 {
                     var detected = false;
@@ -583,7 +583,7 @@ namespace PassiveBOT.Handlers
                             }
                         }
                     }
-                }*/
+                }
             }
             catch (Exception e)
             {
