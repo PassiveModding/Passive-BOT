@@ -90,6 +90,10 @@ namespace PassiveBOT.Handlers
         {
             if (context.Channel is IDMChannel) return false;
 
+            try
+            {
+
+
             var guild = GuildConfig.GetServer(context.Guild);
             var exemptcheck = guild.Antispams.IgnoreRoles
                 .Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID)).ToList();
@@ -203,6 +207,7 @@ namespace PassiveBOT.Handlers
                             if (!context.Message.HasStringPrefix(Config.Load().Prefix, ref apos) &&
                                 !(context.Message.HasStringPrefix(guild.Prefix, ref apos) &&
                                   !string.IsNullOrEmpty(guild.Prefix)))
+                            {
                                 try
                                 {
                                     //var userlv = guild.Levels.Users.FirstOrDefault(x => x.userID == context.User.Id);
@@ -239,6 +244,7 @@ namespace PassiveBOT.Handlers
                                                     if (roletoreceive.Count != 0)
                                                     {
                                                         foreach (var role in roletoreceive)
+                                                        {
                                                             if (!((IGuildUser) context.User).RoleIds.Contains(
                                                                 role.RoleID))
                                                             {
@@ -258,9 +264,10 @@ namespace PassiveBOT.Handlers
                                                                 else
                                                                     guild.Levels.LevelRoles.Remove(role);
                                                             }
+                                                        }
 
-                                                        if (roletoreceive.Count != rolesavailable.Count &&
-                                                            roletoreceive.Count == 1)
+                                                        if (roletoreceive.Count != rolesavailable.Count && roletoreceive.Count == 1)
+                                                        {
                                                             try
                                                             {
                                                                 rolesavailable.Remove(roletoreceive.First());
@@ -276,6 +283,7 @@ namespace PassiveBOT.Handlers
                                                             {
                                                                 //
                                                             }
+                                                        }
                                                     }
                                                 }
 
@@ -291,21 +299,22 @@ namespace PassiveBOT.Handlers
                                                     Color = Color.Blue
                                                 };
                                                 if (guild.Levels.UseLevelChannel)
+                                                {
                                                     try
                                                     {
-                                                        var chan = context.Guild.GetChannel(guild.Levels
-                                                            .LevellingChannel);
-                                                        if (chan != null)
-                                                            await ((IMessageChannel) chan).SendMessageAsync("",
-                                                                false,
-                                                                embed.Build());
+                                                        if (context.Guild.GetChannel(guild.Levels.LevellingChannel) is IMessageChannel chan)
+                                                        {
+                                                            await chan.SendMessageAsync("", false,embed.Build());
+                                                        }
                                                     }
                                                     catch
                                                     {
                                                         //
                                                     }
+                                                }
 
                                                 if (guild.Levels.UseLevelMessages)
+                                                {
                                                     try
                                                     {
                                                         await context.Channel.SendMessageAsync("", false,
@@ -315,6 +324,7 @@ namespace PassiveBOT.Handlers
                                                     {
                                                         //
                                                     }
+                                                }
                                             }
                                         }
                                     }
@@ -341,6 +351,7 @@ namespace PassiveBOT.Handlers
                                 {
                                     Console.WriteLine(e);
                                 }
+                            }
                         }
                     }
                 }
@@ -350,6 +361,7 @@ namespace PassiveBOT.Handlers
             {
                 var BypassInvite = exemptcheck.Any(x => x.Advertising);
                 if (!BypassInvite)
+                {
                     if (Regex.Match(context.Message.Content,
                             @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                         .Success)
@@ -359,7 +371,7 @@ namespace PassiveBOT.Handlers
                         {
                             Description =
                                 guild.Antispams.Advertising.NoInviteMessage ??
-                                $"{context.User.Mention} - Pls Daddy, no sending invite links... the admins might get angry"
+                                $"{context.User.Mention} - no sending invite links... the admins might get angry"
                         };
                         await context.Channel.SendMessageAsync("", false, emb.Build());
                         //if
@@ -368,6 +380,7 @@ namespace PassiveBOT.Handlers
                         // 3. The user does not have one of the invite excempt roles
                         return true;
                     }
+                }
             }
 
             if (guild.Antispams.Mention.RemoveMassMention || guild.Antispams.Mention.MentionAll)
@@ -377,6 +390,7 @@ namespace PassiveBOT.Handlers
                 if (!BypassMention)
                 {
                     if (guild.Antispams.Mention.RemoveMassMention)
+                    {
                         if (message.MentionedRoles.Count + message.MentionedUsers.Count >= 5)
                         {
                             await message.DeleteAsync();
@@ -388,8 +402,10 @@ namespace PassiveBOT.Handlers
                             await context.Channel.SendMessageAsync("", false, emb.Build());
                             return true;
                         }
+                    }
 
                     if (guild.Antispams.Mention.MentionAll)
+                    {
                         if (message.Content.Contains("@everyone") || message.Content.Contains("@here"))
                         {
                             await message.DeleteAsync();
@@ -414,6 +430,7 @@ namespace PassiveBOT.Handlers
                             // 2. The user is not an admin
                             // 3. The user does not have one of the mention excempt roles
                         }
+                    }
                 }
             }
 
@@ -423,6 +440,7 @@ namespace PassiveBOT.Handlers
                 var BypassIP = exemptcheck.Any(x => x.Privacy);
 
                 if (!BypassIP)
+                {
                     if (Regex.IsMatch(message.Content,
                         @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
                     {
@@ -434,6 +452,7 @@ namespace PassiveBOT.Handlers
                         await context.Channel.SendMessageAsync("", false, emb.Build());
                         return true;
                     }
+                }
             }
 
             CommandInfo CMDCheck = null;
@@ -499,8 +518,7 @@ namespace PassiveBOT.Handlers
                         try
                         {
                             var res = new Perspective.Api(token).QueryToxicity(message.Content);
-                            if (res.attributeScores.TOXICITY.summaryScore.value * 100 >
-                                guild.Antispams.Toxicity.ToxicityThreshHold)
+                            if (res.attributeScores.TOXICITY.summaryScore.value * 100 > guild.Antispams.Toxicity.ToxicityThreshHold)
                             {
                                 await message.DeleteAsync();
                                 var emb = new EmbedBuilder
@@ -511,6 +529,7 @@ namespace PassiveBOT.Handlers
                                 await context.Channel.SendMessageAsync("", false, emb.Build());
 
                                 if (context.Client.GetChannel(guild.ModLogChannel) is IMessageChannel modchannel)
+                                {
                                     try
                                     {
                                         emb.Description = "Message Auto-Removed.\n" +
@@ -525,6 +544,7 @@ namespace PassiveBOT.Handlers
                                     {
                                         //
                                     }
+                                }
 
                                 return true;
                             }
@@ -537,19 +557,29 @@ namespace PassiveBOT.Handlers
             }
 
 
-            if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
-                if (CMDCheck != null)
+                if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
                 {
-                    var guser = (IGuildUser) context.User;
-                    if (!guser.GuildPermissions.Administrator &&
-                        !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
-                        if (guild.Visibilityconfig.BlacklistedCommands.Any(x =>
-                                string.Equals(x, CMDCheck.Name, StringComparison.CurrentCultureIgnoreCase)) ||
-                            guild.Visibilityconfig.BlacklistedModules.Any(x =>
-                                string.Equals(x, CMDCheck.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
-                            return true;
+                    if (CMDCheck != null)
+                    {
+                        var guser = (IGuildUser) context.User;
+                        if (!guser.GuildPermissions.Administrator &&
+                            !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
+                        {
+                            if (guild.Visibilityconfig.BlacklistedCommands.Any(x => string.Equals(x, CMDCheck.Name, StringComparison.CurrentCultureIgnoreCase)) ||
+                                guild.Visibilityconfig.BlacklistedModules.Any(x => string.Equals(x, CMDCheck.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"CheckMessage Failed.");
+                Console.WriteLine(e);
 
+            }
             return false;
         }
 
