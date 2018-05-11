@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using System.Collections.Generic;
+using Discord;
 
 namespace PassiveBOT.Configuration
 {
@@ -9,8 +10,16 @@ namespace PassiveBOT.Configuration
         public static string Owner = "PassiveModding";
         public static string Version = "7.1";
         public static string Pre = Config.Load().Prefix;
-        public static int Messages;
+        //public static int Messages;
         public static int Commands;
+
+        public static List<GuildMSGCount> GuildMsgCounts { get; set; } = new List<GuildMSGCount>();
+        public class GuildMSGCount
+        {
+            public ulong GuildID { get; set; }
+            public int msgs { get; set; } = 0;
+        }
+
 
         public static string GetInvite(IDiscordClient client)
         {

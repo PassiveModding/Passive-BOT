@@ -119,6 +119,37 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
         }
 
+        [Command("ViewMSGSpam+")]
+        [Summary("ViewMSGSpam+")]
+        [Remarks("View spam by server activity.")]
+        public async Task VSpam()
+        {
+            var pages = new List<PaginatedMessage.Page>();
+            var s2 = new StringBuilder();
+            foreach (var guild in Load.GuildMsgCounts.OrderByDescending(x => x.msgs))//Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
+            {
+                var firststring = Context.Client.GetGuild(guild.GuildID);
+                s2.Append($"S: {firststring?.Name ?? "Unknown"} || ID:{guild.GuildID} || M:{guild.msgs}\n");
+
+                if (s2.ToString().Length <= 800) continue;
+                pages.Add(new PaginatedMessage.Page
+                {
+                    description = s2.ToString()
+                });
+                s2.Clear();
+            }
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                description = s2.ToString()
+            });
+
+            await PagedReplyAsync(new PaginatedMessage
+            {
+                Pages = pages
+            });
+        }
+
         [Command("ViewAntispamServers+")]
         [Summary("ViewAntispamServers+")]
         [Remarks("List all servers using antispam")]

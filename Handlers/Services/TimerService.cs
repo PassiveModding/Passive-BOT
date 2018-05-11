@@ -133,6 +133,7 @@ namespace PassiveBOT.Handlers.Services
         }
     }
 
+    /*
     [RequireOwner]
     public class TimerModule : ModuleBase
     {
@@ -151,7 +152,7 @@ namespace PassiveBOT.Handlers.Services
             _service.Stop();
         }
 
-        [Command("RestartPartnerService++")]
+        [Command("RestartPartnerService+")]
         [Summary("RestartPartnerService+")]
         [Remarks("Restart the partner service.")]
         public void RestartCmd()
@@ -167,4 +168,5 @@ namespace PassiveBOT.Handlers.Services
             _service.ChangeRate(NewRate);
         }
     }
+    */
 }
