@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -30,6 +31,8 @@ namespace PassiveBOT.Handlers
         private readonly List<NoSpamGuild> NoSpam = new List<NoSpamGuild>();
         private readonly IServiceProvider Provider;
         private ApiAi _apiAi;
+        //private string ToxicityToken = null;
+        private Perspective.Api ToxicityAPI = null;
 
         public List<EventHandler.Delays> AntiSpamMsgDelays = new List<EventHandler.Delays>();
         private bool DoOnce;
@@ -88,7 +91,6 @@ namespace PassiveBOT.Handlers
         private async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context, GuildConfig guild)
         {
             if (context.Channel is IDMChannel) return false;
-
             try
             {
                 var gmc = Load.GuildMsgCounts.FirstOrDefault(x => x.GuildID == context.Guild.Id);
@@ -511,6 +513,22 @@ namespace PassiveBOT.Handlers
                     }
                 }
 
+                if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
+                {
+                    if (CMDCheck != null)
+                    {
+                        var guser = (IGuildUser) context.User;
+                        if (!guser.GuildPermissions.Administrator && !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
+                        {
+                            if (guild.Visibilityconfig.BlacklistedCommands.Any(x => string.Equals(x, CMDCheck.Name, StringComparison.CurrentCultureIgnoreCase)) ||
+                                guild.Visibilityconfig.BlacklistedModules.Any(x => string.Equals(x, CMDCheck.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+
 
                 if (guild.Antispams.Toxicity.UsePerspective)
                 {
@@ -520,11 +538,10 @@ namespace PassiveBOT.Handlers
                     {
                         var CheckUsingToxicity = CMDCheck == null;
 
-                        var token = Tokens.Load().PerspectiveAPI;
-                        if (token != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
+                        if (ToxicityAPI != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
                             try
                             {
-                                var res = new Perspective.Api(token).QueryToxicity(message.Content);
+                                var res = ToxicityAPI.QueryToxicity(message.Content);
                                 if (res.attributeScores.TOXICITY.summaryScore.value * 100 > guild.Antispams.Toxicity.ToxicityThreshHold)
                                 {
                                     await message.DeleteAsync();
@@ -562,30 +579,12 @@ namespace PassiveBOT.Handlers
                             }
                     }
                 }
-
-
-                if (guild.Visibilityconfig.BlacklistedCommands.Any() || guild.Visibilityconfig.BlacklistedModules.Any())
-                {
-                    if (CMDCheck != null)
-                    {
-                        var guser = (IGuildUser) context.User;
-                        if (!guser.GuildPermissions.Administrator && !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
-                        {
-                            if (guild.Visibilityconfig.BlacklistedCommands.Any(x => string.Equals(x, CMDCheck.Name, StringComparison.CurrentCultureIgnoreCase)) ||
-                                guild.Visibilityconfig.BlacklistedModules.Any(x => string.Equals(x, CMDCheck.Module.Name, StringComparison.CurrentCultureIgnoreCase)))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
             }
             catch (Exception e)
             {
                 Console.WriteLine("CheckMessage Failed.");
                 Console.WriteLine(e);
             }
-
             return false;
         }
 
@@ -596,6 +595,11 @@ namespace PassiveBOT.Handlers
             {
                 var config = new AIConfiguration(Tokens.Load().DialogFlowToken, SupportedLanguage.English);
                 _apiAi = new ApiAi(config);
+                var ToxicityToken = Tokens.Load().PerspectiveAPI;
+                if (ToxicityToken != null)
+                {
+                    ToxicityAPI = new Perspective.Api(Tokens.Load().PerspectiveAPI);
+                }
             }
             catch
             {

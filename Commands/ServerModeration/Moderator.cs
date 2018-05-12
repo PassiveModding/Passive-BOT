@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,13 +7,15 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers.Services.Interactive;
+using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.Preconditions;
 
 namespace PassiveBOT.Commands.ServerModeration
 {
     [RequireContext(ContextType.Guild)]
     [RequireModerator]
-    public class Moderator : ModuleBase
+    public class Moderator : InteractiveBase
     {
         [Command("prune")]
         [Summary("prune <no. of messages>")]
@@ -45,7 +48,7 @@ namespace PassiveBOT.Commands.ServerModeration
 
                 SendModLog(new EmbedBuilder()
                     .WithColor(Color.DarkTeal)
-                    .AddField($"Pruned Messages",
+                    .AddField("Pruned Messages",
                         $"{count} messages cleared")
                     .AddField("Moderator",
                         $"Mod: {Context.User.Username}\n" +
@@ -123,7 +126,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var server = GuildConfig.GetServer(Context.Guild);
             if (server.LogModCommands)
             {
-                var channel = await Context.Guild.GetChannelAsync(server.ModLogChannel);
+                var channel = Context.Guild.GetChannel(server.ModLogChannel);
                 if (channel != null)
                     if (channel is IMessageChannel ModChannel)
                         try
@@ -146,8 +149,8 @@ namespace PassiveBOT.Commands.ServerModeration
             var enumerable = await Context.Channel.GetMessagesAsync().Flatten().ConfigureAwait(false);
             var messages = enumerable as IMessage[] ?? enumerable.ToArray();
             var newerlist = messages.ToList().Where(x =>
-                Context.Guild.GetUserAsync(x.Author.Id).Result != null &&
-                Context.Guild.GetUserAsync(x.Author.Id).Result.RoleIds.Contains(role.Id)).ToList();
+                Context.Guild.GetUser(x.Author.Id) != null &&
+                ((IGuildUser)Context.Guild.GetUser(x.Author.Id)).RoleIds.Contains(role.Id)).ToList();
 
             try
             {
@@ -158,7 +161,7 @@ namespace PassiveBOT.Commands.ServerModeration
                 //
             }
 
-            await ReplyAsync($"Cleared Messages (Count = {newerlist.Count()})");
+            await ReplyAsync($"Cleared Messages (Count = {newerlist.Count})");
 
             SendModLog(new EmbedBuilder()
                 .WithColor(Color.DarkTeal)
@@ -232,9 +235,9 @@ namespace PassiveBOT.Commands.ServerModeration
 
             SendModLog(new EmbedBuilder()
                 .WithColor(Color.DarkPurple)
-                .AddField($"Kicked User",
+                .AddField("Kicked User",
                     $"User: {user.Username}\n" +
-                    $"User Nick: {((IGuildUser) user)?.Nickname ?? "N/A"}\n" +
+                    $"User Nick: {((IGuildUser) user).Nickname ?? "N/A"}\n" +
                     $"UserID: {user.Id}\n" +
                     $"Reason: {reason}")
                 .AddField("Moderator",
@@ -252,8 +255,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
-            var embed = new EmbedBuilder();
-            embed.WithTitle("Kicks");
+
             var config = GuildConfig.GetServer(Context.Guild);
 
             var groupedlist = config.Kicking.GroupBy(x => x.UserId)
@@ -264,12 +266,14 @@ namespace PassiveBOT.Commands.ServerModeration
                 })
                 .ToList();
 
+            var pages = new List<PaginatedMessage.Page>();
+            var desc = "";
             foreach (var group in groupedlist)
             {
                 string username;
                 try
                 {
-                    var user = await Context.Guild.GetUserAsync(group.UserId);
+                    var user = Context.Guild.GetUser(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -277,27 +281,28 @@ namespace PassiveBOT.Commands.ServerModeration
                     username = group.List.First().User;
                 }
 
-                var list = "";
-                foreach (var x in group.List)
+                desc += $"\n**{username} [{group.UserId}]**\n" +
+                        $"{string.Join("\n", group.List.OrderBy(x => x.Moderator).Select(x => $"Mod: {x.Moderator} || Reason: {x.Reason}"))}";
+
+                if (desc.Length < 800) continue;
+                pages.Add(new PaginatedMessage.Page
                 {
-                    if (list.Length >= 800)
-                    {
-                        embed.AddField($"{username} [{group.UserId}]", list);
-                        list = "";
-                    }
-
-                    var moderator =
-                        $"{x.Moderator}                                             ".Substring(0, 20);
-                    list += $"Mod: {moderator} || Reason: {x.Reason}\n";
-                }
-
-                embed.AddField($"{username} [{group.UserId}]", list);
+                    description = desc
+                });
+                desc = "";
             }
 
-            if (embed.Fields.Count > 0)
-                await ReplyAsync("", false, embed.Build());
-            else
-                await ReplyAsync("There are no kicks in the server...");
+            pages.Add(new PaginatedMessage.Page
+            {
+                description = desc
+            });
+
+            var pager = new PaginatedMessage
+            {
+                Pages = pages,
+                Title = "Bans"
+            };
+            await PagedReplyAsync(pager);
         }
 
         [Command("Warn")]
@@ -349,9 +354,9 @@ namespace PassiveBOT.Commands.ServerModeration
 
             SendModLog(new EmbedBuilder()
                 .WithColor(Color.DarkOrange)
-                .AddField($"Warned User",
+                .AddField("Warned User",
                     $"User: {user.Username}\n" +
-                    $"User Nick: {((IGuildUser) user)?.Nickname ?? "N/A"}\n" +
+                    $"User Nick: {((IGuildUser) user).Nickname ?? "N/A"}\n" +
                     $"UserID: {user.Id}\n" +
                     $"Reason: {reason}\n" +
                     $"Warnings Count: {config.Warnings.Count(x => x.UserId == user.Id)}")
@@ -370,8 +375,7 @@ namespace PassiveBOT.Commands.ServerModeration
             var file = Path.Combine(AppContext.BaseDirectory, $"setup/server/{Context.Guild.Id}.json");
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
-            var embed = new EmbedBuilder();
-            embed.WithTitle("Warns");
+
             var config = GuildConfig.GetServer(Context.Guild);
 
             var groupedlist = config.Warnings.GroupBy(x => x.UserId)
@@ -382,12 +386,14 @@ namespace PassiveBOT.Commands.ServerModeration
                 })
                 .ToList();
 
+            var pages = new List<PaginatedMessage.Page>();
+            var desc = "";
             foreach (var group in groupedlist)
             {
                 string username;
                 try
                 {
-                    var user = await Context.Guild.GetUserAsync(group.UserId);
+                    var user = Context.Guild.GetUser(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -395,27 +401,31 @@ namespace PassiveBOT.Commands.ServerModeration
                     username = group.List.First().User;
                 }
 
-                var list = "";
-                foreach (var x in group.List)
+                desc += $"\n**{username} [{group.UserId}]**\n" +
+                           $"{string.Join("\n", group.List.Select(x => $"Mod: {x.Moderator} || Reason: {x.Reason}"))}";
+
+                if (desc.Length >= 800)
                 {
-                    if (list.Length >= 800)
+                    
+                    pages.Add(new PaginatedMessage.Page
                     {
-                        embed.AddField($"{username} [{group.UserId}]", list);
-                        list = "";
-                    }
-
-                    var moderator =
-                        $"{x.Moderator}                                             ".Substring(0, 20);
-                    list += $"Mod: {moderator} || Reason: {x.Reason}\n";
+                        description = desc
+                    });
+                    desc = "";
                 }
-
-                embed.AddField($"{username} [{group.UserId}]", list);
             }
 
-            if (embed.Fields.Count > 0)
-                await ReplyAsync("", false, embed.Build());
-            else
-                await ReplyAsync("There are no warns in the server...");
+                pages.Add(new PaginatedMessage.Page
+                {
+                    description = desc
+                });
+
+            var pager = new PaginatedMessage
+            {
+                Pages = pages,
+                Title = "Warns"
+            };
+            await PagedReplyAsync(pager);
         }
 
         [Command("HackBan")]
@@ -453,9 +463,9 @@ namespace PassiveBOT.Commands.ServerModeration
 
             SendModLog(new EmbedBuilder()
                 .WithColor(Color.DarkRed)
-                .AddField($"HackBanned User",
+                .AddField("HackBanned User",
                     $"UserID: {UserID}\n" +
-                    $"Reason: HackBan")
+                    "Reason: HackBan")
                 .AddField("Moderator",
                     $"Mod: {Context.User.Username}\n" +
                     $"Mod Nick: {((IGuildUser) Context.User)?.Nickname ?? "N/A"}\n" +
@@ -522,9 +532,9 @@ namespace PassiveBOT.Commands.ServerModeration
 
             SendModLog(new EmbedBuilder()
                 .WithColor(Color.DarkRed)
-                .AddField($"Banned User",
+                .AddField("Banned User",
                     $"User: {user.Username}\n" +
-                    $"User Nick: {((IGuildUser) user)?.Nickname ?? "N/A"}\n" +
+                    $"User Nick: {((IGuildUser) user).Nickname ?? "N/A"}\n" +
                     $"UserID: {user.Id}\n" +
                     $"Reason: {reason}")
                 .AddField("Moderator",
@@ -543,8 +553,6 @@ namespace PassiveBOT.Commands.ServerModeration
             if (!File.Exists(file))
                 GuildConfig.Setup(Context.Guild);
 
-            var embed = new EmbedBuilder();
-            embed.WithTitle("Bans");
             var config = GuildConfig.GetServer(Context.Guild);
 
             var groupedlist = config.Banning.GroupBy(x => x.UserId)
@@ -555,12 +563,14 @@ namespace PassiveBOT.Commands.ServerModeration
                 })
                 .ToList();
 
+            var pages = new List<PaginatedMessage.Page>();
+            var desc = "";
             foreach (var group in groupedlist)
             {
                 string username;
                 try
                 {
-                    var user = await Context.Guild.GetUserAsync(group.UserId);
+                    var user = Context.Guild.GetUser(group.UserId);
                     username = user.Username;
                 }
                 catch
@@ -568,27 +578,31 @@ namespace PassiveBOT.Commands.ServerModeration
                     username = group.List.First().User;
                 }
 
-                var list = "";
-                foreach (var x in group.List)
+                desc += $"\n**{username} [{group.UserId}]**\n" +
+                        $"{string.Join("\n", group.List.Select(x => $"Mod: {x.Moderator} || Reason: {x.Reason}"))}";
+
+                if (desc.Length >= 800)
                 {
-                    if (list.Length >= 800)
+
+                    pages.Add(new PaginatedMessage.Page
                     {
-                        embed.AddField($"{username} [{group.UserId}]", list);
-                        list = "";
-                    }
-
-                    var moderator =
-                        $"{x.Moderator}                                             ".Substring(0, 20);
-                    list += $"Mod: {moderator} || Reason: {x.Reason}\n";
+                        description = desc
+                    });
+                    desc = "";
                 }
-
-                embed.AddField($"{username} [{group.UserId}]", list);
             }
 
-            if (embed.Fields.Count > 0)
-                await ReplyAsync("", false, embed.Build());
-            else
-                await ReplyAsync("There are no bans in the server...");
+            pages.Add(new PaginatedMessage.Page
+            {
+                description = desc
+            });
+
+            var pager = new PaginatedMessage
+            {
+                Pages = pages,
+                Title = "Bans"
+            };
+            await PagedReplyAsync(pager);
         }
 
         [Command("Mute")]
@@ -634,9 +648,9 @@ namespace PassiveBOT.Commands.ServerModeration
 
                 SendModLog(new EmbedBuilder()
                     .WithColor(Color.DarkMagenta)
-                    .AddField($"Muted User",
+                    .AddField("Muted User",
                         $"User: {user.Username}\n" +
-                        $"User Nick: {user?.Nickname ?? "N/A"}\n" +
+                        $"User Nick: {user.Nickname ?? "N/A"}\n" +
                         $"UserID: {user.Id}\n")
                     .AddField("Moderator",
                         $"Mod: {Context.User.Username}\n" +
@@ -665,9 +679,9 @@ namespace PassiveBOT.Commands.ServerModeration
 
                 SendModLog(new EmbedBuilder()
                     .WithColor(Color.Magenta)
-                    .AddField($"Unmuted User",
+                    .AddField("Unmuted User",
                         $"User: {user.Username}\n" +
-                        $"User Nick: {user?.Nickname ?? "N/A"}\n" +
+                        $"User Nick: {user.Nickname ?? "N/A"}\n" +
                         $"UserID: {user.Id}\n")
                     .AddField("Moderator",
                         $"Mod: {Context.User.Username}\n" +

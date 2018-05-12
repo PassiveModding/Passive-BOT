@@ -906,7 +906,13 @@ namespace PassiveBOT.Commands.ServerSetup
                 },
                 new PaginatedMessage.Page
                 {
-                    dynamictitle = $"AntiSpam 3.Exempt",
+                    dynamictitle = $"AntiSpam 3.Toxicity",
+                    description = $"NoToxicity: {Guild.Antispams.Toxicity.UsePerspective}\n" +
+                                  $"Threshhold: {Guild.Antispams.Toxicity.ToxicityThreshHold}"
+                },
+                new PaginatedMessage.Page
+                {
+                    dynamictitle = $"AntiSpam 4.Exempt",
                     description =
                         $"{(Guild.Antispams.IgnoreRoles.Any() ? string.Join("\n", Guild.Antispams.IgnoreRoles.Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"__{Context.Guild.GetRole(x.RoleID).Name}__\nBypass Antispam: {x.AntiSpam}\nBypass Blacklist: {x.Blacklist}\nBypass Mention: {x.Mention}\nBypass Invite: {x.Advertising}\nBypass Filtering: {x.Privacy}\n")) : "N/A")}"
                 },

@@ -205,7 +205,7 @@ namespace PassiveBOT.Commands.ServerSetup
         }
 
         [Command("NoInvite")]
-        [Summary("NoInvite <true/false>")]
+        [Summary("NoInvite")]
         [Remarks("disables/enables the sending of invites in a server from regular members")]
         public async Task NoInvite()
         {
