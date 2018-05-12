@@ -109,7 +109,15 @@ namespace PassiveBOT.Handlers
 
 
                 var guild = GuildConfig.GetServer(context.Guild);
-                var exemptcheck = guild.Antispams.IgnoreRoles.Where(x => ((IGuildUser)context.User).RoleIds.Contains(x.RoleID)).ToList();
+
+
+                var exemptcheck = new List<GuildConfig.antispams.IgnoreRole>();
+                if (guild.Antispams.IgnoreRoles.Any())
+                {
+                    exemptcheck
+                        = guild.Antispams.IgnoreRoles.Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID))
+                            .ToList();
+                }
 
                 if (guild.Antispams.Antispam.NoSpam)
                 {
@@ -176,8 +184,7 @@ namespace PassiveBOT.Handlers
                             {
                                 var msgs = user.Messages.OrderBy(x => x.LastMessageDate).ToList();
                                 msgs.RemoveRange(0, 1);
-                                msgs = msgs.Where(x => x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(10))
-                                    .ToList();
+                                msgs = msgs.Where(x => x.LastMessageDate > DateTime.UtcNow - TimeSpan.FromSeconds(10)).ToList();
                                 user.Messages = msgs;
                             }
 
