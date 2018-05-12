@@ -640,7 +640,8 @@ namespace PassiveBOT.Handlers
                     {
                         var CheckUsingToxicity = CMDCheck == null;
 
-                        if (ToxicityAPI != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content))
+                        if (ToxicityAPI != null && CheckUsingToxicity && !string.IsNullOrWhiteSpace(message.Content) && !Homeserver.Load().NoToxicityDisabled)
+                        {
                             try
                             {
                                 var res = ToxicityAPI.QueryToxicity(message.Content);
@@ -671,6 +672,7 @@ namespace PassiveBOT.Handlers
                                             //
                                         }
                                     }
+
                                     if (guild.Antispams.Toxicity.WarnOnDetection)
                                     {
                                         guild.Warnings.Add(new GuildConfig.Warns
@@ -688,6 +690,7 @@ namespace PassiveBOT.Handlers
                                                           $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
                                         }.Build());
                                     }
+
                                     return true;
                                 }
                             }
@@ -695,6 +698,7 @@ namespace PassiveBOT.Handlers
                             {
                                 //
                             }
+                        }
                     }
                 }
             }

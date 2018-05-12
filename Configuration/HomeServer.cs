@@ -18,6 +18,8 @@ namespace PassiveBOT.Configuration
         public ulong BotModerator { get; set; } = 0;
         public List<globalban> GlobalBans { get; set; } = new List<globalban>();
         public List<Alias> Aliases { get; set; } = new List<Alias>();
+        public bool NoToxicityDisabled { get; set; } = false;
+
 
         public static void SaveHome(Homeserver config)
         {

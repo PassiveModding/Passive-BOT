@@ -119,6 +119,18 @@ namespace PassiveBOT.Commands.OwnerCmds
             }
         }
 
+
+        [Command("NoToxicityDisable+")]
+        [Summary("NoToxicityDisable+")]
+        [Remarks("Toggle Toxicity")]
+        public async Task NTDis()
+        {
+            var hs = Homeserver.Load();
+            hs.NoToxicityDisabled = !hs.NoToxicityDisabled;
+            Homeserver.SaveHome(hs);
+            await ReplyAsync($"Toxicity Disabled: {hs.NoToxicityDisabled}");
+        }
+
         [Command("ViewMSGSpam+")]
         [Summary("ViewMSGSpam+")]
         [Remarks("View spam by server activity.")]
