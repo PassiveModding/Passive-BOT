@@ -10,6 +10,7 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json.Linq;
 using PassiveBOT.Configuration;
+using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 
@@ -181,8 +182,8 @@ namespace PassiveBOT.Commands.Info
             }
 
             embed.AddField(":space_invader:",
-                $"Commands Ran: {Load.Commands}\n" +
-                $"Messages Received: {Load.GuildMsgCounts.Sum(x => x.msgs)}", true);//{Load.Messages}", true);
+                $"Commands Ran: {CommandHandler.CommandUses.Sum(x => x.Uses)}\n" +
+                $"Messages Received: {Load.GuildMsgCounts.Sum(x => x.msgs)}", true); //{Load.Messages}", true);
             embed.AddField(":hammer_pick:",
                 $"Heap: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" +
                 $"Up: {GetUptime()}", true);

@@ -126,7 +126,7 @@ namespace PassiveBOT.Commands.OwnerCmds
         {
             var pages = new List<PaginatedMessage.Page>();
             var s2 = new StringBuilder();
-            foreach (var guild in Load.GuildMsgCounts.OrderByDescending(x => x.msgs))//Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
+            foreach (var guild in Load.GuildMsgCounts.OrderByDescending(x => x.msgs)) //Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
             {
                 var firststring = Context.Client.GetGuild(guild.GuildID);
                 s2.Append($"S: {firststring?.Name ?? "Unknown"} || ID:{guild.GuildID} || M:{guild.msgs}\n");

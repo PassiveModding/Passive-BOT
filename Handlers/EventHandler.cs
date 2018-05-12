@@ -371,10 +371,7 @@ namespace PassiveBOT.Handlers
                                                       $"Channel: {channel.Name}");
                 }
 
-                embed.WithFooter(x =>
-                {
-                    x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME");
-                });
+                embed.WithFooter(x => { x.WithText($"{DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)} UTC TIME"); });
                 embed.Color = Color.DarkTeal;
 
                 await SendMessage(guild, guildobj, embed);

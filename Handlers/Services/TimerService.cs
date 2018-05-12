@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 
@@ -110,7 +109,7 @@ namespace PassiveBOT.Handlers.Services
                     {
                         Console.WriteLine(e);
                     }
-                
+
                     LastFireTime = DateTime.UtcNow;
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePreiod));
