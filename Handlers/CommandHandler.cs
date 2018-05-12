@@ -63,7 +63,7 @@ namespace PassiveBOT.Handlers
         private static async Task AutoMessage(SocketCommandContext context)
         {
             if (context.Channel is IDMChannel) return;
-
+           
             var gauto = AutomessageList.FirstOrDefault(x => x.GuildID == context.Guild.Id)?.Channels.FirstOrDefault(x => x.channelID == context.Channel.Id);
             if (gauto != null)
             {
@@ -90,6 +90,8 @@ namespace PassiveBOT.Handlers
         private async Task<bool> CheckMessage(SocketUserMessage message, SocketCommandContext context, GuildConfig guild)
         {
             if (context.Channel is IDMChannel) return false;
+            if (Homeserver.Load().DisableCheckMsg) return false;
+
             try
             {
                 var gmc = Load.GuildMsgCounts.FirstOrDefault(x => x.GuildID == context.Guild.Id);
@@ -924,7 +926,15 @@ namespace PassiveBOT.Handlers
                         Description = desc
                     };
 
-                    await context.Channel.SendMessageAsync("", false, errmsg.Build());
+                    try
+                    {
+                        await context.Channel.SendMessageAsync("", false, errmsg.Build());
+                    }
+                    catch
+                    {
+                        //
+                    }
+                    
                     await LogHandler.In3Error($"{context.Message}", 'S', $"{context.Guild.Name}", 'E', $"{result.ErrorReason}"); // log errors as arrors
                 }
                 catch (Exception e)

@@ -131,6 +131,17 @@ namespace PassiveBOT.Commands.OwnerCmds
             await ReplyAsync($"Toxicity Disabled: {hs.NoToxicityDisabled}");
         }
 
+        [Command("CheckMsgDisable+")]
+        [Summary("CheckMsgDisable+")]
+        [Remarks("Toggle AntiSpam & Levelling features")]
+        public async Task ASTog()
+        {
+            var hs = Homeserver.Load();
+            hs.DisableCheckMsg = !hs.DisableCheckMsg;
+            Homeserver.SaveHome(hs);
+            await ReplyAsync($"Antispam Disabled: {hs.NoToxicityDisabled}");
+        }
+
         [Command("ViewMSGSpam+")]
         [Summary("ViewMSGSpam+")]
         [Remarks("View spam by server activity.")]
