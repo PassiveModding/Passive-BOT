@@ -55,7 +55,7 @@ namespace PassiveBOT.Commands.ServerSetup
                             if (sint < 1 || sint > 6)
                             {
                                 await ReplyAsync($"Invalid Input {s}\n" +
-                                                 $"only 1-5 are accepted.");
+                                                 $"only 1-6 are accepted.");
                                 return;
                             }
 
@@ -128,7 +128,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     $"`6` - Toxicity\n\n" +
                     $"__usage__\n" +
                     $"`{Config.Load().Prefix} 1 @role` - this allows the role to spam without being limited/removed\n" +
-                    $"You can use commas to use multiple settings on the same role." +
+                    $"You can use commas to use multiple settings on the same role.\n" +
                     $"`{Config.Load().Prefix} 1,2,3 @role` - this allows the role to spam, use blacklisted words and bypass mention filtering without being removed\n" +
                     $"`{Config.Load().Prefix} 0 @role` - resets the ignore config and will add all limits back to the role"
             }.Build());
@@ -174,6 +174,113 @@ namespace PassiveBOT.Commands.ServerSetup
             await ReplyAsync($"Muted Role has been set as {muteRole.Mention}\n" +
                              $"{perms}\n" +
                              $"{channels}");
+        }
+
+        [Command("WarnSpammers")]
+        [Summary("WarnSpammers <type>")]
+        [Remarks("Toggle Auto-Warning of people detected by any of the antispam methods")]
+        public async Task WarnSpammers([Remainder]string selection)
+        {
+            var intselections = selection.Split(',');
+            var GuildObj = GuildConfig.GetServer(Context.Guild);
+
+            if (int.TryParse(intselections[0], out var zerocheck))
+            {
+                if (zerocheck == 0)
+                {
+                    GuildObj.Antispams.Antispam.WarnOnDetection = false;
+                    GuildObj.Antispams.Blacklist.WarnOnDetection = false;
+                    GuildObj.Antispams.Advertising.WarnOnDetection = false;
+                    GuildObj.Antispams.Mention.WarnOnDetection = false;
+                    GuildObj.Antispams.Toxicity.WarnOnDetection = false;
+                    GuildObj.Antispams.Privacy.WarnOnDetection = false;
+                    await ReplyAsync("Success, All have been reset.");
+                }
+                else
+                {
+                    foreach (var s in intselections)
+                    {
+                        if (int.TryParse(s, out var sint))
+                        {
+                            if (sint < 1 || sint > 6)
+                            {
+                                await ReplyAsync($"Invalid Input {s}\n" +
+                                                 $"only 1-6 are accepted.");
+                                return;
+                            }
+
+                            switch (sint)
+                            {
+                                case 1:
+                                    GuildObj.Antispams.Antispam.WarnOnDetection = true;
+                                    break;
+                                case 2:
+                                    GuildObj.Antispams.Blacklist.WarnOnDetection = true;
+                                    break;
+                                case 3:
+                                    GuildObj.Antispams.Mention.WarnOnDetection = true;
+                                    break;
+                                case 4:
+                                    GuildObj.Antispams.Advertising.WarnOnDetection = true;
+                                    break;
+                                case 5:
+                                    GuildObj.Antispams.Privacy.WarnOnDetection = true;
+                                    break;
+                                case 6:
+                                    GuildObj.Antispams.Toxicity.WarnOnDetection = true;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            await ReplyAsync($"Invalid Input {s}");
+                            return;
+                        }
+                    }
+                }
+
+                var embed = new EmbedBuilder
+                {
+                    Description = $"__AutoMod Antispam Detections__\n" +
+                                    $"Warn on Antispam: {GuildObj.Antispams.Antispam.WarnOnDetection}\n" +
+                                    $"Warn on Blacklist: {GuildObj.Antispams.Blacklist.WarnOnDetection}\n" +
+                                    $"Warn on Mention Everyone and 5+ Role Mentions: {GuildObj.Antispams.Mention.WarnOnDetection}\n" +
+                                    $"Warn on Invite Link Removal: {GuildObj.Antispams.Advertising.WarnOnDetection}\n" +
+                                    $"Warn on IP Removal: {GuildObj.Antispams.Privacy.WarnOnDetection}\n" +
+                                    $"Warn on Toxicity Check: {GuildObj.Antispams.Toxicity.WarnOnDetection}"
+                };
+                await ReplyAsync("", false, embed.Build());
+                GuildConfig.SaveServer(GuildObj);
+            }
+            else
+            {
+                await ReplyAsync("Input Error!");
+            }
+        }
+
+
+        [Command("WarnSpammers")]
+        [Summary("WarnSpammers")]
+        [Remarks("Warn Spammers Setup Info")]
+        public async Task WarnSpammers()
+        {
+            await ReplyAsync("", false, new EmbedBuilder
+            {
+                Description =
+                    $"You can select roles to warn from all spam type checks in this module using the WarnSpammers command.\n" +
+                    $"__Key__\n" +
+                    $"`1` - Antispam\n" +
+                    $"`2` - Blacklist\n" +
+                    $"`3` - Mention\n" +
+                    $"`4` - Invite\n" +
+                    $"`5` - IP Addresses\n" +
+                    $"`6` - Toxicity\n\n" +
+                    $"__usage__\n" +
+                    $"`{Config.Load().Prefix} 1 @role` - this allows the role to spam without being limited/removed\n" +
+                    $"You can use commas to use multiple settings on the same role\n." +
+                    $"`{Config.Load().Prefix} 1,2,3 @role` - this allows the role to spam, use blacklisted words and bypass mention filtering without being removed\n" +
+                    $"`{Config.Load().Prefix} 0 @role` - resets the ignore config and will add all limits back to the role"
+            }.Build());
         }
 
         [Command("NoToxicity")]

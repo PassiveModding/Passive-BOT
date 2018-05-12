@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -32,7 +31,7 @@ namespace PassiveBOT.Handlers
         private readonly IServiceProvider Provider;
         private ApiAi _apiAi;
         //private string ToxicityToken = null;
-        private Perspective.Api ToxicityAPI = null;
+        private Perspective.Api ToxicityAPI;
 
         public List<EventHandler.Delays> AntiSpamMsgDelays = new List<EventHandler.Delays>();
         private bool DoOnce;
@@ -112,18 +111,18 @@ namespace PassiveBOT.Handlers
                 var exemptcheck = new List<GuildConfig.antispams.IgnoreRole>();
                 if (guild.Antispams.IgnoreRoles.Any())
                 {
-                    exemptcheck = guild.Antispams.IgnoreRoles.Where(x => ((IGuildUser) context.User).RoleIds.Contains(x.RoleID)).ToList();
+                    exemptcheck = guild.Antispams.IgnoreRoles.Where(x => ((IGuildUser)context.User).RoleIds.Contains(x.RoleID)).ToList();
                 }
 
                 if (guild.Antispams.Antispam.NoSpam)
                 {
                     var detected = false;
-                    var SpamGuild = NoSpam.FirstOrDefault(x => x.GuildID == ((SocketGuildUser) context.User).Guild.Id);
+                    var SpamGuild = NoSpam.FirstOrDefault(x => x.GuildID == ((SocketGuildUser)context.User).Guild.Id);
                     if (SpamGuild == null)
                     {
                         NoSpam.Add(new NoSpamGuild
                         {
-                            GuildID = ((SocketGuildUser) context.User).Guild.Id,
+                            GuildID = ((SocketGuildUser)context.User).Guild.Id,
                             Users = new List<NoSpamGuild.NoSpam>
                             {
                                 new NoSpamGuild.NoSpam
@@ -218,6 +217,23 @@ namespace PassiveBOT.Handlers
                                             });
                                         }
 
+                                        if (guild.Antispams.Antispam.WarnOnDetection)
+                                        {
+                                            guild.Warnings.Add(new GuildConfig.Warns
+                                            {
+                                                Moderator = context.Client.CurrentUser.Username,
+                                                Reason = "AutoMod - AntiSpam",
+                                                User = context.User.Username,
+                                                UserId = context.User.Id
+                                            });
+                                            GuildConfig.SaveServer(guild);
+                                            await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                            {
+                                                Title = $"{context.Client.CurrentUser.Username} AutoMod - AntiSpam",
+                                                Description = "Warning Added!\n" +
+                                                              $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                            }.Build());
+                                        }
                                         return true;
                                     }
                                 }
@@ -260,18 +276,18 @@ namespace PassiveBOT.Handlers
                                                                 roletoreceive = rolesavailable;
                                                             }
                                                         }
-                                                        
+
                                                         if (roletoreceive.Count != 0)
                                                         {
                                                             foreach (var role in roletoreceive)
                                                             {
-                                                                if (((IGuildUser) context.User).RoleIds.Contains(role.RoleID)) continue;
+                                                                if (((IGuildUser)context.User).RoleIds.Contains(role.RoleID)) continue;
                                                                 var grole = context.Guild.GetRole(role.RoleID);
                                                                 if (grole != null)
                                                                 {
                                                                     try
                                                                     {
-                                                                        await ((SocketGuildUser) context.User).AddRoleAsync(grole);
+                                                                        await ((SocketGuildUser)context.User).AddRoleAsync(grole);
                                                                         roleadded += $"Role Reward: {grole.Name}\n";
                                                                     }
                                                                     catch
@@ -292,7 +308,7 @@ namespace PassiveBOT.Handlers
                                                                     rolesavailable.Remove(roletoreceive.First());
                                                                     var roles = rolesavailable.Select(x => context.Guild.GetRole(x.RoleID)).Where(x => x != null);
 
-                                                                    await ((SocketGuildUser) context.User).RemoveRolesAsync(roles);
+                                                                    await ((SocketGuildUser)context.User).RemoveRolesAsync(roles);
                                                                 }
                                                                 catch
                                                                 {
@@ -331,7 +347,7 @@ namespace PassiveBOT.Handlers
                                                     {
                                                         try
                                                         {
-                                                            await context.Channel.SendMessageAsync("", false,embed.Build());
+                                                            await context.Channel.SendMessageAsync("", false, embed.Build());
                                                         }
                                                         catch
                                                         {
@@ -375,7 +391,7 @@ namespace PassiveBOT.Handlers
                     var BypassInvite = exemptcheck.Any(x => x.Advertising);
                     if (!BypassInvite)
                     {
-                        if (Regex.Match(context.Message.Content,@"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
+                        if (Regex.Match(context.Message.Content, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
                         {
                             await message.DeleteAsync();
                             var emb = new EmbedBuilder
@@ -389,6 +405,23 @@ namespace PassiveBOT.Handlers
                             // 1. The server Has Invite Deletions turned on
                             // 2. The user is not an admin
                             // 3. The user does not have one of the invite excempt roles
+                            if (guild.Antispams.Advertising.WarnOnDetection)
+                            {
+                                guild.Warnings.Add(new GuildConfig.Warns
+                                {
+                                    Moderator = context.Client.CurrentUser.Username,
+                                    Reason = "AutoMod - Anti Invite",
+                                    User = context.User.Username,
+                                    UserId = context.User.Id
+                                });
+                                GuildConfig.SaveServer(guild);
+                                await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                {
+                                    Title = $"{context.Client.CurrentUser.Username} AutoMod - AntiInvite",
+                                    Description = "Warning Added!\n" +
+                                                  $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                }.Build());
+                            }
                             return true;
                         }
                     }
@@ -411,6 +444,23 @@ namespace PassiveBOT.Handlers
                                         $"{context.User} - This server does not allow you to mention 5+ roles or uses at once"
                                 };
                                 await context.Channel.SendMessageAsync("", false, emb.Build());
+                                if (guild.Antispams.Mention.WarnOnDetection)
+                                {
+                                    guild.Warnings.Add(new GuildConfig.Warns
+                                    {
+                                        Moderator = context.Client.CurrentUser.Username,
+                                        Reason = "AutoMod - Remove Mass Mention",
+                                        User = context.User.Username,
+                                        UserId = context.User.Id
+                                    });
+                                    GuildConfig.SaveServer(guild);
+                                    await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                    {
+                                        Title = $"{context.Client.CurrentUser.Username} AutoMod - Remove Mass Mention",
+                                        Description = "Warning Added!\n" +
+                                                      $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                    }.Build());
+                                }
                                 return true;
                             }
                         }
@@ -434,6 +484,23 @@ namespace PassiveBOT.Handlers
                                 }
 
                                 await context.Channel.SendMessageAsync("", false, emb.Build());
+                                if (guild.Antispams.Mention.WarnOnDetection)
+                                {
+                                    guild.Warnings.Add(new GuildConfig.Warns
+                                    {
+                                        Moderator = context.Client.CurrentUser.Username,
+                                        Reason = "AutoMod - Remove Mention All",
+                                        User = context.User.Username,
+                                        UserId = context.User.Id
+                                    });
+                                    GuildConfig.SaveServer(guild);
+                                    await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                    {
+                                        Title = $"{context.Client.CurrentUser.Username} AutoMod - Remove Mention All",
+                                        Description = "Warning Added!\n" +
+                                                      $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                    }.Build());
+                                }
                                 return true;
                                 //if
                                 // 1. The server Has Mention Deletions turned on
@@ -451,7 +518,7 @@ namespace PassiveBOT.Handlers
 
                     if (!BypassIP)
                     {
-                        if (Regex.IsMatch(message.Content,@"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
+                        if (Regex.IsMatch(message.Content, @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"))
                         {
                             await message.DeleteAsync();
                             var emb = new EmbedBuilder
@@ -459,6 +526,23 @@ namespace PassiveBOT.Handlers
                                 Title = $"{context.User} - This server does not allow you to post IP addresses"
                             };
                             await context.Channel.SendMessageAsync("", false, emb.Build());
+                            if (guild.Antispams.Privacy.WarnOnDetection)
+                            {
+                                guild.Warnings.Add(new GuildConfig.Warns
+                                {
+                                    Moderator = context.Client.CurrentUser.Username,
+                                    Reason = "AutoMod - Anti IP",
+                                    User = context.User.Username,
+                                    UserId = context.User.Id
+                                });
+                                GuildConfig.SaveServer(guild);
+                                await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                {
+                                    Title = $"{context.Client.CurrentUser.Username} AutoMod - Anti IP",
+                                    Description = "Warning Added!\n" +
+                                                  $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                }.Build());
+                            }
                             return true;
                         }
                     }
@@ -505,10 +589,28 @@ namespace PassiveBOT.Handlers
                                 result = Regex.Replace(result, "{guild}", context.Guild.Name, RegexOptions.IgnoreCase);
                                 result = Regex.Replace(result, "{channel}", context.Channel.Name, RegexOptions.IgnoreCase);
                                 result = Regex.Replace(result, "{channel.mention}",
-                                    ((SocketTextChannel) context.Channel).Mention, RegexOptions.IgnoreCase);
+                                    ((SocketTextChannel)context.Channel).Mention, RegexOptions.IgnoreCase);
                                 await context.Channel.SendMessageAsync(result);
-                                return true;
+
                             }
+                            if (guild.Antispams.Blacklist.WarnOnDetection)
+                            {
+                                guild.Warnings.Add(new GuildConfig.Warns
+                                {
+                                    Moderator = context.Client.CurrentUser.Username,
+                                    Reason = $"AutoMod - Blacklist({context.Message})",
+                                    User = context.User.Username,
+                                    UserId = context.User.Id
+                                });
+                                GuildConfig.SaveServer(guild);
+                                await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                {
+                                    Title = $"{context.Client.CurrentUser.Username} AutoMod - Blacklist",
+                                    Description = "Warning Added!\n" +
+                                                  $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                }.Build());
+                            }
+                            return true;
                         }
                     }
                 }
@@ -517,7 +619,7 @@ namespace PassiveBOT.Handlers
                 {
                     if (CMDCheck != null)
                     {
-                        var guser = (IGuildUser) context.User;
+                        var guser = (IGuildUser)context.User;
                         if (!guser.GuildPermissions.Administrator && !guild.RoleConfigurations.AdminRoleList.Any(x => guser.RoleIds.Contains(x)))
                         {
                             if (guild.Visibilityconfig.BlacklistedCommands.Any(x => string.Equals(x, CMDCheck.Name, StringComparison.CurrentCultureIgnoreCase)) ||
@@ -569,7 +671,23 @@ namespace PassiveBOT.Handlers
                                             //
                                         }
                                     }
-
+                                    if (guild.Antispams.Toxicity.WarnOnDetection)
+                                    {
+                                        guild.Warnings.Add(new GuildConfig.Warns
+                                        {
+                                            Moderator = context.Client.CurrentUser.Username,
+                                            Reason = $"AutoMod - Toxicity({res.attributeScores.TOXICITY.summaryScore.value})",
+                                            User = context.User.Username,
+                                            UserId = context.User.Id
+                                        });
+                                        GuildConfig.SaveServer(guild);
+                                        await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                        {
+                                            Title = $"{context.Client.CurrentUser.Username} AutoMod - AntiSpam",
+                                            Description = "Warning Added!\n" +
+                                                          $"Count: {guild.Warnings.Count(x => x.UserId == context.User.Id)}"
+                                        }.Build());
+                                    }
                                     return true;
                                 }
                             }
@@ -670,7 +788,7 @@ namespace PassiveBOT.Handlers
             var guild = GuildConfig.GetServer(context.Guild);
             if (await CheckMessage(message, context, guild)) return;
             await AutoMessage(context);
-            
+
             if (message.HasMentionPrefix(_client.CurrentUser, ref argPos) && guild.chatwithmention)
             {
                 var mcontent = context.Message.MentionedUsers.Aggregate(message.Content,
@@ -679,7 +797,7 @@ namespace PassiveBOT.Handlers
                     (current, mentionedRole) => current.Replace(mentionedRole.Mention, mentionedRole.Name));
                 mcontent = context.Message.MentionedChannels.Aggregate(mcontent,
                     (current, mentionedChannel) =>
-                        current.Replace(((ITextChannel) mentionedChannel).Mention, mentionedChannel.Name));
+                        current.Replace(((ITextChannel)mentionedChannel).Mention, mentionedChannel.Name));
                 try
                 {
                     var response = _apiAi.TextRequest(mcontent);
@@ -788,7 +906,7 @@ namespace PassiveBOT.Handlers
                             desc += $"Aliases: {string.Join(" ", cmd.Command.Aliases)}\n";
                         }
 
-                        desc += $"Error Reason:\n" +
+                        desc += "Error Reason:\n" +
                                 $"{result.ErrorReason}";
                     }
                     else

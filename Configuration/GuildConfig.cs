@@ -106,6 +106,14 @@ namespace PassiveBOT.Configuration
 
         public class antispams
         {
+
+            //public settings Settings { get; set; } = new settings();
+            //public class settings
+            //{
+            //    public bool WarnOnDetection { get; set; } = false;
+            //}
+
+
             public blacklist Blacklist { get; set; } = new blacklist();
             public antispam Antispam { get; set; } = new antispam();
             public advertising Advertising { get; set; } = new advertising();
@@ -117,6 +125,7 @@ namespace PassiveBOT.Configuration
 
             public class toxicity
             {
+                public bool WarnOnDetection { get; set; } = false;
                 public bool UsePerspective { get; set; } = false;
                 public int ToxicityThreshHold { get; set; } = 90;
             }
@@ -134,6 +143,7 @@ namespace PassiveBOT.Configuration
                 public bool IgnoreCommandMessages { get; set; } = true;
 
                 public bool antiraid { get; set; } = false;
+                public bool WarnOnDetection { get; set; } = false;
             }
 
             public class blacklist
@@ -144,6 +154,7 @@ namespace PassiveBOT.Configuration
 
                 //toggle wether or not to filter diatrics and replace certain numbers with their letter counterparts etc.
                 public bool BlacklistBetterFilter { get; set; } = false;
+                public bool WarnOnDetection { get; set; } = false;
 
                 public class BlacklistWords
                 {
@@ -161,6 +172,7 @@ namespace PassiveBOT.Configuration
 
                 //blacklist for discord invites
                 public bool Invite { get; set; } = false;
+                public bool WarnOnDetection { get; set; } = false;
             }
 
             public class mention
@@ -172,12 +184,14 @@ namespace PassiveBOT.Configuration
 
                 //Remove 5+ mentions of roles or users
                 public bool RemoveMassMention { get; set; } = false;
+                public bool WarnOnDetection { get; set; } = false;
             }
 
             public class privacy
             {
                 //remove all ip addresses posted in the format x.x.x.x
                 public bool RemoveIPs { get; set; } = false;
+                public bool WarnOnDetection { get; set; } = false;
             }
 
             public class IgnoreRole
