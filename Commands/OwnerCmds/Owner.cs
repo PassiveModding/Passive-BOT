@@ -29,73 +29,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             Service = Cserv;
         }
 
-        [Command("Toxicity+", RunMode = RunMode.Async)]
-        [Summary("Toxicity+")]
-        [Remarks("Evaluate Toxicity of a message")]
-        public async Task Toxicity([Remainder] string message = null)
-        {
-            try
-            {
-                var token = Tokens.Load().PerspectiveAPI;
-                if (token != null)
-                {
-                    var pages = new List<PaginatedMessage.Page>();
-                    var requestlist = new List<string>
-                    {
-                        "ATTACK_ON_AUTHOR",
-                        "ATTACK_ON_COMMENTER",
-                        "INCOHERENT",
-                        "INFLAMMATORY",
-                        "LIKELY_TO_REJECT",
-                        "OBSCENE",
-                        "SEVERE_TOXICITY",
-                        "SPAM",
-                        "TOXICITY",
-                        "UNSUBSTANTIAL"
-                    };
-
-                    foreach (var request in requestlist)
-                        try
-                        {
-                            var timer = new Stopwatch();
-                            timer.Start();
-                            var requestedAttributeses =
-                                new Dictionary<string, Perspective.RequestedAttributes>
-                                {
-                                    {request, new Perspective.RequestedAttributes()}
-                                };
-                            var req = new Perspective.AnalyzeCommentRequest(message, requestedAttributeses);
-                            var res = new Perspective.Api(token).GetResponseString(req);
-                            timer.Stop();
-                            var t1 = timer.ElapsedMilliseconds;
-                            pages.Add(new PaginatedMessage.Page
-                            {
-                                dynamictitle = request,
-                                description = $"__Time__\n" +
-                                              $"{t1}\n" +
-                                              $"__Response__\n" +
-                                              $"{res}"
-                            });
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
-
-                    var pager = new PaginatedMessage
-                    {
-                        Pages = pages
-                    };
-
-                    await PagedReplyAsync(pager);
-                }
-            }
-            catch (Exception e)
-            {
-                await ReplyAsync(e.ToString());
-            }
-        }
-
         [Command("UpdateStats+")]
         [Summary("UpdateStats+")]
         [Remarks("Update the Bots Stats on DiscordBots.org")]
@@ -153,55 +86,6 @@ namespace PassiveBOT.Commands.OwnerCmds
             {
                 var firststring = Context.Client.GetGuild(guild.GuildID);
                 s2.Append($"S: {firststring?.Name ?? "Unknown"} || ID:{guild.GuildID} || M:{guild.msgs}\n");
-
-                if (s2.ToString().Length <= 800) continue;
-                pages.Add(new PaginatedMessage.Page
-                {
-                    description = s2.ToString()
-                });
-                s2.Clear();
-            }
-
-            pages.Add(new PaginatedMessage.Page
-            {
-                description = s2.ToString()
-            });
-
-            await PagedReplyAsync(new PaginatedMessage
-            {
-                Pages = pages
-            });
-        }
-
-        [Command("ViewAntispamServers+")]
-        [Summary("ViewAntispamServers+")]
-        [Remarks("List all servers using antispam")]
-        public async Task AntispamServers()
-        {
-            var pages = new List<PaginatedMessage.Page>();
-            var s2 = new StringBuilder();
-            foreach (var guild in Context.Client.Guilds.OrderByDescending(x => x.MemberCount))
-            {
-                var gobj = GuildConfig.GetServer(guild);
-                if (gobj == null) continue;
-                if (gobj.Antispams.Antispam.NoSpam || gobj.Antispams.Antispam.antiraid ||
-                    gobj.Antispams.Advertising.Invite || gobj.Antispams.Blacklist.BlacklistWordSet.Any() ||
-                    gobj.Antispams.Mention.MentionAll || gobj.Antispams.Mention.RemoveMassMention ||
-                    gobj.Antispams.Privacy.RemoveIPs || gobj.Antispams.Toxicity.UsePerspective)
-                {
-                    var embdesc = $"Name: {guild.Name} || `{guild.Id}`\n" +
-                                  $"Members: {guild.MemberCount}\n" +
-                                  $"NoSpam: {gobj.Antispams.Antispam.NoSpam}\n" +
-                                  $"AntiRaid: {gobj.Antispams.Antispam.antiraid}\n" +
-                                  $"AntiAD: {gobj.Antispams.Advertising.Invite}\n" +
-                                  $"Blacklist: {gobj.Antispams.Blacklist.BlacklistWordSet.Any()}\n" +
-                                  $"MentionAll: {gobj.Antispams.Mention.MentionAll}\n" +
-                                  $"MassMention: {gobj.Antispams.Mention.RemoveMassMention}\n" +
-                                  $"AntiIP: {gobj.Antispams.Privacy.RemoveIPs}\n" +
-                                  $"Toxicity: {gobj.Antispams.Toxicity.UsePerspective} // {gobj.Antispams.Toxicity.ToxicityThreshHold}\n";
-                    s2.Append($"{embdesc}\n");
-                }
-
 
                 if (s2.ToString().Length <= 800) continue;
                 pages.Add(new PaginatedMessage.Page

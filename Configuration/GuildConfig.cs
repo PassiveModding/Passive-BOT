@@ -24,8 +24,6 @@ namespace PassiveBOT.Configuration
 
         public List<Tags.Tagging> Dict { get; set; } = new List<Tags.Tagging>(); // tags module
 
-        public antispams Antispams { get; set; } = new antispams();
-
         public visibilityconfig Visibilityconfig { get; set; } = new visibilityconfig();
 
         public bool ErrorLog { get; set; } // allows for responses with errors 
@@ -36,8 +34,6 @@ namespace PassiveBOT.Configuration
         public bool WelcomeEvent { get; set; } // toggles welcome messages for new users
         public string WelcomeMessage { get; set; } = "Welcome to Our Server!!!"; // the welcome message
         public ulong WelcomeChannel { get; set; } // welcome messages in a channel
-        public bool EventLogging { get; set; } = false;
-        public ulong EventChannel { get; set; } = 0;
 
         public GiveAway Comp { get; set; } = new GiveAway();
 
@@ -94,119 +90,9 @@ namespace PassiveBOT.Configuration
             // a list of roles that users can join via command
             public List<ulong> SubRoleList { get; set; } = new List<ulong>();
 
-
-            //public ulong DjRoleId { get; set; } // restrict the music module to a specific role
-            public ulong MutedRole { get; set; } = 0;
-
             //public ulong ModeratorRoleId { get; set; } = 0;
             public List<ulong> ModeratorRoleList { get; set; } = new List<ulong>();
             public List<ulong> AdminRoleList { get; set; } = new List<ulong>();
-        }
-
-
-        public class antispams
-        {
-
-            //public settings Settings { get; set; } = new settings();
-            //public class settings
-            //{
-            //    public bool WarnOnDetection { get; set; } = false;
-            //}
-
-
-            public blacklist Blacklist { get; set; } = new blacklist();
-            public antispam Antispam { get; set; } = new antispam();
-            public advertising Advertising { get; set; } = new advertising();
-            public mention Mention { get; set; } = new mention();
-            public privacy Privacy { get; set; } = new privacy();
-            public toxicity Toxicity { get; set; } = new toxicity();
-
-            public List<IgnoreRole> IgnoreRoles { get; set; } = new List<IgnoreRole>();
-
-            public class toxicity
-            {
-                public bool WarnOnDetection { get; set; } = false;
-                public bool UsePerspective { get; set; } = false;
-                public int ToxicityThreshHold { get; set; } = 90;
-            }
-
-
-            public class antispam
-            {
-                //remove repetitive messages and messages posted in quick succession
-                public bool NoSpam { get; set; } = false;
-
-                //words to skip while using antispam
-                public List<string> AntiSpamSkip { get; set; } = new List<string>();
-
-                //Toggle wether or not to use antispam on bot commands
-                public bool IgnoreCommandMessages { get; set; } = true;
-
-                public bool antiraid { get; set; } = false;
-                public bool WarnOnDetection { get; set; } = false;
-            }
-
-            public class blacklist
-            {
-                //the blacklist word groupings
-                public List<BlacklistWords> BlacklistWordSet { get; set; } = new List<BlacklistWords>();
-                public string DefaultBlacklistMessage { get; set; } = "";
-
-                //toggle wether or not to filter diatrics and replace certain numbers with their letter counterparts etc.
-                public bool BlacklistBetterFilter { get; set; } = false;
-                public bool WarnOnDetection { get; set; } = false;
-
-                public class BlacklistWords
-                {
-                    //Words for the specified blacklist message
-                    public List<string> WordList { get; set; } = new List<string>();
-
-                    //Custom response for certain words.
-                    public string BlacklistResponse { get; set; } = null;
-                }
-            }
-
-            public class advertising
-            {
-                public string NoInviteMessage { get; set; } = null;
-
-                //blacklist for discord invites
-                public bool Invite { get; set; } = false;
-                public bool WarnOnDetection { get; set; } = false;
-            }
-
-            public class mention
-            {
-                public string MentionAllMessage { get; set; } = null;
-
-                //blacklist for @everyone and @here 
-                public bool MentionAll { get; set; } = false;
-
-                //Remove 5+ mentions of roles or users
-                public bool RemoveMassMention { get; set; } = false;
-                public bool WarnOnDetection { get; set; } = false;
-            }
-
-            public class privacy
-            {
-                //remove all ip addresses posted in the format x.x.x.x
-                public bool RemoveIPs { get; set; } = false;
-                public bool WarnOnDetection { get; set; } = false;
-            }
-
-            public class IgnoreRole
-            {
-                public ulong RoleID { get; set; }
-
-                //false = filter
-                //true = bypass filter
-                public bool AntiSpam { get; set; } = false;
-                public bool Blacklist { get; set; } = false;
-                public bool Advertising { get; set; } = false;
-                public bool Mention { get; set; } = false;
-                public bool Privacy { get; set; } = false;
-                public bool Toxicity { get; set; } = false;
-            }
         }
 
         public class levelling

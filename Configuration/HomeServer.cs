@@ -17,7 +17,7 @@ namespace PassiveBOT.Configuration
         public ulong PartnerUpdates { get; set; } = 0;
         public ulong BotModerator { get; set; } = 0;
         public List<globalban> GlobalBans { get; set; } = new List<globalban>();
-        public List<Alias> Aliases { get; set; } = new List<Alias>();
+        //public List<Alias> Aliases { get; set; } = new List<Alias>();
         public bool NoToxicityDisabled { get; set; } = false;
         public bool DisableCheckMsg { get; set; } = false;
 
@@ -43,7 +43,7 @@ namespace PassiveBOT.Configuration
             var file = Path.Combine(Appdir, "setup/config/home.json");
             return JsonConvert.DeserializeObject<Homeserver>(File.ReadAllText(file));
         }
-
+        /*
         public class Alias
         {
             public string UserName { get; set; }
@@ -62,7 +62,7 @@ namespace PassiveBOT.Configuration
                     public string Name { get; set; }
                 }
             }
-        }
+        }*/
 
 
         public class globalban

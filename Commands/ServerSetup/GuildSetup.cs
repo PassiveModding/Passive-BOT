@@ -70,200 +70,6 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
-        /*
-        public async Task ConfigInfo()
-        {
-            var embed = new EmbedBuilder();
-            var l = GuildConfig.GetServer(Context.Guild);
-            string djstring;
-            string guildstring;
-            //string errorLogString;
-            string subrolelist;
-            string rss;
-            string tags;
-            string welcome;
-            string goodbye;
-            string nomention;
-            string noinvite;
-            string eventlogging;
-            string admincommands;
-            string blacklist;
-            string modRole;
-
-
-            try
-            {
-                subrolelist = "";
-                foreach (var role in l.RoleConfigurations.SubRoleList)
-                    subrolelist += $"{Context.Guild.GetRole(role).Name}\n";
-            }
-            catch
-            {
-                subrolelist = "There are no joinable roles";
-            }
-
-            try
-            {
-                if (l.ModeratorRoleId == 0)
-                {
-                    modRole = "N/A";
-                }
-                else
-                {
-                    var mrole = Context.Guild.GetRole(l.ModeratorRoleId);
-                    modRole = mrole.Name;
-                }
-            }
-            catch
-            {
-                modRole = $"@deleted-role <{l.ModeratorRoleId}>";
-            }
-
-            try
-            {
-                djstring = Context.Guild.GetRole(l.DjRoleId).Name;
-            }
-            catch
-            {
-                djstring = "There is no DJ role configured";
-            }
-
-            try
-            {
-                guildstring = $"{l.GuildName}, {l.GuildId}";
-            }
-            catch
-            {
-                guildstring = $"{Context.Guild.Name}, {Context.Guild.Id}";
-            }
-
-            try
-            {
-                errorLogString = l.ErrorLog ? "Status: On" : "Status: Off";
-            }
-            catch
-            {
-                errorLogString = "Status: Off";
-            }
-            try
-            {
-                rss = $"{l.Rss}, {Context.Guild.GetChannel(l.RssChannel).Name}";
-            }
-            catch
-            {
-                rss = "Status: Disabled";
-            }
-
-            try
-            {
-                var dict = GuildConfig.GetServer(Context.Guild).Dict;
-                var list = "";
-                foreach (var tagging in dict)
-                    list += $"{tagging.Tagname}, ";
-
-                tags = list.Substring(0, list.Length - 2);
-            }
-            catch
-            {
-                tags = "there are none yet....";
-            }
-
-            try
-            {
-                var status = l.WelcomeEvent ? "On" : "Off";
-                welcome = $"Status: {status}\n" +
-                          $"Channel: {Context.Guild.GetChannel(l.WelcomeChannel).Name}\n" +
-                          $"Message: {l.WelcomeMessage}";
-            }
-            catch
-            {
-                welcome = "Status: Disabled";
-            }
-
-            try
-            {
-                var status = l.GoodbyeEvent ? "On" : "Off";
-                goodbye = $"Status: {status}\n" +
-                          $"Channel: {Context.Guild.GetChannel(l.GoodByeChannel).Name}\n" +
-                          $"Message: {l.GoodbyeMessage}";
-            }
-            catch
-            {
-                goodbye = "Status: Disabled";
-            }
-
-            try
-            {
-                nomention = l.MentionAll ? "Status: On" : "Status: Off";
-            }
-            catch
-            {
-                nomention = "Status: Off";
-            }
-
-            try
-            {
-                noinvite = l.Invite ? "Status: On" : "Status: Off";
-            }
-            catch
-            {
-                noinvite = "Status: Off";
-            }
-
-            try
-            {
-                if (l.EventLogging)
-                    eventlogging = "Status: On\n" +
-                                   $"Channel: {Context.Guild.GetChannel(l.EventChannel).Name}";
-                else
-                    eventlogging = "Status: Off";
-            }
-            catch
-            {
-                eventlogging = "Disabled";
-            }
-
-            try
-            {
-                admincommands = $"Warnings: {l.Warnings.Count}\n" +
-                                $"Kicks: {l.Kicking.Count}\n" +
-                                $"Bans: {l.Banning.Count}";
-            }
-            catch
-            {
-                admincommands = "Warnings: 0\n" +
-                                "Kicks: 0\n" +
-                                "Bans: 0";
-            }
-
-            try
-            {
-                blacklist = $"{l.Blacklist.Count}";
-            }
-            catch
-            {
-                blacklist = "0";
-            }
-
-
-            embed.AddField("DJ Role", $"Role: {djstring}");
-            embed.AddField("Guild Name & ID", guildstring);
-            //embed.AddField("Error logging", $"Status: {errorLogString}");
-            embed.AddField("SubRoles", $"Role: {subrolelist}");
-            embed.AddField("RSS URL/Channel", $"{rss}");
-            embed.AddField("Tags", $"{tags}");
-            embed.AddField("Welcome", $"{welcome}");
-            embed.AddField("Goodbye", $"{goodbye}");
-            embed.AddField("NoMention", $"{nomention}");
-            embed.AddField("NoInvite", $"Status: {noinvite}");
-            embed.AddField("EventLogging", eventlogging);
-            embed.AddField("Admin Uses", admincommands);
-            embed.AddField("Blacklisted Word Count", blacklist);
-            embed.AddField("Moderator Role", modRole);
-
-
-            await ReplyAsync("", false, embed.Build());
-        }*/
 
         [Command("Welcome", RunMode = RunMode.Async)]
         [Remarks("Setup the Welcome Message for new users")]
@@ -420,6 +226,7 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(jsonObj);
         }
 
+        /*
         [Command("EventLogging")]
         [Summary("EventLogging <True/False>")]
         [Remarks("Enables the ability for events to be logged in a specific channel")]
@@ -434,7 +241,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 await ReplyAsync($"Events will now be logged in {Context.Channel.Name}!");
             else
                 await ReplyAsync("Events will no longer be logged");
-        }
+        }*/
 
         [Command("ApiAI")]
         [Summary("ApiAI")]
@@ -556,27 +363,6 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(serverobj);
         }
 
-        /* [Command("SetDj")]
-         [Summary("SetDj <@role>")]
-         [Remarks("Sets the DJ role")]
-         public async Task Dj([Remainder] IRole role)
-         {
-             GuildConfig.SetDj(Context.Guild, role.Id);
-             await ReplyAsync($"The DJ Role has been set to: {role.Name}");
-         }*/
-
-        /*[Command("Errors")]
-        [Summary("Errors <true/false>")]
-        [Remarks("Toggles Error Status")]
-        public async Task Errors(bool status)
-        {
-            GuildConfig.SetError(Context.Guild, status);
-            if (status)
-                await ReplyAsync("Errors will now be Logged");
-            else
-                await ReplyAsync("Errors will no longer be logged");
-        }*/
-
         [Command("addrole")]
         [Summary("addrole @role")]
         [Remarks("adds a subscribable role")]
@@ -619,28 +405,6 @@ namespace PassiveBOT.Commands.ServerSetup
 
             GuildConfig.SaveServer(jsonObj);
         }
-
-        /*[Command("rss", RunMode = RunMode.Async)]
-        [Summary("rss <feed url>")]
-        [Remarks("adds an rss feed")]
-        public async Task Rss(string url1 = null)
-        {
-            if (url1 != null)
-            {
-                GuildConfig.GetServer(Context.Guild);
-                GuildConfig.RssSet(Context.Guild, Context.Channel.Id, url1, true);
-                await ReplyAsync("Rss Config has been updated!\n" +
-                                 $"Updates will be posted in: {Context.Channel.Name}\n" +
-                                 $"Url: {url1}");
-
-                await _rss.Rss(url1, Context.Channel as IGuildChannel);
-            }
-            else
-            {
-                await ReplyAsync("The RSS Feed has been removed (null input)");
-                await _rss.Rss(null, Context.Channel as IGuildChannel);
-            }
-        }*/
 
         [Command("prefix")]
         [Summary("prefix <newprefix>")]
@@ -883,53 +647,18 @@ namespace PassiveBOT.Commands.ServerSetup
                 },
                 new PaginatedMessage.Page
                 {
-                    dynamictitle = $"AntiSpam 1.Prevention",
-                    description = $"NoSpam: {Guild.Antispams.Antispam.NoSpam}\n" +
-                                  $"Remove IPs: {Guild.Antispams.Privacy.RemoveIPs}\n" +
-                                  $"Remove Invites: {Guild.Antispams.Advertising.Invite}\n" +
-                                  $"Remove Invites Message:\n" +
-                                  $"{Guild.Antispams.Advertising.NoInviteMessage ?? "N/A"}\n\n" +
-                                  $"Remove @Everyone and @Here: {Guild.Antispams.Mention.MentionAll}\n" +
-                                  $"Remove @Everyone and @Here Message:\n" +
-                                  $"{Guild.Antispams.Mention.MentionAllMessage}\n\n" +
-                                  $"Remove @everyone and @here exempt:\n" +
-                                  $"Remove Messages with 5+ Mentions: {Guild.Antispams.Mention.RemoveMassMention}\n"
-                },
-                new PaginatedMessage.Page
-                {
-                    dynamictitle = $"AntiSpam 2.Blacklist",
-                    description = $"Using Blacklist: {Guild.Antispams.Blacklist.BlacklistWordSet.Any()}\n" +
-                                  $"Default Blacklist Message: {Guild.Antispams.Blacklist.DefaultBlacklistMessage ?? "N/A"}\n" +
-                                  $"Filter Special Characters and numbers: {Guild.Antispams.Blacklist.BlacklistBetterFilter}\n" +
-                                  $"Blacklisted Words:\n" +
-                                  $"Use the `{Config.Load().Prefix}blacklist` message to show this\n"
-                },
-                new PaginatedMessage.Page
-                {
-                    dynamictitle = $"AntiSpam 3.Toxicity",
-                    description = $"NoToxicity: {Guild.Antispams.Toxicity.UsePerspective}\n" +
-                                  $"Threshhold: {Guild.Antispams.Toxicity.ToxicityThreshHold}"
-                },
-                new PaginatedMessage.Page
-                {
-                    dynamictitle = $"AntiSpam 4.Exempt",
-                    description =
-                        $"{(Guild.Antispams.IgnoreRoles.Any() ? string.Join("\n", Guild.Antispams.IgnoreRoles.Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"__{Context.Guild.GetRole(x.RoleID).Name}__\nBypass Antispam: {x.AntiSpam}\nBypass Blacklist: {x.Blacklist}\nBypass Mention: {x.Mention}\nBypass Invite: {x.Advertising}\nBypass Filtering: {x.Privacy}\n")) : "N/A")}"
-                },
-                new PaginatedMessage.Page
-                {
                     dynamictitle = "Kicks Warns and Bans",
                     description = $"Kicks: {(Guild.Kicking.Any() ? Guild.Kicking.Count.ToString() : "N/A")}\n" +
                                   $"Warns: {(Guild.Warnings.Any() ? Guild.Warnings.Count.ToString() : "N/A")}\n" +
                                   $"Bans: {(Guild.Banning.Any() ? Guild.Banning.Count.ToString() : "N/A")}\n"
-                },
+                },/*
                 new PaginatedMessage.Page
                 {
                     dynamictitle = "Event & Error Logging",
                     description = $"Event Logging: {Guild.EventLogging}\n" +
                                   $"Event Channel: {Context.Guild.GetChannel(Guild.EventChannel)?.Name ?? "N/A"}\n" +
                                   $"Error Logging (dep): {Guild.ErrorLog}\n"
-                },
+                },*/
                 new PaginatedMessage.Page
                 {
                     dynamictitle = "Tagging",

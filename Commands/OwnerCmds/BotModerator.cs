@@ -1072,7 +1072,7 @@ namespace PassiveBOT.Commands.OwnerCmds
 
             await ReplyAsync("No Invites able to be created.");
         }
-
+        /*
         [Command("GetAlias+")]
         [Summary("GetAlias+ <@User>")]
         [Remarks("Get user aliases")]
@@ -1103,6 +1103,6 @@ namespace PassiveBOT.Commands.OwnerCmds
                 };
                 await PagedReplyAsync(paginated);
             }
-        }
+        }*/
     }
 }
