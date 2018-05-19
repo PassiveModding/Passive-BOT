@@ -89,6 +89,26 @@ namespace PassiveBOT.Configuration
         {
             // a list of roles that users can join via command
             public List<ulong> SubRoleList { get; set; } = new List<ulong>();
+            public ColorRoles ColorRoleList { get; set; } = new ColorRoles();
+            public class ColorRoles
+            {
+                public bool AllowCustomColorRoles { get; set; } = false;
+                public Color Color { get; set; } = new Color();
+                public enum Colours
+                {
+                    blue,
+                    green,
+                    red,
+                    purple,
+                    yellow,
+                    cyan,
+                    pink,
+                    orange,
+                    brown
+                }
+            }
+
+
 
             //public ulong ModeratorRoleId { get; set; } = 0;
             public List<ulong> ModeratorRoleList { get; set; } = new List<ulong>();

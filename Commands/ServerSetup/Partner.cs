@@ -294,7 +294,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
-                    var match = officialinvites.FirstOrDefault(x =>
+                    var match = officialinvites.Where(x => x.MaxAge == null).FirstOrDefault(x =>
                         invite.ToString().ToLower().Contains(x.Code.ToLower()));
                     if (match == null)
                     {
@@ -306,7 +306,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 if (mismatch)
                 {
                     await ReplyAsync("Only invites from this server are allowed in the partner message!\n" +
-                                     "Also please ensure that the invite link you are using is set to never expire\n\n" +
+                                     "NOTE: please ensure that the invite link you are using is set to never expire\n" +
                                      "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
                                      $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}");
                     return;
