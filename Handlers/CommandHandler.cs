@@ -120,7 +120,7 @@ namespace PassiveBOT.Handlers
                                 {
                                     GuildID = context.Guild.Id,
                                     UpdatesSinceLastSave = 0,
-                                    Users = new List<GuildConfig.levelling.user>()
+                                    Users = guild.Levels.Users
                                 });
                                 LVGuild = Levels.FirstOrDefault(x => x.GuildID == guild.GuildId);
                             }
