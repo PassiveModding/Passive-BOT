@@ -272,7 +272,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
-            if (!input.Contains("discord.gg") && !input.Contains("discordapp.com") && !input.Contains("discord.me"))
+            if (!input.ToLower().Contains("discord.gg") && !input.ToLower().Contains("discordapp.com") && !input.ToLower().Contains("discord.me"))
             {
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too\n" +
                                  $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}\n" +
