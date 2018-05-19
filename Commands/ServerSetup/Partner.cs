@@ -392,6 +392,20 @@ namespace PassiveBOT.Commands.ServerSetup
             await ReplyAsync("", false, embed.Build());
         }
 
+        [Command("PartnerShowRawMsg")]
+        [Summary("PartnerShowRawMsg")]
+        [Remarks("See the raw partner message text")]
+        public async Task PMSGRaw()
+        {
+            var guild = GuildConfig.GetServer(Context.Guild);
+            var embed = new EmbedBuilder
+            {
+                Description = $"{Format.Sanitize(guild.PartnerSetup.Message)}",
+                Color = Color.Blue
+            };
+            await ReplyAsync("", false, embed.Build());
+        }
+
         [Command("PartnerTime")]
         [Summary("PartnerTime")]
         [Remarks("See time until next partner message")]

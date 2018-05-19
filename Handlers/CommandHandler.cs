@@ -114,6 +114,16 @@ namespace PassiveBOT.Handlers
                         {
                             //var userlv = guild.Levels.Users.FirstOrDefault(x => x.userID == context.User.Id);
                             var LVGuild = Levels.FirstOrDefault(x => x.GuildID == guild.GuildId);
+                            if (LVGuild == null)
+                            {
+                                Levels.Add(new LevellingObj
+                                {
+                                    GuildID = context.Guild.Id,
+                                    UpdatesSinceLastSave = 0,
+                                    Users = new List<GuildConfig.levelling.user>()
+                                });
+                                LVGuild = Levels.FirstOrDefault(x => x.GuildID == guild.GuildId);
+                            }
                             var userlv = LVGuild.Users.FirstOrDefault(x => x.userID == context.User.Id);
                             if (userlv != null)
                             {
