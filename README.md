@@ -10,6 +10,6 @@
 </p>
 
 ### `Features`
-Tags, Automessaging, AntiSpam (Invite Posting, Profanity, Spam, Blacklist, AI Toxicity), Moderation, NSFW, Levels, Games, Warnings, Welcome/Leave Messages, Gambling, Reddit Lookup, Server Statistics & More
+Tags, Automessaging, NSFW, Levels, Games, Welcome/Leave Messages, Gambling, Reddit Lookup, Server Statistics & More
 ### `Contributing`
 Feel free to make a pull request, I would love to see everyone's input!
