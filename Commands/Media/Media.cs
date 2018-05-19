@@ -344,8 +344,13 @@ namespace PassiveBOT.Commands.Media
             public int Num { get; set; }
             public string Month { get; set; }
             public string Year { get; set; }
-            [JsonProperty("safe_title")] public string Title { get; set; }
-            [JsonProperty("img")] public string ImageLink { get; set; }
+
+            [JsonProperty("safe_title")]
+            public string Title { get; set; }
+
+            [JsonProperty("img")]
+            public string ImageLink { get; set; }
+
             public string Alt { get; set; }
         }
     }

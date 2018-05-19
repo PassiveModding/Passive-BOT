@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ApiAiSDK;
 using Discord;
@@ -10,9 +9,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Configuration;
-using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers.Services;
-using PassiveBOT.strings;
 using RedditSharp.Things;
 
 namespace PassiveBOT.Handlers
@@ -102,6 +99,7 @@ namespace PassiveBOT.Handlers
                 {
                     gmc.msgs++;
                 }
+
                 if (Homeserver.Load().DisableCheckMsg) return false;
 
 
@@ -124,6 +122,7 @@ namespace PassiveBOT.Handlers
                                 });
                                 LVGuild = Levels.FirstOrDefault(x => x.GuildID == guild.GuildId);
                             }
+
                             var userlv = LVGuild.Users.FirstOrDefault(x => x.userID == context.User.Id);
                             if (userlv != null)
                             {
@@ -157,13 +156,13 @@ namespace PassiveBOT.Handlers
                                             {
                                                 foreach (var role in roletoreceive)
                                                 {
-                                                    if (((IGuildUser)context.User).RoleIds.Contains(role.RoleID)) continue;
+                                                    if (((IGuildUser) context.User).RoleIds.Contains(role.RoleID)) continue;
                                                     var grole = context.Guild.GetRole(role.RoleID);
                                                     if (grole != null)
                                                     {
                                                         try
                                                         {
-                                                            await ((SocketGuildUser)context.User).AddRoleAsync(grole);
+                                                            await ((SocketGuildUser) context.User).AddRoleAsync(grole);
                                                             roleadded += $"Role Reward: {grole.Name}\n";
                                                         }
                                                         catch
@@ -184,7 +183,7 @@ namespace PassiveBOT.Handlers
                                                         rolesavailable.Remove(roletoreceive.First());
                                                         var roles = rolesavailable.Select(x => context.Guild.GetRole(x.RoleID)).Where(x => x != null);
 
-                                                        await ((SocketGuildUser)context.User).RemoveRolesAsync(roles);
+                                                        await ((SocketGuildUser) context.User).RemoveRolesAsync(roles);
                                                     }
                                                     catch
                                                     {
@@ -264,6 +263,7 @@ namespace PassiveBOT.Handlers
                 Console.WriteLine("CheckMessage Failed.");
                 Console.WriteLine(e);
             }
+
             return false;
         }
 
@@ -353,7 +353,7 @@ namespace PassiveBOT.Handlers
                     (current, mentionedRole) => current.Replace(mentionedRole.Mention, mentionedRole.Name));
                 mcontent = context.Message.MentionedChannels.Aggregate(mcontent,
                     (current, mentionedChannel) =>
-                        current.Replace(((ITextChannel)mentionedChannel).Mention, mentionedChannel.Name));
+                        current.Replace(((ITextChannel) mentionedChannel).Mention, mentionedChannel.Name));
                 try
                 {
                     var response = _apiAi.TextRequest(mcontent);
@@ -491,7 +491,6 @@ namespace PassiveBOT.Handlers
                 {
                     Console.WriteLine(e);
                 }
-
             }
         }
 

@@ -272,23 +272,18 @@ namespace PassiveBOT.Commands.ServerSetup
                 return;
             }
 
-            if (!Regex.Match(input,
-                        @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
-                    .Success && !input.Contains("discord.me"))
+            if (!input.Contains("discord.gg") && !input.Contains("discordapp.com") && !input.Contains("discord.me"))
             {
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too\n" +
                                  $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}\n" +
-                                 $"NOTE: If you use 2 Factor Authentication (User Must have a verified phone number on their Discord account)\n" +
+                                 $"NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" +
                                  $"Please disable this during setup, you may re-enable after the message has been set.");
                 return;
             }
 
-            if (Regex.Match(input,
-                    @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
-                .Success)
+            if (Regex.Match(input, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
-                var invites = Regex.Matches(input,
-                        @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
+                var invites = Regex.Matches(input, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$")
                     .ToList();
                 var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
                 var mismatch = false;

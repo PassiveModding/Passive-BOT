@@ -651,7 +651,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     description = $"Kicks: {(Guild.Kicking.Any() ? Guild.Kicking.Count.ToString() : "N/A")}\n" +
                                   $"Warns: {(Guild.Warnings.Any() ? Guild.Warnings.Count.ToString() : "N/A")}\n" +
                                   $"Bans: {(Guild.Banning.Any() ? Guild.Banning.Count.ToString() : "N/A")}\n"
-                },/*
+                }, /*
                 new PaginatedMessage.Page
                 {
                     dynamictitle = "Event & Error Logging",

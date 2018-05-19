@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,7 +9,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using DiscordBotsList.Api.Extensions.DiscordNet;
 using PassiveBOT.Configuration;
-using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers.Services.Interactive;
 using PassiveBOT.Handlers.Services.Interactive.Paginator;
 using PassiveBOT.preconditions;

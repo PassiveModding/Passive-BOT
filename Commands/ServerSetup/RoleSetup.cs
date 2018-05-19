@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Rest;
 using Discord.WebSocket;
 using PassiveBOT.Configuration;
 using PassiveBOT.Preconditions;
-using Sparrow.Platform.Posix.macOS;
 
 namespace PassiveBOT.Commands.ServerSetup
 {
@@ -26,6 +23,7 @@ namespace PassiveBOT.Commands.ServerSetup
             GuildConfig.SaveServer(guild);
             await ReplyAsync($"Color Roles Enabled: {guild.RoleConfigurations.ColorRoleList.AllowCustomColorRoles}");
         }
+
         [RequireAdmin]
         [Command("ClearColors")]
         [Summary("ClearColors")]
@@ -35,8 +33,9 @@ namespace PassiveBOT.Commands.ServerSetup
             var roles = Context.Guild.Roles.Where(x => x.Name.StartsWith("#")).ToList();
             foreach (var role in roles)
             {
-                await  role.DeleteAsync();
+                await role.DeleteAsync();
             }
+
             await ReplyAsync($"#Roles removed: {roles.Count}");
         }
 
@@ -55,6 +54,7 @@ namespace PassiveBOT.Commands.ServerSetup
                     color = color.Replace("#", "");
                     Hexed = true;
                 }
+
                 if (Enum.TryParse(color, out GuildConfig.roleConfigurations.ColorRoles.Colours ECol) && !Hexed)
                 {
                     DCol = getCol(ECol);
@@ -63,6 +63,7 @@ namespace PassiveBOT.Commands.ServerSetup
                 {
                     DCol = getCol(color);
                 }
+
                 var colorrole = Context.Guild.Roles.FirstOrDefault(x => string.Equals(x.Name, $"#{DCol.ColorNameStripped.ToString()}", StringComparison.CurrentCultureIgnoreCase));
                 if (colorrole == null)
                 {
@@ -78,13 +79,13 @@ namespace PassiveBOT.Commands.ServerSetup
                 {
                     await (Context.User as SocketGuildUser).RemoveRolesAsync(croles);
                 }
+
                 await (Context.User as IGuildUser).AddRoleAsync(colorrole);
                 await ReplyAsync("", false, new EmbedBuilder
                 {
                     Description = $"Success, you have been given the role {colorrole.Mention}",
                     Color = DCol.Color
                 });
-                
             }
             else
             {
@@ -125,15 +126,15 @@ namespace PassiveBOT.Commands.ServerSetup
                 case GuildConfig.roleConfigurations.ColorRoles.Colours.pink:
                     DCol = new Color(255, 105, 180);
                     break;
-                    default:
-                        throw new InvalidOperationException("Invlid COlor Input");
+                default:
+                    throw new InvalidOperationException("Invlid COlor Input");
             }
+
             return new CustomColor
             {
                 Color = DCol,
                 ColorNameStripped = Color.ToString()
             };
-
         }
 
         public CustomColor getCol(string Color)
@@ -146,14 +147,13 @@ namespace PassiveBOT.Commands.ServerSetup
 
             try
             {
-                var rgb = System.Drawing.Color.FromArgb(int.Parse(Color , System.Globalization.NumberStyles.AllowHexSpecifier));
+                var rgb = System.Drawing.Color.FromArgb(int.Parse(Color, NumberStyles.AllowHexSpecifier));
                 var discordcolor = new Color(rgb.R, rgb.G, rgb.B);
                 return new CustomColor
                 {
                     Color = discordcolor,
                     ColorNameStripped = Color
                 };
-
             }
             catch
             {
@@ -166,6 +166,5 @@ namespace PassiveBOT.Commands.ServerSetup
             public Color Color { get; set; }
             public string ColorNameStripped { get; set; }
         }
-
     }
 }

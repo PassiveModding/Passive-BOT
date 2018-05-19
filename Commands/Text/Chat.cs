@@ -6,8 +6,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using PassiveBOT.Configuration;
-using PassiveBOT.Configuration.Objects;
 using PassiveBOT.preconditions;
 
 namespace PassiveBOT.Commands.Text

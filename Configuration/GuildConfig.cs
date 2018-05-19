@@ -90,10 +90,14 @@ namespace PassiveBOT.Configuration
             // a list of roles that users can join via command
             public List<ulong> SubRoleList { get; set; } = new List<ulong>();
             public ColorRoles ColorRoleList { get; set; } = new ColorRoles();
+
+
+            //public ulong ModeratorRoleId { get; set; } = 0;
+            public List<ulong> ModeratorRoleList { get; set; } = new List<ulong>();
+            public List<ulong> AdminRoleList { get; set; } = new List<ulong>();
+
             public class ColorRoles
             {
-                public bool AllowCustomColorRoles { get; set; } = false;
-                public Color Color { get; set; } = new Color();
                 public enum Colours
                 {
                     blue,
@@ -106,13 +110,10 @@ namespace PassiveBOT.Configuration
                     orange,
                     brown
                 }
+
+                public bool AllowCustomColorRoles { get; set; } = false;
+                public Color Color { get; set; } = new Color();
             }
-
-
-
-            //public ulong ModeratorRoleId { get; set; } = 0;
-            public List<ulong> ModeratorRoleList { get; set; } = new List<ulong>();
-            public List<ulong> AdminRoleList { get; set; } = new List<ulong>();
         }
 
         public class levelling

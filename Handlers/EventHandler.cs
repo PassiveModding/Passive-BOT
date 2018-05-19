@@ -88,6 +88,7 @@ namespace PassiveBOT.Handlers
                     if (channel != null && !string.IsNullOrEmpty(embed.Description))
                         await ((ITextChannel) channel).SendMessageAsync("", false, embed.Build());
                 }
+
                 /*
                 if (guildobj.EventLogging)
                 {
@@ -107,7 +108,7 @@ namespace PassiveBOT.Handlers
                 }*/
             }
         }
-        
+
         private static async Task WelcomeMessage(SocketGuildUser user)
         {
             var guildobj = GuildConfig.GetServer(user.Guild);
