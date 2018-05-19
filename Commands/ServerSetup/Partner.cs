@@ -277,7 +277,9 @@ namespace PassiveBOT.Commands.ServerSetup
                     .Success && !input.Contains("discord.me"))
             {
                 await ReplyAsync("You should include an invite link to your server in the Partner Message too\n" +
-                                 $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}");
+                                 $"If you believe this is an error, please contact the support server: {Tokens.Load().SupportServer}\n" +
+                                 $"NOTE: If you use 2 Factor Authentication (User Must have a verified phone number on their Discord account)\n" +
+                                 $"Please disable this during setup, you may re-enable after the message has been set.");
                 return;
             }
 
