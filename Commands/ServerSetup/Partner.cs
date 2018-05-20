@@ -389,8 +389,8 @@ namespace PassiveBOT.Commands.ServerSetup
             await ReplyAsync("", false, embed.Build());
         }
 
-        [Command("PartnerShowRawMsg")]
-        [Summary("PartnerShowRawMsg")]
+        [Command("PartnerMessageRaw")]
+        [Summary("PartnerMessageRaw")]
         [Remarks("See the raw partner message text")]
         public async Task PMSGRaw()
         {

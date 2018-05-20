@@ -94,6 +94,24 @@ namespace PassiveBOT.Commands.ServerSetup
             }
         }
 
+        [Command("RemoveColor")]
+        [Summary("RemoveColor")]
+        [Remarks("remove yourself from all coloured roles")]
+        public async Task LeaveC()
+        {
+            var croles = (Context.User as SocketGuildUser).Roles.Where(x => x.Name.StartsWith("#")).ToList();
+            if (croles.Any())
+            {
+                await (Context.User as SocketGuildUser).RemoveRolesAsync(croles);
+            }
+
+            await ReplyAsync("", false, new EmbedBuilder
+            {
+                Description = $"Success, you have been removed from all color roles",
+                Color = Color.DarkOrange
+            });
+        }
+
         public CustomColor getCol(GuildConfig.roleConfigurations.ColorRoles.Colours Color)
         {
             Color DCol;

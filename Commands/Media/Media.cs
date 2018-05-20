@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
+using PassiveBOT.Configuration.Objects;
 using PassiveBOT.Handlers;
 using PassiveBOT.Handlers.Services;
 using PassiveBOT.preconditions;
@@ -337,6 +338,41 @@ namespace PassiveBOT.Commands.Media
                 });
 
             await ReplyAsync("", false, builder.Build());
+        }
+
+        [Command("urbandictionary")]
+        [Summary("urbandictionary <word>")]
+        [Remarks("Search Urban Dictioanry")]
+        public async Task Urban([Remainder] string word)
+        {
+            using (var http = new HttpClient())
+            {
+                var res = await http.GetStringAsync($"http://api.urbandictionary.com/v0/define?term={word}").ConfigureAwait(false);
+                var resobj = JsonConvert.DeserializeObject<UrbanDict>(res);
+                if (resobj.result_type == "no_results")
+                {
+                    await ReplyAsync("This word has no definition");
+                    return;;
+                }
+
+                var topres = resobj.list.OrderByDescending(x => x.thumbs_up).First();
+                if (topres.definition.Length > 1024)
+                {
+                    topres.definition = topres.definition.Substring(0, 1020) + "...";
+                }
+                if (topres.example.Length > 1024)
+                {
+                    topres.example = topres.example.Substring(0, 1020) + "...";
+                }
+                var emb = new EmbedBuilder
+                {
+                    Title = topres.word,
+                    Color = Color.LightOrange
+                }.AddField("Definition", $"{topres.definition}", true)
+                    .AddField("Example", $"{topres.example}", true)
+                    .AddField("Votes", $"^ [{topres.thumbs_up}] v [{topres.thumbs_down}]");
+                await ReplyAsync("", false, emb.Build());
+            }
         }
 
         public class XkcdComic
