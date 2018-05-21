@@ -6,7 +6,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using PassiveBOT.Configuration;
+using PassiveBOT.Models;
 
 namespace PassiveBOT.Handlers
 {
@@ -46,7 +46,7 @@ namespace PassiveBOT.Handlers
             var context = new SocketCommandContext(_client, message);
             if (context.User.IsBot) return;
 
-            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(Config.Load().Prefix, ref argPos))) return;
+            if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(ConfigModel.Load().Prefix, ref argPos))) return;
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 

@@ -3,9 +3,9 @@ using System.IO;
 using Newtonsoft.Json;
 using PassiveBOT.Handlers;
 
-namespace PassiveBOT.Configuration
+namespace PassiveBOT.Models
 {
-    public class Config
+    public class ConfigModel
     {
         [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;
 
@@ -22,10 +22,10 @@ namespace PassiveBOT.Configuration
             File.WriteAllText(file, ToJson());
         }
 
-        public static Config Load(string dir = "setup/config/config.json")
+        public static ConfigModel Load(string dir = "setup/config/config.json")
         {
             var file = Path.Combine(Appdir, dir);
-            return JsonConvert.DeserializeObject<Config>(File.ReadAllText(file));
+            return JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText(file));
         }
 
         public string ToJson()
@@ -64,7 +64,7 @@ namespace PassiveBOT.Configuration
 
             if (!File.Exists(ConfigPath))
             {
-                var cfg = new Config();
+                var cfg = new ConfigModel();
 
                 LogHandler.LogMessage(
                     @"Please enter a prefix for the bot eg. '+' (do not include the '' outside of the prefix)");

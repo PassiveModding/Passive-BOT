@@ -5,8 +5,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
-using PassiveBOT.Configuration;
 using PassiveBOT.Handlers;
+using PassiveBOT.Models;
 
 namespace PassiveBOT
 {
@@ -36,8 +36,8 @@ namespace PassiveBOT
 
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/"));
-            Config.CheckExistence();
-            var token = Config.Load().Token;
+            ConfigModel.CheckExistence();
+            var token = ConfigModel.Load().Token;
 
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
