@@ -1,9 +1,20 @@
 ﻿using System.Collections.Generic;
+using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Models
 {
     public class GuildModel
     {
+        public void Save()
+        {
+            using (var Session = DatabaseHandler.Store.OpenSession(DatabaseHandler.DBName))
+            {
+                Session.Store(this, ID.ToString());
+                Session.SaveChanges();
+            }
+        }
+
+
         /// <summary>
         ///     The Server ID
         /// </summary>

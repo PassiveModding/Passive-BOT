@@ -9,7 +9,7 @@ using PassiveBOT.Models;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Session;
 
-namespace PassiveBOT.Context
+namespace PassiveBOT.Discord.Context
 {
     public abstract class Base : ModuleBase<Context>
     {
@@ -45,6 +45,16 @@ namespace PassiveBOT.Context
         {
             return await base.ReplyAsync("", false, embed);
         }
+
+        public async Task<IUserMessage> SimpleEmbedAsync(string message)
+        {
+            var embed = new EmbedBuilder
+            {
+                Description = message,
+                Color = Color.DarkOrange
+            };
+            return await base.ReplyAsync("", false, embed.Build());
+        }
     }
 
     public class Context : ICommandContext
@@ -70,6 +80,7 @@ namespace PassiveBOT.Context
             //These are our custom additions to the context, giving access to the server object and all server objects through Context.
             Server = Channel is IDMChannel ? null : DatabaseHandler.GetGuild(Guild.Id);
             Session = ServiceProvider.GetRequiredService<IDocumentStore>().OpenSession();
+            Prefix = Server.Settings.Prefix.CustomPrefix ?? ConfigModel.Load().Prefix;
         }
 
         public GuildModel Server { get; }
@@ -80,6 +91,7 @@ namespace PassiveBOT.Context
         public IDiscordClient Client { get; }
         public IUserMessage Message { get; }
         public IMessageChannel Channel { get; }
+        public string Prefix { get; }
 
         public class SocketContext
         {
