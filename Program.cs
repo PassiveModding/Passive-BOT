@@ -71,27 +71,26 @@ namespace PassiveBOT
             var services = new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(new DocumentStore
+                {
+                    Database = DatabaseHandler.DBName,
+                    Urls = new[]
                     {
-                        Database = DatabaseHandler.DBName,
-                        Urls = new[]
-                        {
-                            DatabaseHandler.ServerURL 
-
-                        }
-                    }.Initialize())
+                        DatabaseHandler.ServerURL
+                    }
+                }.Initialize())
                 .AddSingleton(new DatabaseHandler(new DocumentStore
+                {
+                    Urls = new[]
                     {
-                        Urls = new[]
-                        {
-                            ConfigModel.Load().DBUrl
-                        }
-                    }.Initialize()))
+                        ConfigModel.Load().DBUrl
+                    }
+                }.Initialize()))
                 .AddSingleton(new CommandService(new CommandServiceConfig
-                    {
-                        CaseSensitiveCommands = false,
-                        ThrowOnError = false,
-                        DefaultRunMode = RunMode.Async
-                    }));
+                {
+                    CaseSensitiveCommands = false,
+                    ThrowOnError = false,
+                    DefaultRunMode = RunMode.Async
+                }));
             return services.BuildServiceProvider();
         }
 

@@ -5,7 +5,6 @@ namespace PassiveBOT.Handlers
 {
     public class LogHandler
     {
-
         public static void LogMessage(string message, LogSeverity Level = LogSeverity.Info)
         {
             Log.Logger = new LoggerConfiguration()
