@@ -39,6 +39,21 @@ namespace PassiveBOT.Models
         /// </summary>
         public events Events { get; set; } = new events();
 
+
+        /// <summary>
+        /// Moderation for Bot Setup in guilds
+        /// </summary>
+        public moderation Moderation { get; set; } = new moderation();
+
+        public class moderation
+        {
+            /// <summary>
+            /// A list of Role IDs that are checked against for admins
+            /// </summary>
+            public List<ulong> AdminRoleIDs { get; set; } = new List<ulong>();
+        }
+
+
         public class autoMessage
         {
             /// <summary>
