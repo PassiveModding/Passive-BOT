@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,25 +17,26 @@ namespace PassiveBOT.Commands
         [Command("translate")]
         [Summary("translate <language-code> <message>")]
         [Remarks("Translate from one language to another")]
-        public async Task TranslateCmd(string language, [Remainder] string message)
+        public async Task TranslateCmd(string language, [Remainder] string omessage)
         {
-            var url =
-                $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(message)}";
+            var message = omessage.Replace("\n", "<br/>");
+            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(message)}";
             var embed = new EmbedBuilder();
 
             var client = new WebClient {Encoding = Encoding.UTF8};
 
             var stream = client.OpenRead(url);
-
             var reader = new StreamReader(stream ?? throw new InvalidOperationException());
             var content = reader.ReadToEnd();
             dynamic file = JsonConvert.DeserializeObject(content);
-            embed.AddField($"Original [{file[2]}]", $"{message}");
-            embed.AddField($"Final [{language}]", $"{file[0][0][0]}");
+            embed.AddField($"Original [{file[2]}]", $"{omessage}");
+            embed.AddField($"Final [{language}]", $"{file[0][0][0].ToString().Replace("<br/>", "\n")}");
 
             await ReplyAsync("", false, embed.Build());
+            client.Dispose();
         }
 
+        /*
         [Command("translatedebug")]
         [Summary("translatedebug <language-code> <message>")]
         [Remarks("Translate from one language to another and receive the full info")]
@@ -52,7 +54,7 @@ namespace PassiveBOT.Commands
             await ReplyAsync(content);
             client.Dispose();
         }
-
+        */
         [Command("t list")]
         [Remarks("A list of available languages codes to convert between")]
         [Summary("t list")]

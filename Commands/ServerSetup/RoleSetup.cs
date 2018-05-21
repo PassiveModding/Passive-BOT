@@ -104,7 +104,6 @@ namespace PassiveBOT.Commands.ServerSetup
             {
                 await (Context.User as SocketGuildUser).RemoveRolesAsync(croles);
             }
-
             await ReplyAsync("", false, new EmbedBuilder
             {
                 Description = $"Success, you have been removed from all color roles",
