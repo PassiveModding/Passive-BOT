@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Handlers;
 using PassiveBOT.Models;
+using Raven.Client.Documents;
 
 namespace PassiveBOT
 {
@@ -69,8 +70,23 @@ namespace PassiveBOT
         {
             var services = new ServiceCollection()
                 .AddSingleton(_client)
-                .AddSingleton(new CommandService(
-                    new CommandServiceConfig
+                .AddSingleton(new DocumentStore
+                    {
+                        Database = DatabaseHandler.DBName,
+                        Urls = new[]
+                        {
+                            DatabaseHandler.ServerURL 
+
+                        }
+                    }.Initialize())
+                .AddSingleton(new DatabaseHandler(new DocumentStore
+                    {
+                        Urls = new[]
+                        {
+                            ConfigModel.Load().DBUrl
+                        }
+                    }.Initialize()))
+                .AddSingleton(new CommandService(new CommandServiceConfig
                     {
                         CaseSensitiveCommands = false,
                         ThrowOnError = false,
