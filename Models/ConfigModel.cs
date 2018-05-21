@@ -14,6 +14,8 @@ namespace PassiveBOT.Models
         public string Prefix { get; set; } = ".p ";
         public string Token { get; set; } = "Token";
         public string Debug { get; set; } = "N";
+        public string DBName { get; set; } = "PassiveBOT";
+        public string DBUrl { get; set; } = "http://127.0.0.1:8080";
         public bool AutoRun { get; set; }
 
         public void Save(string dir = "setup/config/config.json")
