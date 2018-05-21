@@ -24,6 +24,20 @@ namespace PassiveBOT.Handlers
 
             _client.MessageReceived += DoCommand;
             _client.Ready += _client_Ready;
+            _client.JoinedGuild += _client_JoinedGuild;
+        }
+
+        private Task _client_JoinedGuild(SocketGuild Guild)
+        {
+            var dblist = DatabaseHandler.GetFullConfig();
+            if (dblist.All(x => x.ID != Guild.Id))
+            {
+                foreach (var missingguild in _client.Guilds.Where(g => dblist.All(x => x.ID != g.Id)))
+                {
+                    DatabaseHandler.AddGuild(missingguild.Id);
+                }
+            }
+            return Task.CompletedTask;
         }
 
         private Task _client_Ready()
