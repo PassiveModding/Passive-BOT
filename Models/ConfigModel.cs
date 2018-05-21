@@ -9,7 +9,7 @@ namespace PassiveBOT.Models
     {
         [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;
 
-        public static string ConfigPath = Path.Combine(AppContext.BaseDirectory, "setup/config/config.json");
+        public static string ConfigPath = Path.Combine(AppContext.BaseDirectory, "setup/config.json");
 
         public string Prefix { get; set; } = ".p ";
         public string Token { get; set; } = "Token";
@@ -18,13 +18,13 @@ namespace PassiveBOT.Models
         public string DBUrl { get; set; } = "http://127.0.0.1:8080";
         public bool AutoRun { get; set; }
 
-        public void Save(string dir = "setup/config/config.json")
+        public void Save(string dir = "setup/config.json")
         {
             var file = Path.Combine(Appdir, dir);
             File.WriteAllText(file, ToJson());
         }
 
-        public static ConfigModel Load(string dir = "setup/config/config.json")
+        public static ConfigModel Load(string dir = "setup/config.json")
         {
             var file = Path.Combine(Appdir, dir);
             return JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText(file));
@@ -47,22 +47,18 @@ namespace PassiveBOT.Models
                 auto = false;
             }
 
-            if (auto)
-            {
-            }
-            else
+            if (!auto)
             {
                 LogHandler.LogMessage("Run (Y for run, N for setup Config)");
 
                 Console.Write("Y or N: ");
                 var res = Console.ReadLine();
                 if (res == "N" || res == "n")
-                    File.Delete("setup/config/config.json");
+                    File.Delete("setup/config.json");
 
-                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/config")))
-                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/config"));
+                if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/")))
+                    Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/"));
             }
-
 
             if (!File.Exists(ConfigPath))
             {
@@ -72,7 +68,6 @@ namespace PassiveBOT.Models
                     @"Please enter a prefix for the bot eg. '+' (do not include the '' outside of the prefix)");
                 Console.Write("Prefix: ");
                 cfg.Prefix = Console.ReadLine();
-                //Configuration.Load.Pre = cfg.Prefix;
 
                 LogHandler.LogMessage("Would you like to log debug?");
                 Console.Write("Yes or No: ");
@@ -84,7 +79,7 @@ namespace PassiveBOT.Models
                 cfg.Debug = type;
 
                 LogHandler.LogMessage(
-                    @"After you input your token, a config will be generated at 'setup/config/config.json'");
+                    @"After you input your token, a config will be generated at 'setup/config.json'");
                 Console.Write("Token: ");
                 cfg.Token = Console.ReadLine();
 

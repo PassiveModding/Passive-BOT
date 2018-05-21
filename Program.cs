@@ -38,8 +38,6 @@ namespace PassiveBOT
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/")))
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/"));
             ConfigModel.CheckExistence();
-            var token = ConfigModel.Load().Token;
-
 
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
@@ -49,7 +47,7 @@ namespace PassiveBOT
 
             try
             {
-                await _client.LoginAsync(TokenType.Bot, token);
+                await _client.LoginAsync(TokenType.Bot, ConfigModel.Load().Token);
                 await _client.StartAsync();
             }
             catch (Exception e)
