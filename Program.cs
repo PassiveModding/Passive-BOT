@@ -12,21 +12,12 @@ namespace PassiveBOT
 {
     public class Program
     {
-        public static DiscordSocketClient Client;
-
+        public static DiscordSocketClient _client;
         private CommandHandler _handler;
 
         public static void Main(string[] args)
         {
-            try
-            {
-                new Program().Start().GetAwaiter().GetResult();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                //Console.ReadKey();
-            }
+            new Program().Start().GetAwaiter().GetResult();
         }
 
         public async Task Start()
@@ -49,7 +40,7 @@ namespace PassiveBOT
             var token = Config.Load().Token;
 
 
-            Client = new DiscordSocketClient(new DiscordSocketConfig
+            _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Info,
                 MessageCacheSize = 50
@@ -57,8 +48,8 @@ namespace PassiveBOT
 
             try
             {
-                await Client.LoginAsync(TokenType.Bot, token);
-                await Client.StartAsync();
+                await _client.LoginAsync(TokenType.Bot, token);
+                await _client.StartAsync();
             }
             catch (Exception e)
             {
@@ -69,17 +60,22 @@ namespace PassiveBOT
             _handler = new CommandHandler(serviceProvider);
             await _handler.ConfigureAsync();
 
-            Client.Log += MLog;
+            _client.Log += MLog;
 
             await Task.Delay(-1);
         }
 
-        private IServiceProvider ConfigureServices()
+        private static IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection()
-                .AddSingleton(Client)
+                .AddSingleton(_client)
                 .AddSingleton(new CommandService(
-                    new CommandServiceConfig {CaseSensitiveCommands = false, ThrowOnError = false}));
+                    new CommandServiceConfig
+                    {
+                        CaseSensitiveCommands = false,
+                        ThrowOnError = false,
+                        DefaultRunMode = RunMode.Async
+                    }));
             return services.BuildServiceProvider();
         }
 
