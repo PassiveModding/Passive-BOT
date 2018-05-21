@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
+using PassiveBOT.Context;
 
 namespace PassiveBOT.Modules.Text
 {
-    public class Chat : ModuleBase
+    public class Chat : Base
     {
         [Command("say")]
         [Summary("say <message>")]

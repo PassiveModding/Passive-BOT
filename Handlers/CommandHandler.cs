@@ -62,7 +62,7 @@ namespace PassiveBOT.Handlers
         {
             if (!(parameterMessage is SocketUserMessage message)) return;
             var argPos = 0;
-            var context = new SocketCommandContext(_client, message);
+            var context = new Context.Context(_client, message, Provider);
             if (context.User.IsBot) return;
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(ConfigModel.Load().Prefix, ref argPos))) return;

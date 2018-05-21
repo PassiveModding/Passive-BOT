@@ -54,7 +54,7 @@ namespace PassiveBOT
             }
             catch (Exception e)
             {
-                LogHandler.LogMessage($"Token was rejected by Discord (Invalid Token or Connection Error)\n{e}");
+                LogHandler.LogMessage($"Token was rejected by Discord (Invalid Token or Connection Error)\n{e}", LogSeverity.Critical);
             }
 
             var serviceProvider = ConfigureServices();
