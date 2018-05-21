@@ -31,6 +31,11 @@ namespace PassiveBOT.Handlers
             var inv = $"https://discordapp.com/oauth2/authorize?client_id={_client.CurrentUser.Id}&scope=bot&permissions=2146958591";
             LogHandler.LogMessage($"Invite: {inv}");
             DatabaseHandler.DatabaseInitialise(_client);
+            var dblist = DatabaseHandler.GetFullConfig();
+            foreach (var guild in _client.Guilds.Where(g => dblist.All(x => x.ID != g.Id)))
+            {
+                DatabaseHandler.AddGuild(guild.Id);
+            }
             return Task.CompletedTask;
         }
 

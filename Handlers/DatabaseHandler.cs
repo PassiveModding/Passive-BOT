@@ -48,12 +48,12 @@ namespace PassiveBOT.Handlers
                 Environment.Exit(Environment.ExitCode);
             }
 
-            var dbinitialised = false;
+            var dbcreated = false;
             if (Store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 5)).All(x => x != DBName))
             {
                 await Store.Maintenance.Server.SendAsync(new CreateDatabaseOperation(new DatabaseRecord(DBName)));
                 LogHandler.LogMessage($"Created Database {DBName}.");
-                dbinitialised = true;
+                dbcreated = true;
             }
 
 
@@ -79,7 +79,7 @@ namespace PassiveBOT.Handlers
                 await Store.Maintenance.ForDatabase(DBName).SendAsync(new UpdatePeriodicBackupOperation(backupop));
             }
 
-            if (dbinitialised) return;
+            if (!dbcreated) return;
 
             using (var session = Store.OpenSession(DBName))
             {
