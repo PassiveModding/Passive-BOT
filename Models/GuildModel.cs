@@ -324,7 +324,14 @@ namespace PassiveBOT.Models
                 /// <summary>
                 /// The Colour used for the embed message
                 /// </summary>
-                public Color Color { get; set; } = Color.Green;
+                public rgb Color { get; set; } = new rgb();
+
+                public class rgb
+                {
+                    public int R { get; set; }
+                    public int G { get; set; }
+                    public int B { get; set; }
+                }
             }
         }
 

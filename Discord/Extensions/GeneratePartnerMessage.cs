@@ -14,7 +14,7 @@ namespace PassiveBOT.Discord.Extensions
                 Title = guild.Name,
                 Description = GuildObj.Partner.Message.Content,
                 ImageUrl = GuildObj.Partner.Message.ImageUrl,
-                Color = GuildObj.Partner.Message.Color,
+                Color = new Color(GuildObj.Partner.Message.Color.R, GuildObj.Partner.Message.Color.G, GuildObj.Partner.Message.Color.B),
                 ThumbnailUrl = GuildObj.Partner.Message.UseThumb ? guild.IconUrl : null,
                 Footer = new EmbedFooterBuilder
                 {

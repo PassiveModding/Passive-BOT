@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Discord.Preconditions;
@@ -26,7 +27,7 @@ namespace PassiveBOT.Modules.GuildSetup
                                    "**Settings**\n" +
                                    $"Enabled: {Context.Server.Partner.Settings.Enabled}\n" +
                                    $"Channel: {Context.Socket.Guild.GetChannel(Context.Server.Partner.Settings.ChannelID)?.Name ?? "N/A"}\n" +
-                                   $"**Config**\n" +
+                                   "**Config**\n" +
                                    $"Color (RGB): [{Context.Server.Partner.Message.Color.R}, {Context.Server.Partner.Message.Color.G}, {Context.Server.Partner.Message.Color.B}]\n" +
                                    $"Using Server Thumbnail: {Context.Server.Partner.Message.UseThumb}\n" +
                                    $"Showing Usercount: {Context.Server.Partner.Message.UserCount}\n" +
@@ -74,6 +75,43 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 throw new Exception($"Partner Message must be shorter than 1000 characters. Given: {message.Length}");
             }
+
+            if (Context.Message.MentionedRoleIds.Any() || Context.Message.MentionedUserIds.Any() || Context.Message.MentionedChannelIds.Any() || Context.Message.Content.Contains("@everyone") || Context.Message.Content.Contains("@here"))
+            {
+                throw new Exception("Partner Message cannot contain role or user mentions as they cannot be referenced from external guilds");
+            }
+
+            if (!message.ToLower().Contains("discord.gg") && !message.ToLower().Contains("discordapp.com") && !message.ToLower().Contains("discord.me"))
+            {
+                throw new Exception("You should include an invite link to your server in the Partner Message too\n" +
+                                 $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}\n" +
+                                 "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" +
+                                 "Please disable this during setup, you may re-enable after the message has been set.");
+            }
+
+            if (Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
+            {
+                var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").ToList();
+                var officialinvites = ((SocketGuild)Context.Guild).GetInvitesAsync().Result;
+                var mismatch = false;
+                foreach (var invite in invites)
+                {
+                    var match = officialinvites.Where(x => x.MaxAge == null).FirstOrDefault(x => invite.ToString().ToLower().Contains(x.Code.ToLower()));
+                    if (match == null)
+                    {
+                        mismatch = true;
+                    }
+                }
+
+                if (mismatch)
+                {
+                    throw new Exception("Only invites from this server are allowed in the partner message!\n" +
+                                     "NOTE: please ensure that the invite link you are using is set to never expire\n" +
+                                     "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
+                                     $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}");
+                }
+            }
+
             Context.Server.Partner.Message.Content = message;
             Context.Server.Save();
             await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
@@ -116,7 +154,12 @@ namespace PassiveBOT.Modules.GuildSetup
         {
             var color_response = HexToColor.GetCol(color);
 
-            Context.Server.Partner.Message.Color = color_response;
+            Context.Server.Partner.Message.Color = new GuildModel.partner.message.rgb
+            {
+                R = color_response.R,
+                G = color_response.G,
+                B = color_response.B
+            };
             Context.Server.Save();
             await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
