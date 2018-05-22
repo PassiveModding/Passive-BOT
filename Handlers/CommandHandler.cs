@@ -78,47 +78,37 @@ namespace PassiveBOT.Handlers
             {
                 try
                 {
-                    var desc = "";
+                    string desc;
                     if (result.Error == CommandError.UnknownCommand)
                     {
-                        desc += "**Command:** N/A";
+                        desc = "**Command:** N/A";
                     }
                     else
                     {
                         var srch = _commands.Search(context, argPos);
                         var cmd = srch.Commands.FirstOrDefault();
 
-                        desc += $"**Command Name:** `{cmd.Command.Name}`\n";
-                        desc += cmd.Command.Parameters.Any() ? $"**Parameters:** {string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` "))}\n" : "**Parameters:** N/A\n";
-
-                        desc += $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
-                                $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n";
-
-                        if (cmd.Command.Aliases.Any())
-                        {
-                            desc += $"**Aliases:** {string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`"))}\n";
-                        }
-
-                        desc += "**Error Reason:**\n" +
-                                $"{result.ErrorReason}";
+                        desc = $"**Command Name:** `{cmd.Command.Name}`\n" +
+                               $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
+                               $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n" +
+                               $"**Aliaded:** {(cmd.Command.Aliases.Any() ? string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`")) : "N/A")}\n" +
+                               $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n" +
+                               "**Error Reason**\n" +
+                               $"{result.ErrorReason}";
                     }
-
-                    var errmsg = new EmbedBuilder
-                    {
-                        Title = $"{context.User.Username.ToUpper()} ERROR",
-                        Description = desc,
-                        Color = Color.DarkBlue
-                    };
 
                     try
                     {
-                        await context.Channel.SendMessageAsync("", false, errmsg.Build());
+                        await context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                        {
+                            Title = $"{context.User.Username.ToUpper()} ERROR",
+                            Description = desc
+                        }.Build());
                     }
                     catch
                     {
                         //
                     }
-
                     LogHandler.LogMessage(context.Message.Content, LogSeverity.Error);
                 }
                 catch (Exception e)
