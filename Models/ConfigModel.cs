@@ -7,8 +7,6 @@ namespace PassiveBOT.Models
 {
     public class ConfigModel
     {
-        [JsonIgnore] public static readonly string Appdir = AppContext.BaseDirectory;
-
         public static string ConfigPath = Path.Combine(AppContext.BaseDirectory, "setup/config.json");
 
         public string Prefix { get; set; } = ".p ";
@@ -21,13 +19,13 @@ namespace PassiveBOT.Models
 
         public void Save(string dir = "setup/config.json")
         {
-            var file = Path.Combine(Appdir, dir);
+            var file = Path.Combine(AppContext.BaseDirectory, dir);
             File.WriteAllText(file, ToJson());
         }
 
         public static ConfigModel Load(string dir = "setup/config.json")
         {
-            var file = Path.Combine(Appdir, dir);
+            var file = Path.Combine(AppContext.BaseDirectory, dir);
             return JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText(file));
         }
 

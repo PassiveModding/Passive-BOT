@@ -79,20 +79,17 @@ namespace PassiveBOT.Handlers
                 try
                 {
                     var desc = "";
-                    if (result.Error != CommandError.UnknownCommand)
+                    if (result.Error == CommandError.UnknownCommand)
+                    {
+                        desc += "**Command:** N/A";
+                    }
+                    else
                     {
                         var srch = _commands.Search(context, argPos);
                         var cmd = srch.Commands.FirstOrDefault();
 
                         desc += $"**Command Name:** `{cmd.Command.Name}`\n";
-                        if (cmd.Command.Parameters.Any())
-                        {
-                            desc += $"**Parameters:** {string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` "))}\n";
-                        }
-                        else
-                        {
-                            desc += "**Parameters:** N/A\n";
-                        }
+                        desc += cmd.Command.Parameters.Any() ? $"**Parameters:** {string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` "))}\n" : "**Parameters:** N/A\n";
 
                         desc += $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
                                 $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n";
@@ -105,15 +102,12 @@ namespace PassiveBOT.Handlers
                         desc += "**Error Reason:**\n" +
                                 $"{result.ErrorReason}";
                     }
-                    else
-                    {
-                        desc += "**Command:** N/A";
-                    }
 
                     var errmsg = new EmbedBuilder
                     {
-                        Title = $"Error, {context.User.Username}",
-                        Description = desc
+                        Title = $"{context.User.Username.ToUpper()} ERROR",
+                        Description = desc,
+                        Color = Color.DarkBlue
                     };
 
                     try
