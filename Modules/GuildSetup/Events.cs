@@ -5,26 +5,26 @@ using PassiveBOT.Discord.Preconditions;
 
 namespace PassiveBOT.Modules.GuildSetup
 {
-    [RequireAdmin(true)]
+    [RequireAdmin]
     public class Events : Base
     {
         [Group("Welcome")]
         public class welcome : Base
         {
-            [Command]
-            [Summary("Welcome")]
+            [Command("Info")]
+            [Summary("Info")]
             [Remarks("Display welcome setup info")]
             public async Task Welcome()
             {
                 await SimpleEmbedAsync("**Welcome Event**\n" +
-                                       $"`{Context.Prefix}Welcome` - This Message\n" +
+                                       $"`{Context.Prefix}Welcome Info` - This Message\n" +
                                        $"`{Context.Prefix}Welcome Toggle` - Toggle the welcome event\n" +
                                        $"`{Context.Prefix}Welcome SetChannel` - Set the channel where welcome events will be sent\n" +
                                        $"`{Context.Prefix}Welcome Message <Message>` - Set the Welcome Message\n\n" +
-                                       $"**Welcome Settings**\n" +
+                                       "**Welcome Settings**\n" +
                                        $"Enabled: {Context.Server.Events.Welcome.Enabled}\n" +
                                        $"Channel: {Context.Socket.Guild.GetChannel(Context.Server.Events.Welcome.ChannelID)?.Name ?? "N/A"}\n" +
-                                       $"Message:\n" +
+                                       "Message:\n" +
                                        $"{Context.Server.Events.Welcome.Message ?? "N/A"}");
             }
 
@@ -63,20 +63,20 @@ namespace PassiveBOT.Modules.GuildSetup
         [Group("Goodbye")]
         public class Goodbye : Base
         {
-            [Command]
-            [Summary("Goodbye")]
+            [Command("Info")]
+            [Summary("Info")]
             [Remarks("Display Goodbye setup info")]
             public async Task GoodbyeE()
             {
-                await SimpleEmbedAsync($"**Goodbye Event**\n" +
-                                       $"`{Context.Prefix}Goodbye` - This Message\n" +
+                await SimpleEmbedAsync("**Goodbye Event**\n" +
+                                       $"`{Context.Prefix}Goodbye Info` - This Message\n" +
                                        $"`{Context.Prefix}Goodbye Toggle` - Toggle the Goodbye event\n" +
                                        $"`{Context.Prefix}Goodbye SetChannel` - Set the channel where Goodbye events will be sent\n" +
                                        $"`{Context.Prefix}Goodbye Message <Message>` - Set the Goodbye Message\n\n" +
-                                       $"**Goodbye Settings**\n" +
+                                       "**Goodbye Settings**\n" +
                                        $"Enabled: {Context.Server.Events.Goodbye.Enabled}\n" +
                                        $"Channel: {Context.Socket.Guild.GetChannel(Context.Server.Events.Goodbye.ChannelID)?.Name ?? "N/A"}\n" +
-                                       $"Message:\n" +
+                                       "Message:\n" +
                                        $"{Context.Server.Events.Goodbye.Message ?? "N/A"}");
             }
 

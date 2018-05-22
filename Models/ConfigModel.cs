@@ -16,6 +16,7 @@ namespace PassiveBOT.Models
         public string Debug { get; set; } = "N";
         public string DBName { get; set; } = "PassiveBOT";
         public string DBUrl { get; set; } = "http://127.0.0.1:8080";
+        public string SupportServer { get; set; } = "https://discord.me/passive";
         public bool AutoRun { get; set; }
 
         public void Save(string dir = "setup/config.json")

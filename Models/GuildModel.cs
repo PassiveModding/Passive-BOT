@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Discord;
 using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Models
@@ -258,9 +259,27 @@ namespace PassiveBOT.Models
             public psettings Settings { get; set; } = new psettings();
 
             /// <summary>
+            ///     Partner Stats
+            /// </summary>
+            public pstats Stats { get; set; } = new pstats(); 
+
+            /// <summary>
             ///     Partner Message
             /// </summary>
             public message Message { get; set; } = new message();
+
+            public class pstats
+            {
+                /// <summary>
+                /// Total amount of users reached via partner program
+                /// </summary>
+                public int UsersReached { get; set; } = 0;
+
+                /// <summary>
+                /// total amount of servers reached via partner program
+                /// </summary>
+                public int ServersReached { get; set; } = 0;
+            }
 
             public class psettings
             {
@@ -300,7 +319,12 @@ namespace PassiveBOT.Models
                 /// <summary>
                 ///     Toggle whether or not to show server icon in partner message
                 /// </summary>
-                public bool ThumbNail { get; set; } = false;
+                public bool UseThumb { get; set; } = false;
+
+                /// <summary>
+                /// The Colour used for the embed message
+                /// </summary>
+                public Color Color { get; set; } = Color.Green;
             }
         }
 
