@@ -61,6 +61,12 @@ namespace PassiveBOT.Modules.GuildSetup
         [Remarks("Set the partner channel")]
         public async Task SetChannel()
         {
+            if ((decimal) ((SocketTextChannel) Context.Socket.Channel).Users.Count / Context.Socket.Guild.Users.Count * 100 < 90)
+            {
+                throw new Exception("Partner messages will not be shared as this channel has less than 90% visibility in the server,\n" +
+                                    "You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
+            }
+
             Context.Server.Partner.Settings.ChannelID = Context.Channel.Id;
             Context.Server.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");
@@ -79,6 +85,11 @@ namespace PassiveBOT.Modules.GuildSetup
             if (Context.Message.MentionedRoleIds.Any() || Context.Message.MentionedUserIds.Any() || Context.Message.MentionedChannelIds.Any() || Context.Message.Content.Contains("@everyone") || Context.Message.Content.Contains("@here"))
             {
                 throw new Exception("Partner Message cannot contain role or user mentions as they cannot be referenced from external guilds");
+            }
+
+            if (CheckProfanity.ContainsProfanity(message))
+            {
+                throw new Exception("Partner Message cannot contain profanity");
             }
 
             if (!message.ToLower().Contains("discord.gg") && !message.ToLower().Contains("discordapp.com") && !message.ToLower().Contains("discord.me"))
@@ -115,6 +126,8 @@ namespace PassiveBOT.Modules.GuildSetup
             Context.Server.Partner.Message.Content = message;
             Context.Server.Save();
             await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+
+
         }
 
         [Command("UserCount")]
