@@ -125,9 +125,16 @@ namespace PassiveBOT.Modules.GuildSetup
 
             Context.Server.Partner.Message.Content = message;
             Context.Server.Save();
-            await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
-
-
+            var partnerembed = GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild);
+            await SendEmbedAsync(partnerembed);
+            var HS = HomeModel.Load();
+            if (HS.Logging.LogPartnerChanges && await Context.Client.GetChannelAsync(HS.Logging.PartnerLogChannel) is IMessageChannel channel)
+            {
+                await channel.SendMessageAsync("", false, partnerembed.AddField("Partner Message Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
+                                                                                                                                $"Owner: {Context.Socket.Guild.Owner.Username}\n" +
+                                                                                                                                $"Users: {Context.Socket.Guild.MemberCount}")
+                                                                                                                                .Build());
+            }
         }
 
         [Command("UserCount")]
