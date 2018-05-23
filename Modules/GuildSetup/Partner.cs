@@ -167,8 +167,8 @@ namespace PassiveBOT.Modules.GuildSetup
             await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
 
-        [Command("SetColor")]
-        [Summary("SetColor")]
+        [Command("Color")]
+        [Summary("Color")]
         [Remarks("Set the embed color for the partner message")]
         public async Task Color(string color)
         {

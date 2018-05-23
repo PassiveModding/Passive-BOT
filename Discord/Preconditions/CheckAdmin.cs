@@ -25,9 +25,8 @@ namespace PassiveBOT.Discord.Preconditions
         /// <param name="context"></param>
         /// <param name="command"></param>
         /// <param name="services"></param>
-        /// <returns></returns>
-        public override Task<PreconditionResult> CheckPermissions(ICommandContext context, CommandInfo command,
-            IServiceProvider services)
+        ///    /// <returns></returns>
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             if (context.Channel is IDMChannel) return Task.FromResult(PreconditionResult.FromSuccess());
 

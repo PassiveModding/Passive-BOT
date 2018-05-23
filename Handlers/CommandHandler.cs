@@ -91,7 +91,7 @@ namespace PassiveBOT.Handlers
                         desc = $"**Command Name:** `{cmd.Command.Name}`\n" +
                                $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
                                $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n" +
-                               $"**Aliaded:** {(cmd.Command.Aliases.Any() ? string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`")) : "N/A")}\n" +
+                               $"**Aliases:** {(cmd.Command.Aliases.Any() ? string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`")) : "N/A")}\n" +
                                $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n" +
                                "**Error Reason**\n" +
                                $"{result.ErrorReason}";

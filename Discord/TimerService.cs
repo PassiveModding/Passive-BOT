@@ -65,13 +65,13 @@ namespace PassiveBOT.Discord
                             Description = "NOTICE:\n" +
                                           "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" +
                                           "Please change the role settings of this channel to ensure all roles have the `read messages` permission"
-                        });
+                        }.Build());
                     }
                     else
                     {
                         try
                         {
-                            await receiverchannel.SendMessageAsync("", false, GeneratePartnerMessage.GenerateMessage(messageguild, messagechannel.Guild));
+                            await receiverchannel.SendMessageAsync("", false, GeneratePartnerMessage.GenerateMessage(messageguild, messagechannel.Guild).Build());
                             messageguild.Partner.Stats.ServersReached++;
                             messageguild.Partner.Stats.UsersReached = messageguild.Partner.Stats.UsersReached + receiverguild.MemberCount;
                             messageguild.Save();

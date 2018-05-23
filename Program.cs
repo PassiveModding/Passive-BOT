@@ -6,6 +6,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Discord;
+using PassiveBOT.Discord.Context;
 using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 using Raven.Client.Documents;
@@ -85,6 +86,7 @@ namespace PassiveBOT
                     }
                 }.Initialize()))
                 .AddSingleton(new TimerService(_client))
+                .AddSingleton(new InteractiveService(_client))
                 .AddSingleton(new CommandService(new CommandServiceConfig
                 {
                     CaseSensitiveCommands = false,
