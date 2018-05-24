@@ -14,6 +14,7 @@ namespace PassiveBOT.Modules.GuildSetup
 {
     [Group("Partner")]
     [RequireAdmin]
+    [RequireContext(ContextType.Guild)]
     public class Partner : Base
     {
         [Command("Info")]
@@ -73,7 +74,7 @@ namespace PassiveBOT.Modules.GuildSetup
         }
 
         [Command("Message")]
-        [Summary("Message")]
+        [Summary("Message <Message>")]
         [Remarks("Set the partner message for this server")]
         public async Task SetChannel([Remainder]string message)
         {
@@ -148,7 +149,7 @@ namespace PassiveBOT.Modules.GuildSetup
         }
 
         [Command("ImageUrl")]
-        [Summary("ImageUrl")]
+        [Summary("ImageUrl <URL>")]
         [Remarks("Set an optional image url for the partner message")]
         public async Task ImageURL(string imageurl = null)
         {
@@ -168,7 +169,7 @@ namespace PassiveBOT.Modules.GuildSetup
         }
 
         [Command("Color")]
-        [Summary("Color")]
+        [Summary("Color <HEX>")]
         [Remarks("Set the embed color for the partner message")]
         public async Task Color(string color)
         {

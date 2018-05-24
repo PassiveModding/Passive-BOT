@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,8 +16,7 @@ namespace PassiveBOT.Handlers
     {
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-        private readonly IServiceProvider Provider;
-
+        public static IServiceProvider Provider;
         public CommandHandler(IServiceProvider provider)
         {
             Provider = provider;

@@ -6,6 +6,7 @@ using PassiveBOT.Discord.Preconditions;
 namespace PassiveBOT.Modules.GuildSetup
 {
     [RequireAdmin]
+    [RequireContext(ContextType.Guild)]
     public class Events : Base
     {
         [Group("Welcome")]

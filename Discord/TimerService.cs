@@ -14,7 +14,7 @@ namespace PassiveBOT.Discord
     public class TimerService
     {
         public static DateTime LastFireTime = DateTime.MinValue;
-        public static int FirePreiod = 1;
+        public static int FirePreiod = 30;
         private readonly Timer _timer;
         private readonly Random rndshuffle = new Random();
         public DiscordSocketClient _client { get; set; }

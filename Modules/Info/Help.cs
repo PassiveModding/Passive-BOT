@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
+using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 
@@ -26,27 +28,21 @@ namespace PassiveBOT.Modules.Info
         [Remarks("Show a list of all commands with usage")]
         public async Task Helpc()
         {
-            string p;
-            if (Context.Channel is IDMChannel)
-            {
-                p = ConfigModel.Load().Prefix;
-            }
-            else
-            {
-                p = DatabaseHandler.GetGuild(Context.Guild.Id).Settings.Prefix.CustomPrefix;
-            }
+            var p = Context.Channel is IDMChannel ? ConfigModel.Load().Prefix : (DatabaseHandler.GetGuild(Context.Guild.Id).Settings.Prefix.CustomPrefix ?? ConfigModel.Load().Prefix);
             var simplemodules = new List<modulesummary>();
             foreach (var module in _service.Modules)
             {
-                if (module.Commands.Count > 0)
+                if (module.Commands.Count <= 0) continue;
+                if (module.Commands.All(x => !CheckPrecondition.preconditioncheck(Context, x, CommandHandler.Provider))) continue;
+
+                var passingcommands = module.Commands.Where(x => CheckPrecondition.preconditioncheck(Context, x, CommandHandler.Provider)).ToList();
+                var moduleprefix = !string.IsNullOrWhiteSpace(module.Aliases.FirstOrDefault()) ? $"{module.Aliases.FirstOrDefault()} " : null;
+                simplemodules.Add(new modulesummary
                 {
-                    simplemodules.Add(new modulesummary
-                    {
-                        name = module.Name,
-                        cmdnames = module.Commands.Select(x => x.Name).ToList(),
-                        cmdinfo = module.Commands.Select(x => $"`{p}{x.Summary}` - {x.Remarks}").ToList()
-                    });
-                }
+                    name = module.Name,
+                    cmdnames = passingcommands.Select(x => x.Name).ToList(),
+                    cmdinfo = passingcommands.Select(x => $"`{p}{moduleprefix}{x.Summary}` - {x.Remarks}").ToList()
+                });
             }
             var pages = new List<PaginatedMessage.Page>();
             var i = 1;
