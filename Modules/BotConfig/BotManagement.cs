@@ -18,9 +18,9 @@ namespace PassiveBOT.Modules.BotConfig
         [Group("PartnerManage")]
         public class PartnerManagement : Base
         {
-            [Command("UpdateMsg")]
-            [Summary("UpdateMsg")]
-            [Remarks("Get a complete list of all partner servers")]
+            [Command("Message")]
+            [Summary("Message <Guild ID> <Message>")]
+            [Remarks("Updates the partner message of the given server")]
             public async Task UpdateMsg(ulong ID, [Remainder] string message = null)
             {
                 var guildobj = DatabaseHandler.GetGuild(ID);
@@ -47,7 +47,7 @@ namespace PassiveBOT.Modules.BotConfig
             }
 
             [Command("Ban")]
-            [Summary("Ban")]
+            [Summary("Ban <Guild ID>")]
             [Remarks("Toggle the ban status of a partner server")]
             public async Task BanPartner(ulong ID)
             {
@@ -59,7 +59,7 @@ namespace PassiveBOT.Modules.BotConfig
             }
 
             [Command("Enable")]
-            [Summary("Enable")]
+            [Summary("Enable <Guild ID>")]
             [Remarks("Toggle the enabled status of a partner server")]
             public async Task EnablePartner(ulong ID)
             {
@@ -71,7 +71,7 @@ namespace PassiveBOT.Modules.BotConfig
             }
 
             [Command("PartnerList")]
-            [Summary("PartnerList")]
+            [Summary("PartnerList <Choice>")]
             [Remarks("Get a complete list of all partner servers")]
             public async Task PListF2(int choice = 0)
             {
