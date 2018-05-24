@@ -15,130 +15,187 @@ namespace PassiveBOT.Modules.BotConfig
     [RequireOwner]
     public class BotManagement : Base
     {
-        [Command("PartnerList+", RunMode = RunMode.Async)]
-        [Summary("PartnerList+")]
-        [Remarks("Get a complete list of all partner servers")]
-        public async Task PListF2(int choice = 0)
+        [Group("PartnerManage")]
+        public class PartnerManagement : Base
         {
-            if (choice <= 0 || choice >= 4)
+            [Command("UpdateMsg")]
+            [Summary("UpdateMsg")]
+            [Remarks("Get a complete list of all partner servers")]
+            public async Task UpdateMsg(ulong ID, [Remainder] string message = null)
             {
-                await ReplyAsync("Please choose a Sorting Mode:\n" +
-                                 "`1` - Full List Includes all other checks\n" +
-                                 "`2` - Short List, Removes all banned partners\n" +
-                                 "`3` - Visibility, Shows where the visible users is not equal to the total users");
-                return;
-            }
-
-            var gobjs = DatabaseHandler.GetFullConfig().Where(x => x.Partner.Settings.Enabled).ToList();
-            var pages = new List<PaginatedMessage.Page>();
-            var search = gobjs;
-            if (choice == 2)
-            {
-                search = gobjs.Where(x => x.Partner.Settings.Banned == false).ToList();
-            }
-            else if (choice == 3)
-            {
-                search = gobjs.Where(x => Context.Socket.Client.GetChannel(x.Partner.Settings.ChannelID)?.Users.Count != Context.Socket.Client.GetGuild(x.ID)?.Users.Count).ToList();
-            }
-
-            foreach (var guildModel in search)
-            {
-                if (Context.Socket.Client.GetGuild(guildModel.ID) is SocketGuild pGuild)
+                var guildobj = DatabaseHandler.GetGuild(ID);
+                var original = guildobj.Partner.Message.Content;
+                guildobj.Partner.Message.Content = message;
+                await SendEmbedAsync(new EmbedBuilder
                 {
-                    var fields = new List<EmbedFieldBuilder>
+                    Title = $"[{ID}]",
+                    Fields = new List<EmbedFieldBuilder>
                     {
                         new EmbedFieldBuilder
                         {
-                            Name = "Guild Info",
-                            Value = $"ID: {pGuild.Id}\n" +
-                                    $"Owner: {pGuild.Owner}\n" +
-                                    $"Users: {pGuild.MemberCount}"
+                            Name = "Original",
+                            Value = $"{original}"
                         },
                         new EmbedFieldBuilder
                         {
-                            Name = "Partner Settings",
-                            Value = $"Enabled: {guildModel.Partner.Settings.Enabled}\n" +
-                                    $"Banned: {guildModel.Partner.Settings.Banned}\n" +
-                                    $"Channel ID: {guildModel.Partner.Settings.ChannelID}\n" +
-                                    $"Show UserCount: {guildModel.Partner.Message.UserCount}\n" +
-                                    $"Image Url: {guildModel.Partner.Message.ImageUrl ?? "N/A"}\n" +
-                                    $"Thumbnail: {guildModel.Partner.Message.UseThumb}"
+                            Name = "New",
+                            Value = $"{message}"
                         }
-                    };
-                    if (pGuild.GetChannel(guildModel.Partner.Settings.ChannelID) is SocketTextChannel pChannel)
+                    }
+                });
+                guildobj.Save();
+            }
+
+            [Command("Ban")]
+            [Summary("Ban")]
+            [Remarks("Toggle the ban status of a partner server")]
+            public async Task BanPartner(ulong ID)
+            {
+                var guildobj = DatabaseHandler.GetGuild(ID);
+                guildobj.Partner.Settings.Banned = !guildobj.Partner.Settings.Banned;
+                await SimpleEmbedAsync($"Guild With ID: {ID}\n" +
+                                       $"Banned: {guildobj.Partner.Settings.Banned}");
+                guildobj.Save();
+            }
+
+            [Command("Enable")]
+            [Summary("Enable")]
+            [Remarks("Toggle the enabled status of a partner server")]
+            public async Task EnablePartner(ulong ID)
+            {
+                var guildobj = DatabaseHandler.GetGuild(ID);
+                guildobj.Partner.Settings.Enabled = !guildobj.Partner.Settings.Enabled;
+                await SimpleEmbedAsync($"Guild With ID: {ID}\n" +
+                                       $"Enabled: {guildobj.Partner.Settings.Enabled}");
+                guildobj.Save();
+            }
+
+            [Command("PartnerList")]
+            [Summary("PartnerList")]
+            [Remarks("Get a complete list of all partner servers")]
+            public async Task PListF2(int choice = 0)
+            {
+                if (choice <= 0 || choice >= 4)
+                {
+                    await ReplyAsync("Please choose a Sorting Mode:\n" +
+                                     "`1` - Full List Includes all other checks\n" +
+                                     "`2` - Short List, Removes all banned partners\n" +
+                                     "`3` - Visibility, Shows where the visible users is not equal to the total users");
+                    return;
+                }
+
+                var gobjs = DatabaseHandler.GetFullConfig().Where(x => x.Partner.Settings.Enabled).ToList();
+                var pages = new List<PaginatedMessage.Page>();
+                var search = gobjs;
+                if (choice == 2)
+                {
+                    search = gobjs.Where(x => x.Partner.Settings.Banned == false).ToList();
+                }
+                else if (choice == 3)
+                {
+                    search = gobjs.Where(x => Context.Socket.Client.GetChannel(x.Partner.Settings.ChannelID)?.Users.Count != Context.Socket.Client.GetGuild(x.ID)?.Users.Count).ToList();
+                }
+
+                foreach (var guildModel in search)
+                {
+                    if (Context.Socket.Client.GetGuild(guildModel.ID) is SocketGuild pGuild)
                     {
-                        var ChannelOverWrites = pChannel.PermissionOverwrites;
-                        var Checking = new StringBuilder();
-                        foreach (var OverWrite in ChannelOverWrites)
-                            try
+                        var fields = new List<EmbedFieldBuilder>
+                        {
+                            new EmbedFieldBuilder
                             {
-                                var Name = "N/A";
-                                if (OverWrite.TargetType == PermissionTarget.Role)
-                                {
-                                    var Role = pGuild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
-                                    if (Role != null) Name = Role.Name;
-                                }
-                                else
-                                {
-                                    var user = pGuild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
-                                    if (user != null) Name = user.Username;
-                                }
-
-                                if (OverWrite.Permissions.ViewChannel == PermValue.Deny)
-                                    Checking.AppendLine($"{Name} Cannot Read Msgs.");
-
-                                if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
-                                    Checking.AppendLine($"{Name} Cannot Read History.");
-                            }
-                            catch
+                                Name = "Guild Info",
+                                Value = $"ID: {pGuild.Id}\n" +
+                                        $"Owner: {pGuild.Owner}\n" +
+                                        $"Users: {pGuild.MemberCount}"
+                            },
+                            new EmbedFieldBuilder
                             {
-                                //
+                                Name = "Partner Settings",
+                                Value = $"Enabled: {guildModel.Partner.Settings.Enabled}\n" +
+                                        $"Banned: {guildModel.Partner.Settings.Banned}\n" +
+                                        $"Channel ID: {guildModel.Partner.Settings.ChannelID}\n" +
+                                        $"Show UserCount: {guildModel.Partner.Message.UserCount}\n" +
+                                        $"Image Url: {guildModel.Partner.Message.ImageUrl ?? "N/A"}\n" +
+                                        $"Thumbnail: {guildModel.Partner.Message.UseThumb}"
                             }
-                        var userstring = $"Users Visible: [{pChannel.Users.Count} / {pGuild.Users.Count}] [{(double)pChannel.Users.Count / pGuild.Users.Count * 100}%]";
+                        };
+                        if (pGuild.GetChannel(guildModel.Partner.Settings.ChannelID) is SocketTextChannel pChannel)
+                        {
+                            var ChannelOverWrites = pChannel.PermissionOverwrites;
+                            var Checking = new StringBuilder();
+                            foreach (var OverWrite in ChannelOverWrites)
+                                try
+                                {
+                                    var Name = "N/A";
+                                    if (OverWrite.TargetType == PermissionTarget.Role)
+                                    {
+                                        var Role = pGuild.Roles.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (Role != null) Name = Role.Name;
+                                    }
+                                    else
+                                    {
+                                        var user = pGuild.Users.FirstOrDefault(x => x.Id == OverWrite.TargetId);
+                                        if (user != null) Name = user.Username;
+                                    }
+
+                                    if (OverWrite.Permissions.ViewChannel == PermValue.Deny)
+                                        Checking.AppendLine($"{Name} Cannot Read Msgs.");
+
+                                    if (OverWrite.Permissions.ReadMessageHistory == PermValue.Deny)
+                                        Checking.AppendLine($"{Name} Cannot Read History.");
+                                }
+                                catch
+                                {
+                                    //
+                                }
+                            var userstring = $"Users Visible: [{pChannel.Users.Count} / {pGuild.Users.Count}] [{(double)pChannel.Users.Count / pGuild.Users.Count * 100}%]";
+                            fields.Add(new EmbedFieldBuilder
+                            {
+                                Name = "Visibility Settings",
+                                Value = $"{userstring}\n" +
+                                        $"Channel: {pChannel.Name}\n" +
+                                        "Permissions:\n" +
+                                        $"{Checking}"
+                            });
+                        }
                         fields.Add(new EmbedFieldBuilder
                         {
-                            Name = "Visibility Settings",
-                            Value = $"{userstring}\n" +
-                                    $"Channel: {pChannel.Name}\n" +
-                                    "Permissions:\n" +
-                                    $"{Checking}"
+                            Name = "Message",
+                            Value = $"{guildModel.Partner.Message.Content ?? "N/A"}"
+                        });
+
+                        pages.Add(new PaginatedMessage.Page
+                        {
+                            dynamictitle = pGuild.Name,
+                            Fields = fields,
+                            imageurl = guildModel.Partner.Message.ImageUrl
                         });
                     }
-                    fields.Add(new EmbedFieldBuilder
+                    else
                     {
-                        Name = "Message",
-                        Value = $"{guildModel.Partner.Message.Content ?? "N/A"}"
-                    });
+                        guildModel.Partner.Settings.Enabled = false;
+                    }
+                }
 
-                    pages.Add(new PaginatedMessage.Page
+                if (pages.Any())
+                {
+                    var msg = new PaginatedMessage
                     {
-                        dynamictitle = pGuild.Name,
-                        Fields = fields,
-                        imageurl = guildModel.Partner.Message.ImageUrl
-                    });
+                        Title = "Partner Messages",
+                        Pages = pages,
+                        Color = Color.Green
+                    };
+
+                    await PagedReplyAsync(msg);
                 }
                 else
                 {
-                    guildModel.Partner.Settings.Enabled = false;
+                    await ReplyAsync("No Servers detected.");
                 }
             }
-
-            if (pages.Any())
-            {
-                var msg = new PaginatedMessage
-                {
-                    Title = "Partner Messages",
-                    Pages = pages,
-                    Color = Color.Green
-                };
-
-                await PagedReplyAsync(msg);
-            }
-            else
-            {
-                await ReplyAsync("No Servers detected.");
-            }
         }
+
 
 /*
         [Command("Test2")]
