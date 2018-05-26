@@ -56,7 +56,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 Context.Server.Events.Welcome.ChannelID = Context.Channel.Id;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"**Success, Welcome messages will now be sent in the channel: {Context.Channel.Name}");
+                await SimpleEmbedAsync($"Success, Welcome messages will now be sent in the channel: {Context.Channel.Name}");
             }
 
             [Command("Message")]
@@ -108,7 +108,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 Context.Server.Events.Goodbye.ChannelID = Context.Channel.Id;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"**Success, Goodbye messages will now be sent in the channel: {Context.Channel.Name}");
+                await SimpleEmbedAsync($"Success, Goodbye messages will now be sent in the channel: {Context.Channel.Name}");
             }
 
             [Command("Goodbye")]
