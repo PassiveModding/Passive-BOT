@@ -11,7 +11,7 @@ namespace PassiveBOT.Discord.Extensions
             Color = Color.Replace("#", "");
             if (Color.Length != 6)
             {
-                throw new InvalidOperationException("Color Length must be 6 characters (not including the # out the front), ie. #FFFFFF");
+                throw new Exception("Color Length must be 6 characters (not including the # out the front), ie. #FFFFFF");
             }
 
             try
@@ -22,7 +22,7 @@ namespace PassiveBOT.Discord.Extensions
             }
             catch
             {
-                throw new InvalidOperationException("Invalid Color Conversion Please ensure you input a valid hex color, ie. #FFFFFF");
+                throw new Exception("Invalid Color Conversion Please ensure you input a valid hex color, ie. #FFFFFF");
             }
         }
     }

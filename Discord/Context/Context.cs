@@ -84,6 +84,32 @@ namespace PassiveBOT.Discord.Context
 
             return PagedReplyAsync(pager, criterion, showall, showindex);
         }
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ReactionList Reactions, bool fromSourceUser = true)
+        {
+            var criterion = new Criteria<SocketReaction>();
+            if (fromSourceUser)
+            {
+                criterion.AddCriterion(new EnsureReactionFromSourceUserCriterion());
+            }
+
+            return PagedReplyAsync(pager, criterion, Reactions);
+        }
+        public class ReactionList
+        {
+            public bool First { get; set; } = false;
+            public bool Last { get; set; } = false;
+            public bool Forward { get; set; } = true;
+            public bool Backward { get; set; } = true;
+            public bool Jump { get; set; } = false;
+            public bool Trash { get; set; } = false;
+            public bool Info { get; set; } = false;
+        }
+
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion,ReactionList Reactions)
+        {
+            return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, Reactions, criterion);
+        }
+
         public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, bool showall = false, bool showindex = false)
         {
             return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, criterion, showall, showindex);
@@ -212,6 +238,13 @@ namespace PassiveBOT.Discord.Context
         {
             var callback = new PaginatedMessageCallback(this, context, pager, criterion);
             await callback.DisplayAsync(showall, showindex).ConfigureAwait(false);
+            return callback.Message;
+        }
+
+        public async Task<IUserMessage> SendPaginatedMessageAsync(SocketCommandContext context, PaginatedMessage pager, Base.ReactionList Reactions, ICriterion<SocketReaction> criterion = null)
+        {
+            var callback = new PaginatedMessageCallback(this, context, pager, criterion);
+            await callback.DisplayAsync(Reactions).ConfigureAwait(false);
             return callback.Message;
         }
 

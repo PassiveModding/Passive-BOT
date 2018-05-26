@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -21,6 +18,38 @@ namespace PassiveBOT.Modules.Info
         private Help(CommandService service)
         {
             _service = service;
+        }
+
+
+        [Command("Command")]
+        [Summary("Command")]
+        [Remarks("Get specific info about a command")]
+        public async Task Command([Remainder]string name)
+        {
+            var result = _service.Search(Context, name);
+
+            string desc;
+            if (result.Error == CommandError.UnknownCommand)
+            {
+                desc = "**Command:** N/A";
+            }
+            else
+            {
+                var cmd = result.Commands.FirstOrDefault();
+
+                desc = $"**Command Name:** `{cmd.Command.Name}`\n" +
+                        $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
+                        $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n" +
+                        $"**Aliases:** {(cmd.Command.Aliases.Any() ? string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`")) : "N/A")}\n" +
+                        $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n";
+            }
+
+            await SendEmbedAsync(new EmbedBuilder
+            {
+                Title = $"Command Lookup",
+                Description = desc
+            }.Build());
+
         }
 
         [Command("Help")]
@@ -51,9 +80,9 @@ namespace PassiveBOT.Modules.Info
                 new EmbedFieldBuilder
                 {
                     Name = $"[{i}] Commands Summary",
-                    Value = $"Go to the respective page number of each module to view the commands in more detail. " +
-                            $"You can react with the :1234: emote and type a page number to go directly to that page too," +
-                            $"otherwise react with the arrows to change pages."
+                    Value = "Go to the respective page number of each module to view the commands in more detail. " +
+                            "You can react with the :1234: emote and type a page number to go directly to that page too," +
+                            "otherwise react with the arrows to change pages."
                 }
             };
             foreach (var module in simplemodules)
@@ -81,7 +110,13 @@ namespace PassiveBOT.Modules.Info
             await PagedReplyAsync(new PaginatedMessage
             {
                 Pages = pages
-            }, true, false, true);
+            }, new ReactionList
+            {
+                Backward = true,
+                Forward = true,
+                Jump = true,
+                Trash = true
+            });
         }
 
         public class modulesummary

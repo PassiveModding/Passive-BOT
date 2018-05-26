@@ -142,6 +142,50 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                 });
         }
 
+        public async Task DisplayAsync(Base.ReactionList Reactions)
+        {
+            var embed = BuildEmbed();
+            var message = await Context.Channel.SendMessageAsync(_pager.Content, embed: embed).ConfigureAwait(false);
+            Message = message;
+            Interactive.AddReactionCallback(message, this);
+            // Reactions take a while to add, don't wait for them
+            _ = Task.Run(async () =>
+            {
+                if (Reactions.First) await message.AddReactionAsync(options.First);
+                if (Reactions.Backward) await message.AddReactionAsync(options.Back);
+                if (Reactions.Forward) await message.AddReactionAsync(options.Next);
+                if (Reactions.Last) await message.AddReactionAsync(options.Last);
+
+
+                var manageMessages = Context.Channel is IGuildChannel guildChannel &&
+                                     (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
+
+                if (Reactions.Jump)
+                {
+                    if (options.JumpDisplayOptions == JumpDisplayOptions.Always || options.JumpDisplayOptions == JumpDisplayOptions.WithManageMessages && manageMessages)
+                    {
+                        await message.AddReactionAsync(options.Jump);
+                    }
+                }
+
+                if (Reactions.Trash)
+                {
+                    await message.AddReactionAsync(options.Stop);
+                }
+                if (Reactions.Info)
+                { 
+                    if (options.DisplayInformationIcon) await message.AddReactionAsync(options.Info);
+                }
+            });
+            // TODO: (Next major version) timeouts need to be handled at the service-level!
+            if (Timeout.HasValue)
+                _ = Task.Delay(Timeout.Value).ContinueWith(_ =>
+                {
+                    Interactive.RemoveReactionCallback(message);
+                    _ = Message.DeleteAsync();
+                });
+        }
+
         protected Embed BuildEmbed()
         {
             //NOTE: Must have description or wont send?
