@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PassiveBOT.Models
 {
-    public class urbanDicrModel
+    public class UrbanDictModel
     {
         public class UrbanDict
         {

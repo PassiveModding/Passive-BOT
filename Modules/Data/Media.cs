@@ -166,7 +166,7 @@ namespace PassiveBOT.Modules.Data
             using (var http = new HttpClient())
             {
                 var res = await http.GetStringAsync($"http://api.urbandictionary.com/v0/define?term={word}").ConfigureAwait(false);
-                var resobj = JsonConvert.DeserializeObject<urbanDicrModel.UrbanDict>(res);
+                var resobj = JsonConvert.DeserializeObject<UrbanDictModel.UrbanDict>(res);
                 if (resobj.result_type == "no_results")
                 {
                     await ReplyAsync("This word has no definition");
