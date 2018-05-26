@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace PassiveBOT.Models
@@ -10,13 +8,6 @@ namespace PassiveBOT.Models
     {
         public ulong ID { get; set; }
         public logging Logging { get; set; } = new logging();
-
-        public class logging
-        {
-            public bool LogPartnerChanges { get; set; } = false;
-            public ulong PartnerLogChannel { get; set; }
-        }
-
 
 
         public void Save(string dir = "setup/home.json")
@@ -36,5 +27,10 @@ namespace PassiveBOT.Models
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
+        public class logging
+        {
+            public bool LogPartnerChanges { get; set; } = false;
+            public ulong PartnerLogChannel { get; set; }
+        }
     }
 }

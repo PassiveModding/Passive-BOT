@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using Discord;
 using Discord.WebSocket;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Handlers;
-using Serilog.Core;
 
 namespace PassiveBOT.Discord
 {
@@ -17,7 +15,6 @@ namespace PassiveBOT.Discord
         public static int FirePreiod = 30;
         private readonly Timer _timer;
         private readonly Random rndshuffle = new Random();
-        public DiscordSocketClient _client { get; set; }
 
         public TimerService(DiscordSocketClient client)
         {
@@ -33,18 +30,20 @@ namespace PassiveBOT.Discord
                         LogHandler.LogMessage($"Partner Error:\n" +
                                               $"{e}", LogSeverity.Error);
                     }
-                    
+
                     LastFireTime = DateTime.UtcNow;
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePreiod));
         }
 
+        public DiscordSocketClient _client { get; set; }
+
         public async Task Partner()
         {
-            var glist = DatabaseHandler.GetFullConfig().Where(x => !x.Partner.Settings.Banned && 
-                                                                   x.Partner.Settings.Enabled && x.Partner.Settings.ChannelID != 0 && 
-                                                                   x.Partner.Message.Content != null && 
-                                                                   _client.GetChannel(x.Partner.Settings.ChannelID) != null && 
+            var glist = DatabaseHandler.GetFullConfig().Where(x => !x.Partner.Settings.Banned &&
+                                                                   x.Partner.Settings.Enabled && x.Partner.Settings.ChannelID != 0 &&
+                                                                   x.Partner.Message.Content != null &&
+                                                                   _client.GetChannel(x.Partner.Settings.ChannelID) != null &&
                                                                    _client.Guilds.Any(g => g.Id == x.ID))
                 .ToList();
             var reduced_glist = glist.ToList();
@@ -84,6 +83,7 @@ namespace PassiveBOT.Discord
                                                   $"{e}", LogSeverity.Error);
                         }
                     }
+
                     reduced_glist.Remove(messageguild);
                 }
                 catch (Exception e)

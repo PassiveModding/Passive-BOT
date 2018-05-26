@@ -6,7 +6,6 @@ namespace PassiveBOT.Discord.Extensions
 {
     public class GeneratePartnerMessage
     {
-
         public static EmbedBuilder GenerateMessage(GuildModel GuildObj, SocketGuild guild)
         {
             var embed = new EmbedBuilder

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -14,9 +13,10 @@ namespace PassiveBOT.Handlers
 {
     public class CommandHandler
     {
+        public static IServiceProvider Provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-        public static IServiceProvider Provider;
+
         public CommandHandler(IServiceProvider provider)
         {
             Provider = provider;
@@ -38,6 +38,7 @@ namespace PassiveBOT.Handlers
                     DatabaseHandler.AddGuild(missingguild.Id);
                 }
             }
+
             return Task.CompletedTask;
         }
 
@@ -51,6 +52,7 @@ namespace PassiveBOT.Handlers
             {
                 DatabaseHandler.AddGuild(guild.Id);
             }
+
             return Task.CompletedTask;
         }
 
@@ -109,6 +111,7 @@ namespace PassiveBOT.Handlers
                     {
                         //
                     }
+
                     LogHandler.LogMessage(context.Message.Content, LogSeverity.Error);
                 }
                 catch (Exception e)

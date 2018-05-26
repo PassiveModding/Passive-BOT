@@ -19,6 +19,7 @@ namespace PassiveBOT.Modules.BotConfig
             hs.Save();
             await SimpleEmbedAsync($"Homeserver Saved!");
         }
+
         [Command("TogglePartnerLog")]
         [Summary("TogglePartnerLog")]
         [Remarks("Toggle partner logging")]
@@ -29,6 +30,7 @@ namespace PassiveBOT.Modules.BotConfig
             hs.Save();
             await SimpleEmbedAsync($"Log Partner Events: {hs.Logging.LogPartnerChanges}");
         }
+
         [Command("SetPartnerLogChannel")]
         [Summary("SetPartnerLogChannel")]
         [Remarks("Set channel to log partner changed")]

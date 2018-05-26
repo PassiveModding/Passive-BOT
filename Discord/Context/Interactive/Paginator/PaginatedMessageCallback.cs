@@ -172,8 +172,9 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                 {
                     await message.AddReactionAsync(options.Stop);
                 }
+
                 if (Reactions.Info)
-                { 
+                {
                     if (options.DisplayInformationIcon) await message.AddReactionAsync(options.Info);
                 }
             });
@@ -202,6 +203,7 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
             {
                 builder.AddField(field);
             }
+
             return builder.Build();
         }
 

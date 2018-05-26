@@ -47,6 +47,7 @@ namespace PassiveBOT.Discord.Context
         {
             return await base.ReplyAsync("", false, embed.Build());
         }
+
         public async Task<IUserMessage> SendEmbedAsync(Embed embed)
         {
             return await base.ReplyAsync("", false, embed);
@@ -61,13 +62,14 @@ namespace PassiveBOT.Discord.Context
             };
             return await base.ReplyAsync("", false, embed.Build());
         }
+
         private SocketCommandContext PassiveSContext()
         {
             return new SocketCommandContext(Context.Client as DiscordSocketClient, Context.Message as SocketUserMessage);
         }
 
         /// <summary>
-        /// creates a new paginated message
+        ///     creates a new paginated message
         /// </summary>
         /// <param name="pager"></param>
         /// <param name="fromSourceUser"></param>
@@ -84,6 +86,7 @@ namespace PassiveBOT.Discord.Context
 
             return PagedReplyAsync(pager, criterion, showall, showindex);
         }
+
         public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ReactionList Reactions, bool fromSourceUser = true)
         {
             var criterion = new Criteria<SocketReaction>();
@@ -94,6 +97,17 @@ namespace PassiveBOT.Discord.Context
 
             return PagedReplyAsync(pager, criterion, Reactions);
         }
+
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, ReactionList Reactions)
+        {
+            return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, Reactions, criterion);
+        }
+
+        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, bool showall = false, bool showindex = false)
+        {
+            return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, criterion, showall, showindex);
+        }
+
         public class ReactionList
         {
             public bool First { get; set; } = false;
@@ -103,16 +117,6 @@ namespace PassiveBOT.Discord.Context
             public bool Jump { get; set; } = false;
             public bool Trash { get; set; } = false;
             public bool Info { get; set; } = false;
-        }
-
-        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion,ReactionList Reactions)
-        {
-            return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, Reactions, criterion);
-        }
-
-        public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, bool showall = false, bool showindex = false)
-        {
-            return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, criterion, showall, showindex);
         }
     }
 
@@ -145,12 +149,12 @@ namespace PassiveBOT.Discord.Context
         public GuildModel Server { get; }
         public IDocumentSession Session { get; }
         public SocketContext Socket { get; }
+        public string Prefix { get; }
         public IUser User { get; }
         public IGuild Guild { get; }
         public IDiscordClient Client { get; }
         public IUserMessage Message { get; }
         public IMessageChannel Channel { get; }
-        public string Prefix { get; }
 
         public class SocketContext
         {
@@ -291,5 +295,4 @@ namespace PassiveBOT.Discord.Context
             }
         }
     }
-
 }

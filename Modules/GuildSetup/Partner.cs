@@ -76,7 +76,7 @@ namespace PassiveBOT.Modules.GuildSetup
         [Command("Message")]
         [Summary("Message <Message>")]
         [Remarks("Set the partner message for this server")]
-        public async Task SetChannel([Remainder]string message)
+        public async Task SetChannel([Remainder] string message)
         {
             if (message.Length > 1000)
             {
@@ -96,15 +96,15 @@ namespace PassiveBOT.Modules.GuildSetup
             if (!message.ToLower().Contains("discord.gg") && !message.ToLower().Contains("discordapp.com") && !message.ToLower().Contains("discord.me"))
             {
                 throw new Exception("You should include an invite link to your server in the Partner Message too\n" +
-                                 $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}\n" +
-                                 "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" +
-                                 "Please disable this during setup, you may re-enable after the message has been set.");
+                                    $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}\n" +
+                                    "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" +
+                                    "Please disable this during setup, you may re-enable after the message has been set.");
             }
 
             if (Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
                 var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").ToList();
-                var officialinvites = ((SocketGuild)Context.Guild).GetInvitesAsync().Result;
+                var officialinvites = ((SocketGuild) Context.Guild).GetInvitesAsync().Result;
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
@@ -118,9 +118,9 @@ namespace PassiveBOT.Modules.GuildSetup
                 if (mismatch)
                 {
                     throw new Exception("Only invites from this server are allowed in the partner message!\n" +
-                                     "NOTE: please ensure that the invite link you are using is set to never expire\n" +
-                                     "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
-                                     $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}");
+                                        "NOTE: please ensure that the invite link you are using is set to never expire\n" +
+                                        "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
+                                        $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}");
                 }
             }
 
@@ -132,9 +132,9 @@ namespace PassiveBOT.Modules.GuildSetup
             if (HS.Logging.LogPartnerChanges && await Context.Client.GetChannelAsync(HS.Logging.PartnerLogChannel) is IMessageChannel channel)
             {
                 await channel.SendMessageAsync("", false, partnerembed.AddField("Partner Message Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
-                                                                                                                                $"Owner: {Context.Socket.Guild.Owner.Username}\n" +
-                                                                                                                                $"Users: {Context.Socket.Guild.MemberCount}")
-                                                                                                                                .Build());
+                                                                                                           $"Owner: {Context.Socket.Guild.Owner.Username}\n" +
+                                                                                                           $"Users: {Context.Socket.Guild.MemberCount}")
+                    .Build());
             }
         }
 

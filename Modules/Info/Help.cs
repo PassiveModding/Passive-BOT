@@ -24,7 +24,7 @@ namespace PassiveBOT.Modules.Info
         [Command("Command")]
         [Summary("Command")]
         [Remarks("Get specific info about a command")]
-        public async Task Command([Remainder]string name)
+        public async Task Command([Remainder] string name)
         {
             var result = _service.Search(Context, name);
 
@@ -38,10 +38,10 @@ namespace PassiveBOT.Modules.Info
                 var cmd = result.Commands.FirstOrDefault();
 
                 desc = $"**Command Name:** `{cmd.Command.Name}`\n" +
-                        $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
-                        $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n" +
-                        $"**Aliases:** {(cmd.Command.Aliases.Any() ? string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`")) : "N/A")}\n" +
-                        $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n";
+                       $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
+                       $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n" +
+                       $"**Aliases:** {(cmd.Command.Aliases.Any() ? string.Join(" ", cmd.Command.Aliases.Select(x => $"`{x}`")) : "N/A")}\n" +
+                       $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n";
             }
 
             await SendEmbedAsync(new EmbedBuilder
@@ -49,7 +49,6 @@ namespace PassiveBOT.Modules.Info
                 Title = $"Command Lookup",
                 Description = desc
             }.Build());
-
         }
 
         [Command("Help")]
@@ -73,6 +72,7 @@ namespace PassiveBOT.Modules.Info
                     cmdinfo = passingcommands.Select(x => $"`{p}{moduleprefix}{x.Summary}` - {x.Remarks}").ToList()
                 });
             }
+
             var pages = new List<PaginatedMessage.Page>();
             var i = 1;
             var initfields = new List<EmbedFieldBuilder>
@@ -94,6 +94,7 @@ namespace PassiveBOT.Modules.Info
                     Value = string.Join(", ", module.cmdnames)
                 });
             }
+
             pages.Add(new PaginatedMessage.Page
             {
                 Fields = initfields
@@ -125,6 +126,5 @@ namespace PassiveBOT.Modules.Info
             public List<string> cmdnames { get; set; } = new List<string>();
             public List<string> cmdinfo { get; set; }
         }
-
     }
 }

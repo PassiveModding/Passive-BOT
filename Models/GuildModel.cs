@@ -1,21 +1,10 @@
 ﻿using System.Collections.Generic;
-using Discord;
 using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Models
 {
     public class GuildModel
     {
-        public void Save()
-        {
-            using (var Session = DatabaseHandler.Store.OpenSession(DatabaseHandler.DBName))
-            {
-                Session.Store(this, ID.ToString());
-                Session.SaveChanges();
-            }
-        }
-
-
         /// <summary>
         ///     The Server ID
         /// </summary>
@@ -53,14 +42,23 @@ namespace PassiveBOT.Models
 
 
         /// <summary>
-        /// Moderation for Bot Setup in guilds
+        ///     Moderation for Bot Setup in guilds
         /// </summary>
         public moderation Moderation { get; set; } = new moderation();
+
+        public void Save()
+        {
+            using (var Session = DatabaseHandler.Store.OpenSession(DatabaseHandler.DBName))
+            {
+                Session.Store(this, ID.ToString());
+                Session.SaveChanges();
+            }
+        }
 
         public class moderation
         {
             /// <summary>
-            /// A list of Role IDs that are checked against for admins
+            ///     A list of Role IDs that are checked against for admins
             /// </summary>
             public List<ulong> AdminRoleIDs { get; set; } = new List<ulong>();
         }
@@ -261,7 +259,7 @@ namespace PassiveBOT.Models
             /// <summary>
             ///     Partner Stats
             /// </summary>
-            public pstats Stats { get; set; } = new pstats(); 
+            public pstats Stats { get; set; } = new pstats();
 
             /// <summary>
             ///     Partner Message
@@ -271,12 +269,12 @@ namespace PassiveBOT.Models
             public class pstats
             {
                 /// <summary>
-                /// Total amount of users reached via partner program
+                ///     Total amount of users reached via partner program
                 /// </summary>
                 public int UsersReached { get; set; } = 0;
 
                 /// <summary>
-                /// total amount of servers reached via partner program
+                ///     total amount of servers reached via partner program
                 /// </summary>
                 public int ServersReached { get; set; } = 0;
             }
@@ -322,7 +320,7 @@ namespace PassiveBOT.Models
                 public bool UseThumb { get; set; } = false;
 
                 /// <summary>
-                /// The Colour used for the embed message
+                ///     The Colour used for the embed message
                 /// </summary>
                 public rgb Color { get; set; } = new rgb();
 

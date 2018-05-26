@@ -52,7 +52,7 @@ namespace PassiveBOT.Modules.GuildSetup
             [Command("Message")]
             [Summary("Message")]
             [Remarks("Set the welcome message")]
-            public async Task SetChannel([Remainder]string message)
+            public async Task SetChannel([Remainder] string message)
             {
                 Context.Server.Events.Welcome.Message = message;
                 Context.Server.Save();
@@ -104,7 +104,7 @@ namespace PassiveBOT.Modules.GuildSetup
             [Command("Goodbye")]
             [Summary("Goodbye")]
             [Remarks("Set the Goodbye message")]
-            public async Task SetChannel([Remainder]string message)
+            public async Task SetChannel([Remainder] string message)
             {
                 Context.Server.Events.Goodbye.Message = message;
                 Context.Server.Save();

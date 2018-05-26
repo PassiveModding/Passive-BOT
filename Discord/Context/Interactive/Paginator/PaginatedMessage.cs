@@ -8,7 +8,9 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
         public IEnumerable<Page> Pages { get; set; }
 
         public string Content { get; set; } = "";
+
         public string Img { get; set; }
+
         //public List<EmbedField> Fields { get; set; } = new List<EmbedField>();
         public EmbedAuthorBuilder Author { get; set; } = null;
         public Color Color { get; set; } = Color.Default;

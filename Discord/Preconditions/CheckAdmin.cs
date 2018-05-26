@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -20,12 +18,13 @@ namespace PassiveBOT.Discord.Preconditions
         }
 
         /// <summary>
-        /// This will check wether or not a user has permissions to use a command/module
+        ///     This will check wether or not a user has permissions to use a command/module
         /// </summary>
         /// <param name="context"></param>
         /// <param name="command"></param>
         /// <param name="services"></param>
-        ///    /// <returns></returns>
+        /// ///
+        /// <returns></returns>
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             if (context.Channel is IDMChannel) return Task.FromResult(PreconditionResult.FromSuccess());
@@ -36,7 +35,7 @@ namespace PassiveBOT.Discord.Preconditions
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
             //If we have allow admin permissions toggled on we allow users who have the permissions in the server
-            var guser = (IGuildUser)context.User;
+            var guser = (IGuildUser) context.User;
             var guild = DatabaseHandler.GetGuild(context.Guild.Id);
             if (_allowAdministrator && guser.GuildPermissions.Administrator)
                 return Task.FromResult(PreconditionResult.FromSuccess());

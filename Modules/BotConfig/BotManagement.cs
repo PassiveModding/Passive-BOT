@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
 using PassiveBOT.Handlers;
-using Color = Discord.Color;
 
 namespace PassiveBOT.Modules.BotConfig
 {
@@ -149,7 +148,8 @@ namespace PassiveBOT.Modules.BotConfig
                                 {
                                     //
                                 }
-                            var userstring = $"Users Visible: [{pChannel.Users.Count} / {pGuild.Users.Count}] [{(double)pChannel.Users.Count / pGuild.Users.Count * 100}%]";
+
+                            var userstring = $"Users Visible: [{pChannel.Users.Count} / {pGuild.Users.Count}] [{(double) pChannel.Users.Count / pGuild.Users.Count * 100}%]";
                             fields.Add(new EmbedFieldBuilder
                             {
                                 Name = "Visibility Settings",
@@ -159,6 +159,7 @@ namespace PassiveBOT.Modules.BotConfig
                                         $"{Checking}"
                             });
                         }
+
                         fields.Add(new EmbedFieldBuilder
                         {
                             Name = "Message",
@@ -244,5 +245,4 @@ namespace PassiveBOT.Modules.BotConfig
             return total - input;
         }*/
     }
-    
 }
