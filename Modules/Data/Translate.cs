@@ -8,7 +8,7 @@ using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Discord.Context;
 
-namespace PassiveBOT.Modules.Text
+namespace PassiveBOT.Modules.Data
 {
     [Group("Translate")]
     public class Translate : Base

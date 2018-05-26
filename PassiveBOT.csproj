@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
     <PackageReference Include="RavenDB.Client" Version="4.0.3" />
+    <PackageReference Include="RedditSharp" Version="2.0.0-CI00065" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
   </ItemGroup>
 

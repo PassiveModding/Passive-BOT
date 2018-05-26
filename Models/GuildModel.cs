@@ -40,6 +40,7 @@ namespace PassiveBOT.Models
         /// </summary>
         public events Events { get; set; } = new events();
 
+        public tags Tags { get; set; } = new tags();
 
         /// <summary>
         ///     Moderation for Bot Setup in guilds
@@ -331,6 +332,26 @@ namespace PassiveBOT.Models
                     public int G { get; set; }
                     public int B { get; set; }
                 }
+            }
+        }
+
+        public class tags
+        {
+            public TSettings Settings { get; set; } = new TSettings();
+            public List<tag> Tags { get; set; } = new List<tag>();
+            public class TSettings
+            {
+                public bool Enabled { get; set; } = true;
+                public bool AdminOnly { get; set; } = false;
+            }
+            public class tag
+            {
+                public string Name { get; set; }
+                public string Content { get; set; }
+                public int Uses { get; set; } = 0;
+
+                public ulong CreatorID { get; set; }
+                public string OwnerName { get; set; }
             }
         }
 
