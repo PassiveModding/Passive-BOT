@@ -16,6 +16,7 @@ namespace PassiveBOT.Models
             public List<Post> Posts { get; set; }
             public DateTime LastUpdate { get; set; }
             public int Hits { get; set; } = 0;
+            public bool NSFW { get; set; } = false;
         }
     }
 

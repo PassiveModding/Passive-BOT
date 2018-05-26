@@ -53,7 +53,8 @@ namespace PassiveBOT.Modules.Data
                 {
                     Title = subreddit,
                     LastUpdate = DateTime.UtcNow,
-                    Posts = posts
+                    Posts = posts,
+                    NSFW = true
                 });
             }
 
@@ -106,7 +107,8 @@ namespace PassiveBOT.Modules.Data
                     Title = subreddit,
                     LastUpdate = DateTime.UtcNow,
                     Posts = posts,
-                    Hits = 0
+                    Hits = 0,
+                    NSFW = true
                 });
             }
 
