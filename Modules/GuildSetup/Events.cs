@@ -39,6 +39,16 @@ namespace PassiveBOT.Modules.GuildSetup
                 await SimpleEmbedAsync($"Welcome Event: {Context.Server.Events.Welcome.Enabled}");
             }
 
+            [Command("Direct")]
+            [Summary("Direct")]
+            [Remarks("Direct direct messaging of welcome messages")]
+            public async Task DmTask()
+            {
+                Context.Server.Events.Welcome.SendDMs = !Context.Server.Events.Welcome.SendDMs;
+                Context.Server.Save();
+                await SimpleEmbedAsync($"Users will be DM's the welcome message upon joining the server: {Context.Server.Events.Welcome.SendDMs}");
+            }
+
             [Command("SetChannel")]
             [Summary("SetChannel")]
             [Remarks("Set the channel welcome events will be sent to")]

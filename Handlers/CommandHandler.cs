@@ -26,6 +26,72 @@ namespace PassiveBOT.Handlers
             _client.MessageReceived += DoCommand;
             _client.Ready += _client_Ready;
             _client.JoinedGuild += _client_JoinedGuild;
+
+            //Welcome and Joined Events
+            _client.UserJoined += _client_UserJoined;
+            _client.UserLeft += _client_UserLeft;
+        }
+
+        private async Task _client_UserJoined(SocketGuildUser User)
+        {
+            var DB = DatabaseHandler.GetGuild(User.Guild.Id);
+            if (DB.Events.Welcome.Enabled)
+            {
+                var welcomeembed = new EmbedBuilder
+                {
+                    Title = $"Welcome to {User.Guild.Name}, {User}",
+                    Description = $"{DB.Events.Welcome.Message}",
+                    Color = Color.Green
+                };
+                if (DB.Events.Welcome.SendDMs)
+                {
+                    try
+                    {
+                        await User.SendMessageAsync(User.Mention, false, welcomeembed.Build());
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+
+                if (_client.GetChannel(DB.Events.Welcome.ChannelID) is ITextChannel WChannel)
+                {
+                    try
+                    {
+                        await WChannel.SendMessageAsync(User.Mention, false, welcomeembed.Build());
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+            }
+        }
+
+        private async Task _client_UserLeft(SocketGuildUser User)
+        {
+            var DB = DatabaseHandler.GetGuild(User.Guild.Id);
+            if (DB.Events.Goodbye.Enabled)
+            {
+                var GoodbyeEmbed = new EmbedBuilder
+                {
+                    Title = $"{User} has left the server",
+                    Description = $"{DB.Events.Goodbye.Message}"
+                };
+
+                if (_client.GetChannel(DB.Events.Goodbye.ChannelID) is ITextChannel GChannel)
+                {
+                    try
+                    {
+                        await GChannel.SendMessageAsync(User.Mention, false, GoodbyeEmbed.Build());
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+            }
         }
 
         private Task _client_JoinedGuild(SocketGuild Guild)

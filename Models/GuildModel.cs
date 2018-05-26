@@ -168,6 +168,7 @@ namespace PassiveBOT.Models
                 ///     False = Do not send event Messages
                 /// </summary>
                 public bool Enabled { get; set; } = false;
+                public bool SendDMs { get; set; } = false;
             }
         }
 
