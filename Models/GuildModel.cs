@@ -232,6 +232,11 @@ namespace PassiveBOT.Models
                 ///     Reply in the current channel with level up message
                 /// </summary>
                 public bool ReplyLevelUps { get; set; } = true;
+
+                /// <summary>
+                ///     Reply in the current channel with level up message
+                /// </summary>
+                public bool IncrementLevelRewards { get; set; } = false;
             }
 
             public class levelreward

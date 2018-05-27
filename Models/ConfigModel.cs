@@ -21,6 +21,7 @@ namespace PassiveBOT.Models
         {
             var file = Path.Combine(AppContext.BaseDirectory, dir);
             File.WriteAllText(file, ToJson());
+            CommandHandler.Config = this;
         }
 
         public static ConfigModel Load(string dir = "setup/config.json")

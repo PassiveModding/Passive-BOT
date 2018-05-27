@@ -143,7 +143,7 @@ namespace PassiveBOT.Discord.Context
             //These are our custom additions to the context, giving access to the server object and all server objects through Context.
             Server = Channel is IDMChannel ? null : DatabaseHandler.GetGuild(Guild.Id);
             Session = ServiceProvider.GetRequiredService<IDocumentStore>().OpenSession();
-            Prefix = Server.Settings.Prefix.CustomPrefix ?? ConfigModel.Load().Prefix;
+            Prefix = Server?.Settings.Prefix.CustomPrefix ?? CommandHandler.Config.Prefix;
         }
 
         public GuildModel Server { get; }

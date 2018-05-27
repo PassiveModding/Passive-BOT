@@ -23,9 +23,9 @@ namespace PassiveBOT.Handlers
 
         ///This is our configuration for the database handler, DBName is the database you created in RavenDB when setting it up
         ///ServerURL is the URL to the local server. NOTE: This bot has not been configured to use public addresses
-        public static string DBName { get; set; } = ConfigModel.Load().DBName;
+        public static string DBName { get; set; } = CommandHandler.Config.DBName;
 
-        public static string ServerURL { get; set; } = ConfigModel.Load().DBUrl;
+        public static string ServerURL { get; set; } = CommandHandler.Config.DBUrl;
 
         /// <summary>
         ///     This is the document store, an interface that represents our database

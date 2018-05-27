@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using Discord;
 using Newtonsoft.Json;
+using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Models
 {
@@ -14,7 +15,7 @@ namespace PassiveBOT.Models
 
         public ulong GuildId { get; set; } //
         public string GuildName { get; set; } //
-        public string Prefix { get; set; } = ConfigModel.Load().Prefix;
+        public string Prefix { get; set; } = CommandHandler.Config.Prefix;
 
         public bool chatwithmention { get; set; } = true;
 

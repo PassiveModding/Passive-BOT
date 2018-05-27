@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 
 namespace PassiveBOT.Discord.Extensions
@@ -17,7 +18,7 @@ namespace PassiveBOT.Discord.Extensions
                 ThumbnailUrl = GuildObj.Partner.Message.UseThumb ? guild.IconUrl : null,
                 Footer = new EmbedFooterBuilder
                 {
-                    Text = $"{(GuildObj.Partner.Message.UserCount ? $"Users: {guild.MemberCount}" : "")} || Get PassiveBOT: {ConfigModel.Load().SupportServer}"
+                    Text = $"{(GuildObj.Partner.Message.UserCount ? $"Users: {guild.MemberCount} || " : "")}Get PassiveBOT: {CommandHandler.Config.SupportServer}"
                 }
             };
             return embed;

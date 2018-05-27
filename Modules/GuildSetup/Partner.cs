@@ -8,6 +8,7 @@ using Discord.WebSocket;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Discord.Preconditions;
+using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 
 namespace PassiveBOT.Modules.GuildSetup
@@ -96,7 +97,7 @@ namespace PassiveBOT.Modules.GuildSetup
             if (!message.ToLower().Contains("discord.gg") && !message.ToLower().Contains("discordapp.com") && !message.ToLower().Contains("discord.me"))
             {
                 throw new Exception("You should include an invite link to your server in the Partner Message too\n" +
-                                    $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}\n" +
+                                    $"If you believe this is an error, please contact the support server: {CommandHandler.Config.SupportServer}\n" +
                                     "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" +
                                     "Please disable this during setup, you may re-enable after the message has been set.");
             }
@@ -120,7 +121,7 @@ namespace PassiveBOT.Modules.GuildSetup
                     throw new Exception("Only invites from this server are allowed in the partner message!\n" +
                                         "NOTE: please ensure that the invite link you are using is set to never expire\n" +
                                         "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
-                                        $"If you believe this is an error, please contact the support server: {ConfigModel.Load().SupportServer}");
+                                        $"If you believe this is an error, please contact the support server: {CommandHandler.Config.SupportServer}");
                 }
             }
 
