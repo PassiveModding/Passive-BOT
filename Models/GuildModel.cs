@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Models
@@ -268,6 +269,8 @@ namespace PassiveBOT.Models
                 ///     User total XP
                 /// </summary>
                 public int XP { get; set; } = 0;
+
+                public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
             }
         }
 
