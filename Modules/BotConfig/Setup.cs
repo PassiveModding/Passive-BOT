@@ -104,7 +104,8 @@ namespace PassiveBOT.Modules.BotConfig
                                 Enabled = DepModel.Levels.LevellingEnabled,
                                 LogChannelID = DepModel.Levels.LevellingChannel,
                                 ReplyLevelUps = DepModel.Levels.UseLevelMessages,
-                                UseLogChannel = DepModel.Levels.UseLevelChannel
+                                UseLogChannel = DepModel.Levels.UseLevelChannel,
+                                IncrementLevelRewards = DepModel.Levels.IncrementLevelRewards
                             },
                             Users = DepModel.Levels.Users.Select(x => new GuildModel.levelling.luser
                             {
