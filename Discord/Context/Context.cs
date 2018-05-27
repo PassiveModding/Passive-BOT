@@ -108,6 +108,23 @@ namespace PassiveBOT.Discord.Context
             return Interactive.SendPaginatedMessageAsync(PassiveSContext(), pager, criterion, showall, showindex);
         }
 
+        public Task<SocketMessage> NextMessageAsync(ICriterion<SocketMessage> criterion, TimeSpan? timeout = null)
+        {
+            return Interactive.NextMessageAsync(PassiveSContext(), criterion, timeout);
+        }
+
+        public Task<SocketMessage> NextMessageAsync(bool fromSourceUser = true, bool inSourceChannel = true,
+            TimeSpan? timeout = null)
+        {
+            return Interactive.NextMessageAsync(PassiveSContext(), fromSourceUser, inSourceChannel, timeout);
+        }
+
+        public Task<IUserMessage> ReplyAndDeleteAsync(string content, bool isTTS = false, Embed embed = null,
+            TimeSpan? timeout = null, RequestOptions options = null)
+        {
+            return Interactive.ReplyAndDeleteAsync(PassiveSContext(), content, isTTS, embed, timeout, options);
+        }
+
         public class ReactionList
         {
             public bool First { get; set; } = false;

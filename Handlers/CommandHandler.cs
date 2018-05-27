@@ -18,7 +18,12 @@ namespace PassiveBOT.Handlers
         public static IServiceProvider Provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-
+        public static List<Connect4Lobby> Connect4List = new List<Connect4Lobby>();
+        public class Connect4Lobby
+        {
+            public ulong ChannelID { get; set; }
+            public bool Gamerunning { get; set; } = false;
+        }
 
         public CommandHandler(IServiceProvider provider)
         {
