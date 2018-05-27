@@ -106,7 +106,7 @@ namespace PassiveBOT.Handlers
             }
             AutomessageChannel.Count++;
 
-            if (AutomessageChannel.Count > AutomessageChannel.Limit)
+            if (AutomessageChannel.Count >= AutomessageChannel.Limit)
             {
                 await Context.Channel.SendMessageAsync("", false, new EmbedBuilder
                 {
