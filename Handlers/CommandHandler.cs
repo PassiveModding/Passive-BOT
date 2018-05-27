@@ -8,6 +8,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using PassiveBOT.Discord.Context;
+using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Models;
 
 namespace PassiveBOT.Handlers
@@ -17,13 +18,6 @@ namespace PassiveBOT.Handlers
         public static IServiceProvider Provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-        public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
-        public static ConfigModel Config { get; set; } = ConfigModel.Load();
-        public class GuildMsgx
-        {
-            public ulong GuildID { get; set; }
-            public List<DateTime> Times { get; set; } = new List<DateTime>();
-        }
 
 
         public CommandHandler(IServiceProvider provider)
@@ -42,14 +36,17 @@ namespace PassiveBOT.Handlers
             _client.UserLeft += _client_UserLeftAsync;
         }
 
+        public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
+        public static ConfigModel Config { get; set; } = ConfigModel.Load();
+
         private async Task _client_UserLeftAsync(SocketGuildUser User)
         {
-            await Discord.Extensions.EventTriggers._client_UserLeft(User);
+            await EventTriggers._client_UserLeft(User);
         }
 
         private async Task _client_UserJoined(SocketGuildUser User)
         {
-            await Discord.Extensions.EventTriggers._client_UserJoined(User);
+            await EventTriggers._client_UserJoined(User);
         }
 
         private Task _client_JoinedGuild(SocketGuild Guild)
@@ -142,13 +139,13 @@ namespace PassiveBOT.Handlers
                         {
                             foreach (var role in roletoreceive)
                             {
-                                if (((IGuildUser)Context.User).RoleIds.Contains(role.RoleID)) continue;
+                                if (((IGuildUser) Context.User).RoleIds.Contains(role.RoleID)) continue;
                                 var grole = Context.Guild.GetRole(role.RoleID);
                                 if (grole != null)
                                 {
                                     try
                                     {
-                                        await ((SocketGuildUser)Context.User).AddRoleAsync(grole);
+                                        await ((SocketGuildUser) Context.User).AddRoleAsync(grole);
                                         roleadded += $"Role Reward: {grole.Name}\n";
                                     }
                                     catch
@@ -169,7 +166,7 @@ namespace PassiveBOT.Handlers
                                     rolesavailable.Remove(roletoreceive.First());
                                     var roles = rolesavailable.Select(x => Context.Guild.GetRole(x.RoleID)).Where(x => x != null);
 
-                                    await ((SocketGuildUser)Context.User).RemoveRolesAsync(roles);
+                                    await ((SocketGuildUser) Context.User).RemoveRolesAsync(roles);
                                 }
                                 catch
                                 {
@@ -215,6 +212,7 @@ namespace PassiveBOT.Handlers
                             //
                         }
                     }
+
                     if (Context.Server.Levels.Settings.DMLevelUps)
                     {
                         try
@@ -230,9 +228,10 @@ namespace PassiveBOT.Handlers
                 }
             }
 
-            Context.Server.Save(); 
+            Context.Server.Save();
             return Context;
         }
+
         private async Task DoCommand(SocketMessage parameterMessage)
         {
             if (!(parameterMessage is SocketUserMessage message)) return;
@@ -262,6 +261,7 @@ namespace PassiveBOT.Handlers
                         }
                     });
                 }
+
                 context = await DoLevels(context);
                 if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix ||
                       message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix ||
@@ -270,7 +270,7 @@ namespace PassiveBOT.Handlers
                     return;
                 }
             }
-            
+
 
             var result = await _commands.ExecuteAsync(context, argPos, Provider);
 
@@ -321,6 +321,12 @@ namespace PassiveBOT.Handlers
                     LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
                 }
             }
+        }
+
+        public class GuildMsgx
+        {
+            public ulong GuildID { get; set; }
+            public List<DateTime> Times { get; set; } = new List<DateTime>();
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
@@ -10,7 +9,6 @@ using Discord.Commands;
 using Newtonsoft.Json.Linq;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
-using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 using RedditSharp;
 using RedditSharp.Things;
@@ -256,7 +254,7 @@ namespace PassiveBOT.Modules.Data
                     ImageUrl = result,
                     Title = "View On Site [R34]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -279,7 +277,7 @@ namespace PassiveBOT.Modules.Data
                     ImageUrl = result,
                     Title = "View On Site [Yandere]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -302,7 +300,7 @@ namespace PassiveBOT.Modules.Data
                     ImageUrl = result,
                     Title = "View On Site [Gelbooru]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -325,7 +323,7 @@ namespace PassiveBOT.Modules.Data
                     ImageUrl = result,
                     Title = "View On Site [Cureninja]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -348,7 +346,7 @@ namespace PassiveBOT.Modules.Data
                     ImageUrl = result,
                     Title = "View On Site [Konachan]",
                     Url = $"http://adult.passivenation.com/18217229/{result}",
-                    Footer = new EmbedFooterBuilder { Text = string.Join(", ", Tags) }
+                    Footer = new EmbedFooterBuilder {Text = string.Join(", ", Tags)}
                 };
                 await ReplyAsync("", false, embed.Build());
             }
@@ -360,7 +358,7 @@ namespace PassiveBOT.Modules.Data
             string Url = null;
             string Result;
             MatchCollection Matches;
-            Tags = !Tags.Any() ? new[] { "boobs", "tits", "ass", "sexy", "neko" }.ToList() : Tags;
+            Tags = !Tags.Any() ? new[] {"boobs", "tits", "ass", "sexy", "neko"}.ToList() : Tags;
             switch (NsfwType)
             {
                 case NsfwType.Danbooru:

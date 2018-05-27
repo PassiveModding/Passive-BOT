@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using RedditSharp.Things;
 
 namespace PassiveBOT.Models
 {
     public class RedditModels
     {
-
         public static List<SubReddit> SubReddits = new List<SubReddit>();
+
         public class SubReddit
         {
             public string Title { get; set; }
@@ -64,5 +63,4 @@ namespace PassiveBOT.Models
             public string extension { get; set; }
         }
     }
-
 }

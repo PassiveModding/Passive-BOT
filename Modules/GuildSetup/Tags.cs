@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Discord;
+﻿using System.Threading.Tasks;
 using Discord.Commands;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Preconditions;
@@ -23,6 +19,7 @@ namespace PassiveBOT.Modules.GuildSetup
             Context.Server.Save();
             await SimpleEmbedAsync($"Tags Enabled: {Context.Server.Tags.Settings.Enabled}");
         }
+
         [Command("AdminOnly")]
         [Summary("AdminOnly")]
         [Remarks("Toggle wether only admins can create tags")]

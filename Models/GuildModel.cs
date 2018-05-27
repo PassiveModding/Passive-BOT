@@ -185,6 +185,7 @@ namespace PassiveBOT.Models
                 ///     False = Do not send event Messages
                 /// </summary>
                 public bool Enabled { get; set; } = false;
+
                 public bool SendDMs { get; set; } = false;
             }
         }
@@ -362,11 +363,13 @@ namespace PassiveBOT.Models
         {
             public TSettings Settings { get; set; } = new TSettings();
             public List<tag> Tags { get; set; } = new List<tag>();
+
             public class TSettings
             {
                 public bool Enabled { get; set; } = true;
                 public bool AdminOnly { get; set; } = false;
             }
+
             public class tag
             {
                 public string Name { get; set; }

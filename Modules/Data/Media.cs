@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Discord.Context;
-using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 using RedditSharp;
 using RedditSharp.Things;
@@ -43,6 +40,7 @@ namespace PassiveBOT.Modules.Data
                 {
                     throw new Exception("This Command is for non NSFW subreddits");
                 }
+
                 await ReplyAsync("Refreshing Cache");
                 var num1 = await sub.GetTop(FromTime.Week, 25).Where(x => !x.NSFW).ToList();
                 var post = num1[rnd.Next(24)];
@@ -73,6 +71,7 @@ namespace PassiveBOT.Modules.Data
                 {
                     throw new Exception("This command is for non NSFW Subreddits.");
                 }
+
                 var imgx = checkcache.Posts[rnd.Next(checkcache.Posts.Count)];
                 var objx = RedditHelper.isimage(imgx.Url.ToString());
                 var embedx = new EmbedBuilder
@@ -158,6 +157,7 @@ namespace PassiveBOT.Modules.Data
                         efb.WithName("Alt").WithValue(comic.Alt.ToString()).WithIsInline(false)).Build());
             }
         }
+
         [Command("urbandictionary")]
         [Summary("urbandictionary <word>")]
         [Remarks("Search Urban Dictioanry")]
@@ -170,7 +170,8 @@ namespace PassiveBOT.Modules.Data
                 if (resobj.result_type == "no_results")
                 {
                     await ReplyAsync("This word has no definition");
-                    return; ;
+                    return;
+                    ;
                 }
 
                 var topres = resobj.list.OrderByDescending(x => x.thumbs_up).First();
@@ -178,10 +179,12 @@ namespace PassiveBOT.Modules.Data
                 {
                     topres.definition = topres.definition.Substring(0, 1020) + "...";
                 }
+
                 if (topres.example.Length > 1024)
                 {
                     topres.example = topres.example.Substring(0, 1020) + "...";
                 }
+
                 var emb = new EmbedBuilder
                     {
                         Title = topres.word,

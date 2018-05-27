@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using OxyPlot;
-using OxyPlot.Series;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
 using PassiveBOT.Handlers;
-using Color = Discord.Color;
-using ImageFormat = Discord.ImageFormat;
 
 namespace PassiveBOT.Modules.BotConfig
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace PassiveBOT.Models
 {
@@ -8,6 +7,11 @@ namespace PassiveBOT.Models
     {
         public class UrbanDict
         {
+            public List<string> tags { get; set; }
+            public string result_type { get; set; }
+            public List<List> list { get; set; }
+            public List<string> sounds { get; set; }
+
             public class List
             {
                 public string definition { get; set; }
@@ -21,11 +25,6 @@ namespace PassiveBOT.Models
                 public string example { get; set; }
                 public int thumbs_down { get; set; }
             }
-
-            public List<string> tags { get; set; }
-            public string result_type { get; set; }
-            public List<List> list { get; set; }
-            public List<string> sounds { get; set; }
         }
     }
 }

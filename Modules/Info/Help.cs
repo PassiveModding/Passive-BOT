@@ -7,7 +7,6 @@ using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Handlers;
-using PassiveBOT.Models;
 
 namespace PassiveBOT.Modules.Info
 {

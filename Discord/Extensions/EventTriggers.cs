@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using PassiveBOT.Handlers;
+
 namespace PassiveBOT.Discord.Extensions
 {
     public class EventTriggers

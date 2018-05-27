@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
@@ -32,7 +30,7 @@ namespace PassiveBOT.Modules.Info
                 Color = Color.Purple,
                 ThumbnailUrl = user != null ? user.GetAvatarUrl() : Context.User.GetAvatarUrl()
             };
-            embed.AddField("Level", $"{luser.Level - 1}",true);
+            embed.AddField("Level", $"{luser.Level - 1}", true);
             embed.AddField("XP", $"{luser.XP}", true);
             embed.AddField("Rank", $"#{Context.Server.Levels.Users.OrderByDescending(x => x.XP).ToList().FindIndex(u => u == luser) + 1}", true);
             await SendEmbedAsync(embed);

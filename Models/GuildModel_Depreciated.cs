@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Discord;
 using Newtonsoft.Json;
 using PassiveBOT.Handlers;
@@ -24,13 +23,6 @@ namespace PassiveBOT.Models
         public roleConfigurations RoleConfigurations { get; set; } = new roleConfigurations();
 
         public List<Tagging> Dict { get; set; } = new List<Tagging>(); // tags module
-        public class Tagging
-        {
-            public string Tagname { get; set; }
-            public string Content { get; set; }
-            public ulong Creator { get; set; }
-            public int uses { get; set; }
-        }
         public visibilityconfig Visibilityconfig { get; set; } = new visibilityconfig();
 
         public bool ErrorLog { get; set; } // allows for responses with errors 
@@ -84,6 +76,14 @@ namespace PassiveBOT.Models
 
             var file = Path.Combine(Appdir, $"setup/server/{guild.Id}.json");
             return JsonConvert.DeserializeObject<GuildModel_Depreciated>(File.ReadAllText(file));
+        }
+
+        public class Tagging
+        {
+            public string Tagname { get; set; }
+            public string Content { get; set; }
+            public ulong Creator { get; set; }
+            public int uses { get; set; }
         }
 
         public class visibilityconfig

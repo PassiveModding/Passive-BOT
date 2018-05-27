@@ -28,6 +28,7 @@ namespace PassiveBOT.Modules.Info
                         throw new Exception("Only Admins can Create tags.");
                     }
                 }
+
                 if (Context.Server.Tags.Tags.Any(x => string.Equals(x.Name, tagname, StringComparison.CurrentCultureIgnoreCase)))
                 {
                     throw new Exception("There is already a tag with this name in the server. Please delete it then add the new tag.");
@@ -133,6 +134,5 @@ namespace PassiveBOT.Modules.Info
                 }
             }
         }
-
     }
 }
