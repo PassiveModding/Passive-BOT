@@ -87,6 +87,39 @@ namespace PassiveBOT.Handlers
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
         }
 
+        public async Task<Context> DoAutoMessage(Context Context)
+        {
+            if (Context.Channel is IDMChannel)
+            {
+                return Context;
+            }
+
+            var AutomessageChannel = Context.Server.AutoMessage.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
+            if (AutomessageChannel == null)
+            {
+                return Context;
+            }
+
+            if (!AutomessageChannel.Enabled)
+            {
+                return Context;
+            }
+            AutomessageChannel.Count++;
+
+            if (AutomessageChannel.Count > AutomessageChannel.Limit)
+            {
+                await Context.Channel.SendMessageAsync("", false, new EmbedBuilder
+                {
+                    Title = "Auto Message",
+                    Color = Color.Green,
+                    Description = AutomessageChannel.Message
+                }.Build());
+                AutomessageChannel.Count = 0;
+            }
+            Context.Server.Save();
+            return Context;
+        }
+
         public async Task<Context> DoLevels(Context Context)
         {
             if (Context.Channel is IDMChannel)
@@ -268,6 +301,7 @@ namespace PassiveBOT.Handlers
                 }
 
                 context = await DoLevels(context);
+                context = await DoAutoMessage(context);
                 if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix ||
                       message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix ||
                       context.Server.Settings.Prefix.CustomPrefix != null && message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos)))
