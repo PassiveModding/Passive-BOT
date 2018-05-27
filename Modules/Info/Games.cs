@@ -164,8 +164,7 @@ namespace PassiveBOT.Modules.Info
                     //If the player doesn't show up mark them as forfeitting and award a win to the other player.
                     if (next == null || msgtime < DateTime.UtcNow)
                     {
-                        await ReplyAsync(
-                            $"{(currentplayer == 1 ? p1.Mention : p2.Mention)} Did not reply fast enough. Auto forfitting");
+                        await ReplyAsync($"{(currentplayer == 1 ? p1.Mention : p2.Mention)} Did not reply fast enough. Auto forfitting");
 
                         var w = currentplayer == 1 ? p2.Id : p1.Id;
                         var l = currentplayer == 1 ? p1.Id : p2.Id;

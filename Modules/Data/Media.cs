@@ -6,6 +6,7 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Discord.Context;
+using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Models;
 using RedditSharp;
 using RedditSharp.Things;
@@ -14,6 +15,20 @@ namespace PassiveBOT.Modules.Data
 {
     public class Media : Base
     {
+        [Command("dog")]
+        [Summary("dog")]
+        [Remarks("Gets a random dog image from random.dog")]
+        public async Task Doggo2()
+        {
+            var woof = "http://random.dog/" + await SearchHelper.GetResponseStringAsync("https://random.dog/woof")
+                           .ConfigureAwait(false);
+            var embed = new EmbedBuilder()
+                .WithImageUrl(woof)
+                .WithTitle("Woof")
+                .WithUrl(woof);
+            await ReplyAsync("", false, embed.Build());
+        }
+
         [Command("RedditPost", RunMode = RunMode.Async)]
         [Summary("RedditPost <sub>")]
         [Remarks("Get a random post from first 25 in hot of a sub")]
