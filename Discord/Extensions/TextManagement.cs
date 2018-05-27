@@ -10,7 +10,7 @@ namespace PassiveBOT.Discord.Extensions
         public static List<List<T>> splitList<T>(List<T> FullList, int GroupSize = 30)
         {
             var newlist = new List<List<T>>();
-            for (int i = 0; i < FullList.Count; i += GroupSize)
+            for (var i = 0; i < FullList.Count; i += GroupSize)
             {
                 newlist.Add(FullList.Skip(i).Take(GroupSize).ToList());
             }

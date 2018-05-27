@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
@@ -9,6 +10,8 @@ using Discord.WebSocket;
 using Newtonsoft.Json;
 using PassiveBOT.Discord;
 using PassiveBOT.Discord.Context;
+using PassiveBOT.Discord.Context.Interactive.Paginator;
+using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Handlers;
 using Sparrow.Platform.Posix.macOS;
 
@@ -61,6 +64,27 @@ namespace PassiveBOT.Modules.BotConfig
             }
         }
 
+        [Command("Split_List")]
+        [Summary("Split_List")]
+        [Remarks("Test the SPlit List function")]
+        public async Task SplitList()
+        {
+            var list = new List<string>();
+            for (int i = 0; i < 100; i++)
+            {
+                list.Add($"{i}");
+            }
+            var pages = TextManagement.splitList(list, 20).Select(x => new PaginatedMessage.Page
+            {
+                description = string.Join("\n", x)
+            });
+            var Pager = new PaginatedMessage
+            {
+                Title = $"Split List Test",
+                Pages = pages
+            };
+            await PagedReplyAsync(Pager);
+        }
 
         private readonly TimerService _service;
         public LocalTests(TimerService service)
