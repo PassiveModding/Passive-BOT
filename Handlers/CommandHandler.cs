@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,6 +17,13 @@ namespace PassiveBOT.Handlers
         public static IServiceProvider Provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
+        public class GuildMsgx
+        {
+            public ulong GuildID { get; set; }
+            public List<DateTime> Times { get; set; } = new List<DateTime>();
+        }
+
 
         public CommandHandler(IServiceProvider provider)
         {
@@ -81,6 +89,24 @@ namespace PassiveBOT.Handlers
             var argPos = 0;
             var context = new Context(_client, message, Provider);
             if (context.User.IsBot) return;
+
+            if (GuildMsgs.Any(x => x.GuildID == context.Guild.Id))
+            {
+                var g = GuildMsgs.FirstOrDefault(x => x.GuildID == context.Guild.Id);
+                g.Times.Add(DateTime.UtcNow);
+            }
+            else
+            {
+                GuildMsgs.Add(new GuildMsgx
+                {
+                    GuildID = context.Guild.Id,
+                    Times = new List<DateTime>
+                    {
+                        DateTime.UtcNow
+                    }
+                });
+
+            }
 
             if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.HasStringPrefix(ConfigModel.Load().Prefix, ref argPos))) return;
 

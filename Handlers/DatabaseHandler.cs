@@ -127,6 +127,22 @@ namespace PassiveBOT.Handlers
         }
 
         /// <summary>
+        ///     This adds a new guild to the RavenDB
+        /// </summary>
+        /// <param name="Gmodel"></param>
+        public static void InsertGuildObject(GuildModel Gmodel)
+        {
+            using (var Session = Store.OpenSession(DBName))
+            {
+                if (Session.Advanced.Exists($"{Gmodel.ID}")) return;
+                Session.Store(Gmodel, $"{Gmodel.ID}");
+                Session.SaveChanges();
+            }
+
+            LogHandler.LogMessage($"Inserted Guild with ID: {Gmodel.ID}", LogSeverity.Debug);
+        }
+
+        /// <summary>
         ///     Remove a guild's config completely from the database
         /// </summary>
         /// <param name="Id"></param>
@@ -136,6 +152,7 @@ namespace PassiveBOT.Handlers
             using (var Session = Store.OpenSession(DBName))
             {
                 Session.Delete($"{Id}");
+                Session.SaveChanges();
             }
 
             LogHandler.LogMessage(string.IsNullOrWhiteSpace(Name) ? $"Removed Server With Id: {Id}" : $"Deleted Config For {Name}", LogSeverity.Debug);

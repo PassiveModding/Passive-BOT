@@ -1,13 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using OxyPlot;
+using OxyPlot.Series;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
 using PassiveBOT.Handlers;
+using Color = Discord.Color;
+using ImageFormat = Discord.ImageFormat;
 
 namespace PassiveBOT.Modules.BotConfig
 {
@@ -197,8 +205,7 @@ namespace PassiveBOT.Modules.BotConfig
             }
         }
 
-
-/*
+        /*
         [Command("Test2")]
         [Summary("Test2")]
         [Remarks("x")]
@@ -206,33 +213,43 @@ namespace PassiveBOT.Modules.BotConfig
         {
             try
             {
-                System.Drawing.Image image = new Bitmap(1000, 500);
-                var graph = Graphics.FromImage(image);
-                graph.Clear(System.Drawing.Color.Azure);
-                var pen = new Pen(Brushes.Black);
-
-                var points = new List<Point>
+                var graph = new PlotModel
                 {
-                    new Point(0, 1000),
-                    //new Point(100, 500),
-                    //new Point(150, 100)
+                    PlotType = PlotType.XY
                 };
-
-            
-                foreach (var time in CommandHandler.GuildMsgs.First(x => x.guildID == Context.Guild.Id).times)
+                var timegroup = CommandHandler.GuildMsgs
+                    .First(x => x.GuildID == Context.Guild.Id)
+                    .Times
+                    .Where(x => x > DateTime.UtcNow - TimeSpan.FromHours(1))
+                    .GroupBy(x => x.Second)
+                    .OrderBy(x => x.First().Ticks)
+                    .ToList();
+                var series = new LineSeries();
+                for (int i = 0; i < 60; i++)
                 {
-                    var x = (time.Ticks - (DateTime.UtcNow-TimeSpan.FromHours(1)).Ticks)/100000000;
-                    var y = (time.Ticks - (DateTime.UtcNow - TimeSpan.FromHours(1)).Ticks) / 100000000;
-                    Console.WriteLine(x);
-                    Console.WriteLine(y);
-                    points.Add(new Point((int)x, (int)y));
+                    var part = timegroup.FirstOrDefault(x => x.First().Second == i);
+                    if (part == null)
+                    {
+                        series.Points.Add(new DataPoint(i, 0));
+                    }
+                    else
+                    {
+                        series.Points.Add(new DataPoint(i, part.Count()));
+                    }
                 }
-            
-                graph.DrawLines(pen, points.ToArray());
-                Stream memoryStream = new MemoryStream();
-                image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                await Context.Channel.SendFileAsync(memoryStream, "Test.PNG");
+
+                graph.Series.Add(series);
+                //graph.DrawLines(pen, points.ToArray());
+                using (var ms = new MemoryStream())
+                {
+                    //image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+                    //Stream MStream = new MemoryStream();
+                    PdfExporter.Export(graph, ms, 1000, 500);
+                    MemoryStream ms2 = new MemoryStream(ms.ToArray());
+                    ms2.Seek(0, SeekOrigin.Begin);
+                    await Context.Channel.SendFileAsync(ms2, "Test.pdf");
+                }
+
             }
             catch (Exception e)
             {

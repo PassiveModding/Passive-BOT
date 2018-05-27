@@ -62,6 +62,16 @@ namespace PassiveBOT.Models
             ///     A list of Role IDs that are checked against for admins
             /// </summary>
             public List<ulong> AdminRoleIDs { get; set; } = new List<ulong>();
+
+            /// <summary>
+            ///     A list of Role IDs that are checked against for Moderators
+            /// </summary>
+            public List<ulong> ModRoleIDs { get; set; } = new List<ulong>();
+
+            /// <summary>
+            ///     A list of Role IDs that are publically available for users to subscribe to
+            /// </summary>
+            public List<ulong> SubRoleIDs { get; set; } = new List<ulong>();
         }
 
 
@@ -94,6 +104,11 @@ namespace PassiveBOT.Models
                 ///     The Amount of messages required before next AutoMessage
                 /// </summary>
                 public int Limit { get; set; } = 100;
+
+                /// <summary>
+                ///     The Message to be sent
+                /// </summary>
+                public string Message { get; set; }
             }
         }
 
