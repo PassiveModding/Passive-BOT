@@ -249,6 +249,7 @@ namespace PassiveBOT.Modules.Info
                             }
 
                             for (var c = 0; c < 7; c++)
+                            {
                                 switch (lines[r, c])
                                 {
                                     case 0:
@@ -261,6 +262,7 @@ namespace PassiveBOT.Modules.Info
                                         embed.Description += $"{red}";
                                         break;
                                 }
+                            }
 
                             embed.Description += "\n";
                         }
