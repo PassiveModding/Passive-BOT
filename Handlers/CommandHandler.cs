@@ -89,141 +89,138 @@ namespace PassiveBOT.Handlers
         {
             if (Context.Channel is IDMChannel)
             {
-                LogHandler.LogMessage("Level Check Ignored");
                 return Context;
             }
-            
-            if (Context.Server.Levels.Settings.Enabled)
+
+            if (!Context.Server.Levels.Settings.Enabled) return Context;
+
+
+            var luser = Context.Server.Levels.Users.FirstOrDefault(x => x.UserID == Context.User.Id);
+            if (luser == null)
             {
-                LogHandler.LogMessage("Running Level Check");
-                var luser = Context.Server.Levels.Users.FirstOrDefault(x => x.UserID == Context.User.Id);
-                if (luser == null)
+                Context.Server.Levels.Users.Add(new GuildModel.levelling.luser
                 {
-                    Context.Server.Levels.Users.Add(new GuildModel.levelling.luser
-                    {
-                        Level = 1,
-                        UserID = Context.User.Id,
-                        XP = 0
-                    });
-                    luser = Context.Server.Levels.Users.FirstOrDefault(x => x.UserID == Context.User.Id);
-                }
+                    Level = 1,
+                    UserID = Context.User.Id,
+                    XP = 0
+                });
+                luser = Context.Server.Levels.Users.FirstOrDefault(x => x.UserID == Context.User.Id);
+            }
 
-                luser.XP += 10;
-                var requiredxp = luser.Level * 50 + luser.Level * luser.Level * 25;
-                if (luser.XP > requiredxp)
+            luser.XP += 10;
+            var requiredxp = luser.Level * 50 + luser.Level * luser.Level * 25;
+            if (luser.XP > requiredxp)
+            {
+                luser.Level++;
+                string roleadded = null;
+                if (Context.Server.Levels.RewardRoles.Any())
                 {
-                    luser.Level++;
-                    string roleadded = null;
-                    if (Context.Server.Levels.RewardRoles.Any())
+                    var rolesavailable = Context.Server.Levels.RewardRoles.Where(x => x.Requirement <= luser.Level - 1).ToList();
+                    var roletoreceive = new List<GuildModel.levelling.levelreward>();
+                    if (rolesavailable.Any())
                     {
-                        var rolesavailable = Context.Server.Levels.RewardRoles.Where(x => x.Requirement <= luser.Level - 1).ToList();
-                        var roletoreceive = new List<GuildModel.levelling.levelreward>();
-                        if (rolesavailable.Any())
+                        if (Context.Server.Levels.Settings.IncrementLevelRewards)
                         {
-                            if (Context.Server.Levels.Settings.IncrementLevelRewards)
-                            {
-                                var maxrole = rolesavailable.Max(x => x.Requirement);
-                                roletoreceive.Add(rolesavailable.FirstOrDefault(x => x.Requirement == maxrole));
-                            }
-                            else
-                            {
-                                roletoreceive = rolesavailable;
-                            }
+                            var maxrole = rolesavailable.Max(x => x.Requirement);
+                            roletoreceive.Add(rolesavailable.FirstOrDefault(x => x.Requirement == maxrole));
                         }
-
-                        if (roletoreceive.Count != 0)
+                        else
                         {
-                            foreach (var role in roletoreceive)
-                            {
-                                if (((IGuildUser)Context.User).RoleIds.Contains(role.RoleID)) continue;
-                                var grole = Context.Guild.GetRole(role.RoleID);
-                                if (grole != null)
-                                {
-                                    try
-                                    {
-                                        await ((SocketGuildUser)Context.User).AddRoleAsync(grole);
-                                        roleadded += $"Role Reward: {grole.Name}\n";
-                                    }
-                                    catch
-                                    {
-                                        //
-                                    }
-                                }
-                                else
-                                {
-                                    Context.Server.Levels.RewardRoles.Remove(role);
-                                }
-                            }
+                            roletoreceive = rolesavailable;
+                        }
+                    }
 
-                            if (roletoreceive.Count != rolesavailable.Count && roletoreceive.Count == 1)
+                    if (roletoreceive.Count != 0)
+                    {
+                        foreach (var role in roletoreceive)
+                        {
+                            if (((IGuildUser)Context.User).RoleIds.Contains(role.RoleID)) continue;
+                            var grole = Context.Guild.GetRole(role.RoleID);
+                            if (grole != null)
                             {
                                 try
                                 {
-                                    rolesavailable.Remove(roletoreceive.First());
-                                    var roles = rolesavailable.Select(x => Context.Guild.GetRole(x.RoleID)).Where(x => x != null);
-
-                                    await ((SocketGuildUser)Context.User).RemoveRolesAsync(roles);
+                                    await ((SocketGuildUser)Context.User).AddRoleAsync(grole);
+                                    roleadded += $"Role Reward: {grole.Name}\n";
                                 }
                                 catch
                                 {
                                     //
                                 }
                             }
-                        }
-                    }
-
-                    var embed = new EmbedBuilder
-                    {
-                        Title = $"{Context.User.Username} Levelled Up!",
-                        ThumbnailUrl = Context.User.GetAvatarUrl(),
-                        Description = $"Level: {luser.Level - 1}\n" +
-                                      $"{roleadded}" +
-                                      $"XP: {requiredxp}\n" +
-                                      $"Next Level At: {luser.Level * 50 + luser.Level * luser.Level * 25} XP",
-                        Color = Color.Blue
-                    };
-                    if (Context.Server.Levels.Settings.UseLogChannel)
-                    {
-                        try
-                        {
-                            if (Context.Socket.Guild.GetChannel(Context.Server.Levels.Settings.LogChannelID) is IMessageChannel chan)
+                            else
                             {
-                                await chan.SendMessageAsync("", false, embed.Build());
+                                Context.Server.Levels.RewardRoles.Remove(role);
                             }
                         }
-                        catch
-                        {
-                            //
-                        }
-                    }
 
-                    if (Context.Server.Levels.Settings.ReplyLevelUps)
-                    {
-                        try
+                        if (roletoreceive.Count != rolesavailable.Count && roletoreceive.Count == 1)
                         {
-                            await Context.Channel.SendMessageAsync("", false, embed.Build());
-                        }
-                        catch
-                        {
-                            //
-                        }
-                    }
-                    if (Context.Server.Levels.Settings.ReplyLevelUps)
-                    {
-                        try
-                        {
-                            embed.Title = $"You Levelled up in {Context.Guild.Name}!";
-                            await Context.User.SendMessageAsync("", false, embed.Build());
-                        }
-                        catch
-                        {
-                            //
+                            try
+                            {
+                                rolesavailable.Remove(roletoreceive.First());
+                                var roles = rolesavailable.Select(x => Context.Guild.GetRole(x.RoleID)).Where(x => x != null);
+
+                                await ((SocketGuildUser)Context.User).RemoveRolesAsync(roles);
+                            }
+                            catch
+                            {
+                                //
+                            }
                         }
                     }
                 }
-                Context.Server.Save();
+
+                var embed = new EmbedBuilder
+                {
+                    Title = $"{Context.User.Username} Levelled Up!",
+                    ThumbnailUrl = Context.User.GetAvatarUrl(),
+                    Description = $"Level: {luser.Level - 1}\n" +
+                                  $"{roleadded}" +
+                                  $"XP: {requiredxp}\n" +
+                                  $"Next Level At: {luser.Level * 50 + luser.Level * luser.Level * 25} XP",
+                    Color = Color.Blue
+                };
+                if (Context.Server.Levels.Settings.UseLogChannel)
+                {
+                    try
+                    {
+                        if (Context.Socket.Guild.GetChannel(Context.Server.Levels.Settings.LogChannelID) is IMessageChannel chan)
+                        {
+                            await chan.SendMessageAsync("", false, embed.Build());
+                        }
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
+
+                if (Context.Server.Levels.Settings.ReplyLevelUps)
+                {
+                    //try
+                    //{
+                        await Context.Channel.SendMessageAsync("", false, embed.Build());
+                    //}
+                    //catch
+                    //{
+                        //
+                    //}
+                }
+                if (Context.Server.Levels.Settings.DMLevelUps)
+                {
+                    try
+                    {
+                        embed.Title = $"You Levelled up in {Context.Guild.Name}!";
+                        await Context.User.SendMessageAsync("", false, embed.Build());
+                    }
+                    catch
+                    {
+                        //
+                    }
+                }
             }
-            LogHandler.LogMessage("Level Check Complete");
+            Context.Server.Save();
             return Context;
         }
         private async Task DoCommand(SocketMessage parameterMessage)
