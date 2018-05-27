@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -10,7 +8,6 @@ using PassiveBOT.Discord.Context.Interactive.Paginator;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Discord.Preconditions;
 using PassiveBOT.Models;
-using Sparrow.Platform.Posix.macOS;
 
 namespace PassiveBOT.Modules.GuildSetup
 {

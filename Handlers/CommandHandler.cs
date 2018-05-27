@@ -18,6 +18,13 @@ namespace PassiveBOT.Handlers
         public static IServiceProvider Provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        public static RuntimeStats Stats = new RuntimeStats();
+        public class RuntimeStats
+        {
+            public int MessagesReceived { get; set; }
+            public int CommandsRan { get; set; }
+        }
+        
         public static List<Connect4Lobby> Connect4List = new List<Connect4Lobby>();
         public class Connect4Lobby
         {
@@ -275,6 +282,7 @@ namespace PassiveBOT.Handlers
             if (!(parameterMessage is SocketUserMessage message)) return;
             var argPos = 0;
             var context = new Context(_client, message, Provider);
+            Stats.MessagesReceived++;
             if (context.User.IsBot) return;
 
             if (context.Channel is IDMChannel)
@@ -316,6 +324,7 @@ namespace PassiveBOT.Handlers
             if (result.IsSuccess)
             {
                 LogHandler.LogMessage($"{context.Message.Content}");
+                Stats.CommandsRan++;
             }
             else
             {
