@@ -6,14 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ApiAiSDK" Version="1.6.5" />
-    <PackageReference Include="Discord.Net" Version="1.0.2" />
-    <PackageReference Include="DiscordBotsList.Api" Version="1.1.0" />
-    <PackageReference Include="DiscordBotsList.Api.Adapter.Discord.Net" Version="1.0.0" />
+    <Compile Remove="Preconditions\**" />
+    <EmbeddedResource Remove="Preconditions\**" />
+    <None Remove="Preconditions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <PackageReference Include="OxyPlot.Core" Version="2.0.0-unstable1035" />
     <PackageReference Include="RavenDB.Client" Version="4.0.3" />
-    <PackageReference Include="RedditSharp" Version="1.1.14" />
+    <PackageReference Include="RedditSharp" Version="2.0.0-CI00065" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    <PackageReference Include="TwitchLib" Version="1.5.9" />
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0-rc1" />
   </ItemGroup>
 
 </Project>
