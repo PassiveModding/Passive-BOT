@@ -117,19 +117,35 @@ namespace PassiveBOT.Handlers
                     var reader = new StreamReader(stream ?? throw new InvalidOperationException());
                     var content = reader.ReadToEnd();
                     dynamic file = JsonConvert.DeserializeObject(content);
-                    embed.AddField($"Original [{file[2]}]", $"{Message.Value.Content}");
-                    embed.AddField($"Final [{language} || {Reaction.Emote}]", $"{TranslateMethods.HandleReponse(file)}");
+                    var original = Message.Value.Content;
+                    if (original.Length > 1024)
+                    {
+                        original = original.Substring(0, 1020) + "...";
+                    }
+                    var response = TranslateMethods.HandleReponse(file);
+                    if (response.ToString().Length > 1024)
+                    {
+                        response = response.Substring(0, 1020) + "...";
+                    }
+                    embed.AddField($"Translated [{language} || {Reaction.Emote}]", $"{response}", true);
+                    embed.AddField($"Original [{file[2]}]", $"{original}", true);
                     embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" +
-                                           $"Reactor: {Reaction.User.Value}");
-                    await Channel.SendMessageAsync("", false, embed.Build());
-                    Translated.Add(Reaction.MessageId, languagetype.Language);
+                                           $"Reactor: {Reaction.User.Value}", true);
+                    if (guild.Settings.Translate.DMTranslations)
+                    {
+                        await Reaction.User.Value.SendMessageAsync("", false, embed.Build());
+                    }
+                    else
+                    {
+                        await Channel.SendMessageAsync("", false, embed.Build());
+                        Translated.Add(Reaction.MessageId, languagetype.Language);
+                    }
                     client.Dispose();
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
             }
         }
 

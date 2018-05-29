@@ -411,6 +411,7 @@ namespace PassiveBOT.Models
             public class translate
             {
                 public bool EasyTranslate { get; set; } = false;
+                public bool DMTranslations { get; set; } = false;
                 public List<TObject> Custompairs { get; set; } = new List<TObject>();
 
                 public class TObject

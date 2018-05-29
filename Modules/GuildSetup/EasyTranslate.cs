@@ -51,6 +51,16 @@ namespace PassiveBOT.Modules.GuildSetup
             await SimpleEmbedAsync($"Quick Translate Enabled: {Context.Server.Settings.Translate.EasyTranslate}");
         }
 
+        [Command("TranslateDM")]
+        [Summary("TranslateDM")]
+        [Remarks("Toggle wether or not Translations will be sent in DMs")]
+        public async Task ToggleMD()
+        {
+            Context.Server.Settings.Translate.DMTranslations = !Context.Server.Settings.Translate.DMTranslations;
+            Context.Server.Save();
+            await SimpleEmbedAsync($"DM Quick Translations: {Context.Server.Settings.Translate.DMTranslations}");
+        }
+
         [Command("Remove")]
         [Summary("Remove <Emote>")]
         [Remarks("Remove a custom emote from QuickTranslation list")]
