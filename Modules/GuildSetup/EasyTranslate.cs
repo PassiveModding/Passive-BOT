@@ -37,7 +37,7 @@ namespace PassiveBOT.Modules.GuildSetup
                                    $"`{Context.Prefix}Translate languages`\n" +
                                    "Also, \n" +
                                    "for `zh-CN - Chinese(Simplified)` use `zh_CN`\n" +
-                                   "for`zh-TW - Chinese(Traditional)` use `zh_TW`\n" +
+                                   "for `zh-TW - Chinese(Traditional)` use `zh_TW`\n" +
                                    "for `is - Icelandic` use `_is`");
         }
 
