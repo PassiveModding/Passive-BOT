@@ -388,6 +388,8 @@ namespace PassiveBOT.Models
             /// </summary>
             public prefix Prefix { get; set; } = new prefix();
 
+            public translate Translate { get; set; } = new translate();
+
             public class prefix
             {
                 /// <summary>
@@ -405,7 +407,7 @@ namespace PassiveBOT.Models
                 /// </summary>
                 public string CustomPrefix { get; set; } = null;
             }
-            public translate Translate { get; set; } = new translate();
+
             public class translate
             {
                 public bool EasyTranslate { get; set; } = false;

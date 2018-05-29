@@ -5,11 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Newtonsoft.Json.Linq;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
@@ -22,24 +20,26 @@ namespace PassiveBOT.Modules.Info
     {
         public static string CalculateYourAge(DateTime Dob)
         {
-            DateTime Now = DateTime.Now;
-            int _Years = new DateTime(DateTime.Now.Subtract(Dob).Ticks).Year - 1;
-            DateTime _DOBDateNow = Dob.AddYears(_Years);
-            int _Months = 0;
-            for (int i = 1; i <= 12; i++)
+            var Now = DateTime.Now;
+            var _Years = new DateTime(DateTime.Now.Subtract(Dob).Ticks).Year - 1;
+            var _DOBDateNow = Dob.AddYears(_Years);
+            var _Months = 0;
+            for (var i = 1; i <= 12; i++)
             {
                 if (_DOBDateNow.AddMonths(i) == Now)
                 {
                     _Months = i;
                     break;
                 }
-                else if (_DOBDateNow.AddMonths(i) >= Now)
+
+                if (_DOBDateNow.AddMonths(i) >= Now)
                 {
                     _Months = i - 1;
                     break;
                 }
             }
-            int Days = Now.Subtract(_DOBDateNow.AddMonths(_Months)).Days;
+
+            var Days = Now.Subtract(_DOBDateNow.AddMonths(_Months)).Days;
 
             return $"Age: {_Years} Years {_Months} Months {Days} Days";
         }
@@ -168,9 +168,9 @@ namespace PassiveBOT.Modules.Info
                 {
                     dynamic result = JArray.Parse(await response.Content.ReadAsStringAsync());
                     changes =
-                        $"[{((string)result[0].sha).Substring(0, 7)}]({result[0].html_url}) {result[0].commit.message}\n" +
-                        $"[{((string)result[1].sha).Substring(0, 7)}]({result[1].html_url}) {result[1].commit.message}\n" +
-                        $"[{((string)result[2].sha).Substring(0, 7)}]({result[2].html_url}) {result[2].commit.message}";
+                        $"[{((string) result[0].sha).Substring(0, 7)}]({result[0].html_url}) {result[0].commit.message}\n" +
+                        $"[{((string) result[1].sha).Substring(0, 7)}]({result[1].html_url}) {result[1].commit.message}\n" +
+                        $"[{((string) result[2].sha).Substring(0, 7)}]({result[2].html_url}) {result[2].commit.message}";
                 }
 
                 response.Dispose();
@@ -290,5 +290,4 @@ namespace PassiveBOT.Modules.Info
             return Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2).ToString(CultureInfo.InvariantCulture);
         }
     }
-
 }

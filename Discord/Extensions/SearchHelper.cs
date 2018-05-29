@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PassiveBOT.Discord.Extensions
@@ -14,6 +13,7 @@ namespace PassiveBOT.Discord.Extensions
             Get,
             Post
         }
+
         private static async Task<Stream> GetResponseStreamAsync(string url,
             IEnumerable<KeyValuePair<string, string>> headers = null, RequestHttpMethod method = RequestHttpMethod.Get)
         {

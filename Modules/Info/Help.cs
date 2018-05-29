@@ -55,7 +55,7 @@ namespace PassiveBOT.Modules.Info
         [Remarks("Show a list of all commands with usage")]
         public async Task Helpc()
         {
-            var p = Context.Channel is IDMChannel ? CommandHandler.Config.Prefix : (DatabaseHandler.GetGuild(Context.Guild.Id).Settings.Prefix.CustomPrefix ?? CommandHandler.Config.Prefix);
+            var p = Context.Channel is IDMChannel ? CommandHandler.Config.Prefix : DatabaseHandler.GetGuild(Context.Guild.Id).Settings.Prefix.CustomPrefix ?? CommandHandler.Config.Prefix;
             var simplemodules = new List<modulesummary>();
             foreach (var module in _service.Modules)
             {

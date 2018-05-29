@@ -73,7 +73,7 @@ namespace PassiveBOT.Modules.Info
         [RequireContext(ContextType.Guild)]
         public async Task RoleInfoAsync(IRole role)
         {
-            var srole = ((SocketRole)role).Permissions;
+            var srole = ((SocketRole) role).Permissions;
             var l = new List<string>();
             if (srole.AddReactions)
                 l.Add("Can Add Reactions");

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Discord;
-using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Discord.Extensions
 {
@@ -29,6 +28,7 @@ namespace PassiveBOT.Discord.Extensions
         {
             return GetInvite(context.Client);
         }
+
         public static string GetInvite(IDiscordClient client)
         {
             return $"https://discordapp.com/oauth2/authorize?client_id={client.CurrentUser.Id}&scope=bot&permissions=2146958591";

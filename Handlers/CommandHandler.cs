@@ -21,22 +21,12 @@ namespace PassiveBOT.Handlers
     public class CommandHandler
     {
         public static IServiceProvider Provider;
-        private readonly DiscordSocketClient _client;
-        private readonly CommandService _commands;
         public static Dictionary<ulong, LanguageMap.languagecode> Translated = new Dictionary<ulong, LanguageMap.languagecode>();
         public static RuntimeStats Stats = new RuntimeStats();
-        public class RuntimeStats
-        {
-            public int MessagesReceived { get; set; }
-            public int CommandsRan { get; set; }
-        }
 
         public static List<Connect4Lobby> Connect4List = new List<Connect4Lobby>();
-        public class Connect4Lobby
-        {
-            public ulong ChannelID { get; set; }
-            public bool Gamerunning { get; set; } = false;
-        }
+        private readonly DiscordSocketClient _client;
+        private readonly CommandService _commands;
 
         public CommandHandler(IServiceProvider provider)
         {
@@ -57,6 +47,10 @@ namespace PassiveBOT.Handlers
             _client.UserJoined += _client_UserJoined;
             _client.UserLeft += _client_UserLeftAsync;
         }
+
+        public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
+        public static ConfigModel Config { get; set; } = ConfigModel.Load();
+
         private async Task _client_ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
         {
             try
@@ -74,6 +68,7 @@ namespace PassiveBOT.Handlers
                     {
                         return;
                     }
+
                     //Check custom matches first
                     var languagetype = guild.Settings.Translate.Custompairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
 
@@ -91,19 +86,23 @@ namespace PassiveBOT.Handlers
                     {
                         return;
                     }
+
                     var language = languagetype.Language.ToString();
                     if (language == "zh_CN")
                     {
                         language = "zh-CN";
                     }
+
                     if (language == "zh_TW")
                     {
                         language = "zh-TW";
                     }
+
                     if (language == "_is")
                     {
                         language = "is";
                     }
+
                     var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(Message.Value.Content)}";
                     var embed = new EmbedBuilder
                     {
@@ -112,7 +111,7 @@ namespace PassiveBOT.Handlers
                     };
 
 
-                    var client = new WebClient { Encoding = Encoding.UTF8 };
+                    var client = new WebClient {Encoding = Encoding.UTF8};
 
                     var stream = client.OpenRead(url);
                     var reader = new StreamReader(stream ?? throw new InvalidOperationException());
@@ -121,7 +120,7 @@ namespace PassiveBOT.Handlers
                     embed.AddField($"Original [{file[2]}]", $"{Message.Value.Content}");
                     embed.AddField($"Final [{language} || {Reaction.Emote}]", $"{TranslateMethods.HandleReponse(file)}");
                     embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" +
-                                            $"Reactor: {Reaction.User.Value}");
+                                           $"Reactor: {Reaction.User.Value}");
                     await Channel.SendMessageAsync("", false, embed.Build());
                     Translated.Add(Reaction.MessageId, languagetype.Language);
                     client.Dispose();
@@ -132,11 +131,7 @@ namespace PassiveBOT.Handlers
                 Console.WriteLine(e);
                 throw;
             }
-
         }
-
-        public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
-        public static ConfigModel Config { get; set; } = ConfigModel.Load();
 
         private async Task _client_UserLeftAsync(SocketGuildUser User)
         {
@@ -198,6 +193,7 @@ namespace PassiveBOT.Handlers
             {
                 return Context;
             }
+
             AutomessageChannel.Count++;
 
             if (AutomessageChannel.Count >= AutomessageChannel.Limit)
@@ -210,6 +206,7 @@ namespace PassiveBOT.Handlers
                 }.Build());
                 AutomessageChannel.Count = 0;
             }
+
             Context.Server.Save();
             return Context;
         }
@@ -271,13 +268,13 @@ namespace PassiveBOT.Handlers
                         {
                             foreach (var role in roletoreceive)
                             {
-                                if (((IGuildUser)Context.User).RoleIds.Contains(role.RoleID)) continue;
+                                if (((IGuildUser) Context.User).RoleIds.Contains(role.RoleID)) continue;
                                 var grole = Context.Guild.GetRole(role.RoleID);
                                 if (grole != null)
                                 {
                                     try
                                     {
-                                        await ((SocketGuildUser)Context.User).AddRoleAsync(grole);
+                                        await ((SocketGuildUser) Context.User).AddRoleAsync(grole);
                                         roleadded += $"Role Reward: {grole.Name}\n";
                                     }
                                     catch
@@ -298,7 +295,7 @@ namespace PassiveBOT.Handlers
                                     rolesavailable.Remove(roletoreceive.First());
                                     var roles = rolesavailable.Select(x => Context.Guild.GetRole(x.RoleID)).Where(x => x != null);
 
-                                    await ((SocketGuildUser)Context.User).RemoveRolesAsync(roles);
+                                    await ((SocketGuildUser) Context.User).RemoveRolesAsync(roles);
                                 }
                                 catch
                                 {
@@ -456,6 +453,18 @@ namespace PassiveBOT.Handlers
                     LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
                 }
             }
+        }
+
+        public class RuntimeStats
+        {
+            public int MessagesReceived { get; set; }
+            public int CommandsRan { get; set; }
+        }
+
+        public class Connect4Lobby
+        {
+            public ulong ChannelID { get; set; }
+            public bool Gamerunning { get; set; } = false;
         }
 
         public class GuildMsgx

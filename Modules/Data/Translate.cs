@@ -97,7 +97,5 @@ namespace PassiveBOT.Modules.Data
             await Context.User.SendMessageAsync("", false, embed2.Build());
             await ReplyAsync("DM Sent.");
         }
-
-
     }
 }

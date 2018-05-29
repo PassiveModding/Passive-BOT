@@ -35,11 +35,12 @@ namespace PassiveBOT.Modules.GuildSetup
                                    $"`{Context.Prefix}Translation Defaults` - List the Default Configuration\n\n" +
                                    "NOTE: For a list of Language Codes\n" +
                                    $"`{Context.Prefix}Translate languages`\n" +
-                                   "Also, \n" +   
+                                   "Also, \n" +
                                    "for `zh-CN - Chinese(Simplified)` use `zh_CN`\n" +
                                    "for`zh-TW - Chinese(Traditional)` use `zh_TW`\n" +
                                    "for `is - Icelandic` use `_is`");
         }
+
         [Command("Toggle")]
         [Summary("Toggle")]
         [Remarks("Toggle quick translation for the server")]
@@ -58,7 +59,6 @@ namespace PassiveBOT.Modules.GuildSetup
             var matchingpair = Context.Server.Settings.Translate.Custompairs.FirstOrDefault(x => x.EmoteMatches.Contains(RemoveEmote.Name));
             if (matchingpair != null)
             {
-                
                 if (matchingpair.EmoteMatches.Count == 1)
                 {
                     Context.Server.Settings.Translate.Custompairs.Remove(matchingpair);
@@ -72,6 +72,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 throw new Exception("No Matching Pair.");
             }
+
             Context.Server.Save();
             await SimpleEmbedAsync("Removed.");
         }
@@ -94,11 +95,15 @@ namespace PassiveBOT.Modules.GuildSetup
             else
             {
                 Context.Server.Settings.Translate.Custompairs.Add(new GuildModel.gsettings.translate.TObject
-                { EmoteMatches = new List<string>
                 {
-                    InputEmote.Name
-                }, Language = languagepair});
+                    EmoteMatches = new List<string>
+                    {
+                        InputEmote.Name
+                    },
+                    Language = languagepair
+                });
             }
+
             Context.Server.Save();
             await SimpleEmbedAsync("Pair Added:\n" +
                                    $"{InputEmote.Name} => {languagepair}");

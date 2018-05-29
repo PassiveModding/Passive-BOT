@@ -1,74 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace PassiveBOT.Models
 {
     public class LanguageMap
     {
-        public static List<GuildModel.gsettings.translate.TObject> Map = new List<GuildModel.gsettings.translate.TObject>
-        {
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇦🇺",
-                "🇺🇸",
-                "🇪🇺",
-                "🇳🇿"
-            }, Language = languagecode.en},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇭🇺"
-            }, Language = languagecode.hu},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-            "🇫🇷"
-            }, Language = languagecode.fr},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇫🇮"
-            }, Language = languagecode.fi},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇲🇽",
-                "🇪🇸",
-                "🇨🇴",
-                "🇦🇷"
-            }, Language = languagecode.es},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇧🇷",
-                "🇵🇹",
-                "🇲🇿",
-                "🇦🇴"
-            }, Language = languagecode.pt},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇩🇪",
-                "🇦🇹",
-                "🇨🇭",
-                "🇧🇪",
-                "🇱🇺",
-                "🇱🇮"
-            }, Language = languagecode.de},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇮🇹",
-                "🇨🇭",
-                "🇸🇲",
-                "🇻🇦"
-            }, Language = languagecode.it},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇨🇳",
-                "🇸🇬",
-                "🇹🇼"
-            }, Language = languagecode.zh_CN},
-            new GuildModel.gsettings.translate.TObject{EmoteMatches = new List<string>
-            {
-                "🇯🇵"
-            }, Language = languagecode.ja},
-        };
-
         public enum languagecode
         {
             af,
@@ -175,5 +110,108 @@ namespace PassiveBOT.Models
             yo,
             zu
         }
+
+        public static List<GuildModel.gsettings.translate.TObject> Map = new List<GuildModel.gsettings.translate.TObject>
+        {
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇦🇺",
+                    "🇺🇸",
+                    "🇪🇺",
+                    "🇳🇿"
+                },
+                Language = languagecode.en
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇭🇺"
+                },
+                Language = languagecode.hu
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇫🇷"
+                },
+                Language = languagecode.fr
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇫🇮"
+                },
+                Language = languagecode.fi
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇲🇽",
+                    "🇪🇸",
+                    "🇨🇴",
+                    "🇦🇷"
+                },
+                Language = languagecode.es
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇧🇷",
+                    "🇵🇹",
+                    "🇲🇿",
+                    "🇦🇴"
+                },
+                Language = languagecode.pt
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇩🇪",
+                    "🇦🇹",
+                    "🇨🇭",
+                    "🇧🇪",
+                    "🇱🇺",
+                    "🇱🇮"
+                },
+                Language = languagecode.de
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇮🇹",
+                    "🇨🇭",
+                    "🇸🇲",
+                    "🇻🇦"
+                },
+                Language = languagecode.it
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇨🇳",
+                    "🇸🇬",
+                    "🇹🇼"
+                },
+                Language = languagecode.zh_CN
+            },
+            new GuildModel.gsettings.translate.TObject
+            {
+                EmoteMatches = new List<string>
+                {
+                    "🇯🇵"
+                },
+                Language = languagecode.ja
+            }
+        };
     }
 }

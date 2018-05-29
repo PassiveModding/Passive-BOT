@@ -45,7 +45,7 @@ namespace PassiveBOT.Modules.GuildSetup
         [Command("Message", RunMode = RunMode.Async)]
         [Summary("Message <Message>")]
         [Remarks("Set the AutoMessage for the current channel.")]
-        public async Task SetMessage([Remainder]string message = null)
+        public async Task SetMessage([Remainder] string message = null)
         {
             var AMChannel = Context.Server.AutoMessage.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
             if (AMChannel == null)
@@ -57,6 +57,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 throw new Exception($"Automessage character limit exceeded. Please limit it to 512 characters. Current: {message.Length}");
             }
+
             AMChannel.Message = message;
             await SimpleEmbedAsync("This channel's automessage is now:\n" +
                                    $"{message}");

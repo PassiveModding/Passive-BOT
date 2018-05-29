@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
 using Discord.Commands;
 using PassiveBOT.Discord.Extensions.EmojiTools;
 
@@ -12,7 +11,7 @@ namespace PassiveBOT.Discord.TypeReaders
         {
             try
             {
-                Emoji Result = EmojiExtensions.FromText(input);
+                var Result = EmojiExtensions.FromText(input);
                 return Task.FromResult(TypeReaderResult.FromSuccess(Result));
             }
             catch (Exception e)
@@ -20,6 +19,5 @@ namespace PassiveBOT.Discord.TypeReaders
                 return Task.FromResult(TypeReaderResult.FromError(CommandError.ParseFailed, "Input could not be parsed as a Emoji."));
             }
         }
-
     }
 }
