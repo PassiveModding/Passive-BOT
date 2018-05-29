@@ -7,6 +7,7 @@ using Discord;
 using Discord.Commands;
 using Newtonsoft.Json;
 using PassiveBOT.Discord.Context;
+using PassiveBOT.Discord.Extensions;
 
 namespace PassiveBOT.Modules.Data
 {
@@ -18,8 +19,7 @@ namespace PassiveBOT.Modules.Data
         [Remarks("Translate from one language to another")]
         public async Task TranslateCmd(string language, [Remainder] string omessage)
         {
-            var message = omessage.Replace("\n", "<br/>");
-            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(message)}";
+            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(omessage)}";
             var embed = new EmbedBuilder();
 
             var client = new WebClient {Encoding = Encoding.UTF8};
@@ -29,7 +29,7 @@ namespace PassiveBOT.Modules.Data
             var content = reader.ReadToEnd();
             dynamic file = JsonConvert.DeserializeObject(content);
             embed.AddField($"Original [{file[2]}]", $"{omessage}");
-            embed.AddField($"Final [{language}]", $"{file[0][0][0].ToString().Replace("<br/>", "\n")}");
+            embed.AddField($"Final [{language}]", $"{TranslateMethods.HandleReponse(file)}");
 
             await ReplyAsync("", false, embed.Build());
             client.Dispose();
@@ -97,5 +97,7 @@ namespace PassiveBOT.Modules.Data
             await Context.User.SendMessageAsync("", false, embed2.Build());
             await ReplyAsync("DM Sent.");
         }
+
+
     }
 }

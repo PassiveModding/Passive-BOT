@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Extensions;
+using PassiveBOT.Discord.TypeReaders;
 using PassiveBOT.Models;
 
 namespace PassiveBOT.Handlers
@@ -18,13 +23,14 @@ namespace PassiveBOT.Handlers
         public static IServiceProvider Provider;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        public static Dictionary<ulong, LanguageMap.languagecode> Translated = new Dictionary<ulong, LanguageMap.languagecode>();
         public static RuntimeStats Stats = new RuntimeStats();
         public class RuntimeStats
         {
             public int MessagesReceived { get; set; }
             public int CommandsRan { get; set; }
         }
-        
+
         public static List<Connect4Lobby> Connect4List = new List<Connect4Lobby>();
         public class Connect4Lobby
         {
@@ -39,13 +45,94 @@ namespace PassiveBOT.Handlers
             _commands = new CommandService();
             Config = ConfigModel.Load();
 
+            _commands.AddTypeReader(typeof(Emoji), new EmojiTypeReader());
             _client.MessageReceived += DoCommand;
             _client.Ready += _client_Ready;
             _client.JoinedGuild += _client_JoinedGuild;
 
+            //Translate Reactions
+            _client.ReactionAdded += _client_ReactionAdded;
+
             //Welcome and Joined Events
             _client.UserJoined += _client_UserJoined;
             _client.UserLeft += _client_UserLeftAsync;
+        }
+        private async Task _client_ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
+        {
+            try
+            {
+                LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
+                if (Message.HasValue)
+                {
+                    if (Message.Value.Author.IsBot || Reaction.User.Value.IsBot || Message.Value.Embeds.Any())
+                    {
+                        return;
+                    }
+
+                    var guild = DatabaseHandler.GetGuild((Channel as IGuildChannel).GuildId);
+                    if (!guild.Settings.Translate.EasyTranslate)
+                    {
+                        return;
+                    }
+                    //Check custom matches first
+                    var languagetype = guild.Settings.Translate.Custompairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
+
+                    if (languagetype == null)
+                    {
+                        //If no custom matches, check default matches
+                        languagetype = LanguageMap.Map.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
+                        if (languagetype == null)
+                        {
+                            return;
+                        }
+                    }
+
+                    if (Translated.Any(x => x.Key == Reaction.MessageId && x.Value == languagetype.Language))
+                    {
+                        return;
+                    }
+                    var language = languagetype.Language.ToString();
+                    if (language == "zh_CN")
+                    {
+                        language = "zh-CN";
+                    }
+                    if (language == "zh_TW")
+                    {
+                        language = "zh-TW";
+                    }
+                    if (language == "_is")
+                    {
+                        language = "is";
+                    }
+                    var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(Message.Value.Content)}";
+                    var embed = new EmbedBuilder
+                    {
+                        Title = "Translate",
+                        Color = Color.Blue
+                    };
+
+
+                    var client = new WebClient { Encoding = Encoding.UTF8 };
+
+                    var stream = client.OpenRead(url);
+                    var reader = new StreamReader(stream ?? throw new InvalidOperationException());
+                    var content = reader.ReadToEnd();
+                    dynamic file = JsonConvert.DeserializeObject(content);
+                    embed.AddField($"Original [{file[2]}]", $"{Message.Value.Content}");
+                    embed.AddField($"Final [{language} || {Reaction.Emote}]", $"{TranslateMethods.HandleReponse(file)}");
+                    embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" +
+                                            $"Reactor: {Reaction.User.Value}");
+                    await Channel.SendMessageAsync("", false, embed.Build());
+                    Translated.Add(Reaction.MessageId, languagetype.Language);
+                    client.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
@@ -184,13 +271,13 @@ namespace PassiveBOT.Handlers
                         {
                             foreach (var role in roletoreceive)
                             {
-                                if (((IGuildUser) Context.User).RoleIds.Contains(role.RoleID)) continue;
+                                if (((IGuildUser)Context.User).RoleIds.Contains(role.RoleID)) continue;
                                 var grole = Context.Guild.GetRole(role.RoleID);
                                 if (grole != null)
                                 {
                                     try
                                     {
-                                        await ((SocketGuildUser) Context.User).AddRoleAsync(grole);
+                                        await ((SocketGuildUser)Context.User).AddRoleAsync(grole);
                                         roleadded += $"Role Reward: {grole.Name}\n";
                                     }
                                     catch
@@ -211,7 +298,7 @@ namespace PassiveBOT.Handlers
                                     rolesavailable.Remove(roletoreceive.First());
                                     var roles = rolesavailable.Select(x => Context.Guild.GetRole(x.RoleID)).Where(x => x != null);
 
-                                    await ((SocketGuildUser) Context.User).RemoveRolesAsync(roles);
+                                    await ((SocketGuildUser)Context.User).RemoveRolesAsync(roles);
                                 }
                                 catch
                                 {

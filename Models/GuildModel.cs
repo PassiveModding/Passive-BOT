@@ -405,6 +405,18 @@ namespace PassiveBOT.Models
                 /// </summary>
                 public string CustomPrefix { get; set; } = null;
             }
+            public translate Translate { get; set; } = new translate();
+            public class translate
+            {
+                public bool EasyTranslate { get; set; } = false;
+                public List<TObject> Custompairs { get; set; } = new List<TObject>();
+
+                public class TObject
+                {
+                    public List<string> EmoteMatches { get; set; } = new List<string>();
+                    public LanguageMap.languagecode Language { get; set; }
+                }
+            }
         }
     }
 }
