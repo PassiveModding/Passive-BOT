@@ -391,7 +391,7 @@ namespace PassiveBOT.Models
             public prefix Prefix { get; set; } = new prefix();
 
             public translate Translate { get; set; } = new translate();
-
+            public colorroles ColorRoles { get; set; } = new colorroles();
             public class prefix
             {
                 /// <summary>
@@ -421,6 +421,11 @@ namespace PassiveBOT.Models
                     public List<string> EmoteMatches { get; set; } = new List<string>();
                     public LanguageMap.languagecode Language { get; set; }
                 }
+            }
+
+            public class colorroles
+            {
+                public bool Enabled { get; set; } = false;
             }
         }
     }
