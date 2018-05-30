@@ -187,6 +187,8 @@ namespace PassiveBOT.Models
                 public bool Enabled { get; set; } = false;
 
                 public bool SendDMs { get; set; } = false;
+
+                public bool UserCount { get; set; } = true;
             }
         }
 

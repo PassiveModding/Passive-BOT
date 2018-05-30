@@ -16,8 +16,17 @@ namespace PassiveBOT.Discord.Extensions
                 {
                     Title = $"Welcome to {User.Guild.Name}, {User}",
                     Description = $"{DB.Events.Welcome.Message}",
-                    Color = Color.Green
+                    Color = Color.Green,
                 };
+
+                if (DB.Events.Welcome.UserCount)
+                {
+                    welcomeembed.Footer = new EmbedFooterBuilder
+                    {
+                        Text = $"Users: {User.Guild.MemberCount}"
+                    };
+                }
+
                 if (DB.Events.Welcome.SendDMs)
                 {
                     try

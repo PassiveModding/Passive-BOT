@@ -60,6 +60,17 @@ namespace PassiveBOT.Modules.GuildSetup
                 await SimpleEmbedAsync($"Success, Welcome messages will now be sent in the channel: {Context.Channel.Name}");
             }
 
+            [Command("UserCount")]
+            [Summary("UserCount")]
+            [Remarks("Toggle usercount in welcome messages")]
+            public async Task UserCount()
+            {
+                Context.Server.Events.Welcome.UserCount = !Context.Server.Events.Welcome.UserCount;
+                Context.Server.Save();
+                await SimpleEmbedAsync("**Success**\n" +
+                                       $"Usercount will be shown in the footer of Welcome messages: {Context.Server.Events.Welcome.UserCount}");
+            }
+
             [Command("Message")]
             [Summary("Message")]
             [Remarks("Set the welcome message")]
