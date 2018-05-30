@@ -43,7 +43,7 @@ namespace PassiveBOT.Modules.Info
                        $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n";
             }
 
-            await SendEmbedAsync(new EmbedBuilder
+            await ReplyAsync(new EmbedBuilder
             {
                 Title = $"Command Lookup",
                 Description = desc

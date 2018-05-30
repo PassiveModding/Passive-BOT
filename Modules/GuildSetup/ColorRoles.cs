@@ -75,7 +75,7 @@ namespace PassiveBOT.Modules.GuildSetup
                     await (Context.User as SocketGuildUser).RemoveRolesAsync(croles);
                 }
                 await (Context.User as IGuildUser).AddRoleAsync(colorrole);
-                await SendEmbedAsync(new EmbedBuilder
+                await ReplyAsync(new EmbedBuilder
                 {
                     Description = $"Success, you have been given the role {colorrole.Mention}",
                     Color = DCol.Color

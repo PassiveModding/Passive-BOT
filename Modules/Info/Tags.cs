@@ -129,7 +129,7 @@ namespace PassiveBOT.Modules.Info
                         });
                         tag.Uses++;
                         Context.Server.Save();
-                        await SendEmbedAsync(embed.Build());
+                        await ReplyAsync(embed.Build());
                     }
                 }
             }

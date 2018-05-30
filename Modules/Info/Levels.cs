@@ -33,7 +33,7 @@ namespace PassiveBOT.Modules.Info
             embed.AddField("Level", $"{luser.Level - 1}", true);
             embed.AddField("XP", $"{luser.XP}", true);
             embed.AddField("Rank", $"#{Context.Server.Levels.Users.OrderByDescending(x => x.XP).ToList().FindIndex(u => u == luser) + 1}", true);
-            await SendEmbedAsync(embed);
+            await ReplyAsync(embed);
             Context.Server.Save();
         }
 

@@ -179,7 +179,7 @@ namespace PassiveBOT.Modules.Info
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
 
-            await SendEmbedAsync(embed);
+            await ReplyAsync(embed);
         }
 
         [Command("RoleList")]

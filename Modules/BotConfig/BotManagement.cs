@@ -25,7 +25,7 @@ namespace PassiveBOT.Modules.BotConfig
                 var guildobj = DatabaseHandler.GetGuild(ID);
                 var original = guildobj.Partner.Message.Content;
                 guildobj.Partner.Message.Content = message;
-                await SendEmbedAsync(new EmbedBuilder
+                await ReplyAsync(new EmbedBuilder
                 {
                     Title = $"[{ID}]",
                     Fields = new List<EmbedFieldBuilder>
@@ -76,7 +76,7 @@ namespace PassiveBOT.Modules.BotConfig
             {
                 if (choice <= 0 || choice >= 4)
                 {
-                    await ReplyAsync("Please choose a Sorting Mode:\n" +
+                    await SimpleEmbedAsync("Please choose a Sorting Mode:\n" +
                                      "`1` - Full List Includes all other checks\n" +
                                      "`2` - Short List, Removes all banned partners\n" +
                                      "`3` - Visibility, Shows where the visible users is not equal to the total users");
@@ -192,7 +192,7 @@ namespace PassiveBOT.Modules.BotConfig
                 }
                 else
                 {
-                    await ReplyAsync("No Servers detected.");
+                    await SimpleEmbedAsync("No Servers detected.");
                 }
             }
         }

@@ -124,7 +124,7 @@ namespace PassiveBOT.Modules.Info
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
 
-            await SendEmbedAsync(builder);
+            await ReplyAsync(builder);
         }
 
         [Command("avatar")]
@@ -144,7 +144,7 @@ namespace PassiveBOT.Modules.Info
                     x.WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl());
                 });
 
-            await SendEmbedAsync(builder);
+            await ReplyAsync(builder);
         }
 
         [Command("Info")]

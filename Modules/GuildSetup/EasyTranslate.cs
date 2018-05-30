@@ -134,7 +134,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 Fields = fields
             };
-            await SendEmbedAsync(embed);
+            await ReplyAsync(embed);
         }
 
         [Command("Defaults")]
@@ -152,7 +152,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 Fields = fields
             };
-            await SendEmbedAsync(embed);
+            await ReplyAsync(embed);
         }
     }
 }

@@ -43,12 +43,12 @@ namespace PassiveBOT.Discord.Context
         /// <summary>
         ///     Shorthand for  replying with just an embed
         /// </summary>
-        public async Task<IUserMessage> SendEmbedAsync(EmbedBuilder embed)
+        public async Task<IUserMessage> ReplyAsync(EmbedBuilder embed)
         {
             return await base.ReplyAsync("", false, embed.Build());
         }
 
-        public async Task<IUserMessage> SendEmbedAsync(Embed embed)
+        public async Task<IUserMessage> ReplyAsync(Embed embed)
         {
             return await base.ReplyAsync("", false, embed);
         }

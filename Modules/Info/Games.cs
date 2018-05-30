@@ -45,7 +45,7 @@ namespace PassiveBOT.Modules.Info
                     currentlobby = CommandHandler.Connect4List.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
                 }
 
-                await SendEmbedAsync(new EmbedBuilder
+                await ReplyAsync(new EmbedBuilder
                 {
                     Title = "Connect4 Game",
                     Description = "Get somebody to type `connect4 accept` to start"
@@ -456,7 +456,7 @@ namespace PassiveBOT.Modules.Info
                               $"WinLine: {winmethod}\n" +
                               $"Loser: {loser?.Username}\n"
             };
-            await SendEmbedAsync(embed2.Build());
+            await ReplyAsync(embed2.Build());
         }
     }
 }

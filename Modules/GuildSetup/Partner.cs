@@ -37,7 +37,7 @@ namespace PassiveBOT.Modules.GuildSetup
                                    $"Message: (Refer to Partner Message Embed, for raw do `{Context.Prefix}partner rawmessage`)\n" +
                                    "**Partner Message Embed**\n" +
                                    "(See Next Message)");
-            await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+            await ReplyAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
 
         [Command("RawMessage")]
@@ -128,7 +128,7 @@ namespace PassiveBOT.Modules.GuildSetup
             Context.Server.Partner.Message.Content = message;
             Context.Server.Save();
             var partnerembed = GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild);
-            await SendEmbedAsync(partnerembed);
+            await ReplyAsync(partnerembed);
             var HS = HomeModel.Load();
             if (HS.Logging.LogPartnerChanges && await Context.Client.GetChannelAsync(HS.Logging.PartnerLogChannel) is IMessageChannel channel)
             {
@@ -146,7 +146,7 @@ namespace PassiveBOT.Modules.GuildSetup
         {
             Context.Server.Partner.Message.UserCount = !Context.Server.Partner.Message.UserCount;
             Context.Server.Save();
-            await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+            await ReplyAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
 
         [Command("ImageUrl")]
@@ -156,7 +156,7 @@ namespace PassiveBOT.Modules.GuildSetup
         {
             Context.Server.Partner.Message.ImageUrl = imageurl;
             Context.Server.Save();
-            await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+            await ReplyAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
 
         [Command("Thumbnail")]
@@ -166,7 +166,7 @@ namespace PassiveBOT.Modules.GuildSetup
         {
             Context.Server.Partner.Message.UseThumb = !Context.Server.Partner.Message.UseThumb;
             Context.Server.Save();
-            await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+            await ReplyAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
 
         [Command("Color")]
@@ -183,7 +183,7 @@ namespace PassiveBOT.Modules.GuildSetup
                 B = color_response.B
             };
             Context.Server.Save();
-            await SendEmbedAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+            await ReplyAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
         }
     }
 }
