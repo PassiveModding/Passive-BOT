@@ -21,7 +21,7 @@ namespace PassiveBOT.Modules.GuildSetup
         {
             Context.Server.Settings.ColorRoles.Enabled = !Context.Server.Settings.ColorRoles.Enabled;
             Context.Server.Save();
-            await ReplyAsync($"Color Roles Enabled: {Context.Server.Settings.ColorRoles.Enabled}");
+            await SimpleEmbedAsync($"Color Roles Enabled: {Context.Server.Settings.ColorRoles.Enabled}");
         }
         [RequireAdmin]
         [Command("ClearColors")]
@@ -34,7 +34,7 @@ namespace PassiveBOT.Modules.GuildSetup
             {
                 await role.DeleteAsync();
             }
-            await ReplyAsync($"#Roles removed: {roles.Count}");
+            await SimpleEmbedAsync($"#Roles removed: {roles.Count}");
         }
 
         [Command("GetColor")]
