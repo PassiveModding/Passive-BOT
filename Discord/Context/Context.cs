@@ -28,18 +28,6 @@ namespace PassiveBOT.Discord.Context
             await Context.Channel.TriggerTypingAsync();
             return await base.ReplyAsync(Message, false, Embed);
         }
-
-        /// <summary>
-        ///     Reply in the server and then delete after the provided delay.
-        /// </summary>
-        public async Task<IUserMessage> ReplyAndDeleteAsync(string Message, TimeSpan? Timeout = null)
-        {
-            Timeout = Timeout ?? TimeSpan.FromSeconds(5);
-            var Msg = await ReplyAsync(Message).ConfigureAwait(false);
-            _ = Task.Delay(Timeout.Value).ContinueWith(_ => Msg.DeleteAsync().ConfigureAwait(false)).ConfigureAwait(false);
-            return Msg;
-        }
-
         /// <summary>
         ///     Shorthand for  replying with just an embed
         /// </summary>
@@ -52,6 +40,20 @@ namespace PassiveBOT.Discord.Context
         {
             return await base.ReplyAsync("", false, embed);
         }
+
+
+        /// <summary>
+        ///     Reply in the server and then delete after the provided delay.
+        /// </summary>
+        public async Task<IUserMessage> ReplyAndDeleteAsync(string Message, TimeSpan? Timeout = null)
+        {
+            Timeout = Timeout ?? TimeSpan.FromSeconds(5);
+            var Msg = await ReplyAsync(Message).ConfigureAwait(false);
+            _ = Task.Delay(Timeout.Value).ContinueWith(_ => Msg.DeleteAsync().ConfigureAwait(false)).ConfigureAwait(false);
+            return Msg;
+        }
+
+
 
         public async Task<IUserMessage> SimpleEmbedAsync(string message)
         {
