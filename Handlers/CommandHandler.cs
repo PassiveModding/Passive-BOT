@@ -48,7 +48,7 @@ namespace PassiveBOT.Handlers
             _client.UserLeft += _client_UserLeftAsync;
         }
 
-        public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
+        //public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
         public static ConfigModel Config { get; set; } = ConfigModel.Load();
 
         private async Task _client_ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
@@ -391,6 +391,7 @@ namespace PassiveBOT.Handlers
             }
             else
             {
+                /*
                 if (GuildMsgs.Any(x => x.GuildID == context.Guild.Id))
                 {
                     var g = GuildMsgs.FirstOrDefault(x => x.GuildID == context.Guild.Id);
@@ -406,7 +407,7 @@ namespace PassiveBOT.Handlers
                             DateTime.UtcNow
                         }
                     });
-                }
+                }*/
 
                 context = await DoLevels(context);
                 context = await DoAutoMessage(context);
