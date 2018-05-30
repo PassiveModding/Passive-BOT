@@ -6,6 +6,7 @@ using Discord;
 using Discord.WebSocket;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Handlers;
+using PassiveBOT.Models;
 
 namespace PassiveBOT.Discord
 {
@@ -23,6 +24,35 @@ namespace PassiveBOT.Discord
                 {
                     try
                     {
+                        try
+                        {
+                            var rnd = new Random();
+                            switch (rnd.Next(0, 6))
+                            {
+                                case 0:
+                                    await client.SetGameAsync($"{CommandHandler.Config.Prefix}help // {client.Guilds.Count} Guilds!");
+                                    break;
+                                case 1:
+                                    await client.SetGameAsync($"{CommandHandler.Config.Prefix}help // {client.Guilds.Sum(x => x.MemberCount)} Users!");
+                                    break;
+                                case 2:
+                                    await client.SetGameAsync($"{CommandHandler.Config.Prefix}help // {CommandHandler.Config.SupportServer}");
+                                    break;
+                                case 3:
+                                    await client.SetGameAsync($"{CommandHandler.Config.Prefix}help // Partnering People!");
+                                    break;
+                                case 4:
+                                    await client.SetGameAsync($"{CommandHandler.Config.Prefix}help // Better than tinder");
+                                    break;
+                                case 5:
+                                    await client.SetGameAsync($"{CommandHandler.Config.Prefix}help // Hot Stuff!");
+                                    break;
+                            }
+                        }
+                        catch
+                        {
+                            //
+                        }
                         await Partner();
                     }
                     catch (Exception e)
