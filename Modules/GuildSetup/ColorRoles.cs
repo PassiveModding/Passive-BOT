@@ -14,7 +14,8 @@ namespace PassiveBOT.Modules.GuildSetup
     public class ColorRoles : Base
     {
         [RequireAdmin]
-        [Command("ToggleColourRoles")]
+        [Command("ToggleColorRoles")]
+        [Alias("ToggleColourRoles")]
         [Summary("ToggleColourRoles")]
         [Remarks("Toggle the color roles commands")]
         public async Task Toggle()
@@ -26,6 +27,7 @@ namespace PassiveBOT.Modules.GuildSetup
         [RequireAdmin]
         [Command("ClearColors")]
         [Summary("ClearColors")]
+        [Alias("ClearColours")]
         [Remarks("clear all color roles from the server")]
         public async Task ClearColors()
         {
@@ -39,6 +41,7 @@ namespace PassiveBOT.Modules.GuildSetup
 
         [Command("GetColor")]
         [Summary("GetColor <color>")]
+        [Alias("GetColour")]
         [Remarks("gives the user a role with the specified color")]
         public async Task JoinC(string color)
         {
