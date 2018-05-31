@@ -47,5 +47,23 @@ namespace PassiveBOT.Modules.GuildSetup
             }
             Context.Server.Save();
         }
+
+        [Command("SetSub")]
+        [Summary("SetSub <@Role>")]
+        [Remarks("Add a publically joinable role (or remove it)")]
+        public async Task SetSub(IRole SubRole)
+        {
+            if (Context.Server.Moderation.SubRoleIDs.Contains(SubRole.Id))
+            {
+                Context.Server.Moderation.SubRoleIDs.Remove(SubRole.Id);
+                await SimpleEmbedAsync($"{SubRole.Mention} has been removed from the sub role list.");
+            }
+            else
+            {
+                Context.Server.Moderation.SubRoleIDs.Add(SubRole.Id);
+                await SimpleEmbedAsync($"{SubRole.Mention} has been added to the sub role list.");
+            }
+            Context.Server.Save();
+        }
     }
 }
