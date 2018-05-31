@@ -3,7 +3,7 @@ using Discord.Commands;
 
 namespace PassiveBOT.Discord.Context.Interactive.Criteria
 {
-    public interface ICriterion<T>
+    public interface ICriterion<in T>
     {
         Task<bool> JudgeAsync(SocketCommandContext sourceContext, T parameter);
     }

@@ -45,7 +45,7 @@ namespace PassiveBOT.Modules.Info
 
             await ReplyAsync(new EmbedBuilder
             {
-                Title = $"Command Lookup",
+                Title = "Command Lookup",
                 Description = desc
             }.Build());
         }

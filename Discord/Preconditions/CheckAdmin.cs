@@ -41,11 +41,8 @@ namespace PassiveBOT.Discord.Preconditions
                 return Task.FromResult(PreconditionResult.FromSuccess());
 
             //check to see if the user has an admin role in the server
-            if (guild.Moderation.AdminRoleIDs.Any(x => guser.RoleIds.Contains(x)))
-                return Task.FromResult(PreconditionResult.FromSuccess());
-
+            return Task.FromResult(guild.Moderation.AdminRoleIDs.Any(x => guser.RoleIds.Contains(x)) ? PreconditionResult.FromSuccess() : PreconditionResult.FromError("User is Not an Admin!"));
             //Return an error stating the user is not an admin
-            return Task.FromResult(PreconditionResult.FromError("User is Not an Admin!"));
         }
     }
 }

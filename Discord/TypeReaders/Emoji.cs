@@ -14,7 +14,7 @@ namespace PassiveBOT.Discord.TypeReaders
                 var Result = EmojiExtensions.FromText(input);
                 return Task.FromResult(TypeReaderResult.FromSuccess(Result));
             }
-            catch (Exception e)
+            catch
             {
                 return Task.FromResult(TypeReaderResult.FromError(CommandError.ParseFailed, "Input could not be parsed as a Emoji."));
             }

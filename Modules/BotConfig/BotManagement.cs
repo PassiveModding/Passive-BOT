@@ -77,22 +77,23 @@ namespace PassiveBOT.Modules.BotConfig
                 if (choice <= 0 || choice >= 4)
                 {
                     await SimpleEmbedAsync("Please choose a Sorting Mode:\n" +
-                                     "`1` - Full List Includes all other checks\n" +
-                                     "`2` - Short List, Removes all banned partners\n" +
-                                     "`3` - Visibility, Shows where the visible users is not equal to the total users");
+                                           "`1` - Full List Includes all other checks\n" +
+                                           "`2` - Short List, Removes all banned partners\n" +
+                                           "`3` - Visibility, Shows where the visible users is not equal to the total users");
                     return;
                 }
 
                 var gobjs = DatabaseHandler.GetFullConfig().Where(x => x.Partner.Settings.Enabled).ToList();
                 var pages = new List<PaginatedMessage.Page>();
                 var search = gobjs;
-                if (choice == 2)
+                switch (choice)
                 {
-                    search = gobjs.Where(x => x.Partner.Settings.Banned == false).ToList();
-                }
-                else if (choice == 3)
-                {
-                    search = gobjs.Where(x => Context.Socket.Client.GetChannel(x.Partner.Settings.ChannelID)?.Users.Count != Context.Socket.Client.GetGuild(x.ID)?.Users.Count).ToList();
+                    case 2:
+                        search = gobjs.Where(x => x.Partner.Settings.Banned == false).ToList();
+                        break;
+                    case 3:
+                        search = gobjs.Where(x => Context.Socket.Client.GetChannel(x.Partner.Settings.ChannelID)?.Users.Count != Context.Socket.Client.GetGuild(x.ID)?.Users.Count).ToList();
+                        break;
                 }
 
                 foreach (var guildModel in search)

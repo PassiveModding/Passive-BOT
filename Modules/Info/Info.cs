@@ -32,11 +32,9 @@ namespace PassiveBOT.Modules.Info
                     break;
                 }
 
-                if (_DOBDateNow.AddMonths(i) >= Now)
-                {
-                    _Months = i - 1;
-                    break;
-                }
+                if (_DOBDateNow.AddMonths(i) < Now) continue;
+                _Months = i - 1;
+                break;
             }
 
             var Days = Now.Subtract(_DOBDateNow.AddMonths(_Months)).Days;
@@ -66,7 +64,7 @@ namespace PassiveBOT.Modules.Info
             if (!value.Any())
             {
                 embed.AddField($"Users with Discriminator {disc}",
-                    $"N/A");
+                    "N/A");
                 await ReplyAsync("", false, embed.Build());
                 return;
             }

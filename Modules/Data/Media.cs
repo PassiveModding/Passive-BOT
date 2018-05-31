@@ -149,7 +149,7 @@ namespace PassiveBOT.Modules.Data
             {
                 string res;
                 if (number == "latest")
-                    res = await http.GetStringAsync($"https://xkcd.com/info.0.json").ConfigureAwait(false);
+                    res = await http.GetStringAsync("https://xkcd.com/info.0.json").ConfigureAwait(false);
                 else if (int.TryParse(number, out var result))
                     res = await http.GetStringAsync($"https://xkcd.com/{result}/info.0.json").ConfigureAwait(false);
                 else
@@ -186,7 +186,6 @@ namespace PassiveBOT.Modules.Data
                 {
                     await ReplyAsync("This word has no definition");
                     return;
-                    ;
                 }
 
                 var topres = resobj.list.OrderByDescending(x => x.thumbs_up).First();

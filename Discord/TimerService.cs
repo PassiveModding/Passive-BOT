@@ -6,7 +6,6 @@ using Discord;
 using Discord.WebSocket;
 using PassiveBOT.Discord.Extensions;
 using PassiveBOT.Handlers;
-using PassiveBOT.Models;
 
 namespace PassiveBOT.Discord
 {
@@ -53,11 +52,12 @@ namespace PassiveBOT.Discord
                         {
                             //
                         }
+
                         await Partner();
                     }
                     catch (Exception e)
                     {
-                        LogHandler.LogMessage($"Partner Error:\n" +
+                        LogHandler.LogMessage("Partner Error:\n" +
                                               $"{e}", LogSeverity.Error);
                     }
 
@@ -108,7 +108,7 @@ namespace PassiveBOT.Discord
                         }
                         catch (Exception e)
                         {
-                            LogHandler.LogMessage($"Partner Message Send Error in:\n" +
+                            LogHandler.LogMessage("Partner Message Send Error in:\n" +
                                                   $"S:{receiverguild.Name} [{receiverguild.Id}] : C:{receiverchannel.Name}\n" +
                                                   $"{e}", LogSeverity.Error);
                         }

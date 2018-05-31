@@ -51,7 +51,7 @@ namespace PassiveBOT.Handlers
         //public static List<GuildMsgx> GuildMsgs { get; set; } = new List<GuildMsgx>();
         public static ConfigModel Config { get; set; } = ConfigModel.Load();
 
-        private async Task _client_ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
+        private static async Task _client_ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
         {
             try
             {
@@ -122,11 +122,13 @@ namespace PassiveBOT.Handlers
                     {
                         original = original.Substring(0, 1020) + "...";
                     }
+
                     var response = TranslateMethods.HandleReponse(file);
                     if (response.ToString().Length > 1024)
                     {
                         response = response.Substring(0, 1020) + "...";
                     }
+
                     embed.AddField($"Translated [{language} || {Reaction.Emote}]", $"{response}", true);
                     embed.AddField($"Original [{file[2]}]", $"{original}", true);
                     embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" +
@@ -140,6 +142,7 @@ namespace PassiveBOT.Handlers
                         await Channel.SendMessageAsync("", false, embed.Build());
                         Translated.Add(Reaction.MessageId, languagetype.Language);
                     }
+
                     client.Dispose();
                 }
             }
@@ -149,12 +152,12 @@ namespace PassiveBOT.Handlers
             }
         }
 
-        private async Task _client_UserLeftAsync(SocketGuildUser User)
+        private static async Task _client_UserLeftAsync(SocketGuildUser User)
         {
             await EventTriggers._client_UserLeft(User);
         }
 
-        private async Task _client_UserJoined(SocketGuildUser User)
+        private static async Task _client_UserJoined(SocketGuildUser User)
         {
             await EventTriggers._client_UserJoined(User);
         }
@@ -162,12 +165,11 @@ namespace PassiveBOT.Handlers
         private Task _client_JoinedGuild(SocketGuild Guild)
         {
             var dblist = DatabaseHandler.GetFullConfig();
-            if (dblist.All(x => x.ID != Guild.Id))
+            if (dblist.Any(x => x.ID == Guild.Id)) return Task.CompletedTask;
+
+            foreach (var missingguild in _client.Guilds.Where(g => dblist.All(x => x.ID != g.Id)))
             {
-                foreach (var missingguild in _client.Guilds.Where(g => dblist.All(x => x.ID != g.Id)))
-                {
-                    DatabaseHandler.AddGuild(missingguild.Id);
-                }
+                DatabaseHandler.AddGuild(missingguild.Id);
             }
 
             return Task.CompletedTask;
@@ -391,31 +393,24 @@ namespace PassiveBOT.Handlers
             }
             else
             {
-                /*
-                if (GuildMsgs.Any(x => x.GuildID == context.Guild.Id))
-                {
-                    var g = GuildMsgs.FirstOrDefault(x => x.GuildID == context.Guild.Id);
-                    g.Times.Add(DateTime.UtcNow);
-                }
-                else
-                {
-                    GuildMsgs.Add(new GuildMsgx
-                    {
-                        GuildID = context.Guild.Id,
-                        Times = new List<DateTime>
-                        {
-                            DateTime.UtcNow
-                        }
-                    });
-                }*/
-
                 context = await DoLevels(context);
                 context = await DoAutoMessage(context);
                 if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix ||
                       message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix ||
                       context.Server.Settings.Prefix.CustomPrefix != null && message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos)))
                 {
-                    return;
+                    if (message.HasStringPrefix(Config.Prefix, ref argPos) && context.Server.Settings.Prefix.DenyDefaultPrefix)
+                    {
+                        if (context.Server.Settings.Prefix.CustomPrefix != null)
+                        {
+                            //Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -424,7 +419,7 @@ namespace PassiveBOT.Handlers
 
             if (result.IsSuccess)
             {
-                LogHandler.LogMessage($"{context.Message.Content}");
+                LogHandler.LogMessage(context);
                 Stats.CommandsRan++;
             }
             else
@@ -463,11 +458,11 @@ namespace PassiveBOT.Handlers
                         //
                     }
 
-                    LogHandler.LogMessage(context.Message.Content, LogSeverity.Error);
+                    LogHandler.LogMessage(context, result.ErrorReason, LogSeverity.Error);
                 }
                 catch (Exception e)
                 {
-                    LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
+                    LogHandler.LogMessage(context, e.ToString(), LogSeverity.Error);
                 }
             }
         }

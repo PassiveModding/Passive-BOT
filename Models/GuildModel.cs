@@ -392,6 +392,7 @@ namespace PassiveBOT.Models
 
             public translate Translate { get; set; } = new translate();
             public colorroles ColorRoles { get; set; } = new colorroles();
+
             public class prefix
             {
                 /// <summary>

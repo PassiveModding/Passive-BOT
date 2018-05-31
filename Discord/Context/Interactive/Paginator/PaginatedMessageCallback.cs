@@ -133,12 +133,12 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                         await message.AddReactionAsync(options.Info);
                 }
             });
-            // TODO: (Next major version) timeouts need to be handled at the service-level!
-            if (Timeout.HasValue && Timeout.Value != null)
+
+            if (Timeout.HasValue)
                 _ = Task.Delay(Timeout.Value).ContinueWith(_ =>
                 {
                     Interactive.RemoveReactionCallback(message);
-                    _ = Message.DeleteAsync();
+                    Message.DeleteAsync();
                 });
         }
 
@@ -178,12 +178,12 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                     if (options.DisplayInformationIcon) await message.AddReactionAsync(options.Info);
                 }
             });
-            // TODO: (Next major version) timeouts need to be handled at the service-level!
+
             if (Timeout.HasValue)
                 _ = Task.Delay(Timeout.Value).ContinueWith(_ =>
                 {
                     Interactive.RemoveReactionCallback(message);
-                    _ = Message.DeleteAsync();
+                    Message.DeleteAsync();
                 });
         }
 

@@ -96,12 +96,12 @@ namespace PassiveBOT.Modules.GuildSetup
                 Value = $"Enabled: {am.Enabled}\n" +
                         $"Limit: {am.Limit}\n" +
                         $"Count: {am.Count}\n" +
-                        $"Message:\n" +
+                        "Message:\n" +
                         $"{am.Message ?? "N/A"}"
             }).ToList();
             var pager = new PaginatedMessage
             {
-                Title = $"AutoMessage Channels",
+                Title = "AutoMessage Channels",
                 Pages = TextManagement.splitList(msglist, 5).Select(x => new PaginatedMessage.Page
                 {
                     Fields = x

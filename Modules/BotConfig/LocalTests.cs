@@ -85,7 +85,7 @@ namespace PassiveBOT.Modules.BotConfig
             });
             var Pager = new PaginatedMessage
             {
-                Title = $"Split List Test",
+                Title = "Split List Test",
                 Pages = pages
             };
             await PagedReplyAsync(Pager);

@@ -28,6 +28,7 @@ namespace PassiveBOT.Discord.Context
             await Context.Channel.TriggerTypingAsync();
             return await base.ReplyAsync(Message, false, Embed);
         }
+
         /// <summary>
         ///     Shorthand for  replying with just an embed
         /// </summary>
@@ -52,7 +53,6 @@ namespace PassiveBOT.Discord.Context
             _ = Task.Delay(Timeout.Value).ContinueWith(_ => Msg.DeleteAsync().ConfigureAwait(false)).ConfigureAwait(false);
             return Msg;
         }
-
 
 
         public async Task<IUserMessage> SimpleEmbedAsync(string message)

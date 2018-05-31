@@ -21,7 +21,7 @@ namespace PassiveBOT.Modules.BotConfig
             var hs = HomeModel.Load();
             hs.ID = Context.Guild.Id;
             hs.Save();
-            await SimpleEmbedAsync($"Homeserver Saved!");
+            await SimpleEmbedAsync("Homeserver Saved!");
         }
 
         [Command("TogglePartnerLog")]
@@ -162,7 +162,7 @@ namespace PassiveBOT.Modules.BotConfig
             }
             else
             {
-                await SimpleEmbedAsync($"No Previous Guild Objects found.");
+                await SimpleEmbedAsync("No Previous Guild Objects found.");
             }
         }
     }

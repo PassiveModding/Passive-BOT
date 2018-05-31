@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using PassiveBOT.Discord.Context;
-using Raven.Client.Documents.Linq.Indexing;
 
 namespace PassiveBOT.Modules.Data
 {
@@ -24,13 +21,13 @@ namespace PassiveBOT.Modules.Data
                 var guser = Context.User as IGuildUser;
                 if (guser.RoleIds.Contains(SubRole.Id))
                 {
-                    await guser.AddRoleAsync(SubRole);
-                    await SimpleEmbedAsync($"Success, you have been given the role {SubRole.Mention}");
+                    await guser.RemoveRoleAsync(SubRole);
+                    await SimpleEmbedAsync($"Success, you have been removed from the role {SubRole.Mention}");
                 }
                 else
                 {
-                    await guser.RemoveRoleAsync(SubRole);
-                    await SimpleEmbedAsync($"Success, you have been removed from the role {SubRole.Mention}");
+                    await guser.AddRoleAsync(SubRole);
+                    await SimpleEmbedAsync($"Success, you have been given the role {SubRole.Mention}");
                 }
             }
             else
@@ -38,6 +35,7 @@ namespace PassiveBOT.Modules.Data
                 throw new Exception("This Role is not publically joinable");
             }
         }
+
         [Command("Sub")]
         [Summary("Sub")]
         [Alias("joinrole")]
@@ -48,10 +46,9 @@ namespace PassiveBOT.Modules.Data
             await ReplyAsync(new EmbedBuilder
             {
                 Title = "Public Roles",
-                Description = string.Join("\n", rolelist.Select(x => x.Name)) + $"\nYou can join any of the roles in this lise using the command:\n" +
+                Description = string.Join("\n", rolelist.Select(x => x.Name)) + "\n\nYou can join any of the roles in this list using the command:\n" +
                               $"`{Context.Prefix}sub <@role>`"
             });
-            
         }
     }
 }
