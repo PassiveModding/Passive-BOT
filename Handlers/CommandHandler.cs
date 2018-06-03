@@ -164,14 +164,14 @@ namespace PassiveBOT.Handlers
 
         private Task _client_JoinedGuild(SocketGuild Guild)
         {
-            var dblist = DatabaseHandler.GetFullConfig();
-            if (dblist.Any(x => x.ID == Guild.Id)) return Task.CompletedTask;
-
-            foreach (var missingguild in _client.Guilds.Where(g => dblist.All(x => x.ID != g.Id)))
+            if (DatabaseHandler.GetGuild(Guild.Id) == null)
             {
-                DatabaseHandler.AddGuild(missingguild.Id);
-            }
+                DatabaseHandler.InsertGuildObject(new GuildModel
+                {
+                    ID = Guild.Id
+                });
 
+            }
             return Task.CompletedTask;
         }
 
@@ -180,12 +180,13 @@ namespace PassiveBOT.Handlers
             var inv = $"https://discordapp.com/oauth2/authorize?client_id={_client.CurrentUser.Id}&scope=bot&permissions=2146958591";
             LogHandler.LogMessage($"Invite: {inv}");
             DatabaseHandler.DatabaseInitialise(_client);
+            /*
             var dblist = DatabaseHandler.GetFullConfig();
             foreach (var guild in _client.Guilds.Where(g => dblist.All(x => x.ID != g.Id)))
             {
                 DatabaseHandler.AddGuild(guild.Id);
             }
-
+            */
             return Task.CompletedTask;
         }
 
@@ -393,6 +394,16 @@ namespace PassiveBOT.Handlers
             }
             else
             {
+                if (context.Server == null)
+                {
+                    DatabaseHandler.InsertGuildObject(new GuildModel
+                    {
+                        ID = context.Guild.Id
+                    });
+                    await DoCommand(parameterMessage);
+                    return;
+                }
+
                 context = await DoLevels(context);
                 context = await DoAutoMessage(context);
                 if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix ||

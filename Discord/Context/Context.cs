@@ -89,6 +89,17 @@ namespace PassiveBOT.Discord.Context
             return PagedReplyAsync(pager, criterion, showall, showindex);
         }
 
+        public Task<IUserMessage> PagedDMAsync(PaginatedMessage pager, ReactionList Reactions, bool fromSourceUser = true)
+        {
+            var criterion = new Criteria<SocketReaction>();
+            if (fromSourceUser)
+            {
+                criterion.AddCriterion(new EnsureReactionFromSourceUserCriterion());
+            }
+
+            return PagedDMAsync(pager, criterion, Reactions);
+        }
+
         public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ReactionList Reactions, bool fromSourceUser = true)
         {
             var criterion = new Criteria<SocketReaction>();
@@ -98,6 +109,11 @@ namespace PassiveBOT.Discord.Context
             }
 
             return PagedReplyAsync(pager, criterion, Reactions);
+        }
+
+        public Task<IUserMessage> PagedDMAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, ReactionList Reactions)
+        {
+            return Interactive.SendPaginatedDMAsync(PassiveSContext(), pager, Reactions, criterion);
         }
 
         public Task<IUserMessage> PagedReplyAsync(PaginatedMessage pager, ICriterion<SocketReaction> criterion, ReactionList Reactions)
@@ -270,6 +286,13 @@ namespace PassiveBOT.Discord.Context
             await callback.DisplayAsync(Reactions).ConfigureAwait(false);
             return callback.Message;
         }
+        public async Task<IUserMessage> SendPaginatedDMAsync(SocketCommandContext context, PaginatedMessage pager, Base.ReactionList Reactions, ICriterion<SocketReaction> criterion = null)
+        {
+            var callback = new PaginatedMessageCallback(this, context, pager, criterion);
+            await callback.DisplayAsync(Reactions, true).ConfigureAwait(false);
+            return callback.Message;
+        }
+
 
         public void AddReactionCallback(IMessage message, IReactionCallback callback)
         {

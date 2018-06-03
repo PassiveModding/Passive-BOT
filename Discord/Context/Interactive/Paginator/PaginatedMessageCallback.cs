@@ -142,10 +142,11 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                 });
         }
 
-        public async Task DisplayAsync(Base.ReactionList Reactions)
+        public async Task DisplayAsync(Base.ReactionList Reactions, bool isDM = false)
         {
             var embed = BuildEmbed();
-            var message = await Context.Channel.SendMessageAsync(_pager.Content, embed: embed).ConfigureAwait(false);
+
+            var message = isDM ? await Context.User.SendMessageAsync(_pager.Content, embed: embed).ConfigureAwait(false) : await Context.Channel.SendMessageAsync(_pager.Content, embed: embed).ConfigureAwait(false);
             Message = message;
             Interactive.AddReactionCallback(message, this);
             // Reactions take a while to add, don't wait for them
@@ -157,8 +158,8 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                 if (Reactions.Last) await message.AddReactionAsync(options.Last);
 
 
-                var manageMessages = Context.Channel is IGuildChannel guildChannel &&
-                                     (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
+                var manageMessages = !isDM && (Context.Channel is IGuildChannel guildChannel &&
+                                               (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages);
 
                 if (Reactions.Jump)
                 {

@@ -119,6 +119,73 @@ namespace PassiveBOT.Modules.Info
             });
         }
 
+        [Command("FullHelp")]
+        [Summary("FullHelp")]
+        [Remarks("Sends an unrestricted help list in DM")]
+        public async Task FullHelpC()
+        {
+            var p = Context.Channel is IDMChannel ? CommandHandler.Config.Prefix : DatabaseHandler.GetGuild(Context.Guild.Id).Settings.Prefix.CustomPrefix ?? CommandHandler.Config.Prefix;
+            var simplemodules = new List<modulesummary>();
+            foreach (var module in _service.Modules)
+            {
+                if (module.Commands.Count <= 0) continue;
+                
+                var moduleprefix = !string.IsNullOrWhiteSpace(module.Aliases.FirstOrDefault()) ? $"{module.Aliases.FirstOrDefault()} " : null;
+                simplemodules.Add(new modulesummary
+                {
+                    name = module.Name,
+                    cmdnames = module.Commands.Select(x => x.Name).ToList(),
+                    cmdinfo = module.Commands.Select(x => $"`{p}{moduleprefix}{x.Summary}` - {x.Remarks}").ToList()
+                });
+            }
+
+            var pages = new List<PaginatedMessage.Page>();
+            var i = 1;
+            var initfields = new List<EmbedFieldBuilder>
+            {
+                new EmbedFieldBuilder
+                {
+                    Name = $"[{i}] Commands Summary",
+                    Value = "Go to the respective page number of each module to view the commands in more detail. " +
+                            "You can react with the :1234: emote and type a page number to go directly to that page too," +
+                            "otherwise react with the arrows to change pages."
+                }
+            };
+            foreach (var module in simplemodules)
+            {
+                i++;
+                initfields.Add(new EmbedFieldBuilder
+                {
+                    Name = $"[{i}] {module.name}",
+                    Value = string.Join(", ", module.cmdnames)
+                });
+            }
+
+            pages.Add(new PaginatedMessage.Page
+            {
+                Fields = initfields
+            });
+            foreach (var module in simplemodules)
+            {
+                pages.Add(new PaginatedMessage.Page
+                {
+                    dynamictitle = module.name,
+                    description = string.Join("\n", module.cmdinfo)
+                });
+            }
+
+            await PagedDMAsync(new PaginatedMessage
+            {
+                Pages = pages
+            }, new ReactionList
+            {
+                Backward = true,
+                Forward = true,
+                Jump = true,
+                Trash = true
+            });
+        }
+
         public class modulesummary
         {
             public string name { get; set; }
