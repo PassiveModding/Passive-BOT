@@ -8,6 +8,7 @@ namespace PassiveBOT.Models
     {
         public ulong ID { get; set; }
         public logging Logging { get; set; } = new logging();
+        public ulong BotModerator { get; set; } = 0;
 
 
         public void Save(string dir = "setup/home.json")

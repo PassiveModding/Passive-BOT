@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Newtonsoft.Json;
@@ -39,6 +41,25 @@ namespace PassiveBOT.Modules.BotConfig
         public async Task GoodbyeEvent(SocketGuildUser User)
         {
             await EventTriggers._client_UserLeft(User);
+        }
+
+        [Command("Force_GC")]
+        [Summary("Force_GC")]
+        [Remarks("Force garbage collection")]
+        public async Task ForceGC()
+        {
+            try
+            {
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                GC.WaitForPendingFinalizers();
+            }
+            catch (Exception e)
+            {
+                LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
+                await ReplyAsync(e.ToString());
+            }
+
+            await ReplyAsync("Complete");
         }
 
         [Command("Get_Data")]

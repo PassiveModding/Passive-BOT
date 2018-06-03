@@ -61,6 +61,16 @@ namespace PassiveBOT.Discord
                                               $"{e}", LogSeverity.Error);
                     }
 
+                    try
+                    {
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                        GC.WaitForPendingFinalizers();
+                    }
+                    catch (Exception e)
+                    {
+                        LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
+                    }
+                    
                     LastFireTime = DateTime.UtcNow;
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePreiod));

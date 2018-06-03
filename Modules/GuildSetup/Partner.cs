@@ -72,6 +72,16 @@ namespace PassiveBOT.Modules.GuildSetup
             Context.Server.Partner.Settings.ChannelID = Context.Channel.Id;
             Context.Server.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");
+
+            var partnerembed = GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild);
+            var HS = HomeModel.Load();
+            if (HS.Logging.LogPartnerChanges && await Context.Client.GetChannelAsync(HS.Logging.PartnerLogChannel) is IMessageChannel channel)
+            {
+                await channel.SendMessageAsync("", false, partnerembed.AddField("Partner Channel Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
+                                                                                                         $"Owner: {Context.Socket.Guild.Owner.Username}\n" +
+                                                                                                         $"Users: {Context.Socket.Guild.MemberCount}")
+                    .Build());
+            }
         }
 
         [Command("Message")]
@@ -156,7 +166,17 @@ namespace PassiveBOT.Modules.GuildSetup
         {
             Context.Server.Partner.Message.ImageUrl = imageurl;
             Context.Server.Save();
-            await ReplyAsync(GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild));
+            var partnerembed = GeneratePartnerMessage.GenerateMessage(Context.Server, Context.Socket.Guild);
+            await ReplyAsync(partnerembed);
+            
+            var HS = HomeModel.Load();
+            if (HS.Logging.LogPartnerChanges && await Context.Client.GetChannelAsync(HS.Logging.PartnerLogChannel) is IMessageChannel channel)
+            {
+                await channel.SendMessageAsync("", false, partnerembed.AddField("Partner Image Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
+                                                                                                           $"Owner: {Context.Socket.Guild.Owner.Username}\n" +
+                                                                                                           $"Users: {Context.Socket.Guild.MemberCount}")
+                    .Build());
+            }
         }
 
         [Command("Thumbnail")]

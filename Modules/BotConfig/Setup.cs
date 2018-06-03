@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Handlers;
@@ -20,6 +21,17 @@ namespace PassiveBOT.Modules.BotConfig
         {
             var hs = HomeModel.Load();
             hs.ID = Context.Guild.Id;
+            hs.Save();
+            await SimpleEmbedAsync("Homeserver Saved!");
+        }
+
+        [Command("SetBotModerator")]
+        [Summary("SetBotModerator <@ROLE>")]
+        [Remarks("Set the Bot Moderator Role")]
+        public async Task SetHS(IRole role = null)
+        {
+            var hs = HomeModel.Load();
+            hs.BotModerator = role?.Id ?? 0;
             hs.Save();
             await SimpleEmbedAsync("Homeserver Saved!");
         }

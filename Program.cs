@@ -62,7 +62,6 @@ namespace PassiveBOT
             await _handler.ConfigureAsync();
 
             _client.Log += MLog;
-
             await Task.Delay(-1);
         }
 

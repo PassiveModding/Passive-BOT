@@ -7,11 +7,12 @@ using Discord.Commands;
 using Discord.WebSocket;
 using PassiveBOT.Discord.Context;
 using PassiveBOT.Discord.Context.Interactive.Paginator;
+using PassiveBOT.Discord.Preconditions;
 using PassiveBOT.Handlers;
 
 namespace PassiveBOT.Modules.BotConfig
 {
-    [RequireOwner]
+    [BotModerator]
     public class BotManagement : Base
     {
         [Group("PartnerManage")]
