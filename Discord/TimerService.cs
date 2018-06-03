@@ -70,7 +70,7 @@ namespace PassiveBOT.Discord
                     {
                         LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
                     }
-                    
+
                     LastFireTime = DateTime.UtcNow;
                 },
                 null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePreiod));

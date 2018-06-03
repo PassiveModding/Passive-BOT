@@ -158,8 +158,7 @@ namespace PassiveBOT.Discord.Context.Interactive.Paginator
                 if (Reactions.Last) await message.AddReactionAsync(options.Last);
 
 
-                var manageMessages = !isDM && (Context.Channel is IGuildChannel guildChannel &&
-                                               (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages);
+                var manageMessages = !isDM && Context.Channel is IGuildChannel guildChannel && (Context.User as IGuildUser).GetPermissions(guildChannel).ManageMessages;
 
                 if (Reactions.Jump)
                 {

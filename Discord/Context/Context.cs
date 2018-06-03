@@ -286,6 +286,7 @@ namespace PassiveBOT.Discord.Context
             await callback.DisplayAsync(Reactions).ConfigureAwait(false);
             return callback.Message;
         }
+
         public async Task<IUserMessage> SendPaginatedDMAsync(SocketCommandContext context, PaginatedMessage pager, Base.ReactionList Reactions, ICriterion<SocketReaction> criterion = null)
         {
             var callback = new PaginatedMessageCallback(this, context, pager, criterion);

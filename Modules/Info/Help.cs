@@ -129,7 +129,7 @@ namespace PassiveBOT.Modules.Info
             foreach (var module in _service.Modules)
             {
                 if (module.Commands.Count <= 0) continue;
-                
+
                 var moduleprefix = !string.IsNullOrWhiteSpace(module.Aliases.FirstOrDefault()) ? $"{module.Aliases.FirstOrDefault()} " : null;
                 simplemodules.Add(new modulesummary
                 {

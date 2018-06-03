@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using PassiveBOT.Handlers;
 using PassiveBOT.Models;
 
 namespace PassiveBOT.Discord.Preconditions
@@ -27,7 +26,7 @@ namespace PassiveBOT.Discord.Preconditions
             var own = context.Client.GetApplicationInfoAsync();
             if (own.Result.Owner.Id == context.User.Id)
                 return Task.FromResult(PreconditionResult.FromSuccess());
-            var guser = (IGuildUser)context.User;
+            var guser = (IGuildUser) context.User;
 
             var HM = HomeModel.Load();
             if (HM.BotModerator == 0)
@@ -39,6 +38,7 @@ namespace PassiveBOT.Discord.Preconditions
             {
                 return Task.FromResult(PreconditionResult.FromSuccess());
             }
+
             return Task.FromResult(PreconditionResult.FromError("User is Not a Bot Moderator!"));
         }
     }

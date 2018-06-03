@@ -170,8 +170,8 @@ namespace PassiveBOT.Handlers
                 {
                     ID = Guild.Id
                 });
-
             }
+
             return Task.CompletedTask;
         }
 
