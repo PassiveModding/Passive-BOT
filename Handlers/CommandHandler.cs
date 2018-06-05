@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -230,6 +231,26 @@ namespace PassiveBOT.Handlers
             return Context;
         }
 
+        public async Task DoChannels(Context Context)
+        {
+            if (Context.Channel is IDMChannel)
+            {
+                return;
+            }
+
+            var mediachannel = Context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.Enabled && x.ChannelID == Context.Channel.Id);
+            if (mediachannel != null)
+            {
+                if ((Context.User as IGuildUser).RoleIds.All(x => !mediachannel.ExcemptRoles.Contains(x)))
+                {
+                    if (!Regex.Match(Context.Message.Content, @"(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?").Success && !Context.Message.Attachments.Any())
+                    {
+                        await Context.Message.DeleteAsync();
+                    }
+                }
+            }
+        }
+
         public async Task<Context> DoLevels(Context Context)
         {
             if (Context.Channel is IDMChannel)
@@ -404,8 +425,12 @@ namespace PassiveBOT.Handlers
                     return;
                 }
 
+
                 context = await DoLevels(context);
+                await DoChannels(context);
                 context = await DoAutoMessage(context);
+
+
                 if (!(message.HasMentionPrefix(_client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix ||
                       message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix ||
                       context.Server.Settings.Prefix.CustomPrefix != null && message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos)))

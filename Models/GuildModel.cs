@@ -41,6 +41,18 @@ namespace PassiveBOT.Models
         /// </summary>
         public events Events { get; set; } = new events();
 
+        public CustomChannels CustomChannel { get; set; } = new CustomChannels();
+        public class CustomChannels
+        {
+            public List<MediaChannel> MediaChannels { get; set; } = new List<MediaChannel>();
+            public class MediaChannel
+            {
+                public ulong ChannelID { get; set; }
+                public bool Enabled { get; set; } = false;
+                public List<ulong> ExcemptRoles { get; set; } = new List<ulong>();
+            }
+        }
+
         public tags Tags { get; set; } = new tags();
 
         /// <summary>
