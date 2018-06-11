@@ -465,7 +465,21 @@ namespace PassiveBOT.Handlers
                     string desc;
                     if (result.Error == CommandError.UnknownCommand)
                     {
-                        desc = "**Command:** N/A";
+                        
+
+                        var similar = _commands.Commands.Where(x => x.CheckPreconditionsAsync(context).Result.IsSuccess).Select(x =>
+                        {
+                            var list = new List<string> {$"{(string.IsNullOrEmpty(x.Module.Aliases.FirstOrDefault()) ? "" : $"{x.Module.Aliases.FirstOrDefault()} ")}{x.Name}"};
+                            list.AddRange(x.Aliases);
+                            return list;
+                        }).SelectMany(x => x).Select(x =>
+                        {
+                            var distance = TextManagement.LevenshteinDistance(context.Message.Content, x);
+                            return new Tuple<int, string>(distance, x);
+                        }).Where(x => x.Item1 != context.Message.Content.Length - Config.Prefix.Length).OrderBy(x => x.Item1).Select(x => x.Item2).Distinct(StringComparer.CurrentCultureIgnoreCase).Take(3);
+                        desc = "**Command:** N/A\n" +
+                               "**Similar:**\n" +
+                               $"{string.Join("\n", similar)}";
                     }
                     else
                     {
