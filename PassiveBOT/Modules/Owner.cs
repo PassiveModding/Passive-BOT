@@ -1,5 +1,6 @@
 ﻿namespace PassiveBOT.Modules
 {
+    using System;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -213,6 +214,59 @@
             await Events.UserLeft(Context.Server, user);
         }
 
+        /// <summary>
+        /// gets an invite to the specified server
+        /// </summary>
+        /// <param name="guildID">
+        /// The guild id.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("GetInvite")]
+        [Summary("Gets an invite to the specified server")]
+        public async Task GetInvite(ulong guildID)
+        {
+            string invite = null;
+            var target = Context.Client.GetGuild(guildID);
+            if (target == null)
+            {
+                throw new Exception("Server is unavailable");
+            }
 
+            foreach (var inv in target.GetInvitesAsync().Result)
+            {
+                if (inv.IsRevoked)
+                {
+                    continue;
+                }
+
+                invite = inv.Url;
+            }
+
+            if (invite == null)
+            {
+                foreach (var channel in target.TextChannels)
+                {
+                    try
+                    {
+                        var inv = await channel.CreateInviteAsync();
+                        invite = inv.Url;
+                        break;
+                    }
+                    catch
+                    {
+                        // Ignored
+                    }
+                }
+            }
+
+            if (invite == null)
+            {
+                throw new Exception("Invite unable to be created");
+            }
+
+            await ReplyAsync(invite);
+        }
     }
 }

@@ -435,7 +435,7 @@
                 // ignored
             }
 
-            await LogError(result, context);
+            LogError(result, context);
         }
 
         /// <summary>
@@ -447,10 +447,7 @@
         /// <param name="context">
         /// The context.
         /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        internal async Task LogError(IResult result, Context context)
+        internal void LogError(IResult result, Context context)
         {
             switch (result.Error)
             {
@@ -467,9 +464,6 @@
                         LogHandler.LogMessage(context, result.ErrorReason, LogSeverity.Error);
                     }
 
-                    break;
-                case CommandError.Unsuccessful:
-                    await context.Channel.SendMessageAsync("You may have found a bug. Please report this error in my server https://discord.me/Passive");
                     break;
             }
         }
