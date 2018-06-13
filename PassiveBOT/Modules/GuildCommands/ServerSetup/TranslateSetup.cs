@@ -1,4 +1,4 @@
-﻿namespace PassiveBOT.Modules
+﻿namespace PassiveBOT.Modules.GuildCommands.ServerSetup
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +15,7 @@
     /// <summary>
     /// The translate setup module
     /// </summary>
-    [Group("Translation")]
+    [Group("TranslateSetup")]
     [RequireContext(ContextType.Guild)]
     [RequireAdmin]
     public class TranslateSetup : Base
@@ -88,7 +88,7 @@
         /// Removes a custom quick translation emote.
         /// </summary>
         /// <param name="emote">
-        /// The emote to remove
+        /// The emote.
         /// </param>
         /// <returns>
         /// The <see cref="Task"/>.

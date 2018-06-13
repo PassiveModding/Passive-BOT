@@ -61,6 +61,7 @@
             Config = config;
             Provider = service;
             CommandService = commandService;
+
             CancellationToken = new CancellationTokenSource();
         }
 

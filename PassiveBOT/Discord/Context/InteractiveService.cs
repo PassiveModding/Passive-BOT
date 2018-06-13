@@ -106,11 +106,17 @@
         /// <returns></returns>
         public async Task<IUserMessage> SendMessageWithReactionCallbacksAsync(SocketCommandContext context, ReactionCallbackData callbacks, bool fromSourceUser = true)
         {
+            if (callbacks.Text == null)
+            {
+                throw new Exception("Input text must not be null. Use an empty string instead.");
+            }
             var criterion = new Criteria<SocketReaction>();
             if (fromSourceUser)
                 criterion.AddCriterion(new EnsureReactionFromSourceUserCriterion());
             var callback = new InlineReactionCallback(new InteractiveService(Discord.GetShardFor(context.Guild)), context, callbacks, criterion);
+
             await callback.DisplayAsync().ConfigureAwait(false);
+            
             return callback.Message;
         }
 

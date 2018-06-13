@@ -5,10 +5,9 @@
     using System.IO;
     using System.Net;
     using System.Text;
-
     using Newtonsoft.Json;
-
-    using PassiveBOT.Models;
+    
+    using global::PassiveBOT.Models;
 
     /// <summary>
     /// The translate methods.
