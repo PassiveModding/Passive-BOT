@@ -12,6 +12,7 @@
 
     using Microsoft.Extensions.DependencyInjection;
 
+    using PassiveBOT.Discord.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
 
@@ -63,6 +64,7 @@
                     .AddSingleton<BotHandler>()
                     .AddSingleton<EventHandler>()
                     .AddSingleton<InteractiveService>()
+                    .AddSingleton<Events>()
                     .AddSingleton(new Random(Guid.NewGuid().GetHashCode()));
 
             var provider = services.BuildServiceProvider();

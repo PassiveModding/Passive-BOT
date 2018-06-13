@@ -59,8 +59,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("DenyDefaultPrefix")]
-        [Summary("DenyDefaultPrefix")]
-        [Remarks("Toggle whether or not users can use the Default bot prefix in the server")]
+        [Summary("Toggle whether or not users can use the Default bot prefix in the server")]
         public async Task ToggleDenyPrefix()
         {
             Context.Server.Settings.Prefix.DenyDefaultPrefix = !Context.Server.Settings.Prefix.DenyDefaultPrefix;

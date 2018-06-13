@@ -192,8 +192,7 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("Goodbye")]
-            [Summary("Goodbye")]
-            [Remarks("Set the Goodbye message")]
+            [Summary("Set the Goodbye message")]
             public async Task SetMessage([Remainder] string message)
             {
                 Context.Server.Events.Goodbye.Message = message;

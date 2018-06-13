@@ -10,12 +10,14 @@
     using global::Discord.Addons.Interactive;
 
     using global::Discord.Commands;
+    using global::Discord.WebSocket;
 
     using Microsoft.Extensions.DependencyInjection;
 
     using Newtonsoft.Json;
 
     using PassiveBOT.Discord.Context;
+    using PassiveBOT.Discord.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
 
@@ -46,8 +48,8 @@
             embed.AddField("Server Name", Context.Guild.Name);
             embed.AddField("Server Owner", $"Name: {Context.Guild.Owner}\n" +
                                            $"ID: {Context.Guild.OwnerId}");
-            embed.AddField("Users", $"User Count: {Context.Guild.MemberCount}\n" +
-                                    $"Cached User Count: {Context.Guild.Users.Count}\n" +
+            embed.AddField("Users", $"user Count: {Context.Guild.MemberCount}\n" +
+                                    $"Cached user Count: {Context.Guild.Users.Count}\n" +
                                     $"Cached Bots Count: {Context.Guild.Users.Count(x => x.IsBot)}");
             embed.AddField("Counts", $"Channels: {Context.Guild.TextChannels.Count + Context.Guild.VoiceChannels.Count}\n" +
                                      $"Text Channels: {Context.Guild.TextChannels.Count}\n" +
@@ -160,7 +162,7 @@
             var config = Context.Provider.GetRequiredService<ConfigModel>();
             config.LogUserMessages = !config.LogUserMessages;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
-            await SimpleEmbedAsync($"Log User Messages: {config.LogUserMessages}");
+            await SimpleEmbedAsync($"Log user Messages: {config.LogUserMessages}");
         }
 
         /// <summary>
@@ -178,5 +180,39 @@
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             await SimpleEmbedAsync($"Log Command Usages: {config.LogCommandUsages}");
         }
+
+        /// <summary>
+        /// Trigger the Welcome event with the specified user
+        /// </summary>
+        /// <param name="user">
+        /// The user.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Welcome_Event")]
+        [Summary("Trigger a welcome event in the current server")]
+        public async Task WelcomeEvent(SocketGuildUser user)
+        {
+            await Events.UserJoined(Context.Server, user);
+        }
+
+        /// <summary>
+        /// Trigger the goodbye event with the specified user
+        /// </summary>
+        /// <param name="user">
+        /// The user.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Goodbye_Event")]
+        [Summary("Trigger a Goodbye event in the current server")]
+        public async Task GoodbyeEvent(SocketGuildUser user)
+        {
+            await Events.UserLeft(Context.Server, user);
+        }
+
+
     }
 }

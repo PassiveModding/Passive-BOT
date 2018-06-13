@@ -1,10 +1,15 @@
 ﻿namespace PassiveBOT.Handlers
 {
+    using System;
     using System.Threading.Tasks;
 
     using global::Discord;
 
     using global::Discord.WebSocket;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using PassiveBOT.Discord.Extensions.PassiveBOT;
     using PassiveBOT.Models;
 
     /// <summary>
@@ -24,12 +29,18 @@
         /// <param name="config">
         /// The config.
         /// </param>
-        public BotHandler(DiscordShardedClient client, EventHandler events, ConfigModel config)
+        public BotHandler(DiscordShardedClient client, EventHandler events, ConfigModel config, IServiceProvider provider)
         {
             Client = client;
             Event = events;
             Config = config;
+            Provider = provider;
         }
+
+        /// <summary>
+        /// Gets the provider.
+        /// </summary>
+        private IServiceProvider Provider { get; }
 
         /// <summary>
         /// Gets the config.
@@ -60,6 +71,8 @@
             Client.LeftGuild += Event.LeftGuild;
             Client.ShardConnected += Event.ShardConnected;
             Client.MessageReceived += Event.MessageReceivedAsync;
+            Client.UserJoined += user => Events.UserJoined(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
+            Client.UserLeft += user => Events.UserLeft(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
 
             // Here we log the bot in and start it. This MUST run for the bot to connect to discord.
             await Client.LoginAsync(TokenType.Bot, Config.Token);

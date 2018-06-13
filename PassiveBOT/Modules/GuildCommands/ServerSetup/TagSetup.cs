@@ -22,8 +22,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Toggle")]
-        [Summary("Toggle")]
-        [Remarks("Toggle the tagging system")]
+        [Summary("Toggle the tagging system")]
         public async Task TagToggle()
         {
             Context.Server.Tags.Settings.Enabled = !Context.Server.Tags.Settings.Enabled;

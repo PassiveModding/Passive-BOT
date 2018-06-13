@@ -27,8 +27,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("HowTo")]
-        [Summary("HowTo")]
-        [Remarks("QuickTranslate Command Help")]
+        [Summary("QuickTranslate Command Help")]
         public async Task HowTo()
         {
             await SimpleEmbedAsync("**Translation Help**\n" +
@@ -59,8 +58,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Toggle")]
-        [Summary("Toggle")]
-        [Remarks("Toggle quick translation for the server")]
+        [Summary("Toggle quick translation for the server")]
         public async Task Toggle()
         {
             Context.Server.Settings.Translate.EasyTranslate = !Context.Server.Settings.Translate.EasyTranslate;
@@ -75,8 +73,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("TranslateDM")]
-        [Summary("TranslateDM")]
-        [Remarks("Toggle whether or not Translations will be sent in DMs")]
+        [Summary("Toggle whether or not Translations will be sent in DMs")]
         public async Task ToggleMD()
         {
             Context.Server.Settings.Translate.DMTranslations = !Context.Server.Settings.Translate.DMTranslations;
@@ -97,8 +94,7 @@
         /// Throws if there is no matching emote.
         /// </exception>
         [Command("Remove")]
-        [Summary("Remove <Emote>")]
-        [Remarks("Remove a custom emote from QuickTranslation list")]
+        [Summary("Remove a custom emote from QuickTranslation list")]
         public async Task Remove(Emoji emote)
         {
             var matchingPair = Context.Server.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Contains(emote.Name));
@@ -138,8 +134,8 @@
         /// Throws if a pair is already matched.
         /// </exception>
         [Command("Add")]
-        [Summary("Add <Emote> <LanguageCode>")]
-        [Remarks("Add a pair for quick translation of a language")]
+        [Summary("Add a pair for quick translation of a language")]
+        [Remarks("For a list of language codes use the `Translate Languages` Command")]
         public async Task QuickTranslatePair(Emoji emote, LanguageMap.LanguageCode languageCode)
         {
             var group = Context.Server.Settings.Translate.CustomPairs.FirstOrDefault(x => x.Language == languageCode);
@@ -176,8 +172,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("List")]
-        [Summary("List")]
-        [Remarks("List paired languages")]
+        [Summary("List paired languages")]
         public async Task List()
         {
             var fields = Context.Server.Settings.Translate.CustomPairs.Select(x => new EmbedFieldBuilder
@@ -200,8 +195,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Defaults")]
-        [Summary("Defaults")]
-        [Remarks("List Default paired languages")]
+        [Summary("List Default paired languages")]
         public async Task ListDe()
         {
             var fields = LanguageMap.DefaultMap.OrderByDescending(x => x.EmoteMatches.Count).Select(x => new EmbedFieldBuilder
