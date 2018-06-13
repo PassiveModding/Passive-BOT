@@ -17,6 +17,7 @@
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
+    using PassiveBOT.Discord.TypeReaders;
     using PassiveBOT.Models;
 
     /// <summary>
@@ -96,6 +97,9 @@
         /// </returns>
         public async Task InitializeAsync()
         {
+            //Ensure that the EmojiTypeReader is initialized so we can parse an emoji as a parameter
+            CommandService.AddTypeReader(typeof(Emoji), new EmojiTypeReader());
+
             // This will add all our modules to the command service, allowing them to be accessed as necessary
             await CommandService.AddModulesAsync(Assembly.GetEntryAssembly());
             LogHandler.LogMessage("RavenBOT: Modules Added");
@@ -330,10 +334,10 @@
                 }
 
                 var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
-                var original = StringFixer.FixLength(Message.Value.Content);
+                var original = TextManagement.FixLength(Message.Value.Content);
                 var language = TranslateMethods.LanguageCodeToString(languageType.Language);
                 var file = TranslateMethods.TranslateMessage(language, Message.Value.Content);
-                var response = StringFixer.FixLength(TranslateMethods.HandleResponse(file));
+                var response = TextManagement.FixLength(TranslateMethods.HandleResponse(file));
                 embed.AddField($"Translated [{language} || {Reaction.Emote}]", $"{response}", true);
                 embed.AddField($"Original [{file[2]}]", $"{original}", true);
                 embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" + $"Reactor: {Reaction.User.Value}", true);

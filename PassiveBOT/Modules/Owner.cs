@@ -16,7 +16,6 @@
     using Newtonsoft.Json;
 
     using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
 
@@ -24,9 +23,10 @@
     /// Base is what we inherit our context from, ie ReplyAsync, Context.Guild etc.
     /// Example is our module name
     /// </summary>
-    [Group("Example")]// You can add a group attribute to a module to prefix all commands in that module. ie. +Example ServerStats rather than +ServerStats
-    [RequireContext(ContextType.Guild)] // You can also use precondition attributes on a module to ensure commands are only run if they pass the precondition
-    public class Example : Base
+    [Group("Owner")]// You can add a group attribute to a module to prefix all commands in that module. ie. +Example ServerStats rather than +ServerStats
+    [RequireContext(ContextType.Guild)]
+    [RequireOwner]// You can also use precondition attributes on a module to ensure commands are only run if they pass the precondition
+    public class Owner : Base
     {
         /// <summary>
         /// The stats.
@@ -37,7 +37,6 @@
         [Command("ServerStats")] // The Main Command Name
         [Summary("Bot Statistics Command")] // A summary of what the command does
         [Remarks("Can only be run within a server")] // Extra notes on the command
-        [RequireContext(ContextType.Guild)] // A Precondition, limiting access to the command
         public async Task Stats()
         {
             var embed = new EmbedBuilder
@@ -58,47 +57,12 @@
         }
 
         /// <summary>
-        /// Echos the provided message
-        /// </summary>
-        /// <param name="message">
-        /// The message.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("Say")]
-        [Alias("Echo", "Repeat")]// Commands can be initialized using different names, ie, Echo, Repeat and Say will all have the same effect.
-        [Summary("Repeats the given message")]
-        public async Task Echo([Remainder] string message)
-        {
-            await ReplyAsync(message);
-        }
-
-        /// <summary>
-        /// The db load.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("GetDatabaseGuildID")]
-        [RequireContext(ContextType.Guild)]
-        [Summary("Loads the guildID from the database")]
-        public async Task DBLoad()
-        {
-            // SimpleEmbedAsync is one of our additions in our custom context
-            // This is an example of how you can use custom additions to the bot context. ie. Context.Server
-            await SimpleEmbedAsync(Context.Server.ID.ToString());
-        }
-
-        /// <summary>
         /// Downloads the stored json config of the guild
         /// </summary>
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("DownloadConfig")]
-        [RequireContext(ContextType.Guild)]
-        [GuildOwner]
         [Summary("Downloads the config file of the guild")]
         public async Task DBDownload()
         {
@@ -134,7 +98,6 @@
         /// <returns>Something or something</returns>
         [Command("embedreaction")]
         [Summary("Sends a custom message that performs a specific action upon reacting")]
-        [Remarks("N/A")]
         public async Task Test_EmbedReactionReply(bool expires, bool singleuse, bool singleuser)
         {
             var one = new Emoji("1⃣");
@@ -170,8 +133,6 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("SetShards")]
-        [RequireContext(ContextType.Guild)]
-        [RequireOwner]
         [Summary("Set total amount of shards for the bot")]
         public async Task SetShards(int shards)
         {
@@ -193,8 +154,6 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("ToggleMessageLog")]
-        [RequireContext(ContextType.Guild)]
-        [RequireOwner]
         [Summary("Toggle the logging of all user messages to console")]
         public async Task ToggleMessageLog()
         {
@@ -211,8 +170,6 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("ToggleCommandLog")]
-        [RequireContext(ContextType.Guild)]
-        [RequireOwner]
         [Summary("Toggle the logging of all user messages to console")]
         public async Task ToggleCommandLog()
         {

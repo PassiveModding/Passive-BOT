@@ -29,7 +29,7 @@
                 return Task.FromResult(PreconditionResult.FromError("User is not in a guild"));
             }
 
-            // Check to see if the current user's ID matchs the guild owners 
+            // Check to see if the current user's ID matches the guild owners 
             return Task.FromResult(context.Guild.OwnerId == context.User.Id ? PreconditionResult.FromSuccess() : PreconditionResult.FromError("User is not the Guild Owner!"));
         }
     }

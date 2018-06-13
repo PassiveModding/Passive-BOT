@@ -116,6 +116,9 @@
             else
             {
                 Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
+                LogHandler.LogMessage("Connecting to Server\n" + 
+                                      $"=> URL: {Settings.URL}\n" + 
+                                      $"=> Name: {Settings.Name}");
             }
 
             // This initializes the document store, and ensures that RavenDB is working properly
@@ -125,17 +128,25 @@
                 LogHandler.LogMessage("Failed to build document store.", LogSeverity.Critical);
             }
 
+            if (!Ping(Settings.URL))
+            {
+                LogHandler.LogMessage("Failed to Ping Server.", LogSeverity.Critical);
+            }
+
             // This creates the database
             if (Store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 5)).All(x => x != Settings.Name))
             {
                 Store.Maintenance.Server.Send(new CreateDatabaseOperation(new DatabaseRecord(Settings.Name)));
+                LogHandler.LogMessage($"Created Database => {Settings.Name}");
             }
 
+
             // To ensure the backup operation is functioning and backing up to our bots directory we update the backup operation on each boot of the bot
-            var record = Store.Maintenance.Server.Send(new GetDatabaseRecordOperation(Settings.Name));
-            var backup = record.PeriodicBackups.FirstOrDefault(x => x.Name == "Backup");
             try
             {
+                var record = Store.Maintenance.ForDatabase(Settings.Name).Server.Send(new GetDatabaseRecordOperation(Settings.Name));
+                var backup = record.PeriodicBackups.FirstOrDefault(x => x.Name == "Backup");
+
                 if (backup == null)
                 {
                     var newbackup = new PeriodicBackupConfiguration
@@ -184,11 +195,11 @@
 
                 // This inserts the config object into the database and writes the DatabaseConfig to file.
                 Execute<ConfigModel>(Operation.CREATE, configModel, "Config");
-                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(new DatabaseObject { IsConfigCreated = true }, Formatting.Indented));
+                Settings.IsConfigCreated = true;
+                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(Settings, Formatting.Indented));
             }
 
             LogHandler.PrintApplicationInformation(Settings, configModel);
-            Settings = null;
         }
 
         /// <summary>
