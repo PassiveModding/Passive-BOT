@@ -29,6 +29,12 @@
                 return Task.FromResult(PreconditionResult.FromError("User is not in a guild"));
             }
 
+            // Override the permission check for the bot owner
+            if (context.User.Id == context.Client.GetApplicationInfoAsync().Result.Owner.Id)
+            {
+                return Task.FromResult(PreconditionResult.FromSuccess());
+            }
+
             // Check to see if the current user's ID matches the guild owners 
             return Task.FromResult(context.Guild.OwnerId == context.User.Id ? PreconditionResult.FromSuccess() : PreconditionResult.FromError("User is not the Guild Owner!"));
         }

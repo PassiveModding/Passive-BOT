@@ -264,7 +264,7 @@
                 return;
             }
             */
-            
+
             if (!(
 
             // If the message starts with @BOTNAME and the server has bot @'s toggled on        
