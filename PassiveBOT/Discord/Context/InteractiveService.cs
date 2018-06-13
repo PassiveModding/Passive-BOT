@@ -46,7 +46,7 @@
         }
 
         /// <summary>
-        /// Waits for the next message
+        /// Waits for the next Message
         /// </summary>
         /// <param name="context"></param>
         /// <param name="fromSourceUser"></param>
@@ -65,7 +65,7 @@
 
 
         /// <summary>
-        /// Waits for the next message to be sent
+        /// Waits for the next Message to be sent
         /// </summary>
         /// <param name="context"></param>
         /// <param name="criterion"></param>
@@ -98,7 +98,7 @@
         }
 
         /// <summary>
-        /// Sends a message with reaction callback
+        /// Sends a Message with reaction callback
         /// </summary>
         /// <param name="context"></param>
         /// <param name="callbacks"></param>
@@ -115,7 +115,7 @@
         }
 
         /// <summary>
-        /// Sends a message then deletes it
+        /// Sends a Message then deletes it
         /// </summary>
         /// <param name="context"></param>
         /// <param name="content"></param>
@@ -135,7 +135,7 @@
         }
 
         /// <summary>
-        /// Sends a multi-pages message
+        /// Sends a multi-pages Message
         /// </summary>
         /// <param name="context"></param>
         /// <param name="pager"></param>

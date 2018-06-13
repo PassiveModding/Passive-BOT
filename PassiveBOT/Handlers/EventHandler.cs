@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
@@ -15,6 +16,7 @@
     using Microsoft.Extensions.DependencyInjection;
 
     using PassiveBOT.Discord.Context;
+    using PassiveBOT.Discord.Extensions;
     using PassiveBOT.Models;
 
     /// <summary>
@@ -22,6 +24,11 @@
     /// </summary>
     public class EventHandler
     {
+        /// <summary>
+        /// Messages that have already been translated.
+        /// </summary>
+        private readonly Dictionary<ulong, LanguageMap.LanguageCode> translated = new Dictionary<ulong, LanguageMap.LanguageCode>();
+
         /// <summary>
         /// true = check and update all missing servers on start.
         /// </summary>
@@ -106,9 +113,9 @@
         internal async Task ShardReady(DiscordSocketClient socketClient)
         {
             await socketClient.SetActivityAsync(new Game($"Shard: {socketClient.ShardId}"));
-            
+
             /*
-            //Here we select at random out 'playing' message.
+            //Here we select at random out 'playing' Message.
              var Games = new Dictionary<ActivityType, string[]>
             {
                 {ActivityType.Listening, new[]{"YT/PassiveModding", "Tech N9ne"} },
@@ -188,7 +195,7 @@
         /// This logs discord messages to our LogHandler
         /// </summary>
         /// <param name="message">
-        /// The message.
+        /// The Message.
         /// </param>
         /// <returns>
         /// The <see cref="Task"/>.
@@ -197,7 +204,7 @@
         {
             return Task.Run(() => LogHandler.LogMessage(message.Message, message.Severity));
         }
-        
+
         /// <summary>
         /// This will auto-remove the bot from servers as it gets removed. NOTE: Remove this if you want to save configs.
         /// </summary>
@@ -212,12 +219,12 @@
             return Task.Run(()
                 => Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: guild.Id));
         }
-        
+
         /// <summary>
-        /// This event is triggered every time the a user sends a message in a channel, dm etc. that the bot has access to view.
+        /// This event is triggered every time the a user sends a Message in a channel, dm etc. that the bot has access to view.
         /// </summary>
         /// <param name="socketMessage">
-        /// The socket message.
+        /// The socket Message.
         /// </param>
         /// <returns>
         /// The <see cref="Task"/>.
@@ -233,21 +240,28 @@
 
             if (Config.LogUserMessages)
             {
+                //Log user messages if enabled.
                 LogHandler.LogMessage(context);
+            }
+
+            if (context.User.IsBot)
+            {
+                //Filter out all bot messages from triggering commands.
+                return;
             }
 
             var argPos = 0;
 
-            // Filter out all messages that don't start with our Bot Prefix, bot mention or server specific prefix.
-            if (!(Message.HasStringPrefix(Config.Prefix, ref argPos) || Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) || Message.HasStringPrefix(context.Server.Settings.CustomPrefix, ref argPos)))
+            // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
+            if (!(Message.HasStringPrefix(Config.Prefix, ref argPos) || Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) || Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos)))
             {
                 return;
             }
 
-            // Here we attempt to execute a command based on the user message
+            // Here we attempt to execute a command based on the user Message
             var result = await CommandService.ExecuteAsync(context, argPos, Provider, MultiMatchHandling.Best);
 
-            // Generate an error message for users if a command is unsuccessful
+            // Generate an error Message for users if a command is unsuccessful
             if (!result.IsSuccess)
             {
                 var _ = Task.Run(() => CmdError(context, result, argPos));
@@ -262,7 +276,86 @@
         }
 
         /// <summary>
-        /// Generates an error message based on a command error.
+        /// The _client_ reaction added.
+        /// </summary>
+        /// <param name="Message">
+        /// The message.
+        /// </param>
+        /// <param name="Channel">
+        /// The channel.
+        /// </param>
+        /// <param name="Reaction">
+        /// The reaction.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        internal async Task ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
+        {
+            LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
+            if (!Message.HasValue)
+            {
+                return;
+            }
+
+            try
+            {
+                if (Message.Value.Author.IsBot || Reaction.User.Value.IsBot || Message.Value.Embeds.Any())
+                {
+                    return;
+                }
+
+                var guild = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, (Channel as SocketGuildChannel).Guild.Id.ToString());
+                if (!guild.Settings.Translate.EasyTranslate)
+                {
+                    return;
+                }
+
+                //Check custom matches first
+                var languageType = guild.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
+
+                if (languageType == null)
+                {
+                    //If no custom matches, check default matches
+                    languageType = LanguageMap.DefaultMap.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
+                    if (languageType == null)
+                    {
+                        return;
+                    }
+                }
+
+                if (translated.Any(x => x.Key == Reaction.MessageId && x.Value == languageType.Language))
+                {
+                    return;
+                }
+
+                var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
+                var original = StringFixer.FixLength(Message.Value.Content);
+                var language = TranslateMethods.LanguageCodeToString(languageType.Language);
+                var file = TranslateMethods.TranslateMessage(language, Message.Value.Content);
+                var response = StringFixer.FixLength(TranslateMethods.HandleResponse(file));
+                embed.AddField($"Translated [{language} || {Reaction.Emote}]", $"{response}", true);
+                embed.AddField($"Original [{file[2]}]", $"{original}", true);
+                embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" + $"Reactor: {Reaction.User.Value}", true);
+
+                if (guild.Settings.Translate.DMTranslations)
+                {
+                    await Reaction.User.Value.SendMessageAsync("", false, embed.Build());
+                }
+                else
+                {
+                    await Channel.SendMessageAsync("", false, embed.Build());
+                    translated.Add(Reaction.MessageId, languageType.Language);
+                }
+            }
+            catch (Exception e)
+            {
+                LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
+            }
+        }
+
+        /// <summary>
+        /// Generates an error Message based on a command error.
         /// </summary>
         /// <param name="context">
         /// The context.
@@ -285,7 +378,7 @@
             }
             else
             {
-                // Search the commandservice based on the message, then respond accordingly with information about the command.
+                // Search the commandservice based on the Message, then respond accordingly with information about the command.
                 var search = CommandService.Search(context, argPos);
                 var cmd = search.Commands.FirstOrDefault();
                 errorMessage = $"**Command Name:** `{cmd.Command.Name}`\n" +

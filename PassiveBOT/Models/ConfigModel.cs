@@ -11,7 +11,7 @@
         public int Shards { get; set; } = 1;
         
         /// <summary>
-        /// Gets or sets the bot prefix
+        /// Gets or sets the bot PrefixSetup
         /// </summary>
         public string Prefix { get; set; } = "+";
 

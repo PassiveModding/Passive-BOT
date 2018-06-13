@@ -23,7 +23,7 @@
         /// The client param.
         /// </param>
         /// <param name="message">
-        /// The message param.
+        /// The Message param.
         /// </param>
         /// <param name="serviceProvider">
         /// The service provider.
@@ -33,12 +33,18 @@
             // These are our custom additions to the context, giving access to the server object and all server objects through Context.
             Server = serviceProvider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, Guild.Id);
             Provider = serviceProvider;
+            Prefix = Server?.Settings.Prefix.CustomPrefix ?? Provider.GetRequiredService<ConfigModel>().Prefix;
         }
 
         /// <summary>
         /// Gets the server.
         /// </summary>
         public GuildModel Server { get; }
+
+        /// <summary>
+        /// Gets the prefix.
+        /// </summary>
+        public string Prefix { get; }
 
         /// <summary>
         /// Gets the provider.

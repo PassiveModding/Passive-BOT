@@ -20,7 +20,7 @@
         /// The client.
         /// </param>
         /// <param name="events">
-        /// The events.
+        /// The EventSetup.
         /// </param>
         /// <param name="config">
         /// The config.
@@ -55,7 +55,7 @@
         /// </returns>
         public async Task InitializeAsync()
         {
-            // These are our events, each time one of these is triggered it runs the corresponding method. Ie, the bot receives a message we run Event.MessageReceivedAsync
+            // These are our EventSetup, each time one of these is triggered it runs the corresponding method. Ie, the bot receives a PartnerMessage we run Event.MessageReceivedAsync
             Client.Log += Event.Log;
             Client.ShardReady += Event.ShardReady;
             Client.LeftGuild += Event.LeftGuild;

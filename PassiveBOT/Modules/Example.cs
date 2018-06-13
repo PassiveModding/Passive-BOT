@@ -126,30 +126,6 @@
         }
 
         /// <summary>
-        /// Sets a custom prefix for the bot in the current server
-        /// </summary>
-        /// <param name="prefix">
-        /// The prefix.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("CustomPrefix")]
-        [RequireContext(ContextType.Guild)]
-        [GuildOwner]
-        [Summary("Loads the guildID from the database")]
-        [Remarks("This command can only be invoked by the server owner")]
-        public async Task CustomPrefix([Remainder] string prefix = null)
-        {
-            // Modify the prefix and then update the object within the database.
-            Context.Server.Settings.CustomPrefix = prefix;
-            Context.Server.Save();
-
-            // If prefix is null, we default back to the default bot prefix
-            await SimpleEmbedAsync($"Prefix is now: {prefix ?? Context.Provider.GetRequiredService<ConfigModel>().Prefix}");
-        }
-
-        /// <summary>
         /// Sends a custom message that performs a specific action upon reacting
         /// </summary>
         /// <param name="expires">True = Expires after first use</param>
