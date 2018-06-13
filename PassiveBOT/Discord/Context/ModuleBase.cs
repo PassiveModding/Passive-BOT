@@ -93,16 +93,23 @@
         }
 
         /// <summary>
-        ///     Rather than just replying, we can spice things up a bit and embed them in a small message
+        /// Rather than just replying, we can spice things up a bit and embed them in a small message
         /// </summary>
-        /// <param name="message">The text that will be contained in the embed</param>
-        /// <returns>The message that was sent</returns>
-        public async Task<IUserMessage> SimpleEmbedAsync(string message)
+        /// <param name="message">
+        /// The text that will be contained in the embed
+        /// </param>
+        /// <param name="color">
+        /// The color.
+        /// </param>
+        /// <returns>
+        /// The message that was sent
+        /// </returns>
+        public async Task<IUserMessage> SimpleEmbedAsync(string message, Color? color = null)
         {
             var embed = new EmbedBuilder
             {
                 Description = message,
-                Color = Color.DarkOrange
+                Color = color ?? Color.DarkRed
             };
             return await ReplyAsync(string.Empty, false, embed.Build());
         }

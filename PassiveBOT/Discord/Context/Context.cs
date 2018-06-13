@@ -34,7 +34,6 @@
             Server = serviceProvider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, Guild.Id);
             Provider = serviceProvider;
             Prefix = Server?.Settings.Prefix.CustomPrefix ?? Provider.GetRequiredService<ConfigModel>().Prefix;
-            
         }
 
         /// <summary>

@@ -258,9 +258,36 @@
             var argPos = 0;
 
             // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
+            /*
             if (!(Message.HasStringPrefix(Config.Prefix, ref argPos) || Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) || Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos)))
             {
                 return;
+            }
+            */
+            
+            if (!(
+
+            // If the message starts with @BOTNAME and the server has bot @'s toggled on        
+            (context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix) ||
+
+            // If the message starts with the default bot prefix and it is toggled on
+            (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix) ||
+
+            // If the message starts with the custom server prefix and the custom server prefix is set.
+            (context.Server.Settings.Prefix.CustomPrefix != null && context.Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos))))
+            {
+                if (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && context.Server.Settings.Prefix.DenyDefaultPrefix)
+                {
+                    if (context.Server.Settings.Prefix.CustomPrefix != null)
+                    {
+                        //Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
+                        return;
+                    }
+                }
+                else
+                {
+                    return;
+                }
             }
 
             // Here we attempt to execute a command based on the user Message

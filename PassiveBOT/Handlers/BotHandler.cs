@@ -5,8 +5,6 @@
     using global::Discord;
 
     using global::Discord.WebSocket;
-
-    using PassiveBOT.Discord.TypeReaders;
     using PassiveBOT.Models;
 
     /// <summary>

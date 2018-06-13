@@ -1,4 +1,5 @@
-﻿namespace PassiveBOT.Discord.TypeReaders.EmojiTools
+﻿// ReSharper disable StringLiteralTypo
+namespace PassiveBOT.Discord.TypeReaders.EmojiTools
 {
     using System.Collections.Generic;
 
@@ -8,9 +9,9 @@
     public static class EmojiMap
     {
         /// <summary>
-        /// The map.
+        /// Gets the emote map.
         /// </summary>
-        public static IReadOnlyDictionary<string, string> Map { get; set; } = 
+        public static IReadOnlyDictionary<string, string> Map { get; } = 
             new Dictionary<string, string>
             {
             { "red_car", "🚗" },

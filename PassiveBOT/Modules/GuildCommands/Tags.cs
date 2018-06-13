@@ -8,7 +8,6 @@
     using global::Discord.Commands;
 
     using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
     using PassiveBOT.Discord.Extensions.PassiveBOT;
     using PassiveBOT.Models;
 
