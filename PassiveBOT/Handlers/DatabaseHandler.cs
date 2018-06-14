@@ -140,7 +140,6 @@
                 LogHandler.LogMessage($"Created Database => {Settings.Name}");
             }
 
-
             // To ensure the backup operation is functioning and backing up to our bots directory we update the backup operation on each boot of the bot
             try
             {

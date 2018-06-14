@@ -29,6 +29,9 @@
         /// <param name="config">
         /// The config.
         /// </param>
+        /// <param name="provider">
+        /// The provider.
+        /// </param>
         public BotHandler(DiscordShardedClient client, EventHandler events, ConfigModel config, IServiceProvider provider)
         {
             Client = client;

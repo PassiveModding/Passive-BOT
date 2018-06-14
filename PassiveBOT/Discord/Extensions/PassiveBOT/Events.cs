@@ -6,10 +6,7 @@
     using global::Discord;
     using global::Discord.WebSocket;
 
-    using global::PassiveBOT.Handlers;
     using global::PassiveBOT.Models;
-
-    using Microsoft.Extensions.DependencyInjection;
 
     /// <summary>
     /// The events.
@@ -35,6 +32,9 @@
         /// <summary>
         /// The user joined event
         /// </summary>
+        /// <param name="guildModel">
+        /// The guild Model.
+        /// </param>
         /// <param name="user">
         /// The user.
         /// </param>
@@ -89,6 +89,9 @@
         /// <summary>
         /// The user left event
         /// </summary>
+        /// <param name="guildModel">
+        /// The guild Model.
+        /// </param>
         /// <param name="user">
         /// The user.
         /// </param>
