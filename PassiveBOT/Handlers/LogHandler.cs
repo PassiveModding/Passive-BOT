@@ -137,7 +137,7 @@
                               $"-> Database URL: {settings?.URL}\n" +
                               $"-> Database Name: {settings?.Name}\n" +
                               $"-> Prefix: {config.Prefix}\n" +
-                              "    Author: PassiveModding | Discord: https://discord.me/Passive\n" +
+                              $"    Author: PassiveModding | Discord: {HomeModel.Load().HomeInvite}\n" +
                               $"=======================[ {DateTime.UtcNow} ]=======================");
         }
     }

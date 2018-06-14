@@ -8,9 +8,9 @@
     public class HomeModel
     {
         /// <summary>
-        /// Gets or sets the id.
+        /// Gets or sets the guild ID.
         /// </summary>
-        public ulong ID { get; set; }
+        public ulong GuildId { get; set; }
 
         /// <summary>
         /// Gets or sets the logging setup
@@ -25,7 +25,7 @@
         /// <summary>
         /// Gets or sets the home invite.
         /// </summary>
-        public string HomeInvite { get; set; }
+        public string HomeInvite { get; set; } = $"https://discord.me/passive";
 
         /// <summary>
         /// The saves the config
