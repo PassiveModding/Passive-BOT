@@ -30,7 +30,8 @@
         /// <exception cref="Exception">
         /// Throws if invalid user/no rank
         /// </exception>
-        [Command("Rank")]
+        [Command("Level")]
+        [Alias("Rank")]
         [Summary("Find the rank of a user")]
         [Remarks("Will default to the current user if none specified")]
         public async Task Rank(IUser user = null)
@@ -61,7 +62,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("LeaderBoard")]
-        [Remarks("Display the LeaderBoard")]
+        [Summary("Display the LeaderBoard")]
         public async Task LeaderBoard()
         {
             var users = Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).Take(100).ToList();
@@ -82,6 +83,24 @@
                                                  Forward = true,
                                                  Backward = true
                                              });
+        }
+
+        /// <summary>
+        /// The leader board.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Ranks")]
+        [Summary("Display the Level Rewards")]
+        public async Task Ranks()
+        {
+            if (!Context.Server.Levels.RewardRoles.Any())
+            {
+                throw new Exception("There are no ranks in this server");
+            }
+
+            await SimpleEmbedAsync(string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Select(x => Context.Guild.GetRole(x.RoleID)?.Mention).Where(x => x != null)));
         }
     }
 }
