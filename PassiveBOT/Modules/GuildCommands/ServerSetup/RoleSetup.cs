@@ -79,6 +79,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("SetSub")]
+        [RequireBotPermission(GuildPermission.ManageRoles)]
         [Summary("Add a public role (or remove it)")]
         public async Task SetSub(IRole role)
         {

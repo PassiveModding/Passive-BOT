@@ -20,13 +20,13 @@
     [RequireAdmin]
     [Group("Channel")]
     [RequireContext(ContextType.Guild)]
-    [RequireBotPermission(GuildPermission.ManageMessages)]
     public class ChannelSetup : Base
     {
         /// <summary>
         /// The media channel setup
         /// </summary>
         [Group("Media")]
+        [RequireBotPermission(GuildPermission.ManageMessages)]
         public class Media : Base
         {
             /// <summary>

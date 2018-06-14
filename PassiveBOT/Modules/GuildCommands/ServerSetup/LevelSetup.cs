@@ -102,6 +102,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("ToggleIncrementalLeveling")]
+        [RequireBotPermission(GuildPermission.ManageRoles)]
         [Summary("Toggle whether to give a user only one role reward or all")]
         public async Task ToggleLevelIncrement()
         {
@@ -124,6 +125,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("AddLevel")]
+        [RequireBotPermission(GuildPermission.ManageRoles)]
         [Summary("Add a role which users may receive upon getting a certain level")]
         public async Task AddLevel(IRole role, int level)
         {
@@ -149,7 +151,7 @@
             });
 
             await SimpleEmbedAsync($"New Level Added: {role.Name}\n" +
-                             $"Level Requirement: {level}");
+                                   $"Level Requirement: {level}");
             Context.Server.Save();
         }
 
@@ -174,7 +176,7 @@
             }
             else
             {
-                await SimpleEmbedAsync("ERROR: This role is not a level!");
+                throw new Exception("This role is not a level!");
             }
         }
 
@@ -199,7 +201,7 @@
             }
             else
             {
-                await SimpleEmbedAsync("ERROR: This role is not a level!");
+                throw new Exception("This role is not a level!");
             }
         }
 

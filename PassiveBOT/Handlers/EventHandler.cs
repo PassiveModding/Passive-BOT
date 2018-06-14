@@ -118,7 +118,7 @@
         /// </returns>
         internal async Task ShardReady(DiscordSocketClient socketClient)
         {
-            await socketClient.SetActivityAsync(new Game($"Shard: {socketClient.ShardId}"));
+            await socketClient.SetActivityAsync(new Game($"Shard: {socketClient.ShardId}", ActivityType.Watching));
 
             /*
             //Here we select at random out 'playing' Message.
