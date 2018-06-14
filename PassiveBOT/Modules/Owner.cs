@@ -19,6 +19,7 @@
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions.PassiveBOT;
+    using PassiveBOT.Discord.Services;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
 
@@ -31,6 +32,22 @@
     [RequireOwner]// You can also use precondition attributes on a module to ensure commands are only run if they pass the precondition
     public class Owner : Base
     {
+        /// <summary>
+        /// The timer service.
+        /// </summary>
+        private readonly TimerService timerService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Owner"/> class.
+        /// </summary>
+        /// <param name="service">
+        /// The service.
+        /// </param>
+        public Owner(TimerService service)
+        {
+            timerService = service;
+        }
+
         /// <summary>
         /// The stats.
         /// </summary>
@@ -267,6 +284,50 @@
             }
 
             await ReplyAsync(invite);
+        }
+
+        /// <summary>
+        /// The partner_ restart.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Partner_Restart")]
+        [Summary("Partner_Restart")]
+        [Remarks("Restart the partner service")]
+        public async Task Partner_Restart()
+        {
+            timerService.Restart();
+            await ReplyAsync("Timer (re)started.");
+        }
+
+        /// <summary>
+        /// The partner_ trigger.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Partner_Trigger", RunMode = RunMode.Async)]
+        [Summary("Partner_Trigger")]
+        [Remarks("Trigger the partner service")]
+        public async Task Partner_Trigger()
+        {
+            await timerService.Partner();
+        }
+
+        /// <summary>
+        /// The partner_ stop.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Partner_Stop")]
+        [Summary("Partner_Stop")]
+        [Remarks("Stop the partner service")]
+        public async Task Partner_Stop()
+        {
+            timerService.Stop();
+            await ReplyAsync("Timer stopped.");
         }
     }
 }
