@@ -17,6 +17,7 @@
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
+    using PassiveBOT.Discord.Extensions.PassiveBOT;
     using PassiveBOT.Discord.TypeReaders;
     using PassiveBOT.Models;
 
@@ -226,6 +227,44 @@
         }
 
         /// <summary>
+        /// Bod Joined guild event
+        /// </summary>
+        /// <param name="guild">
+        /// The guild.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        internal async Task JoinedGuild(SocketGuild guild)
+        {
+            var handler = Provider.GetRequiredService<DatabaseHandler>();
+            if (handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, id: guild.Id) == null)
+            {
+                handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = guild.Id }, guild.Id);
+            }
+
+            var general = guild.TextChannels.FirstOrDefault(x => string.Equals(x.Name, "general", StringComparison.CurrentCultureIgnoreCase));
+            if (general != null)
+            {
+                try
+                {
+                    await general.SendMessageAsync(string.Empty, false, new EmbedBuilder
+                    {
+                        Title = $"Hi I am {Client.CurrentUser.Username}!",
+                        Description = "You can get started using my commands by looking at all my commands\n" +
+                                                                                              $"Type `{Provider.GetRequiredService<ConfigModel>().Prefix}Help` For commands you can access\n" +
+                                                                                              $"or type `{Provider.GetRequiredService<ConfigModel>().Prefix}FullHelp` For all commands",
+                        Color = Color.DarkRed
+                    }.Build());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        /// <summary>
         /// This event is triggered every time the a user sends a Message in a channel, dm etc. that the bot has access to view.
         /// </summary>
         /// <param name="socketMessage">
@@ -254,6 +293,10 @@
                 //Filter out all bot messages from triggering commands.
                 return;
             }
+
+            context = await LevelHelper.DoLevels(context);
+            context = await ChannelHelper.DoAutoMessage(context);
+            await ChannelHelper.DoMediaChannel(context);
 
             var argPos = 0;
 

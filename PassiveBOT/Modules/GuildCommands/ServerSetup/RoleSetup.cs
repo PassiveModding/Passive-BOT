@@ -12,6 +12,7 @@
     /// The role setup.
     /// </summary>
     [GuildOwner]
+    [RequireContext(ContextType.Guild)]
     public class RoleSetup : Base
     {
         /// <summary>

@@ -36,13 +36,13 @@
                                    "You can add an Emoji and Set its language using the Add Command and Remove one using the Remove Command\n" +
                                    "The Quick Translation system can be toggled using the Toggle Command\n\n" +
                                    "**Usage**\n" +
-                                   $"`{Context.Prefix}Translation Add <Emoji> <Language>` - Adds a quick translation configuration\n" +
-                                   $"`{Context.Prefix}Translation Add :flag_us: en` - Reacting with the :flag_us: emoji will translate the message to english\n\n" +
-                                   $"`{Context.Prefix}Translation Remove <Emoji>` - Removes a quick translation configuration\n" +
-                                   $"`{Context.Prefix}Translation Remove :flag_us:` - Removed the custom configuration\n" +
-                                   $"`{Context.Prefix}Translation Toggle` - Toggles on or off Quick Translation via reactions\n" +
-                                   $"`{Context.Prefix}Translation List` - List the Custom Configuration\n" +
-                                   $"`{Context.Prefix}Translation Defaults` - List the Default Configuration\n\n" +
+                                   $"`{Context.Prefix}TranslateSetup Add <Emoji> <Language>` - Adds a quick translation configuration\n" +
+                                   $"`{Context.Prefix}TranslateSetup Add :flag_us: en` - Reacting with the :flag_us: emoji will translate the message to english\n\n" +
+                                   $"`{Context.Prefix}TranslateSetup Remove <Emoji>` - Removes a quick translation configuration\n" +
+                                   $"`{Context.Prefix}TranslateSetup Remove :flag_us:` - Removed the custom configuration\n" +
+                                   $"`{Context.Prefix}TranslateSetup Toggle` - Toggles on or off Quick Translation via reactions\n" +
+                                   $"`{Context.Prefix}TranslateSetup List` - List the Custom Configuration\n" +
+                                   $"`{Context.Prefix}TranslateSetup Defaults` - List the Default Configuration\n\n" +
                                    "NOTE: For a list of Language Codes\n" +
                                    $"`{Context.Prefix}Translate languages`\n" +
                                    "Also, \n" +
@@ -72,7 +72,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        [Command("TranslateDM")]
+        [Command("DM")]
         [Summary("Toggle whether or not Translations will be sent in DMs")]
         public async Task ToggleMD()
         {
