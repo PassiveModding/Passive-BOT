@@ -32,7 +32,7 @@
         /// </exception>
         [Command("Level")]
         [Alias("Rank")]
-        [Summary("Find the rank of a user")]
+        [Summary("Find the level of a user")]
         [Remarks("Will default to the current user if none specified")]
         public async Task Rank(IUser user = null)
         {
