@@ -30,8 +30,6 @@
         /// </param>
         public Context(DiscordShardedClient client, SocketUserMessage message, IServiceProvider serviceProvider) : base(client, message)
         {
-            ShardedClient = client;
-
             // These are our custom additions to the context, giving access to the server object and all server objects through Context.
             Server = serviceProvider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, Guild.Id);
             Provider = serviceProvider;
@@ -39,14 +37,9 @@
         }
 
         /// <summary>
-        /// Gets the custom server object.
+        /// Gets the server.
         /// </summary>
         public GuildModel Server { get; }
-
-        /// <summary>
-        /// Gets the sharded client.
-        /// </summary>
-        public DiscordShardedClient ShardedClient { get; }
 
         /// <summary>
         /// Gets the prefix.

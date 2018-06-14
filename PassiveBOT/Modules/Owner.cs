@@ -228,7 +228,7 @@
         public async Task GetInvite(ulong guildID)
         {
             string invite = null;
-            var target = Context.ShardedClient.GetGuild(guildID);
+            var target = Context.Client.GetGuild(guildID);
             if (target == null)
             {
                 throw new Exception("Server is unavailable");

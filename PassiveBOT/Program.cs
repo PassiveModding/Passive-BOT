@@ -55,6 +55,7 @@
             var services = new ServiceCollection()
                     .AddSingleton<DatabaseHandler>()
                     .AddSingleton(x => x.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.LOAD, id: "Config"))
+                    .AddSingleton(x => x.GetRequiredService<DatabaseHandler>().Execute<HomeModel>(DatabaseHandler.Operation.LOAD, id: "HomeServer"))
                     .AddSingleton(new CommandService(new CommandServiceConfig
                     {
                         ThrowOnError = false,
