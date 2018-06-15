@@ -76,6 +76,8 @@
         {
             Context.Server.Partner.Settings.Enabled = !Context.Server.Partner.Settings.Enabled;
             Context.Server.Save();
+
+            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {Context.Server.Partner.Settings.Enabled}" });
             await SimpleEmbedAsync($"Partner Program Enabled: {Context.Server.Partner.Settings.Enabled}");
         }
 
@@ -94,23 +96,14 @@
         {
             if ((decimal)(Context.Channel as SocketTextChannel).Users.Count / Context.Guild.Users.Count * 100 < 90)
             {
-                throw new Exception("Partner messages will not be shared as this channel has less than 90% visibility in the server,\n" +
-                                    "You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
+                throw new Exception("Partner messages will not be shared as this channel has less than 90% visibility in the server,\n" + "You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
             }
 
             Context.Server.Partner.Settings.ChannelID = Context.Channel.Id;
             Context.Server.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");
 
-            var generateMessage = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
-            var homeModel = HomeModel.Load();
-            if (homeModel.Logging.LogPartnerChanges && Context.Client.GetChannel(homeModel.Logging.PartnerLogChannel) is IMessageChannel channel)
-            {
-                await channel.SendMessageAsync(string.Empty, false, generateMessage.AddField("Partner Channel Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
-                                                                                                           $"Owner: {Context.Guild.Owner.Username}\n" +
-                                                                                                           $"Users: {Context.Guild.MemberCount}")
-                    .Build());
-            }
+            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -179,14 +172,8 @@
             Context.Server.Save();
             var generateMessage = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
             await ReplyAsync(generateMessage);
-            var homeModel = HomeModel.Load();
-            if (homeModel.Logging.LogPartnerChanges && Context.Client.GetChannel(homeModel.Logging.PartnerLogChannel) is IMessageChannel channel)
-            {
-                await channel.SendMessageAsync(string.Empty, false, generateMessage.AddField("Partner Message Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
-                                                                                                           $"Owner: {Context.Guild.Owner.Username}\n" +
-                                                                                                           $"Users: {Context.Guild.MemberCount}")
-                    .Build());
-            }
+
+            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -217,19 +204,17 @@
         [Summary("Set an optional image url for the partner message")]
         public async Task ImageURL(string imageUrl = null)
         {
+            if (!(string.IsNullOrEmpty(imageUrl) || Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute)))
+            {
+                throw new Exception("Url must be a well-formed URI");
+            }
+
             Context.Server.Partner.Message.ImageUrl = imageUrl;
             Context.Server.Save();
             var partnerEmbed = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
             await ReplyAsync(partnerEmbed);
 
-            var homeModel = HomeModel.Load();
-            if (homeModel.Logging.LogPartnerChanges && Context.Client.GetChannel(homeModel.Logging.PartnerLogChannel) is IMessageChannel channel)
-            {
-                await channel.SendMessageAsync(string.Empty, false, partnerEmbed.AddField("Partner Image Updated", $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" +
-                                                                                                         $"Owner: {Context.Guild.Owner.Username}\n" +
-                                                                                                         $"Users: {Context.Guild.MemberCount}")
-                    .Build());
-            }
+            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>

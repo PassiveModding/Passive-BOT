@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Discord.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,7 +19,7 @@
     /// The timer service.
     /// </summary>
     public class TimerService
-    {        
+    {
         /// <summary>
         /// The _timer.
         /// </summary>
@@ -92,33 +93,35 @@
         /// </returns>
         public async Task Partner()
         {
-            var guildModels = Provider.GetRequiredService<DatabaseHandler>().Query<GuildModel>().Where(x => !x.Partner.Settings.Banned &&
-                                                                   x.Partner.Settings.Enabled && x.Partner.Settings.ChannelID != 0 &&
-                                                                   x.Partner.Message.Content != null &&
-                                                                   ShardedClient.GetChannel(x.Partner.Settings.ChannelID) != null &&
-                                                                   ShardedClient.Guilds.Any(g => g.Id == x.ID))
+            var guildModels = Provider.GetRequiredService<DatabaseHandler>().Query<GuildModel>().Where(x =>
+
+                    // Ensure the partner is not banned
+                   !x.Partner.Settings.Banned &&
+
+                   // Ensure they have enabled the partner service and set a channel
+                   x.Partner.Settings.Enabled && x.Partner.Settings.ChannelID != 0 &&
+
+                   // Ensure they have set a message
+                   x.Partner.Message.Content != null &&
+
+                   // Ensure the channel actually exists 
+                   ShardedClient.GetChannel(x.Partner.Settings.ChannelID) != null)
+                .Select(x => new KeyValuePair<GuildModel, SocketTextChannel>(x, ShardedClient.GetChannel(x.Partner.Settings.ChannelID) as SocketTextChannel))
                 .ToList();
-            var reduces_GuildList = guildModels.ToList();
-            foreach (var receiverConfig in guildModels)
+
+            // Randomize the guilds so that repeats each time are minimal.
+            var reduces_GuildList = guildModels.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList();
+            foreach (var pair in guildModels)
             {
                 try
                 {
+                    var receiverConfig = pair.Key;
                     var receiverGuild = ShardedClient.GetGuild(receiverConfig.ID);
-                    if (!(ShardedClient.GetChannel(receiverConfig.Partner.Settings.ChannelID) is SocketTextChannel textChannel))
-                    {
-                        continue;
-                    }
+                    var textChannel = pair.Value;
 
-                    var messageGuild = reduces_GuildList.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).FirstOrDefault(x => x.ID != receiverGuild.Id);
-                    if (messageGuild == null)
-                    {
-                        continue;
-                    }
-
-                    if (!(ShardedClient.GetChannel(messageGuild.Partner.Settings.ChannelID) is SocketTextChannel messageChannel))
-                    {
-                        continue;
-                    }
+                    var messageConfig = reduces_GuildList.First(x => x.Key.ID != receiverGuild.Id);
+                    var messageGuild = messageConfig.Key;
+                    var messageChannel = messageConfig.Value;
 
                     if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
                     {
@@ -131,9 +134,10 @@
                     }
                     else
                     {
+                        var partnerMessage = PartnerHelper.GenerateMessage(messageGuild, messageChannel.Guild).Build();
                         try
                         {
-                            await textChannel.SendMessageAsync(string.Empty, false, PartnerHelper.GenerateMessage(messageGuild, messageChannel.Guild).Build());
+                            await textChannel.SendMessageAsync(string.Empty, false, partnerMessage);
                             messageGuild.Partner.Stats.ServersReached++;
                             messageGuild.Partner.Stats.UsersReached = messageGuild.Partner.Stats.UsersReached + receiverGuild.MemberCount;
                             messageGuild.Save();
@@ -141,17 +145,26 @@
                         }
                         catch (Exception e)
                         {
-                            LogHandler.LogMessage("Partner Message Send Error in:\n" +
+                            LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" +
                                                   $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}\n" +
                                                   $"{e}", LogSeverity.Error);
+
+                            await PartnerHelper.PartnerLog(ShardedClient, receiverConfig, new EmbedFieldBuilder
+                                                                                              {
+                                                                                                  Name = "Partner Server Auto Banned",
+                                                                                                  Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}"
+                                                                                              });
+
+                            // Auto-Ban servers which deny permissions to send
+                            receiverConfig.Partner.Settings.Banned = true;
                         }
                     }
 
-                    reduces_GuildList.Remove(messageGuild);
+                    reduces_GuildList.Remove(messageConfig);
                 }
                 catch (Exception e)
                 {
-                    LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverConfig.ID}]\n" +
+                    LogHandler.LogMessage($"Partner Event Error for Guild: [{pair.Key.ID}]\n" +
                                           $"{e}", LogSeverity.Error);
                 }
             }

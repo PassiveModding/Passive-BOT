@@ -19,6 +19,7 @@
             Get,
             Post
         }
+        
         /// <summary>
         /// The get response string async.
         /// </summary>
