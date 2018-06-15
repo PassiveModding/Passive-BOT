@@ -139,7 +139,7 @@
                         {
                             await textChannel.SendMessageAsync(string.Empty, false, partnerMessage);
                             messageGuild.Partner.Stats.ServersReached++;
-                            messageGuild.Partner.Stats.UsersReached = messageGuild.Partner.Stats.UsersReached + receiverGuild.MemberCount;
+                            messageGuild.Partner.Stats.UsersReached += receiverGuild.MemberCount;
                             messageGuild.Save();
                             await Task.Delay(500);
                         }
@@ -149,14 +149,18 @@
                                                   $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}\n" +
                                                   $"{e}", LogSeverity.Error);
 
-                            await PartnerHelper.PartnerLog(ShardedClient, receiverConfig, new EmbedFieldBuilder
-                                                                                              {
-                                                                                                  Name = "Partner Server Auto Banned",
-                                                                                                  Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}"
-                                                                                              });
+                            await PartnerHelper.PartnerLog(ShardedClient, 
+                                                           receiverConfig,
+                                                           new EmbedFieldBuilder
+                                                           {
+                                                               Name = "Partner Server Auto Banned",
+                                                               Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}"
+                                                           });
 
                             // Auto-Ban servers which deny permissions to send
                             receiverConfig.Partner.Settings.Banned = true;
+                            receiverConfig.Partner.Settings.Enabled = false;
+                            receiverConfig.Save();
                         }
                     }
 
