@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using global::Discord;
+
     using PassiveBOT.Handlers;
 
     using Raven.Client.ServerWide;
@@ -63,6 +65,7 @@
             using (var newSession = DatabaseHandler.Store.OpenSession(newDatabase))
             {
                 var guilds = oldSession.Query<GuildModel>();
+                var updated = 0;
                 foreach (var guild in guilds)
                 {
                     var newGuild = new Models.GuildModel
@@ -490,27 +493,69 @@
                     if (!do_not_delete)
                     {
                         // Deletes the old config
-                        oldSession.Delete(guild);
+                        try
+                        {
+                            oldSession.Delete(guild);
+                            LogHandler.LogMessage($"Deleted Old Config => {guild.ID}");
+                        }
+                        catch
+                        {
+                            LogHandler.LogMessage($"Delete Error => {guild.ID}", LogSeverity.Warning);
+                        }
+                        
 
                         // Backs up and deletes the old guild config
-                        backupSession.Store(guild, guild.ID.ToString());
+                        try
+                        {
+                            backupSession.Store(guild, guild.ID.ToString());
+                            LogHandler.LogMessage($"Backed Up Old Config => {guild.ID}");
+                        }
+                        catch
+                        {
+                            LogHandler.LogMessage($"Error Backing Up Old Config => {guild.ID}", LogSeverity.Warning);
+                        }
+
                     }
 
                     // Stores the new config
                     newSession.Store(newGuild, newGuild.ID.ToString());
+                    LogHandler.LogMessage($"Stored New Config => {guild.ID}");
+                    newSession.SaveChanges();
+                    updated++;
+                    if (updated % 100 == 0)
+                    {
+                        try
+                        {
+                            oldSession.SaveChanges();
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            Console.ReadKey();
+                        }
+
+                    }
                 }
 
-                if (do_not_delete)
+                try
                 {
-                    oldSession.SaveChanges();
-                }
-                else
-                {
-                    oldSession.SaveChanges();
-                    backupSession.SaveChanges();
-                }
+                    if (do_not_delete)
+                    {
+                        oldSession.SaveChanges();
+                    }
+                    else
+                    {
+                        oldSession.SaveChanges();
+                        backupSession.SaveChanges();
+                    }
 
-                newSession.SaveChanges();
+                    newSession.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    LogHandler.LogMessage("Error Saving Changes\n\n" + $"{e}", LogSeverity.Critical);
+                    Console.ReadKey();
+                }
             }
         }
     }
