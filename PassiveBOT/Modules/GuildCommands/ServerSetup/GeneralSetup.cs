@@ -38,6 +38,21 @@
         }
 
         /// <summary>
+        /// Toggles the NsfwAllowed Precondition.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("ToggleNsfw")]
+        [Summary("Toggles the use of Nsfw Commands AT ALL in the server")]
+        public async Task ToggleNsfw()
+        {
+            Context.Server.Settings.Nsfw.Enabled = !Context.Server.Settings.Nsfw.Enabled;
+            Context.Server.Save();
+            await SimpleEmbedAsync($"Nsfw Allowed: {Context.Server.Settings.Nsfw.Enabled}");
+        }
+
+        /// <summary>
         /// The toggle mention prefix.
         /// </summary>
         /// <returns>

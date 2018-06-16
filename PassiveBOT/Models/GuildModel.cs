@@ -550,6 +550,11 @@
             public TranslateSetup Translate { get; set; } = new TranslateSetup();
 
             /// <summary>
+            /// Gets or sets the nsfw settings
+            /// </summary>
+            public NsfwSetup Nsfw { get; set; } = new NsfwSetup();
+
+            /// <summary>
             /// The prefix setup.
             /// </summary>
             public class PrefixSetup
@@ -568,6 +573,17 @@
                 /// Gets or sets the custom guild prefix.
                 /// </summary>
                 public string CustomPrefix { get; set; } = null;
+            }
+
+            /// <summary>
+            /// The nsfw setup.
+            /// </summary>
+            public class NsfwSetup
+            {
+                /// <summary>
+                /// Gets or sets a value indicating whether enabled.
+                /// </summary>
+                public bool Enabled { get; set; } = true;
             }
 
             /// <summary>
