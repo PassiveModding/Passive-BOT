@@ -202,11 +202,10 @@
                 LogHandler.LogMessage("RavenDB: Failed to set Backup operation. Backups may not be saved", LogSeverity.Warning);
             }
 
-            var configModel = new ConfigModel();
-
             // Prompt the user to set up the bots configuration.
             if (Settings.IsConfigCreated == false)
             {
+                var configModel = new ConfigModel();
                 LogHandler.LogMessage("Enter bots token: (You can get this from https://discordapp.com/developers/applications/me)");
                 var token = Console.ReadLine();
                 if (string.IsNullOrEmpty(token))
@@ -230,7 +229,9 @@
                 File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(Settings, Formatting.Indented));
             }
 
-            LogHandler.PrintApplicationInformation(Settings, configModel);
+            LogHandler.PrintApplicationInformation(Settings, Execute<ConfigModel>(Operation.LOAD, null, "Config"));
+
+            // Note the logger has to be updated/re-set after we set the database up otherwise there will be a null reference when trying to log initially
             LogHandler.Log = new LoggerConfiguration()
                 .WriteTo.Console()
                 .WriteTo.RavenDB(Store, defaultDatabase: Settings.Name, expiration: TimeSpan.FromDays(7))

@@ -167,7 +167,8 @@
             Console.WriteLine("-> INFORMATION\n" +
                               $"-> Database URL: {settings?.URL}\n" +
                               $"-> Database Name: {settings?.Name}\n" +
-                              $"-> Prefix: {config.Prefix}\n" +
+                              $"-> Prefix: {config.Prefix}\n" + 
+                              $"-> Shards: {config.Shards}\n" +
                               $"    Author: PassiveModding | Discord: {HomeModel.Load().HomeInvite}\n" +
                               $"=======================[ {DateTime.UtcNow} ]=======================");
         }
