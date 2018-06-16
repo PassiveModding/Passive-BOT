@@ -329,5 +329,93 @@
             timerService.Stop();
             await ReplyAsync("Timer stopped.");
         }
+
+        /// <summary>
+        /// The home.
+        /// </summary>
+        [Group("Home")]
+        public class Home : Base
+        {
+            /// <summary>
+            /// The set guild.
+            /// </summary>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("Guild")]
+            public async Task SetGuild()
+            {
+                var home = HomeModel.Load();
+                home.GuildId = Context.Guild.Id;
+                home.Save();
+                await SimpleEmbedAsync($"Home Guild Set to {Context.Guild.Id}");
+            }
+
+            /// <summary>
+            /// The set bot moderator.
+            /// </summary>
+            /// <param name="role">
+            /// The role.
+            /// </param>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("BotModerator")]
+            public async Task SetBotModerator(SocketRole role = null)
+            {
+                var home = HomeModel.Load();
+                home.BotModerator = role?.Id ?? 0;
+                home.Save();
+                await SimpleEmbedAsync("Bot Mod Set/Reset.");
+            }
+
+            /// <summary>
+            /// The set bot moderator.
+            /// </summary>
+            /// <param name="invite">
+            /// The invite.
+            /// </param>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("Invite")]
+            public async Task SetBotModerator(string invite)
+            {
+                var home = HomeModel.Load();
+                home.HomeInvite = invite;
+                home.Save();
+                await SimpleEmbedAsync($"Invite set to: {invite}");
+            }
+
+            /// <summary>
+            /// The log partners toggle.
+            /// </summary>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("LogPartners")]
+            public async Task LogPartnersToggle()
+            {
+                var home = HomeModel.Load();
+                home.Logging.LogPartnerChanges = !home.Logging.LogPartnerChanges;
+                home.Save();
+                await SimpleEmbedAsync($"Log Partner Changes: {home.Logging.LogPartnerChanges}");
+            }
+
+            /// <summary>
+            /// The partner channel.
+            /// </summary>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("PartnerLogChannel")]
+            public async Task PartnerChannel()
+            {
+                var home = HomeModel.Load();
+                home.Logging.PartnerLogChannel = Context.Channel.Id;
+                home.Save();
+                await SimpleEmbedAsync("Partner changes will be sent to the current channel.");
+            }
+        }
     }
 }
