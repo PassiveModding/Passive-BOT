@@ -204,7 +204,7 @@
         [Summary("Set an optional image url for the partner message")]
         public async Task ImageURL(string imageUrl = null)
         {
-            if (!(string.IsNullOrEmpty(imageUrl) || Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute)))
+            if (!string.IsNullOrEmpty(imageUrl) && !Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
             {
                 throw new Exception("Url must be a well-formed URI");
             }

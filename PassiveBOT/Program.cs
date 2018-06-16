@@ -96,6 +96,7 @@
 
             await provider.GetRequiredService<BotHandler>().InitializeAsync();
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
+            provider.GetRequiredService<TimerService>().Restart();
 
             // Indefinitely delay the method from finishing so that the program stays running until stopped.
             await Task.Delay(-1);

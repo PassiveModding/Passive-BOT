@@ -1,10 +1,12 @@
 ﻿namespace PassiveBOT.Discord.Extensions.PassiveBOT
 {
+    using System;
     using System.Threading.Tasks;
 
     using global::Discord;
     using global::Discord.WebSocket;
 
+    using global::PassiveBOT.Handlers;
     using global::PassiveBOT.Models;
 
     /// <summary>
@@ -26,19 +28,41 @@
         /// </returns>
         public static EmbedBuilder GenerateMessage(GuildModel guildObj, SocketGuild guild)
         {
-            var embed = new EmbedBuilder
-                            {
-                                Title = guild.Name,
-                                Description = guildObj.Partner.Message.Content,
-                                ImageUrl = guildObj.Partner.Message.ImageUrl,
-                                Color = new Color(guildObj.Partner.Message.Color.R, guildObj.Partner.Message.Color.G, guildObj.Partner.Message.Color.B),
-                                ThumbnailUrl = guildObj.Partner.Message.UseThumb ? guild.IconUrl : null,
-                                Footer = new EmbedFooterBuilder
-                                             {
-                                                 Text = $"{(guildObj.Partner.Message.UserCount ? $"Users: {guild.MemberCount} || " : "")}Get PassiveBOT: {HomeModel.Load().HomeInvite}"
-                                             }
-                            };
-            return embed;
+            var image = guildObj.Partner.Message.ImageUrl;
+            if (image != null)
+            {
+                if (!Uri.IsWellFormedUriString(image, UriKind.Absolute))
+                {
+                    image = null;
+                    guildObj.Partner.Message.ImageUrl = null;
+                    guildObj.Save();
+                }
+            }
+
+            try
+            {
+                var embed = new EmbedBuilder();
+                embed.Title = guild.Name;
+                embed.Description = guildObj.Partner.Message.Content;
+                embed.ImageUrl = image;
+                embed.Color = new Color(guildObj.Partner.Message.Color.R, guildObj.Partner.Message.Color.G, guildObj.Partner.Message.Color.B);
+                embed.ThumbnailUrl = guildObj.Partner.Message.UseThumb ? guild.IconUrl : null;
+                embed.Footer = new EmbedFooterBuilder
+                                   {
+                                       Text = $"{(guildObj.Partner.Message.UserCount ? $"Users: {guild.MemberCount} || " : "")}Get PassiveBOT: {HomeModel.Load().HomeInvite}",
+                                       IconUrl = guild.IconUrl
+                                   };
+                return embed;
+            }
+            catch (Exception e)
+            {
+                LogHandler.LogMessage($"Partner Embed Build Error for {guild.Name} [{guild.Id}]\n" + $"{e}");
+                return new EmbedBuilder
+                           {
+                               Description = $"Partner Embed Build Error for {guild.Name} [{guild.Id}]\n" + 
+                                             $"{e.Message}"
+                           };
+            }
         }
 
         /// <summary>
