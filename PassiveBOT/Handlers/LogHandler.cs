@@ -9,6 +9,7 @@
 
     using Serilog;
     using Serilog.Core;
+    using Serilog.Events;
 
     /// <summary>
     /// The Log handler.
@@ -16,9 +17,11 @@
     public static class LogHandler
     {
         /// <summary>
-        /// The Log.
+        /// Gets or sets the Log.
         /// </summary>
-        private static readonly Logger Log = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        public static Logger Log { get; set; } = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
 
         /// <summary>
         /// Ensures a string is aligned and kept to the specified length
@@ -82,6 +85,34 @@
                 default:
                     Log.Information(custom);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Converts from discord LogSeverity to Serilog LogEventLevel
+        /// </summary>
+        /// <param name="level">The discord LogLevel</param>
+        /// <returns>
+        /// The converted LogEventLevel
+        /// </returns>
+        public static LogEventLevel DiscordLogToEventLevel(LogSeverity level)
+        {
+            switch (level)
+            {
+                case LogSeverity.Info:
+                    return LogEventLevel.Information;
+                case LogSeverity.Warning:
+                    return LogEventLevel.Warning;
+                case LogSeverity.Error:
+                    return LogEventLevel.Warning;
+                case LogSeverity.Debug:
+                    return LogEventLevel.Debug;
+                case LogSeverity.Critical:
+                    return LogEventLevel.Fatal;
+                case LogSeverity.Verbose:
+                    return LogEventLevel.Verbose;
+                default:
+                    return LogEventLevel.Information;
             }
         }
 

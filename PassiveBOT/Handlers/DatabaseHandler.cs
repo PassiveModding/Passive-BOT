@@ -20,6 +20,8 @@
     using Raven.Client.ServerWide;
     using Raven.Client.ServerWide.Operations;
 
+    using Serilog;
+
     /// <summary>
     /// The database handler.
     /// </summary>
@@ -229,6 +231,10 @@
             }
 
             LogHandler.PrintApplicationInformation(Settings, configModel);
+            LogHandler.Log = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.RavenDB(Store, defaultDatabase: Settings.Name, expiration: TimeSpan.FromDays(7))
+                .CreateLogger();
         }
 
         /// <summary>
