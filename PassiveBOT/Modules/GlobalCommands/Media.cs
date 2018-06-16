@@ -23,7 +23,7 @@
     /// <summary>
     /// The media.
     /// </summary>
-    public class Media : Base
+    public class Images : Base
     {
         /// <summary>
         /// Gets a random dog image
