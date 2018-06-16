@@ -162,15 +162,13 @@
         /// <param name="config">
         /// The config.
         /// </param>
-        public static void PrintApplicationInformation(DatabaseObject settings, ConfigModel config)
-        {
+        public static void PrintApplicationInformation(DatabaseObject settings, ConfigModel config) => 
             Console.WriteLine("-> INFORMATION\n" +
                               $"-> Database URL: {settings?.URL}\n" +
                               $"-> Database Name: {settings?.Name}\n" +
-                              $"-> Prefix: {config.Prefix}\n" + 
+                              $"-> Prefix: {config.Prefix}\n" +
                               $"-> Shards: {config.Shards}\n" +
                               $"    Author: PassiveModding | Discord: {HomeModel.Load().HomeInvite}\n" +
                               $"=======================[ {DateTime.UtcNow} ]=======================");
-        }
     }
 }
