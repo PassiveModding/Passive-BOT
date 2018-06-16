@@ -74,6 +74,7 @@
             Client.LeftGuild += Event.LeftGuild;
             Client.JoinedGuild += Event.JoinedGuild;
             Client.ShardConnected += Event.ShardConnected;
+            Client.ReactionAdded += Event.ReactionAdded;
             Client.MessageReceived += Event.MessageReceivedAsync;
             Client.UserJoined += user => Events.UserJoined(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
             Client.UserLeft += user => Events.UserLeft(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
