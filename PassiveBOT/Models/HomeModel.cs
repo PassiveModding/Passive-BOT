@@ -1,5 +1,7 @@
 ﻿namespace PassiveBOT.Models
 {
+    using System.Collections.Generic;
+
     using PassiveBOT.Handlers;
 
     /// <summary>
@@ -26,6 +28,11 @@
         /// Gets or sets the home invite.
         /// </summary>
         public string HomeInvite { get; set; } = $"https://discord.me/passive";
+
+        /// <summary>
+        /// Gets or sets the blacklist.
+        /// </summary>
+        public BlacklistConfig Blacklist { get; set; } = new BlacklistConfig();
 
         /// <summary>
         /// The saves the config
@@ -59,7 +66,23 @@
                 session.SaveChanges();
             }
         }
-        
+
+        /// <summary>
+        /// The blacklist.
+        /// </summary>
+        public class BlacklistConfig
+        {
+            /// <summary>
+            /// Gets or sets the blacklisted users.
+            /// </summary>
+            public List<ulong> BlacklistedUsers { get; set; } = new List<ulong>();
+
+            /// <summary>
+            /// Gets or sets the blacklisted guilds.
+            /// </summary>
+            public List<ulong> BlacklistedGuilds { get; set; } = new List<ulong>();
+        }
+
         /// <summary>
         /// The logging.
         /// </summary>

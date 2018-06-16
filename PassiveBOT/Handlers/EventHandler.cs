@@ -280,6 +280,17 @@
                 return;
             }
 
+            var home = Provider.GetRequiredService<HomeModel>();
+            if (home.Blacklist.BlacklistedUsers.Contains(Message.Author.Id))
+            {
+                return;
+            }
+
+            if (home.Blacklist.BlacklistedGuilds.Contains((Message.Channel as SocketGuildChannel).Guild.Id))
+            {
+                return;
+            }
+
             var context = new Context(Client, Message, Provider);
 
             if (Config.LogUserMessages)
@@ -301,13 +312,6 @@
             var argPos = 0;
 
             // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
-            /*
-            if (!(Message.HasStringPrefix(Config.Prefix, ref argPos) || Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) || Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos)))
-            {
-                return;
-            }
-            */
-
             if (!(
 
             // If the message starts with @BOTNAME and the server has bot @'s toggled on        

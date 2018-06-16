@@ -416,6 +416,75 @@
                 home.Save();
                 await SimpleEmbedAsync("Partner changes will be sent to the current channel.");
             }
+
+            /// <summary>
+            /// The partner channel.
+            /// </summary>
+            /// <param name="user">
+            /// The user.
+            /// </param>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("BlacklistUser")]
+            public async Task BlacklistUser(SocketUser user)
+            {
+                await BlacklistUser(user.Id);
+            }
+
+            /// <summary>
+            /// The blacklist user.
+            /// </summary>
+            /// <param name="userId">
+            /// The user id.
+            /// </param>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("BlacklistUser")]
+            public async Task BlacklistUser(ulong userId)
+            {
+                var home = HomeModel.Load();
+                if (home.Blacklist.BlacklistedUsers.Contains(userId))
+                {
+                    home.Blacklist.BlacklistedUsers.Remove(userId);
+                    await SimpleEmbedAsync("User has been removed from the blacklist");
+                }
+                else
+                {
+                    home.Blacklist.BlacklistedUsers.Add(userId);
+                    await SimpleEmbedAsync("User has been added to the blacklist");
+                }
+
+                home.Save();
+            }
+
+            /// <summary>
+            /// The blacklist user.
+            /// </summary>
+            /// <param name="guildId">
+            /// The guild Id.
+            /// </param>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            [Command("BlacklistGuild")]
+            public async Task BlacklistGuild(ulong guildId)
+            {
+                var home = HomeModel.Load();
+                if (home.Blacklist.BlacklistedGuilds.Contains(guildId))
+                {
+                    home.Blacklist.BlacklistedGuilds.Remove(guildId);
+                    await SimpleEmbedAsync("Guild has been removed from the blacklist");
+                }
+                else
+                {
+                    home.Blacklist.BlacklistedGuilds.Add(guildId);
+                    await SimpleEmbedAsync("Guild has been added to the blacklist");
+                }
+
+                home.Save();
+            }
         }
     }
 }

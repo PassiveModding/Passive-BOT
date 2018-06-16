@@ -75,6 +75,12 @@
         /// </summary>
         public static int FirePeriod { get; set; } = 30;
 
+
+        /// <summary>
+        /// Gets or sets the partner stats.
+        /// </summary>
+        public PartnerStatistics PartnerStats { get; set; } = new PartnerStatistics();
+
         /// <summary>
         /// Gets the provider.
         /// </summary>
@@ -84,6 +90,7 @@
         /// Gets or sets the sharded client.
         /// </summary>
         public DiscordShardedClient ShardedClient { get; set; }
+
 
         /// <summary>
         /// The partner.
@@ -108,6 +115,9 @@
                    ShardedClient.GetChannel(x.Partner.Settings.ChannelID) != null)
                 .Select(x => new KeyValuePair<GuildModel, SocketTextChannel>(x, ShardedClient.GetChannel(x.Partner.Settings.ChannelID) as SocketTextChannel))
                 .ToList();
+
+            PartnerStats.PartneredGuilds = guildModels.Count;
+            PartnerStats.ReachableMembers = guildModels.Sum(x => x.Value.Users.Count);
 
             // Randomize the guilds so that repeats each time are minimal.
             var reduces_GuildList = guildModels.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList();
@@ -200,6 +210,22 @@
         {
             FirePeriod = newPeriod;
             timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
+        }
+        
+        /// <summary>
+        /// The partner statistics.
+        /// </summary>
+        public class PartnerStatistics
+        {
+            /// <summary>
+            /// Gets or sets the partnered guilds count
+            /// </summary>
+            public int PartneredGuilds { get; set; }
+
+            /// <summary>
+            /// Gets or sets the reachable members count
+            /// </summary>
+            public int ReachableMembers { get; set; }
         }
     }
 }
