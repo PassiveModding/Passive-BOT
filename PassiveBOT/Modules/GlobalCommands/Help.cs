@@ -82,14 +82,22 @@
         /// </exception>
         public async Task GenerateHelp(string checkForMatch = null, bool checkPreconditions = true)
         {
-            if (checkForMatch == null)
+            try
             {
-                await PagedHelp(checkPreconditions);
+                if (checkForMatch == null)
+                {
+                    await PagedHelp(checkPreconditions);
+                }
+                else
+                {
+                    await ModuleCommandHelp(checkPreconditions, checkForMatch);
+                }
             }
-            else
+            catch (Exception e)
             {
-                await ModuleCommandHelp(checkPreconditions, checkForMatch);
+                Console.WriteLine(e);
             }
+
         }
 
         /// <summary>
@@ -109,6 +117,7 @@
         /// </exception>
         public async Task ModuleCommandHelp(bool checkPreconditions, string checkForMatch)
         {
+
             var module = service.Modules.FirstOrDefault(x => string.Equals(x.Name, checkForMatch, StringComparison.CurrentCultureIgnoreCase));
             var fields = new List<EmbedFieldBuilder>();
             if (module != null)
@@ -216,7 +225,15 @@
                     moduleIndex++;
                     fields.Add(new EmbedFieldBuilder { Name = $"[{moduleIndex}] {module.Name}", Value = string.Join(", ", passingCommands.Select(x => x.Aliases.FirstOrDefault()).Where(x => x != null).ToList()) });
 
-                    pageContents.Add(module.Name, passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList());
+                    try
+                    {
+                        pageContents.Add(module.Name, passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                    
                 }
 
                 moduleIndex++;

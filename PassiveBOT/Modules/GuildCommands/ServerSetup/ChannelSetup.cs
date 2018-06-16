@@ -27,7 +27,7 @@
         /// </summary>
         [Group("Media")]
         [RequireBotPermission(GuildPermission.ManageMessages)]
-        public class Media : Base
+        public class MediaChannel : Base
         {
             /// <summary>
             /// Adds a media channel
