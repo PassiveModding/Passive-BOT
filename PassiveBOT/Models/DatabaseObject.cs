@@ -23,6 +23,11 @@
         public bool IsConfigCreated { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether you are migrating config
+        /// </summary>
+        public bool IsMigratingDatabase { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets The name.
         /// </summary>
         public string Name { get; set; } = "RavenBOT";
