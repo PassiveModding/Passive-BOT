@@ -280,13 +280,7 @@
                 return;
             }
 
-            var home = HomeModel.Load();
-            if (home.Blacklist.BlacklistedUsers.Contains(Message.Author.Id))
-            {
-                return;
-            }
-
-            if (home.Blacklist.BlacklistedGuilds.Contains((Message.Channel as SocketGuildChannel).Guild.Id))
+            if (string.IsNullOrWhiteSpace(Message.Content) || Message.Content.Length < 3)
             {
                 return;
             }
@@ -305,11 +299,10 @@
                 return;
             }
 
-            context = await LevelHelper.DoLevels(context);
-            context = await ChannelHelper.DoAutoMessage(context);
             await ChannelHelper.DoMediaChannel(context);
 
             var argPos = 0;
+            bool isPrefixed = true;
 
             // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
             if (!(
@@ -328,13 +321,33 @@
                     if (context.Server.Settings.Prefix.CustomPrefix != null)
                     {
                         // Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
-                        return;
+                        isPrefixed = false;
                     }
                 }
                 else
                 {
-                    return;
+                    isPrefixed = false;
                 }
+            }
+
+            // run level check and auto-message channel check if the current message is not a 
+            if (!isPrefixed)
+            {
+                context = await LevelHelper.DoLevels(context);
+                await ChannelHelper.DoAutoMessage(context);
+                return;
+            }
+
+            // Ensure that blacklisted users/guilds are not allowed to run commands
+            var home = HomeModel.Load();
+            if (home.Blacklist.BlacklistedUsers.Contains(Message.Author.Id))
+            {
+                return;
+            }
+
+            if (home.Blacklist.BlacklistedGuilds.Contains((Message.Channel as SocketGuildChannel).Guild.Id))
+            {
+                return;
             }
 
             // Here we attempt to execute a command based on the user Message
@@ -360,8 +373,8 @@
         /// <summary>
         /// The _client_ reaction added.
         /// </summary>
-        /// <param name="message">
-        /// The message.
+        /// <param name="messageCacheable">
+        /// The message Cache-able.
         /// </param>
         /// <param name="channel">
         /// The channel.
@@ -372,17 +385,41 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
+        internal async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageCacheable, ISocketMessageChannel channel, SocketReaction reaction)
         {
             LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
-            if (!message.HasValue)
+
+            SocketUserMessage message;
+
+            // SocketUser reactor;
+            if (!reaction.Message.IsSpecified)
+            {
+                message = (await channel.GetMessageAsync(reaction.MessageId)) as SocketUserMessage;
+            }
+            else
+            {
+                message = reaction.Message.Value;
+            }
+
+            if (message == null)
             {
                 return;
             }
-
+                
+            /*
+            if (!reaction.User.IsSpecified)
+            {
+                reactor = (channel as SocketGuildChannel).Guild.GetUser(reaction.UserId);
+            }
+            else
+            {
+                reactor = reaction.User.Value as SocketUser;
+            }
+            */
+            
             try
             {
-                if (message.Value.Author.IsBot || reaction.User.Value.IsBot || message.Value.Embeds.Any())
+                if (reaction.User.Value.IsBot || string.IsNullOrWhiteSpace(message.Content))
                 {
                     return;
                 }
@@ -411,7 +448,7 @@
                     return;
                 }
 
-                var embed = await TranslateMethods.TranslateEmbed(languageType.Language, Provider, message.Value as SocketUserMessage, reaction);
+                var embed = await TranslateMethods.TranslateEmbed(languageType.Language, Provider, message, reaction);
 
                 if (guild.Settings.Translate.DMTranslations)
                 {

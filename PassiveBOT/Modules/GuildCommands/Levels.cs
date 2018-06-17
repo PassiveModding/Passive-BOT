@@ -50,7 +50,7 @@
             };
             embed.AddField("Level", $"{levelUser.Level - 1}", true);
             embed.AddField("XP", $"{levelUser.XP}", true);
-            embed.AddField("Rank", $"#{Context.Server.Levels.Users.OrderByDescending(x => x.XP).ToList().FindIndex(u => u == levelUser) + 1}", true);
+            embed.AddField("Rank", $"#{Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).ToList().FindIndex(u => u == levelUser) + 1}", true);
             await ReplyAsync(embed);
             Context.Server.Save();
         }
