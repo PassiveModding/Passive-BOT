@@ -1,4 +1,4 @@
-﻿namespace PassiveBOT.Modules
+﻿namespace PassiveBOT.Modules.GlobalCommands
 {
     using System;
     using System.Collections.Generic;
@@ -97,7 +97,6 @@
             {
                 Console.WriteLine(e);
             }
-
         }
 
         /// <summary>
@@ -117,7 +116,6 @@
         /// </exception>
         public async Task ModuleCommandHelp(bool checkPreconditions, string checkForMatch)
         {
-
             var module = service.Modules.FirstOrDefault(x => string.Equals(x.Name, checkForMatch, StringComparison.CurrentCultureIgnoreCase));
             var fields = new List<EmbedFieldBuilder>();
             if (module != null)
@@ -192,7 +190,16 @@
             var pages = new List<PaginatedMessage.Page>();
             var moduleIndex = 1;
 
-            var modules = service.Modules.OrderBy(x => x.Name).ToList();
+            List<ModuleInfo> modules;
+            if (checkPreconditions)
+            {
+                modules = service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList();
+            }
+            else
+            {
+                modules = service.Modules.OrderBy(x => x.Name).ToList();
+            }
+            
             var moduleSets = TextManagement.SplitList(modules, 5);
             moduleIndex += moduleSets.Count - 1;
             var fields = new List<EmbedFieldBuilder>
@@ -233,10 +240,8 @@
                     {
                         Console.WriteLine(e);
                     }
-                    
                 }
-
-                moduleIndex++;
+                
                 pages.Add(new PaginatedMessage.Page
                 {
                     Fields = fields,
