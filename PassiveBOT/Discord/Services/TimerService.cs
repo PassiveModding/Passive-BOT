@@ -90,6 +90,100 @@
         /// </summary>
         public DiscordShardedClient ShardedClient { get; set; }
 
+        public async Task Partner()
+        {
+            var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
+            var handler = Provider.GetRequiredService<DatabaseHandler>();
+            foreach (var receiverGuild in ShardedClient.Guilds)
+            {
+                try
+                {
+                    
+                    var receiverConfig = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, receiverGuild.Id);
+                    if (receiverConfig == null || receiverConfig.Partner.Settings.Banned || !receiverConfig.Partner.Settings.Enabled || string.IsNullOrWhiteSpace(receiverConfig.Partner.Message.Content) || !(ShardedClient.GetChannel(receiverConfig.Partner.Settings.ChannelID) is SocketTextChannel receiverChannel))
+                    {
+                        senderIds.Remove(receiverGuild.Id);
+                        continue;
+                    }
+                    LogHandler.LogMessage($"Running Partner for {receiverGuild.Id}", LogSeverity.Verbose);
+
+                    GuildModel messageGuildModel = null;
+                    SocketTextChannel messageChannel = null;
+                    foreach (var id in senderIds.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList())
+                    {
+                        if (id == receiverGuild.Id)
+                        {
+                            continue;
+                        }
+                        var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, id);
+                        if (model == null || model.Partner.Settings.Banned || !model.Partner.Settings.Enabled || string.IsNullOrWhiteSpace(model.Partner.Message.Content) || !(ShardedClient.GetChannel(model.Partner.Settings.ChannelID) is SocketTextChannel mChannel))
+                        {
+                            senderIds.Remove(receiverGuild.Id);
+                            continue;
+                        }
+
+                        messageGuildModel = model;
+                        messageChannel = mChannel;
+                        break;
+                    }
+
+                    if (messageGuildModel == null)
+                    {
+                        return;
+                    }
+
+                    LogHandler.LogMessage($"Matched Partner for {receiverGuild.Id} => Guild [{messageGuildModel.ID}]", LogSeverity.Verbose);
+                    senderIds.Remove(messageGuildModel.ID);
+                    if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
+                    {
+                        await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
+                        {
+                            Description = "NOTICE:\n" +
+                                          "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" +
+                                          "Please change the role settings of this channel to ensure all roles have the `read messages` permission"
+                        }.Build());
+                    }
+                    else
+                    {
+                        var partnerMessage = PartnerHelper.GenerateMessage(messageGuildModel, messageChannel.Guild).Build();
+                        try
+                        {
+                            await receiverChannel.SendMessageAsync(string.Empty, false, partnerMessage);
+                           messageGuildModel.Partner.Stats.ServersReached++;
+                           messageGuildModel.Partner.Stats.UsersReached += receiverGuild.MemberCount;
+                           messageGuildModel.Save();
+                           await Task.Delay(500);
+                        }
+                        catch (Exception e)
+                        {
+                            LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" +
+                                                  $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" +
+                                                  $"{e}", LogSeverity.Error);
+
+                            await PartnerHelper.PartnerLog(ShardedClient,
+                                                           receiverConfig,
+                                                           new EmbedFieldBuilder
+                                                           {
+                                                               Name = "Partner Server Auto Banned",
+                                                               Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}"
+                                                           });
+
+                            // Auto-Ban servers which deny permissions to send
+                            receiverConfig.Partner.Settings.Banned = true;
+                            receiverConfig.Partner.Settings.Enabled = false;
+                            receiverConfig.Save();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" +
+                                          $"{e}", LogSeverity.Error);
+                }
+            }
+        }
+
+        /*
         /// <summary>
         /// The partner.
         /// </summary>
@@ -100,7 +194,7 @@
         {
             var guildModels = Provider.GetRequiredService<DatabaseHandler>().Query<GuildModel>().Where(x =>
 
-                    // Ensure the partner is not banned
+                   // Ensure the partner is not banned
                    !x.Partner.Settings.Banned &&
 
                    // Ensure they have enabled the partner service and set a channel
@@ -118,7 +212,7 @@
             PartnerStats.ReachableMembers = guildModels.Sum(x => x.Value.Users.Count);
 
             // Randomize the guilds so that repeats each time are minimal.
-            var reduces_GuildList = guildModels.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList();
+            var reduced_GuildList = guildModels.Select(x => x.Key.ID).OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList();
             foreach (var pair in guildModels)
             {
                 try
@@ -127,7 +221,7 @@
                     var receiverGuild = ShardedClient.GetGuild(receiverConfig.ID);
                     var textChannel = pair.Value;
 
-                    var messageConfig = reduces_GuildList.First(x => x.Key.ID != receiverGuild.Id);
+                    var messageConfig = guildModels.First(g => g.Key.ID == reduced_GuildList.First(x => x != receiverGuild.Id));
                     var messageGuild = messageConfig.Key;
                     var messageChannel = messageConfig.Value;
 
@@ -157,7 +251,7 @@
                                                   $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}\n" +
                                                   $"{e}", LogSeverity.Error);
 
-                            await PartnerHelper.PartnerLog(ShardedClient, 
+                            await PartnerHelper.PartnerLog(ShardedClient,
                                                            receiverConfig,
                                                            new EmbedFieldBuilder
                                                            {
@@ -172,7 +266,7 @@
                         }
                     }
 
-                    reduces_GuildList.Remove(messageConfig);
+                    reduced_GuildList.Remove(messageConfig.Key.ID);
                 }
                 catch (Exception e)
                 {
@@ -180,7 +274,7 @@
                                           $"{e}", LogSeverity.Error);
                 }
             }
-        }
+        }*/
 
         /// <summary>
         /// The stop.
@@ -209,7 +303,7 @@
             FirePeriod = newPeriod;
             timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
         }
-        
+
         /// <summary>
         /// The partner statistics.
         /// </summary>

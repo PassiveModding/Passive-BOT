@@ -41,5 +41,10 @@
         /// The backup folder.
         /// </summary>
         public string BackupFolder => Directory.CreateDirectory("Backup").FullName;
+
+        /// <summary>
+        /// Gets or sets the prefix override
+        /// </summary>
+        public string PrefixOverride {get;set; } = null;
     }
 }
