@@ -99,7 +99,7 @@
         /// </returns>
         public async Task InitializeAsync()
         {
-            //Ensure that the EmojiTypeReader is initialized so we can parse an emoji as a parameter
+            // Ensure that the EmojiTypeReader is initialized so we can parse an emoji as a parameter
             CommandService.AddTypeReader(typeof(Emoji), new EmojiTypeReader());
 
             // This will add all our modules to the command service, allowing them to be accessed as necessary
@@ -280,7 +280,7 @@
                 return;
             }
 
-            var home = Provider.GetRequiredService<HomeModel>();
+            var home = HomeModel.Load();
             if (home.Blacklist.BlacklistedUsers.Contains(Message.Author.Id))
             {
                 return;
@@ -295,13 +295,13 @@
 
             if (Config.LogUserMessages)
             {
-                //Log user messages if enabled.
+                // Log user messages if enabled.
                 LogHandler.LogMessage(context);
             }
 
             if (context.User.IsBot)
             {
-                //Filter out all bot messages from triggering commands.
+                // Filter out all bot messages from triggering commands.
                 return;
             }
 
@@ -314,20 +314,20 @@
             // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
             if (!(
 
-            // If the message starts with @BOTNAME and the server has bot @'s toggled on        
-            (context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix) ||
+                     // If the message starts with @BOTNAME and the server has bot @'s toggled on        
+                     (context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix) ||
 
-            // If the message starts with the default bot prefix and it is toggled on
-            (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix) ||
+                     // If the message starts with the default bot prefix and it is toggled on
+                     (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix) ||
 
-            // If the message starts with the custom server prefix and the custom server prefix is set.
-            (context.Server.Settings.Prefix.CustomPrefix != null && context.Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos))))
+                     // If the message starts with the custom server prefix and the custom server prefix is set.
+                     (context.Server.Settings.Prefix.CustomPrefix != null && context.Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos))))
             {
                 if (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && context.Server.Settings.Prefix.DenyDefaultPrefix)
                 {
                     if (context.Server.Settings.Prefix.CustomPrefix != null)
                     {
-                        //Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
+                        // Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
                         return;
                     }
                 }
@@ -338,93 +338,96 @@
             }
 
             // Here we attempt to execute a command based on the user Message
-            var result = await CommandService.ExecuteAsync(context, argPos, Provider, MultiMatchHandling.Best);
-
-            // Generate an error Message for users if a command is unsuccessful
-            if (!result.IsSuccess)
-            {
-                var _ = Task.Run(() => CmdError(context, result, argPos));
-            }
-            else
-            {
-                if (Config.LogCommandUsages)
+            await Task.Run(async () =>
                 {
-                    LogHandler.LogMessage(context);
-                }
-            }
+                    var result = await CommandService.ExecuteAsync(context, argPos, Provider, MultiMatchHandling.Best);
+
+                    // Generate an error Message for users if a command is unsuccessful
+                    if (!result.IsSuccess)
+                    {
+                        await CmdError(context, result, argPos);
+                    }
+                    else
+                    {
+                        if (Config.LogCommandUsages)
+                        {
+                            LogHandler.LogMessage(context);
+                        }
+                    }
+                });
         }
 
         /// <summary>
         /// The _client_ reaction added.
         /// </summary>
-        /// <param name="Message">
+        /// <param name="message">
         /// The message.
         /// </param>
-        /// <param name="Channel">
+        /// <param name="channel">
         /// The channel.
         /// </param>
-        /// <param name="Reaction">
+        /// <param name="reaction">
         /// The reaction.
         /// </param>
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal async Task ReactionAdded(Cacheable<IUserMessage, ulong> Message, ISocketMessageChannel Channel, SocketReaction Reaction)
+        internal async Task ReactionAdded(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
             LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
-            if (!Message.HasValue)
+            if (!message.HasValue)
             {
                 return;
             }
 
             try
             {
-                if (Message.Value.Author.IsBot || Reaction.User.Value.IsBot || Message.Value.Embeds.Any())
+                if (message.Value.Author.IsBot || reaction.User.Value.IsBot || message.Value.Embeds.Any())
                 {
                     return;
                 }
 
-                var guild = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, (Channel as SocketGuildChannel).Guild.Id.ToString());
+                var guild = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, (channel as SocketGuildChannel).Guild.Id.ToString());
                 if (!guild.Settings.Translate.EasyTranslate)
                 {
                     return;
                 }
 
-                //Check custom matches first
-                var languageType = guild.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
+                // Check custom matches first
+                var languageType = guild.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
 
                 if (languageType == null)
                 {
-                    //If no custom matches, check default matches
-                    languageType = LanguageMap.DefaultMap.FirstOrDefault(x => x.EmoteMatches.Any(val => val == Reaction.Emote.Name));
+                    // If no custom matches, check default matches
+                    languageType = LanguageMap.DefaultMap.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
                     if (languageType == null)
                     {
                         return;
                     }
                 }
 
-                if (translated.Any(x => x.Key == Reaction.MessageId && x.Value == languageType.Language))
+                if (translated.Any(x => x.Key == reaction.MessageId && x.Value == languageType.Language))
                 {
                     return;
                 }
 
                 var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
-                var original = TextManagement.FixLength(Message.Value.Content);
+                var original = TextManagement.FixLength(message.Value.Content);
                 var language = TranslateMethods.LanguageCodeToString(languageType.Language);
-                var file = TranslateMethods.TranslateMessage(language, Message.Value.Content);
+                var file = TranslateMethods.TranslateMessage(language, message.Value.Content);
                 var response = TextManagement.FixLength(TranslateMethods.HandleResponse(file));
-                embed.AddField($"Translated [{language} || {Reaction.Emote}]", $"{response}", true);
+                embed.AddField($"Translated [{language} || {reaction.Emote}]", $"{response}", true);
                 embed.AddField($"Original [{file[2]}]", $"{original}", true);
-                embed.AddField("Info", $"Original Author: {Message.Value.Author}\n" + $"Reactor: {Reaction.User.Value}", true);
+                embed.AddField("Info", $"Original Author: {message.Value.Author}\n" + $"Reactor: {reaction.User.Value}", true);
 
                 if (guild.Settings.Translate.DMTranslations)
                 {
-                    await Reaction.User.Value.SendMessageAsync("", false, embed.Build());
+                    await reaction.User.Value.SendMessageAsync(string.Empty, false, embed.Build());
                 }
                 else
                 {
-                    await Channel.SendMessageAsync("", false, embed.Build());
-                    translated.Add(Reaction.MessageId, languageType.Language);
+                    await channel.SendMessageAsync(string.Empty, false, embed.Build());
+                    translated.Add(reaction.MessageId, languageType.Language);
                 }
             }
             catch (Exception e)

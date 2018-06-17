@@ -85,7 +85,7 @@
             {
                 MessageCacheSize = 20,
                 AlwaysDownloadUsers = true,
-                LogLevel = LogSeverity.Warning,
+                LogLevel = LogSeverity.Info,
 
                 // Please change increase this as your server count grows beyond 2000 guilds. ie. < 2000 = 1, 2000 = 2, 4000 = 2 ...
                 TotalShards = shards
