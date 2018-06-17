@@ -64,11 +64,10 @@
         [Summary("Bot Info and Stats")]
         public async Task Information()
         {
-            var client = Context.Client;
-            var hClient = Context.Provider.GetRequiredService<HttpClient>();
+            var httpClient = Context.Provider.GetRequiredService<HttpClient>();
             string changes;
-            hClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
-            using (var response = await hClient.GetAsync("https://api.github.com/repos/PassiveModding/Passive-BOT/commits"))
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
+            using (var response = await httpClient.GetAsync("https://api.github.com/repos/PassiveModding/Passive-BOT/commits"))
             {
                 if (!response.IsSuccessStatusCode)
                 {
@@ -97,33 +96,28 @@
             embed.WithAuthor(x =>
             {
                 x.IconUrl = Context.Client.CurrentUser.GetAvatarUrl();
-                x.Name = $"{client?.CurrentUser.Username}'s Official Invite";
-                if (client != null)
-                {
-                    x.Url = InviteHelper.GetInvite(Context.Client);
-                }
+                x.Name = $"{Context.Client.CurrentUser.Username}'s Official Invite";
+                x.Url = InviteHelper.GetInvite(Context.Client);
             });
             embed.AddField("Changes", changes);
-            if (client != null)
-            {
-                embed.AddField("Members",
-                    $"Bot: {client.Guilds.Sum(x => x.Users.Count(z => z.IsBot))}\n" +
-                    $"Human: {client.Guilds.Sum(x => x.Users.Count(z => !z.IsBot))}\n" +
-                    $"Total: {client.Guilds.Sum(x => x.Users.Count)}", true);
-                embed.AddField("Channels",
-                    $"Text: {client.Guilds.Sum(x => x.TextChannels.Count)}\n" +
-                    $"Voice: {client.Guilds.Sum(x => x.VoiceChannels.Count)}\n" +
-                    $"Total: {client.Guilds.Sum(x => x.Channels.Count)}", true);
-                embed.AddField("Guilds", $"{client.Guilds.Count}\n[Support Server]({HomeModel.Load().HomeInvite})", true);
-                var orderedShards = Context.Client.Shards.OrderByDescending(x => x.Guilds.Count).ToList();
-                embed.AddField($"Stats", $"**Guilds:** {Context.Client.Guilds.Count}\n" + 
-                                         $"**Users:** {Context.Client.Guilds.Sum(x => x.MemberCount)}\n" + 
-                                         $"**Shards:** {Context.Client.Shards.Count}\n" + 
-                                         $"**Max Shard:** G:{orderedShards.First().Guilds.Count} ID:{orderedShards.First().ShardId}\n" + 
-                                         $"**Min Shard:** G:{orderedShards.Last().Guilds.Count} ID:{orderedShards.Last().ShardId}");
-                embed.AddField("Partner Stats", $"**Partners:** {timerService.PartnerStats.PartneredGuilds}\n" + 
-                                                $"**Reachable Members:** {timerService.PartnerStats.ReachableMembers}");
-            }
+
+            embed.AddField("Members",
+                $"Bot: {Context.Client.Guilds.Sum(x => x.Users.Count(z => z.IsBot))}\n" +
+                $"Human: {Context.Client.Guilds.Sum(x => x.Users.Count(z => !z.IsBot))}\n" +
+                $"Total: {Context.Client.Guilds.Sum(x => x.Users.Count)}", true);
+            embed.AddField("Channels",
+                $"Text: {Context.Client.Guilds.Sum(x => x.TextChannels.Count)}\n" +
+                $"Voice: {Context.Client.Guilds.Sum(x => x.VoiceChannels.Count)}\n" +
+                $"Total: {Context.Client.Guilds.Sum(x => x.Channels.Count)}", true);
+            embed.AddField("Guilds", $"{Context.Client.Guilds.Count}\n[Support Server]({HomeModel.Load().HomeInvite})", true);
+            var orderedShards = Context.Client.Shards.OrderByDescending(x => x.Guilds.Count).ToList();
+            embed.AddField("Stats", $"**Guilds:** {Context.Client.Guilds.Count}\n" + 
+                                     $"**Users:** {Context.Client.Guilds.Sum(x => x.MemberCount)}\n" + 
+                                     $"**Shards:** {Context.Client.Shards.Count}\n" + 
+                                     $"**Max Shard:** G:{orderedShards.First().Guilds.Count} ID:{orderedShards.First().ShardId}\n" + 
+                                     $"**Min Shard:** G:{orderedShards.Last().Guilds.Count} ID:{orderedShards.Last().ShardId}");
+            embed.AddField("Partner Stats", $"**Partners:** {timerService.PartnerStats.PartneredGuilds}\n" + 
+                                            $"**Reachable Members:** {timerService.PartnerStats.ReachableMembers}");
 
             embed.AddField(":hammer_pick:",
                 $"Heap: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" +
@@ -131,12 +125,7 @@
             embed.AddField(":beginner:", "Written by: [PassiveModding](https://github.com/PassiveModding)\n" +
                                          $"Discord.Net {DiscordConfig.Version}", true);
 
-            await ReplyAsync("", embed: embed.Build());
-        }
-
-        private static string GetUptime()
-        {
-            return (DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\D\ hh\H\ mm\M\ ss\S");
+            await ReplyAsync(embed.Build());
         }
 
         /// <summary>
@@ -160,7 +149,7 @@
             if (!value.Any())
             {
                 embed.AddField($"Users with Discriminator {disc}",
-                    $"N/A");
+                    "N/A");
                 await ReplyAsync(embed.Build());
                 return;
             }
@@ -174,6 +163,7 @@
                 {
                     continue;
                 }
+
                 pages.Add(desc);
                 desc = string.Empty;
             }
@@ -217,6 +207,7 @@
             {
                 user = Context.User;
             }
+
             var status = user.Status.ToString();
             if (status == string.Empty)
             {
@@ -235,6 +226,17 @@
                     $"[Invite]({InviteHelper.GetInvite(Context.Client)})\n[Support Server]({HomeModel.Load().HomeInvite})");
 
             await ReplyAsync(builder);
+        }
+        
+        /// <summary>
+        /// Gets the process uptime.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        private static string GetUptime()
+        {
+            return (DateTime.Now - Process.GetCurrentProcess().StartTime).ToString(@"dd\D\ hh\H\ mm\M\ ss\S");
         }
     }
 }
