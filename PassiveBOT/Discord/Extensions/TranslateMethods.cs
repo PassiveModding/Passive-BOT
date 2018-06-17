@@ -4,10 +4,20 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
     using System.Text;
+    using System.Threading.Tasks;
+
+    using global::Discord;
+    using global::Discord.WebSocket;
+
     using Newtonsoft.Json;
     
     using global::PassiveBOT.Models;
+
+    using Microsoft.Extensions.DependencyInjection;
+
+    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// The translate methods.
@@ -23,7 +33,7 @@
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public static string HandleResponse(dynamic input)
+        public static string HandleResponse(JArray input)
         {
             var stringList = new List<string>();
             foreach (var section in input[0])
@@ -43,21 +53,22 @@
         /// <param name="message">
         /// The message.
         /// </param>
+        /// <param name="provider">
+        /// The provider.
+        /// </param>
         /// <returns>
         /// The response file
         /// </returns>
-        public static dynamic TranslateMessage(string language, string message)
+        public static async Task<JArray> TranslateMessage(string language, string message, IServiceProvider provider)
         {
-            using (var client = new WebClient { Encoding = Encoding.UTF8 })
-            {
-                var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(message)}";
-                var stream = client.OpenRead(url);
-                var reader = new StreamReader(stream ?? throw new InvalidOperationException());
-                var content = reader.ReadToEnd();
-                dynamic file = JsonConvert.DeserializeObject(content);
-                client.Dispose();
-                return file;
-            }
+            var client = provider.GetRequiredService<HttpClient>();
+
+            // https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=ru&dt=t&ie=UTF-8&oe=UTF-8&q=hi there this is a test message
+            var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl={language}&dt=t&ie=UTF-8&oe=UTF-8&q={Uri.EscapeDataString(message)}";
+
+            var content = await client.GetStringAsync(url);
+            var file = JArray.Parse(content);
+            return file;
         }
 
         /// <summary>
@@ -88,6 +99,41 @@
             }
 
             return language;
+        }
+
+        /// <summary>
+        /// Simple method for translating a message with an embed response
+        /// </summary>
+        /// <param name="language">
+        /// The language code
+        /// </param>
+        /// <param name="provider">
+        /// The provider.
+        /// </param>
+        /// <param name="message">
+        /// The message.
+        /// </param>
+        /// <param name="reaction">
+        /// The reaction.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        public static async Task<EmbedBuilder> TranslateEmbed(LanguageMap.LanguageCode language, IServiceProvider provider, SocketUserMessage message, SocketReaction reaction = null)
+        {
+            var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
+            var original = TextManagement.FixLength(message.Content);
+            var languageString = LanguageCodeToString(language);
+            var file = await TranslateMessage(languageString, message.Content, provider);
+            var response = TextManagement.FixLength(HandleResponse(file));
+            embed.AddField($"Translated [{language}{(reaction?.Emote == null ? "" : $"{reaction.Emote}")}]", $"{response}");
+            embed.AddField($"Original [{file[2]}]", $"{original}");
+            embed.Footer = new EmbedFooterBuilder
+                               {
+                                   Text = $"Original Author: {message.Author}{(reaction == null ? "" : $" || Reactor: {reaction.User.Value}")}",
+                                   IconUrl = reaction.User.Value.GetAvatarUrl()
+                               };
+            return embed;
         }
     }
 }

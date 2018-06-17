@@ -352,6 +352,7 @@
                         if (Config.LogCommandUsages)
                         {
                             LogHandler.LogMessage(context);
+
                         }
                     }
                 });
@@ -411,14 +412,7 @@
                     return;
                 }
 
-                var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
-                var original = TextManagement.FixLength(message.Value.Content);
-                var language = TranslateMethods.LanguageCodeToString(languageType.Language);
-                var file = TranslateMethods.TranslateMessage(language, message.Value.Content);
-                var response = TextManagement.FixLength(TranslateMethods.HandleResponse(file));
-                embed.AddField($"Translated [{language} || {reaction.Emote}]", $"{response}", true);
-                embed.AddField($"Original [{file[2]}]", $"{original}", true);
-                embed.AddField("Info", $"Original Author: {message.Value.Author}\n" + $"Reactor: {reaction.User.Value}", true);
+                var embed = await TranslateMethods.TranslateEmbed(languageType.Language, Provider, message.Value as SocketUserMessage, reaction);
 
                 if (guild.Settings.Translate.DMTranslations)
                 {

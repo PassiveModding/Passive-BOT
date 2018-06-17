@@ -35,10 +35,10 @@ namespace PassiveBOT.Modules.GuildCommands
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
             var original = TextManagement.FixLength(message);
             var language = TranslateMethods.LanguageCodeToString(languageCode);
-            var file = TranslateMethods.TranslateMessage(language, message);
+            var file = await TranslateMethods.TranslateMessage(language, message, Context.Provider);
             var response = TextManagement.FixLength(TranslateMethods.HandleResponse(file));
-            embed.AddField($"Translated [{language} || {language}]", $"{response}", true);
-            embed.AddField($"Original [{file[2]}]", $"{original}", true);
+            embed.AddField($"Translated [{language}]", $"{response}");
+            embed.AddField($"Original [{file[2]}]", $"{original}");
 
             await ReplyAsync(string.Empty, false, embed.Build());
         }
