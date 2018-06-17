@@ -75,7 +75,6 @@
         /// </summary>
         public static int FirePeriod { get; set; } = 30;
 
-
         /// <summary>
         /// Gets or sets the partner stats.
         /// </summary>
@@ -90,7 +89,6 @@
         /// Gets or sets the sharded client.
         /// </summary>
         public DiscordShardedClient ShardedClient { get; set; }
-
 
         /// <summary>
         /// The partner.

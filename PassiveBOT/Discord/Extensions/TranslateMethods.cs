@@ -2,22 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Net;
     using System.Net.Http;
-    using System.Text;
     using System.Threading.Tasks;
-
+    
     using global::Discord;
     using global::Discord.WebSocket;
-
-    using Newtonsoft.Json;
-    
-    using global::PassiveBOT.Models;
 
     using Microsoft.Extensions.DependencyInjection;
 
     using Newtonsoft.Json.Linq;
+
+    using global::PassiveBOT.Models;
 
     /// <summary>
     /// The translate methods.

@@ -1,4 +1,5 @@
-﻿namespace PassiveBOT.Discord.Extensions
+﻿// ReSharper disable StringLiteralTypo
+namespace PassiveBOT.Discord.Extensions
 {
     using System.Globalization;
     using System.Linq;

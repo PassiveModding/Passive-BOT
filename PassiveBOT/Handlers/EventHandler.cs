@@ -352,7 +352,6 @@
                         if (Config.LogCommandUsages)
                         {
                             LogHandler.LogMessage(context);
-
                         }
                     }
                 });

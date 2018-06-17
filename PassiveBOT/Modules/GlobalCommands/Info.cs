@@ -5,12 +5,13 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Net.Http;
-    using System.Text;
     using System.Threading.Tasks;
 
     using global::Discord;
     using global::Discord.Addons.Interactive;
     using global::Discord.Commands;
+
+    using Microsoft.Extensions.DependencyInjection;
 
     using Newtonsoft.Json.Linq;
 
@@ -53,17 +54,21 @@
                                    $"{InviteHelper.GetInvite(Context.Client)}");
         }
 
+        /// <summary>
+        /// Bot info and stats
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         [Command("Info")]
         [Summary("Bot Info and Stats")]
         public async Task Information()
         {
             var client = Context.Client;
-            var hClient = new HttpClient();
+            var hClient = Context.Provider.GetRequiredService<HttpClient>();
             string changes;
-            hClient.DefaultRequestHeaders.Add("User-Agent",
-                "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
-            using (var response =
-                await hClient.GetAsync("https://api.github.com/repos/PassiveModding/Passive-BOT/commits"))
+            hClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)");
+            using (var response = await hClient.GetAsync("https://api.github.com/repos/PassiveModding/Passive-BOT/commits"))
             {
                 if (!response.IsSuccessStatusCode)
                 {
@@ -94,8 +99,9 @@
                 x.IconUrl = Context.Client.CurrentUser.GetAvatarUrl();
                 x.Name = $"{client?.CurrentUser.Username}'s Official Invite";
                 if (client != null)
-                    x.Url =
-                        $"https://discordapp.com/oauth2/authorize?client_id={client.CurrentUser.Id}&scope=bot&permissions=2146958591";
+                {
+                    x.Url = InviteHelper.GetInvite(Context.Client);
+                }
             });
             embed.AddField("Changes", changes);
             if (client != null)
