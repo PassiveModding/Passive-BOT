@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
@@ -14,6 +15,8 @@
     using global::Discord.WebSocket;
 
     using Microsoft.Extensions.DependencyInjection;
+
+    using Newtonsoft.Json;
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
@@ -35,6 +38,12 @@
         /// true = check and update all missing servers on start.
         /// </summary>
         private bool guildCheck = true;
+
+        /// <summary>
+        /// true = will override all prefixes and read from DatabaseObject
+        /// Useful for testing on the main bot account without a prefix conflict
+        /// </summary>
+        private bool prefixOverride = false;
 
         /// <summary>
         /// Displays bot invite on connection Once then gets toggled off.
@@ -303,30 +312,49 @@
 
             var argPos = 0;
             bool isPrefixed = true;
-
-            // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
-            if (!(
-
-                     // If the message starts with @BOTNAME and the server has bot @'s toggled on        
-                     (context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix) ||
-
-                     // If the message starts with the default bot prefix and it is toggled on
-                     (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix) ||
-
-                     // If the message starts with the custom server prefix and the custom server prefix is set.
-                     (context.Server.Settings.Prefix.CustomPrefix != null && context.Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos))))
+            
+            if (prefixOverride)
             {
-                if (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && context.Server.Settings.Prefix.DenyDefaultPrefix)
+                var config = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
+                if (config.PrefixOverride != null)
                 {
-                    if (context.Server.Settings.Prefix.CustomPrefix != null)
+                    if (!context.Message.HasStringPrefix(config.PrefixOverride, ref argPos))
                     {
-                        // Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
-                        isPrefixed = false;
+                        return;
                     }
                 }
                 else
                 {
-                    isPrefixed = false;
+                    LogHandler.LogMessage("Message Handler is being returned as the bot is in prefix override mode and you haven't specified a custom prefix in DBConfig.json", LogSeverity.Warning);
+                    return;
+                }
+            }
+            else
+            {
+                // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
+                if (!(
+
+                         // If the message starts with @BOTNAME and the server has bot @'s toggled on        
+                         (context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix) ||
+
+                         // If the message starts with the default bot prefix and it is toggled on
+                         (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix) ||
+
+                         // If the message starts with the custom server prefix and the custom server prefix is set.
+                         (context.Server.Settings.Prefix.CustomPrefix != null && context.Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos))))
+                {
+                    if (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && context.Server.Settings.Prefix.DenyDefaultPrefix)
+                    {
+                        if (context.Server.Settings.Prefix.CustomPrefix != null)
+                        {
+                            // Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
+                            isPrefixed = false;
+                        }
+                    }
+                    else
+                    {
+                        isPrefixed = false;
+                    }
                 }
             }
 
@@ -339,13 +367,7 @@
             }
 
             // Ensure that blacklisted users/guilds are not allowed to run commands
-            var home = HomeModel.Load();
-            if (home.Blacklist.BlacklistedUsers.Contains(Message.Author.Id))
-            {
-                return;
-            }
-
-            if (home.Blacklist.BlacklistedGuilds.Contains((Message.Channel as SocketGuildChannel).Guild.Id))
+            if (CheckBlacklist(Message.Author.Id, context.Guild.Id))
             {
                 return;
             }
@@ -368,6 +390,34 @@
                         }
                     }
                 });
+        }
+
+        /// <summary>
+        /// The check blacklist.
+        /// </summary>
+        /// <param name="userId">
+        /// The user Id.
+        /// </param>
+        /// <param name="guildId">
+        /// The guild Id.
+        /// </param>
+        /// <returns>
+        /// Whether the user has been blacklisted in home model
+        /// </returns>
+        internal bool CheckBlacklist(ulong userId, ulong guildId)
+        {
+            var home = HomeModel.Load();
+            if (home.Blacklist.BlacklistedUsers.Contains(userId))
+            {
+                return true;
+            }
+
+            if (home.Blacklist.BlacklistedGuilds.Contains(guildId))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

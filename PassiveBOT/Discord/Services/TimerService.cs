@@ -90,6 +90,12 @@
         /// </summary>
         public DiscordShardedClient ShardedClient { get; set; }
 
+        /// <summary>
+        /// The partner message event
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         public async Task Partner()
         {
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
@@ -118,10 +124,10 @@
                         var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, id);
                         if (model == null || model.Partner.Settings.Banned || !model.Partner.Settings.Enabled || string.IsNullOrWhiteSpace(model.Partner.Message.Content) || !(ShardedClient.GetChannel(model.Partner.Settings.ChannelID) is SocketTextChannel mChannel))
                         {
-                            senderIds.Remove(receiverGuild.Id);
+                            senderIds.Remove(id);
                             continue;
                         }
-
+                        senderIds.Remove(id);
                         messageGuildModel = model;
                         messageChannel = mChannel;
                         break;
@@ -133,7 +139,7 @@
                     }
 
                     LogHandler.LogMessage($"Matched Partner for {receiverGuild.Id} => Guild [{messageGuildModel.ID}]", LogSeverity.Verbose);
-                    senderIds.Remove(messageGuildModel.ID);
+
                     if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
                     {
                         await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
