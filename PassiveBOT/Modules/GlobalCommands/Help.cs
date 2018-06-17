@@ -11,6 +11,7 @@
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
+    using PassiveBOT.Handlers;
 
     /// <summary>
     /// The help module
@@ -191,6 +192,8 @@
             var moduleIndex = 1;
 
             List<ModuleInfo> modules;
+
+            // This ensures that we filter out all modules where the user cannot access ANY commands
             if (checkPreconditions)
             {
                 modules = service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList();
@@ -200,12 +203,14 @@
                 modules = service.Modules.OrderBy(x => x.Name).ToList();
             }
             
+            // Split the modules into groups of 5 to ensure the message doesn't get too long
             var moduleSets = TextManagement.SplitList(modules, 5);
             moduleIndex += moduleSets.Count - 1;
             var fields = new List<EmbedFieldBuilder>
                                      {
                                          new EmbedFieldBuilder
                                              {
+                                                 // This gives a brief overview of how to use the paginated message and help commands.
                                                  Name = $"[1-{moduleIndex}] Commands Summary",
                                                  Value = "Go to the respective page number of each module to view the commands in more detail. " +
                                                          "You can react with the :1234: emote and type a page number to go directly to that page too,\n" +
@@ -220,39 +225,52 @@
 
             foreach (var moduleSet in moduleSets)
             {
+                // Go through each module (in the sets of 5)
                 foreach (var module in moduleSet)
                 {
+                    // Ensure that the user only gets to see commands they have access to
                     var passingCommands = checkPreconditions ? module.Commands.Where(x => x.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess).ToList() : module.Commands;
 
+                    // If there are no commands that passed the check, continue to the next module.
                     if (!passingCommands.Any())
                     {
                         continue;
                     }
 
                     moduleIndex++;
+
+                    // Add a new embed field with the info about our module and a list of all the command names
                     fields.Add(new EmbedFieldBuilder { Name = $"[{moduleIndex}] {module.Name}", Value = string.Join(", ", passingCommands.Select(x => x.Aliases.FirstOrDefault()).Where(x => x != null).ToList()) });
 
                     try
                     {
+                        // Add a full page summary to our 'PageContents' list for later use
+                        // This gives us the prefix, command name and all parameters to the command.
                         pageContents.Add(module.Name, passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList());
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine(e);
+                        // Note this should only throw IF there are two modules with the same name in the bot.
+                        LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
                     }
                 }
                 
+                // Add the page for each Module Set to our pages list.
                 pages.Add(new PaginatedMessage.Page
                 {
                     Fields = fields,
                     Title = $"{Context.Client.CurrentUser.Username} Commands {setIndex}"
                 });
+
+                // Reset the fields list for the next module set
                 fields = new List<EmbedFieldBuilder>();
                 setIndex++;
             }
 
+            // Now add each page with the full info with parameters 
             foreach (var contents in pageContents)
             {
+                // Split these into groups of 10 to ensure there is no embed field character limit being hit. (1024 characters bet field description)
                 var splitFields = TextManagement.SplitList(contents.Value, 10)
                     .Select(x => new EmbedFieldBuilder
                     {
