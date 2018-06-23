@@ -95,7 +95,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task Partner()
+        public Task Partner()
         {
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
             var handler = Provider.GetRequiredService<DatabaseHandler>();
@@ -138,14 +138,12 @@
 
                     if (messageGuildModel == null)
                     {
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     SendPartnerMessage(messageChannel, messageGuildModel, receiverChannel, receiverGuild, receiverConfig);
 
-
                     LogHandler.LogMessage($"Matched Partner for {receiverGuild.Id} => Guild [{messageGuildModel.ID}]", LogSeverity.Verbose);
-
                 }
                 catch (Exception e)
                 {
@@ -157,6 +155,7 @@
             PartnerStats.PartneredGuilds = PartnerStats.UpdatePartneredGuilds;
             PartnerStats.ReachableMembers = PartnerStats.UpdateReachableMembers;
             LogHandler.LogMessage($"Partner Event Completed: {PartnerStats.PartneredGuilds} Guild {PartnerStats.ReachableMembers} Members");
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -179,7 +178,6 @@
         /// </param>
         public async void SendPartnerMessage(SocketTextChannel messageChannel, GuildModel messageGuildModel, SocketTextChannel receiverChannel, SocketGuild receiverGuild, GuildModel receiverConfig)
         {
-            
                     if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
                     {
                         await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder

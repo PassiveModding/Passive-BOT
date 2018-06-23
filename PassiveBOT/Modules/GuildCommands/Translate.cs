@@ -5,8 +5,8 @@ namespace PassiveBOT.Modules.GuildCommands
     using System.Threading.Tasks;
 
     using global::Discord;
-    using global::Discord.Commands;
     using global::Discord.Addons.Preconditions;
+    using global::Discord.Commands;
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
@@ -16,7 +16,6 @@ namespace PassiveBOT.Modules.GuildCommands
     /// The translate commands
     /// </summary>
     [Group("Translate")]
-    [RateLimit(1, 10, Measure.Seconds, RateLimitFlags.ApplyPerGuild)]
     public class Translate : Base
     {
         /// <summary>
@@ -31,7 +30,9 @@ namespace PassiveBOT.Modules.GuildCommands
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
+        [Priority(1)]
         [Command]
+        [RateLimit(12, 2, Measure.Minutes, RateLimitFlags.ApplyPerGuild)]
         [Summary("Translate from one language to another")]
         public async Task TranslateCmd(LanguageMap.LanguageCode languageCode, [Remainder] string message)
         {
@@ -52,6 +53,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
+        [Priority(2)]
         [Command("languages")]
         [Summary("A list of available languages codes to convert between")]
         public async Task TranslateList()

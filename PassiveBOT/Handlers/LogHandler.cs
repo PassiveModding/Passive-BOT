@@ -42,6 +42,38 @@
         }
 
         /// <summary>
+        /// Logs a message to console and RavenDB
+        /// </summary>
+        /// <param name="guildId">
+        /// The guild id.
+        /// </param>
+        /// <param name="channelName">
+        /// The channel name.
+        /// </param>
+        /// <param name="userId">
+        /// The user id.
+        /// </param>
+        /// <param name="message">
+        /// The message.
+        /// </param>
+        /// <param name="error">
+        /// The error if applicable
+        /// </param>
+        /// <param name="logSeverity">
+        /// The log severity.
+        /// </param>
+        public static void LogMessage(ulong guildId, string channelName, ulong userId, string message, string error = null, LogSeverity logSeverity = LogSeverity.Info)
+        {
+            var custom = $"G: {guildId.ToString().Left(20)} || C: {channelName.Left(20)} || U: {userId.ToString().Left(20)} || M: {message.Left(100)}";
+            if (error != null)
+            {
+                custom += $"\nE: {error}";
+            }
+
+            LogMessage(custom, logSeverity);
+        }
+
+        /// <summary>
         /// Logs a message to console with the specified severity. Includes info based on context
         /// </summary>
         /// <param name="context">
@@ -63,30 +95,7 @@
                 custom += $"\nE: {error}";
             }
 
-            switch (logSeverity)
-            {
-                case LogSeverity.Info:
-                    Log.Information(custom);
-                    break;
-                case LogSeverity.Warning:
-                    Log.Warning(custom);
-                    break;
-                case LogSeverity.Error:
-                    Log.Error(custom);
-                    break;
-                case LogSeverity.Debug:
-                    Log.Debug(custom);
-                    break;
-                case LogSeverity.Critical:
-                    Log.Fatal(custom);
-                    break;
-                case LogSeverity.Verbose:
-                    Log.Verbose(custom);
-                    break;
-                default:
-                    Log.Information(custom);
-                    break;
-            }
+            LogMessage(custom, logSeverity);
         }
 
         /// <summary>

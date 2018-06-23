@@ -545,6 +545,8 @@
                         match.Value.Add(languageType.Language);
                     }
                 }
+
+                LogHandler.LogMessage(guild.ID, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
             }
             catch (Exception e)
             {
