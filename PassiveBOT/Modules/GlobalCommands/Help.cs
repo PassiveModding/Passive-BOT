@@ -172,7 +172,7 @@
             .WithCallback(new Emoji("❌"),
                     async (c, r) =>
                         {
-                            await r.Message.Value.DeleteAsync();
+                            await r.Message.Value?.DeleteAsync();
                             await c.Message.DeleteAsync();
                         }));
         }

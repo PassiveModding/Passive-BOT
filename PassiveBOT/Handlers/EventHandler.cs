@@ -35,6 +35,11 @@
         private readonly Dictionary<ulong, LanguageMap.LanguageCode> translated = new Dictionary<ulong, LanguageMap.LanguageCode>();
 
         /// <summary>
+        /// This indicates how many shards have connected on initial bot use
+        /// </summary>
+        private List<int> shardCheck = new List<int>();
+
+        /// <summary>
         /// true = check and update all missing servers on start.
         /// </summary>
         private bool guildCheck = true;
@@ -143,41 +148,52 @@
             LogHandler.LogMessage($"Game has been set to: [{RandomActivity}] {RandomName}");
             Games.Clear();
             */
-
             if (guildCheck)
             {
-                // This will check to ensure that all our servers are initialized, whilst also allowing the bot to continue starting
-                _ = Task.Run(() =>
+                if (shardCheck.Count < Client.Shards.Count)
                 {
-                    // This will load all guild models and retrieve their IDs
-                    var Servers = Provider.GetRequiredService<DatabaseHandler>().Query<GuildModel>().Select(x => Convert.ToUInt64(x.ID)).ToList();
-
-                    // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
-                    foreach (var Guild in socketClient.Guilds.Select(x => x.Id))
-                    {
-                        if (!Servers.Contains(Guild))
-                        {
-                            Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = Guild }, Guild);
-                        }
-                    }
-
-                    // We also auto-remove any servers that no longer use the bot, to reduce un-necessary disk usage. 
-                    // You may want to remove this however if you are storing things and want to keep them.
-                    // You should also disable this if you are working with multiple shards.
-                    if (Client.Shards.Count == 1)
-                    {
-                        foreach (var Server in Servers)
-                        {
-                            if (!socketClient.Guilds.Select(x => x.Id).Contains(Convert.ToUInt64(Server)))
+                    // This will check to ensure that all our servers are initialized, whilst also allowing the bot to continue starting
+                    _ = Task.Run(
+                        () =>
                             {
-                                Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: Server);
-                            }
-                        }
-                    }
+                                var handler = Provider.GetRequiredService<DatabaseHandler>();
+
+                                // This will load all guild models and retrieve their IDs
+                                var Servers = handler.Query<GuildModel>().Select(x => x.ID).ToList();
+
+                                // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
+                                foreach (var Guild in socketClient.Guilds.Select(x => x.Id))
+                                {
+                                    if (!Servers.Contains(Guild))
+                                    {
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = Guild }, Guild);
+                                    }
+                                }
+
+                                shardCheck.Add(socketClient.ShardId);
+                            });
+                }
+                // Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList() == shardCheck.Distinct().OrderByDescending(x => x).ToList()
+                if (shardCheck.Count == Client.Shards.Count && Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList().SequenceEqual(shardCheck.Distinct().ToList()))
+                {
+                    _ = Task.Run(
+                        () =>
+                            {
+                                var handler = Provider.GetRequiredService<DatabaseHandler>();
+
+                                // Returns all stored guild models
+                                var guildIds = Client.Guilds.Select(g => g.Id).ToList();
+                                var missingList = handler.Query<GuildModel>().Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
+
+                                foreach (var id in missingList)
+                                {
+                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: id.ToString());
+                                }
+                            });
 
                     // Ensure that this is only run once as the bot initially connects.
                     guildCheck = false;
-                });
+                }
             }
 
             LogHandler.LogMessage($"Shard: {socketClient.ShardId} Ready");

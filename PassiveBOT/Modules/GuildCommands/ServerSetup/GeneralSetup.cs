@@ -27,8 +27,8 @@
         /// </returns>
         [Command("SetPrefix")]
         [Summary("Set a custom prefix for the bot")]
-        [Remarks("Will reset the prefix if no value provided")]
-        public async Task SetPrefix([Remainder] string prefix = null)
+        [Remarks("Will reset the prefix if no value provided\nAlso, use \"prefix \" to use spaces in the prefix")]
+        public async Task SetPrefix(string prefix = null)
         {
             Context.Server.Settings.Prefix.CustomPrefix = prefix;
             Context.Server.Save();

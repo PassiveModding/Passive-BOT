@@ -1,19 +1,22 @@
 ﻿// ReSharper disable StringLiteralTypo
 namespace PassiveBOT.Modules.GuildCommands
 {
+    using System;
     using System.Threading.Tasks;
 
     using global::Discord;
     using global::Discord.Commands;
+    using global::Discord.Addons.Preconditions;
 
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
     using PassiveBOT.Models;
-
+    
     /// <summary>
     /// The translate commands
     /// </summary>
     [Group("Translate")]
+    [RateLimit(1, 10, Measure.Seconds, RateLimitFlags.ApplyPerGuild)]
     public class Translate : Base
     {
         /// <summary>

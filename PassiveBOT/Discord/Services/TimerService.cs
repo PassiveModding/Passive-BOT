@@ -1,7 +1,6 @@
 ﻿namespace PassiveBOT.Discord.Services
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -100,17 +99,19 @@
         {
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
             var handler = Provider.GetRequiredService<DatabaseHandler>();
+            PartnerStats.UpdatePartneredGuilds = 0;
+            PartnerStats.UpdateReachableMembers = 0;
             foreach (var receiverGuild in ShardedClient.Guilds)
             {
                 try
                 {
-                    
                     var receiverConfig = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, receiverGuild.Id);
                     if (receiverConfig == null || receiverConfig.Partner.Settings.Banned || !receiverConfig.Partner.Settings.Enabled || string.IsNullOrWhiteSpace(receiverConfig.Partner.Message.Content) || !(ShardedClient.GetChannel(receiverConfig.Partner.Settings.ChannelID) is SocketTextChannel receiverChannel))
                     {
                         senderIds.Remove(receiverGuild.Id);
                         continue;
                     }
+
                     LogHandler.LogMessage($"Running Partner for {receiverGuild.Id}", LogSeverity.Verbose);
 
                     GuildModel messageGuildModel = null;
@@ -121,12 +122,14 @@
                         {
                             continue;
                         }
+
                         var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, id);
                         if (model == null || model.Partner.Settings.Banned || !model.Partner.Settings.Enabled || string.IsNullOrWhiteSpace(model.Partner.Message.Content) || !(ShardedClient.GetChannel(model.Partner.Settings.ChannelID) is SocketTextChannel mChannel))
                         {
                             senderIds.Remove(id);
                             continue;
                         }
+
                         senderIds.Remove(id);
                         messageGuildModel = model;
                         messageChannel = mChannel;
@@ -138,8 +141,45 @@
                         return;
                     }
 
+                    SendPartnerMessage(messageChannel, messageGuildModel, receiverChannel, receiverGuild, receiverConfig);
+
+
                     LogHandler.LogMessage($"Matched Partner for {receiverGuild.Id} => Guild [{messageGuildModel.ID}]", LogSeverity.Verbose);
 
+                }
+                catch (Exception e)
+                {
+                    LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" +
+                                          $"{e}", LogSeverity.Error);
+                }
+            }
+
+            PartnerStats.PartneredGuilds = PartnerStats.UpdatePartneredGuilds;
+            PartnerStats.ReachableMembers = PartnerStats.UpdateReachableMembers;
+            LogHandler.LogMessage($"Partner Event Completed: {PartnerStats.PartneredGuilds} Guild {PartnerStats.ReachableMembers} Members");
+        }
+
+        /// <summary>
+        /// The send partner message.
+        /// </summary>
+        /// <param name="messageChannel">
+        /// The message channel.
+        /// </param>
+        /// <param name="messageGuildModel">
+        /// The message guild model.
+        /// </param>
+        /// <param name="receiverChannel">
+        /// The receiver channel.
+        /// </param>
+        /// <param name="receiverGuild">
+        /// The receiver guild.
+        /// </param>
+        /// <param name="receiverConfig">
+        /// The receiver config.
+        /// </param>
+        public async void SendPartnerMessage(SocketTextChannel messageChannel, GuildModel messageGuildModel, SocketTextChannel receiverChannel, SocketGuild receiverGuild, GuildModel receiverConfig)
+        {
+            
                     if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
                     {
                         await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
@@ -158,7 +198,8 @@
                            messageGuildModel.Partner.Stats.ServersReached++;
                            messageGuildModel.Partner.Stats.UsersReached += receiverGuild.MemberCount;
                            messageGuildModel.Save();
-                           await Task.Delay(500);
+                           PartnerStats.UpdateReachableMembers += receiverChannel.Users.Count;
+                           PartnerStats.UpdatePartneredGuilds++;
                         }
                         catch (Exception e)
                         {
@@ -180,13 +221,6 @@
                             receiverConfig.Save();
                         }
                     }
-                }
-                catch (Exception e)
-                {
-                    LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" +
-                                          $"{e}", LogSeverity.Error);
-                }
-            }
         }
 
         /*
@@ -315,6 +349,16 @@
         /// </summary>
         public class PartnerStatistics
         {
+            /// <summary>
+            /// Gets or sets the up-datable partnered guilds count
+            /// </summary>
+            public int UpdatePartneredGuilds { get; set; }
+
+            /// <summary>
+            /// Gets or sets the up-datable reachable members count
+            /// </summary>
+            public int UpdateReachableMembers { get; set; }
+
             /// <summary>
             /// Gets or sets the partnered guilds count
             /// </summary>
