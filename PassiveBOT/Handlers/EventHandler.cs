@@ -512,6 +512,7 @@
 
                 if (translated.Any(x => x.Key == reaction.MessageId && x.Value.Contains(languageType.Language)))
                 {
+                    LogHandler.LogMessage("Ignored EasyTranslate Reaction", LogSeverity.Verbose);
                     return;
                 }
 
@@ -519,13 +520,20 @@
 
                 if (guild.Settings.Translate.DMTranslations)
                 {
-                    await reaction.User.Value.SendMessageAsync(string.Empty, false, embed.Build());
+                    try
+                    {
+                        await reaction.User.Value.SendMessageAsync(string.Empty, false, embed.Build());
+                    }
+                    catch
+                    {
+                        await reaction.Channel.SendMessageAsync($"Unable to send DM Translation to {reaction.User.Value?.Mention}");
+                    }
                 }
                 else
                 {
                     await channel.SendMessageAsync(string.Empty, false, embed.Build());
                     var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
-                    if (match.Value == new List<LanguageMap.LanguageCode>())
+                    if (match.Value == null)
                     {
                         translated.Add(reaction.MessageId, new List<LanguageMap.LanguageCode>
                                                                {
