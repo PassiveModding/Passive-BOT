@@ -525,7 +525,7 @@
                 {
                     await channel.SendMessageAsync(string.Empty, false, embed.Build());
                     var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
-                    if (match.Value == null)
+                    if (match.Value == new List<LanguageMap.LanguageCode>())
                     {
                         translated.Add(reaction.MessageId, new List<LanguageMap.LanguageCode>
                                                                {

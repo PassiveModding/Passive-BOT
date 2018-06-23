@@ -293,8 +293,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Partner_Restart")]
-        [Summary("Partner_Restart")]
-        [Remarks("Restart the partner service")]
+        [Summary("Restart the partner service")]
         public async Task Partner_Restart()
         {
             timerService.Restart();
@@ -308,8 +307,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Partner_Trigger", RunMode = RunMode.Async)]
-        [Summary("Partner_Trigger")]
-        [Remarks("Trigger the partner service")]
+        [Summary("Trigger the partner service")]
         public async Task Partner_Trigger()
         {
             await timerService.Partner();
@@ -322,8 +320,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Partner_Stop")]
-        [Summary("Partner_Stop")]
-        [Remarks("Stop the partner service")]
+        [Summary("Stop the partner service")]
         public async Task Partner_Stop()
         {
             timerService.Stop();
