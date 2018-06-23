@@ -32,12 +32,12 @@
         /// <summary>
         /// Messages that have already been translated.
         /// </summary>
-        private readonly Dictionary<ulong, LanguageMap.LanguageCode> translated = new Dictionary<ulong, LanguageMap.LanguageCode>();
+        private readonly Dictionary<ulong, List<LanguageMap.LanguageCode>> translated = new Dictionary<ulong, List<LanguageMap.LanguageCode>>();
 
         /// <summary>
         /// This indicates how many shards have connected on initial bot use
         /// </summary>
-        private List<int> shardCheck = new List<int>();
+        private readonly List<int> shardCheck = new List<int>();
 
         /// <summary>
         /// true = check and update all missing servers on start.
@@ -173,6 +173,7 @@
                                 shardCheck.Add(socketClient.ShardId);
                             });
                 }
+
                 // Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList() == shardCheck.Distinct().OrderByDescending(x => x).ToList()
                 if (shardCheck.Count == Client.Shards.Count && Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList().SequenceEqual(shardCheck.Distinct().ToList()))
                 {
@@ -509,7 +510,7 @@
                     }
                 }
 
-                if (translated.Any(x => x.Key == reaction.MessageId && x.Value == languageType.Language))
+                if (translated.Any(x => x.Key == reaction.MessageId && x.Value.Contains(languageType.Language)))
                 {
                     return;
                 }
@@ -523,7 +524,18 @@
                 else
                 {
                     await channel.SendMessageAsync(string.Empty, false, embed.Build());
-                    translated.Add(reaction.MessageId, languageType.Language);
+                    var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
+                    if (match.Value == null)
+                    {
+                        translated.Add(reaction.MessageId, new List<LanguageMap.LanguageCode>
+                                                               {
+                                                                   languageType.Language
+                                                               });
+                    }
+                    else
+                    {
+                        match.Value.Add(languageType.Language);
+                    }
                 }
             }
             catch (Exception e)
