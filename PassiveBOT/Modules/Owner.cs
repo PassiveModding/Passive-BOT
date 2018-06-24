@@ -18,6 +18,7 @@
     using Newtonsoft.Json;
 
     using PassiveBOT.Discord.Context;
+    using PassiveBOT.Discord.Extensions;
     using PassiveBOT.Discord.Extensions.PassiveBOT;
     using PassiveBOT.Discord.Services;
     using PassiveBOT.Handlers;
@@ -74,6 +75,27 @@
                                      $"Voice Channels: {Context.Guild.VoiceChannels.Count}\n" +
                                      $"Categories: {Context.Guild.CategoryChannels.Count}");
             await ReplyAsync(string.Empty, false, embed.Build());
+        }
+
+        /// <summary>
+        /// Displays command usage stats
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("CommandStats")]
+        [Summary("Displays command usage stats")]
+        public async Task CommandStats()
+        {
+            var model = StatModel.Load();
+            var ordered = model.CommandStats.OrderByDescending(x => x.CommandUses).ToList();
+            var pages = TextManagement.SplitList(ordered, 20).Select(x => new PaginatedMessage.Page { Description = string.Join("\n", x.Select(cmd => $"`{cmd.CommandName}` - Uses: {cmd.CommandUses} || Errors: {cmd.ErrorCount} || Users: {cmd.CommandUsers.Count} || Guilds: {cmd.CommandGuilds.Count}")) }).ToList();
+            var pager = new PaginatedMessage
+                            {
+                                Title = "Command Usage",
+                                Pages = pages
+                            };
+            await PagedReplyAsync(pager, new ReactionList { Backward = true, First = true, Forward = true, Info = true, Last = true, Trash = true });
         }
 
         /// <summary>

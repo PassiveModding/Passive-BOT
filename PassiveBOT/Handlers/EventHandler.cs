@@ -35,11 +35,6 @@
         private readonly Dictionary<ulong, List<LanguageMap.LanguageCode>> translated = new Dictionary<ulong, List<LanguageMap.LanguageCode>>();
 
         /// <summary>
-        /// This indicates how many shards have connected on initial bot use
-        /// </summary>
-        private readonly List<int> shardCheck = new List<int>();
-
-        /// <summary>
         /// true = check and update all missing servers on start.
         /// </summary>
         private bool guildCheck = true;
@@ -150,33 +145,8 @@
             */
             if (guildCheck)
             {
-                if (shardCheck.Count < Client.Shards.Count)
-                {
-                    // This will check to ensure that all our servers are initialized, whilst also allowing the bot to continue starting
-                    _ = Task.Run(
-                        () =>
-                            {
-                                var handler = Provider.GetRequiredService<DatabaseHandler>();
-
-                                // This will load all guild models and retrieve their IDs
-                                var Servers = handler.Query<GuildModel>().Select(x => x.ID).ToList();
-
-                                // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
-                                foreach (var Guild in socketClient.Guilds.Select(x => x.Id))
-                                {
-                                    if (!Servers.Contains(Guild))
-                                    {
-                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = Guild }, Guild);
-                                    }
-                                }
-
-                                shardCheck.Add(socketClient.ShardId);
-                            });
-                }
-
-                // Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList() == shardCheck.Distinct().OrderByDescending(x => x).ToList()
-                if (shardCheck.Count == Client.Shards.Count && Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList().SequenceEqual(shardCheck.Distinct().ToList()))
-                {
+                if (Client.Shards.All(x => x.ConnectionState == ConnectionState.Connected))
+                { 
                     if (prefixOverride)
                     {
                         LogHandler.LogMessage("Bot is in Prefix Override Mode!", LogSeverity.Warning);
@@ -199,6 +169,27 @@
 
                     // Ensure that this is only run once as the bot initially connects.
                     guildCheck = false;
+                }
+                else
+                {
+                    // This will check to ensure that all our servers are initialized, whilst also allowing the bot to continue starting
+                    _ = Task.Run(
+                        () =>
+                            {
+                                var handler = Provider.GetRequiredService<DatabaseHandler>();
+
+                                // This will load all guild models and retrieve their IDs
+                                var Servers = handler.Query<GuildModel>().Select(x => x.ID).ToList();
+
+                                // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
+                                foreach (var Guild in socketClient.Guilds.Select(x => x.Id))
+                                {
+                                    if (!Servers.Contains(Guild))
+                                    {
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = Guild }, Guild);
+                                    }
+                                }
+                            });
                 }
             }
 
