@@ -55,6 +55,68 @@
         }
 
         /// <summary>
+        /// Displays Bot Statistics
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("Stats")]
+        [Summary("Bot Statistics")]
+        public async Task Stats()
+        {
+            var embed = new EmbedBuilder
+                            {
+                                Title = "Bot Statistics",
+                                Color = Color.DarkRed,
+                                Timestamp = DateTimeOffset.UtcNow
+                            };
+            var stats = StatModel.Load();
+
+            var errorFrequent = stats.CommandStats.OrderByDescending(x => x.ErrorCount).FirstOrDefault();
+            var mostPopular = stats.CommandStats.OrderByDescending(x => x.CommandUses).FirstOrDefault();
+            var diverseByGuild = stats.CommandStats.OrderByDescending(x => x.CommandGuilds.Count).FirstOrDefault();
+            var diverseByUsers = stats.CommandStats.OrderByDescending(x => x.CommandUsers.Count).FirstOrDefault();
+            
+            embed.AddField("Message Stats",
+                $"**Messages Received:** {stats.MessageStats.Count}\n" + 
+                $"**Average Message Length:** {stats.MessageStats.Average(x => x.MessageLength)}\n" + 
+                $"**Commands Run:** {stats.CommandStats.Sum(x => x.CommandUses)}\n" + 
+                $"**Command Errors:** {stats.CommandStats.Sum(x => x.ErrorCount)}\n" + 
+                $"**Most Popular Command:** {mostPopular?.CommandName} => {mostPopular?.CommandUses} Uses\n" + 
+                $"**Most Error Frequent Command:** {errorFrequent?.CommandName} => {errorFrequent?.ErrorCount} Errors\n" + 
+                $"**Most Diverse Command by Guild:** {diverseByGuild?.CommandName} => {diverseByGuild?.CommandGuilds.Count} Unique Guilds\n" + 
+                $"**Most Diverse Command by Users:** {diverseByUsers?.CommandName} => {diverseByUsers?.CommandUsers.Count} Unique Users");
+
+            embed.AddField("Loaded Users",
+                $":robot: **Bot:** {Context.Client.Guilds.Sum(x => x.Users.Count(z => z.IsBot))}\n" +
+                $":man_in_tuxedo: **Human:** {Context.Client.Guilds.Sum(x => x.Users.Count(z => !z.IsBot))}\n" +
+                $"**Total:** {Context.Client.Guilds.Sum(x => x.Users.Count)}", true);
+
+            embed.AddField("Channels",
+                $":abc: **Text:** {Context.Client.Guilds.Sum(x => x.TextChannels.Count)}\n" +
+                $":microphone: **Voice:** {Context.Client.Guilds.Sum(x => x.VoiceChannels.Count)}\n" +
+                $"**Total:** {Context.Client.Guilds.Sum(x => x.Channels.Count)}", true);
+
+            var orderedShards = Context.Client.Shards.OrderByDescending(x => x.Guilds.Count).ToList();
+            embed.AddField("Stats", $":small_orange_diamond: **Guilds:** {Context.Client.Guilds.Count}\n" + 
+                                    $":small_blue_diamond: **Users:** {Context.Client.Guilds.Sum(x => x.MemberCount)}\n" + 
+                                    $":boom: **Shards:** {Context.Client.Shards.Count}\n" + 
+                                    $"**Max Shard:** G:{orderedShards.First().Guilds.Count} ID:{orderedShards.First().ShardId}\n" + 
+                                    $"**Min Shard:** G:{orderedShards.Last().Guilds.Count} ID:{orderedShards.Last().ShardId}");
+
+            embed.AddField("Partner Stats", $":handshake: **Partners:** {timerService.PartnerStats.PartneredGuilds}\n" + 
+                                            $":hand_splayed: **Reachable Members:** {timerService.PartnerStats.ReachableMembers}");
+
+            embed.AddField(":hammer_pick:",
+                $"Heap: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" +
+                $"Up: {GetUptime()}", true);
+            embed.AddField(":beginner:", "Written by: [PassiveModding](https://github.com/PassiveModding)\n" +
+                                         $"Discord.Net {DiscordConfig.Version}", true);
+
+            await ReplyAsync(embed);
+        }
+
+        /// <summary>
         /// Bot info and stats
         /// </summary>
         /// <returns>
