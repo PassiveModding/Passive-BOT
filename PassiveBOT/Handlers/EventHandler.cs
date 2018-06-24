@@ -48,7 +48,7 @@
         /// true = will override all prefixes and read from DatabaseObject
         /// Useful for testing on the main bot account without a prefix conflict
         /// </summary>
-        private bool prefixOverride = false;
+        private bool prefixOverride = true;
 
         /// <summary>
         /// Displays bot invite on connection Once then gets toggled off.
@@ -177,6 +177,11 @@
                 // Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList() == shardCheck.Distinct().OrderByDescending(x => x).ToList()
                 if (shardCheck.Count == Client.Shards.Count && Client.Shards.Select(x => x.ShardId).OrderByDescending(x => x).ToList().SequenceEqual(shardCheck.Distinct().ToList()))
                 {
+                    if (prefixOverride)
+                    {
+                        LogHandler.LogMessage("Bot is in Prefix Override Mode!", LogSeverity.Warning);
+                    }
+
                     _ = Task.Run(
                         () =>
                             {
@@ -337,13 +342,13 @@
                 {
                     if (!context.Message.HasStringPrefix(config.PrefixOverride, ref argPos))
                     {
-                        return;
+                        isPrefixed = false;
                     }
                 }
                 else
                 {
                     LogHandler.LogMessage("Message Handler is being returned as the bot is in prefix override mode and you haven't specified a custom prefix in DBConfig.json", LogSeverity.Warning);
-                    return;
+                    isPrefixed = false;
                 }
             }
             else
@@ -378,8 +383,14 @@
             // run level check and auto-message channel check if the current message is not a 
             if (!isPrefixed)
             {
-                context = await LevelHelper.DoLevels(context);
-                await ChannelHelper.DoAutoMessage(context);
+                var messageTask = Task.Run(
+                    async () =>
+                        {
+                            LogHandler.LogMessage("Running Message Tasks", LogSeverity.Verbose);
+                            context = await LevelHelper.DoLevels(context);
+                            await ChannelHelper.DoAutoMessage(context);
+                            StatHelper.LogMessage(context.Message);
+                        });
                 return;
             }
 
@@ -390,7 +401,7 @@
             }
 
             // Here we attempt to execute a command based on the user Message
-            await Task.Run(async () =>
+            var commandTask = Task.Run(async () =>
                 {
                     var result = await CommandService.ExecuteAsync(context, argPos, Provider, MultiMatchHandling.Best);
 
@@ -401,6 +412,9 @@
                     }
                     else
                     {
+                        var search = CommandService.Search(context, argPos);
+                        var cmd = search.Commands.FirstOrDefault();
+                        StatHelper.LogCommand(cmd.Command, Message);
                         if (Config.LogCommandUsages)
                         {
                             LogHandler.LogMessage(context);
@@ -581,6 +595,7 @@
                 // Search the commandservice based on the Message, then respond accordingly with information about the command.
                 var search = CommandService.Search(context, argPos);
                 var cmd = search.Commands.FirstOrDefault();
+
                 errorMessage = $"**Command Name:** `{cmd.Command.Name}`\n" +
                                $"**Summary:** `{cmd.Command?.Summary ?? "N/A"}`\n" +
                                $"**Remarks:** `{cmd.Command?.Remarks ?? "N/A"}`\n" +
@@ -588,6 +603,7 @@
                                $"**Parameters:** {(cmd.Command.Parameters.Any() ? string.Join(" ", cmd.Command.Parameters.Select(x => x.IsOptional ? $" `<(Optional){x.Name}>` " : $" `<{x.Name}>` ")) : "N/A")}\n" +
                                "**Error Reason**\n" +
                                $"{result.ErrorReason}";
+                StatHelper.LogCommand(cmd.Command, context.Message, true);
             }
 
             try
