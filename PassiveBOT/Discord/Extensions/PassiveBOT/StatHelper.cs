@@ -13,10 +13,17 @@
     /// </summary>
     public class StatHelper
     { 
+        /*
         /// <summary>
         /// The message stats queue
         /// </summary>
         private static List<StatModel.MessageStat> messageStatsQueue = new List<StatModel.MessageStat>();
+        */
+
+        /// <summary>
+        /// Gets or sets the messages received since update.
+        /// </summary>
+        private static int messagesReceivedSinceUpdate { get; set; } = 0;
 
         /// <summary>
         /// Updates a command's uses in the stat-model
@@ -92,6 +99,8 @@
             model.Save();
         }
 
+
+
         /// <summary>
         /// Logs a message's stats to the stat file
         /// </summary>
@@ -100,6 +109,17 @@
         /// </param>
         public static void LogMessage(SocketUserMessage message)
         {
+            messagesReceivedSinceUpdate++;
+
+            if (messagesReceivedSinceUpdate > 500)
+            {
+                var model = StatModel.Load();
+                model.MessageCount += messagesReceivedSinceUpdate;
+                model.Save();
+                messagesReceivedSinceUpdate = 0;
+            }
+
+            /*
             // Queue the message in the message stats queue
             messageStatsQueue.Add(new StatModel.MessageStat
                                       {
@@ -120,6 +140,7 @@
 
             // Reset the queue to ensure that the queue is never too long and messages aren't logged multiple times
             messageStatsQueue = new List<StatModel.MessageStat>();
+            */
         }
 
         /// <summary>

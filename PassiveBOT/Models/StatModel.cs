@@ -9,10 +9,17 @@
     /// </summary>
     public class StatModel
     {
+        /*
         /// <summary>
         /// Gets or sets the message stats.
         /// </summary>
         public List<MessageStat> MessageStats { get; set; } = new List<MessageStat>();
+        */
+
+        /// <summary>
+        /// Gets or sets the message count.
+        /// </summary>
+        public int MessageCount { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the command stats.
@@ -52,11 +59,13 @@
             }
         }
 
-                /// <summary>
+        /*
+        /// <summary>
         /// Message statistics
         /// </summary>
         public class MessageStat
         {
+            
             /// <summary>
             /// Gets or sets the message length.
             /// </summary>
@@ -71,7 +80,9 @@
             /// Gets or sets the message guild.
             /// </summary>
             public ulong MessageGuild { get; set; }
+            
         }
+        */
 
         /// <summary>
         /// Command Usage Statistics
