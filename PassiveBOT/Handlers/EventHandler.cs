@@ -43,7 +43,7 @@
         /// true = will override all prefixes and read from DatabaseObject
         /// Useful for testing on the main bot account without a prefix conflict
         /// </summary>
-        private bool prefixOverride = true;
+        private bool prefixOverride = false;
 
         /// <summary>
         /// Displays bot invite on connection Once then gets toggled off.
