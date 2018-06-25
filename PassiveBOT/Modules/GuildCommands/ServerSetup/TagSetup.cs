@@ -11,10 +11,24 @@
     /// The tags.
     /// </summary>
     [Group("TagSetup")]
+    [Summary("Tag Setup commands")]
     [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class Tags : Base
     {
+        /// <summary>
+        /// The tag setup task.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("TagSetup")]
+        [Summary("Setup information for the TagSetup Module")]
+        public async Task TagSetupTask()
+        {
+            await SimpleEmbedAsync($"Tagging Enabled: {Context.Server.Tags.Settings.Enabled}\n" + $"Admin only Creation: {Context.Server.Tags.Settings.AdminOnly}");
+        }
+
         /// <summary>
         /// Toggles the tag system
         /// </summary>

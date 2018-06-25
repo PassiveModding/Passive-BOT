@@ -19,6 +19,7 @@
         /// The welcome event setup
         /// </summary>
         [Group("Welcome")]
+        [Summary("Messages that will be sent whenever a user joins the server.")]
         public class Welcome : Base
         {
             /// <summary>
@@ -128,6 +129,7 @@
         /// The goodbye event setup
         /// </summary>
         [Group("Goodbye")]
+        [Summary("Messages that will be sent whenever a user leaves the server.")]
         public class Goodbye : Base
         {
             /// <summary>

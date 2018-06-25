@@ -100,7 +100,7 @@
                 throw new Exception("There are no ranks in this server");
             }
 
-            await SimpleEmbedAsync(string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Select(x => Context.Guild.GetRole(x.RoleID)?.Mention).Where(x => x != null)));
+            await SimpleEmbedAsync(string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}")));
         }
     }
 }

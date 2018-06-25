@@ -16,10 +16,27 @@
     /// The translate setup module
     /// </summary>
     [Group("TranslateSetup")]
+    [Summary("Setup for quick translation via reactions.")]
     [RequireContext(ContextType.Guild)]
     [RequireAdmin]
     public class TranslateSetup : Base
     {
+        /// <summary>
+        /// The translate setup task.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("TranslateSetup")]
+        [Summary("Setup information for the translation setup module")]
+        public async Task TranslateSetupTask()
+        {
+            var translate = Context.Server.Settings.Translate;
+            await SimpleEmbedAsync($"Reactions Enabled: {translate.EasyTranslate}\n" + 
+                                   $"DM Translations: {translate.DMTranslations}\n" + 
+                                   $"For pairs refer to the `list` and `defaults` commands");
+        }
+
         /// <summary>
         /// Tutorial on translation command usage
         /// </summary>

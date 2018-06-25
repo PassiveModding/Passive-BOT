@@ -26,6 +26,7 @@
         /// The media channel setup
         /// </summary>
         [Group("Media")]
+        [Summary("Media Channels automatically delete all messages that do not have a URL or attachment")]
         [RequireBotPermission(GuildPermission.ManageMessages)]
         public class MediaChannel : Base
         {
@@ -157,12 +158,55 @@
             {
                 await DelMediaExempt(Context.Channel as ITextChannel, role);
             }
+
+            /// <summary>
+            /// The list.
+            /// </summary>
+            /// <returns>
+            /// The <see cref="Task"/>.
+            /// </returns>
+            /// <exception cref="Exception">
+            /// Throws if no channels set up
+            /// </exception>
+            [Command("List", RunMode = RunMode.Async)]
+            [Summary("List")]
+            [Remarks("List all Media Channels in the Server")]
+            public async Task List()
+            {
+                if (!Context.Server.CustomChannel.MediaChannels.Any())
+                {
+                    throw new Exception("This server has no Media Channels set up.");
+                }
+
+                var list = Context.Server.CustomChannel.MediaChannels.Where(x => Context.Guild.GetChannel(x.ChannelID) != null && x.Enabled).Select(m => new EmbedFieldBuilder
+                {
+                    Name = $"{Context.Guild.GetChannel(m.ChannelID)}",
+                    Value = $"Enabled: {m.Enabled}\n" +
+                             "Exempt Roles: \n" +
+                             $"{string.Join("\n", m.ExemptRoles.Select(x => Context.Guild.GetRole(x)).Where(x => x != null).Select(x => x.Mention))}"
+                }).ToList();
+                var pager = new PaginatedMessage
+                {
+                    Title = "Media Channels",
+                    Pages = TextManagement.SplitList(list, 5).Select(x => new PaginatedMessage.Page
+                    {
+                        Fields = x
+                    })
+                };
+                await PagedReplyAsync(pager, new ReactionList
+                {
+                    Forward = true,
+                    Backward = true,
+                    Trash = true
+                });
+            }
         }
 
         /// <summary>
         /// The auto message channel setup
         /// </summary>
         [Group("AutoMessage")]
+        [Summary("AutoMessage channels will send a specific message every x messages sent in the channel.")]
         public class AutoMessage : Base
         {
             /// <summary>
@@ -295,11 +339,11 @@
                     })
                 };
                 await PagedReplyAsync(pager, new ReactionList
-                                                 {
-                                                     Forward = true,
-                                                     Backward = true,
-                                                     Trash = true
-                                                 });
+                {
+                    Forward = true,
+                    Backward = true,
+                    Trash = true
+                });
             }
         }
     }

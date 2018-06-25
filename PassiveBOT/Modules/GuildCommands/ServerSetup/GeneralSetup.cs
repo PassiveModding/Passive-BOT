@@ -14,8 +14,27 @@
     /// General Server Setup
     /// </summary>
     [GuildOwner]
+    [Summary("General Server setup commands")]
     public class GeneralSetup : Base
     {
+        /// <summary>
+        /// The general setup task.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("GeneralSetup")]
+        [Summary("Setup Information for the general setup module")]
+        public async Task GeneralSetupTask()
+        {
+            var settings = Context.Server.Settings;
+            await SimpleEmbedAsync($"Save Guild Model: {settings.Config.SaveGuildModel}\n" + 
+                                   $"Custom Prefix: `{settings.Prefix.CustomPrefix}`\n" + 
+                                   $"Deny Default Prefix: {settings.Prefix.DenyDefaultPrefix}\n" + 
+                                   $"Deny Mention Prefix: {settings.Prefix.DenyMentionPrefix}\n" + 
+                                   $"Allow NSFW: {settings.Nsfw.Enabled}");
+        }
+
         /// <summary>
         /// Set a custom prefix
         /// </summary>
@@ -95,7 +114,7 @@
             Context.Server.Settings.Config.SaveGuildModel = !Context.Server.Settings.Config.SaveGuildModel;
             Context.Server.Save();
             await SimpleEmbedAsync($"Save guild Model = {Context.Server.Settings.Config.SaveGuildModel}\n" + 
-                                   $"If set to false, all bot saved data for the server will be deleted when you remove the bot from the server.");
+                                   "If set to false, all bot saved data for the server will be deleted when you remove the bot from the server.");
         }
     }
 }

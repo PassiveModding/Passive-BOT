@@ -19,6 +19,7 @@
     /// The partner module.
     /// </summary>
     [Group("Partner")]
+    [Summary("PassiveBOT Partner program, sends your server's message to another guild periodically, also receives one periodically")]
     [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     public class Partner : Base

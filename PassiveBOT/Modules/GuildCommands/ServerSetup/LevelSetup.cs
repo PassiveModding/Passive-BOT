@@ -18,8 +18,35 @@
     [RequireAdmin]
     [RequireContext(ContextType.Guild)]
     [Group("Leveling")]
+    [Summary("Users can gain levels, special roles and xp based on activity in the server.")]
     public class LevelSetup : Base
     {
+        /// <summary>
+        /// The level setup task.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("LevelSetup")]
+        [Summary("Setup information for the leveling module")]
+        public async Task LevelSetupTask()
+        {
+            var leveling = Context.Server.Levels;
+            await SimpleEmbedAsync($"Enabled: {leveling.Settings.Enabled}\n" + 
+                                   $"Incremental Rewards: {leveling.Settings.IncrementLevelRewards}\n" + 
+                                   "**Messaging**\n" + 
+                                   $"Reply In Channel: {leveling.Settings.ReplyLevelUps}\n" + 
+                                   $"DM Level Ups: {leveling.Settings.DMLevelUps}\n" + 
+                                   $"Using Log Channel: {(leveling.Settings.UseLogChannel ? $"{Context.Guild.GetChannel(leveling.Settings.LogChannelID)?.Name}" : "false")}\n" + 
+                                   "**Users**\n" + 
+                                   $"Level User Count: {leveling.Users.Count}\n" + 
+                                   $"Total Levels: {leveling.Users.Sum(x => x.Level)}\n" + 
+                                   $"Total XP: {leveling.Users.Sum(x => x.XP)}\n" + 
+                                   $"Highest Level & XP: {leveling.Users.Max(x => x.Level)} || {leveling.Users.Max(x => x.XP)}\n" + 
+                                   "**Reward Roles**\n" + 
+                                   $"{string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}"))}");
+        }
+
         /// <summary>
         /// The toggle system.
         /// </summary>

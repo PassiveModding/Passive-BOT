@@ -1,8 +1,11 @@
 ﻿namespace PassiveBOT.Modules.GuildCommands.ServerSetup
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using global::Discord;
+    using global::Discord.Addons.Interactive;
     using global::Discord.Commands;
 
     using PassiveBOT.Discord.Context;
@@ -12,9 +15,49 @@
     /// The role setup.
     /// </summary>
     [GuildOwner]
+    [Summary("Role setup commands")]
     [RequireContext(ContextType.Guild)]
     public class RoleSetup : Base
     {
+        /// <summary>
+        /// The role setup task.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("RoleSetup")]
+        [Summary("Displays admin, mod and sub roles")]
+        public async Task RoleSetupTask()
+        {
+            await PagedReplyAsync(new PaginatedMessage
+                            {
+                                Pages = new List<PaginatedMessage.Page>
+                                            {
+                                                new PaginatedMessage.Page
+                                                    {
+                                                        Description = $"{string.Join("\n", Context.Server.Moderation.AdminRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
+                                                        Title = "Administrator roles"
+                                                    },
+                                                new PaginatedMessage.Page
+                                                    {
+                                                        Description = $"{string.Join("\n", Context.Server.Moderation.ModRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
+                                                        Title = "Moderator roles"
+                                                    },
+                                                new PaginatedMessage.Page
+                                                    {
+                                                        Description = $"{string.Join("\n", Context.Server.Moderation.SubRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
+                                                        Title = "Sub roles"
+                                                    }
+                                            },
+                                Color = Color.DarkRed
+                            }, new ReactionList
+                                   {
+                                       Forward = true,
+                                       Backward = true,
+                                       Trash = true
+                                   });
+        }
+
         /// <summary>
         /// Adds or removes an admin role
         /// </summary>
