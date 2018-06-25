@@ -244,9 +244,17 @@
 
                     try
                     {
-                        // Add a full page summary to our 'PageContents' list for later use
+                        
                         // This gives us the prefix, command name and all parameters to the command.
-                        pageContents.Add(module.Name, passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList());
+                        var summary = passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
+
+                        if (!string.IsNullOrEmpty(module.Summary))
+                        {
+                            summary.Add($"**Summary**\n{module.Summary}");
+                        }
+
+                        // Add a full page summary to our 'PageContents' list for later use
+                        pageContents.Add(module.Name, summary);
                     }
                     catch (Exception e)
                     {
