@@ -78,8 +78,7 @@
             var diverseByUsers = stats.CommandStats.OrderByDescending(x => x.CommandUsers.Count).FirstOrDefault();
             
             embed.AddField("Message Stats",
-                $"**Messages Received:** {stats.MessageStats.Count}\n" + 
-                $"**Average Message Length:** {stats.MessageStats.Average(x => x.MessageLength)}\n" + 
+                $"**Messages Received:** {stats.MessageCount}\n" + 
                 $"**Commands Run:** {stats.CommandStats.Sum(x => x.CommandUses)}\n" + 
                 $"**Command Errors:** {stats.CommandStats.Sum(x => x.ErrorCount)}\n" + 
                 $"**Most Popular Command:** {mostPopular?.CommandName} => {mostPopular?.CommandUses} Uses\n" + 
