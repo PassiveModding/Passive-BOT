@@ -16,6 +16,7 @@
     /// The levels commands
     /// </summary>
     [RequireContext(ContextType.Guild)]
+    [Summary("Level information for the server")]
     public class Levels : Base
     {
         /// <summary>

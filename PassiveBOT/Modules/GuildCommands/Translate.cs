@@ -16,6 +16,7 @@ namespace PassiveBOT.Modules.GuildCommands
     /// The translate commands
     /// </summary>
     [Group("Translate")]
+    [Summary("Language translation commands and information")]
     public class Translate : Base
     {
         /// <summary>

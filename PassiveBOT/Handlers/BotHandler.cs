@@ -81,9 +81,9 @@
 
             // Here we log the bot in and start it. This MUST run for the bot to connect to discord.
             await Client.LoginAsync(TokenType.Bot, Config.Token);
-            LogHandler.LogMessage("RavenBOT: Logged In");
+            LogHandler.LogMessage("=> Logged In");
             await Client.StartAsync();
-            LogHandler.LogMessage("RavenBOT: Started");
+            LogHandler.LogMessage("=> Started");
         }
     }
 }

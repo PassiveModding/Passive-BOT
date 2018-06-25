@@ -17,6 +17,7 @@
     [RequireContext(ContextType.Guild)]
     [Group("Tag")]
     [Alias("Tags")]
+    [Summary("Tags are like shortcuts for messages, you can use one to have the bot respond with a specific message that you have pre-set.")]
     public class Tags : Base
     {
         /// <summary>

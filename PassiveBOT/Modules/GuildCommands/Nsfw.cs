@@ -28,6 +28,7 @@ namespace PassiveBOT.Modules.GuildCommands
     /// </summary>
     [NsfwAllowed]
     [RequireNsfw]
+    [Summary("🔞Pornographic imagery")]
     public class NSFW : Base
     {
         /// <summary>

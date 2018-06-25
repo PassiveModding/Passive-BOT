@@ -14,6 +14,7 @@
     /// </summary>
     [RequireContext(ContextType.Guild)]
     [RequireBotPermission(GuildPermission.ManageRoles)]
+    [Summary("Join/Leave Roles")]
     public class Roles : Base
     {
         /// <summary>
