@@ -81,5 +81,21 @@
             Context.Server.Save();
             await SimpleEmbedAsync($"Default Prefix Enabled = {!Context.Server.Settings.Prefix.DenyDefaultPrefix}");
         }
+
+        /// <summary>
+        /// Toggles whether to save the guild config after removing the bot from the server.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("SaveGuildConfig")]
+        [Summary("Toggle whether to save the guild config even when the bot has left the server.")]
+        public async Task SaveGuildConfig()
+        {
+            Context.Server.Settings.Config.SaveGuildModel = !Context.Server.Settings.Config.SaveGuildModel;
+            Context.Server.Save();
+            await SimpleEmbedAsync($"Save guild Model = {Context.Server.Settings.Config.SaveGuildModel}\n" + 
+                                   $"If set to false, all bot saved data for the server will be deleted when you remove the bot from the server.");
+        }
     }
 }

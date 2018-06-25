@@ -555,6 +555,11 @@
             public NsfwSetup Nsfw { get; set; } = new NsfwSetup();
 
             /// <summary>
+            /// Gets or sets the config.
+            /// </summary>
+            public Configuration Config { get; set; } = new Configuration();
+
+            /// <summary>
             /// The prefix setup.
             /// </summary>
             public class PrefixSetup
@@ -621,6 +626,17 @@
                     /// </summary>
                     public LanguageMap.LanguageCode Language { get; set; }
                 }
+            }
+
+            /// <summary>
+            /// The configuration.
+            /// </summary>
+            public class Configuration
+            {
+                /// <summary>
+                /// Gets or sets a value indicating whether to save the guild model when the bot leaves the server or leave it.
+                /// </summary>
+                public bool SaveGuildModel { get; set; } = false;
             }
         }
     }

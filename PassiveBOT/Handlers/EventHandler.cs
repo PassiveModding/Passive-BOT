@@ -179,7 +179,8 @@
                                 var handler = Provider.GetRequiredService<DatabaseHandler>();
 
                                 // This will load all guild models and retrieve their IDs
-                                var Servers = handler.Query<GuildModel>().Select(x => x.ID).ToList();
+                                // It also ensures that guilds which have set to save their data are not included here
+                                var Servers = handler.Query<GuildModel>().Where(x => !x.Settings.Config.SaveGuildModel).Select(x => x.ID).ToList();
 
                                 // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
                                 foreach (var Guild in socketClient.Guilds.Select(x => x.Id))
@@ -244,8 +245,27 @@
         /// </returns>
         internal Task LeftGuild(SocketGuild guild)
         {
-            return Task.Run(()
-                => Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: guild.Id));
+            return Task.Run(
+                () =>
+                    {
+                        var handler = Provider.GetRequiredService<DatabaseHandler>();
+
+                        // Load the guild model from our database
+                        var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guild.Id);
+
+                        // Check for null to ensure the guild model exists
+                        if (model == null)
+                        {
+                            return;
+                        }
+
+                        // Ensure that the server has NOT enabled the save guild model feature before deleting
+                        if (!model.Settings.Config.SaveGuildModel)
+                        {
+                            // Delete the guild model
+                            handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, null, guild.Id);
+                        }
+                    });
         }
 
         /// <summary>
