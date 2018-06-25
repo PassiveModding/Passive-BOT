@@ -341,6 +341,8 @@
                 return;
             }
 
+            await ChannelHelper.DoMediaChannel(context);
+
             var argPos = 0;
             bool isPrefixed = true;
             
@@ -397,7 +399,6 @@
                         {
                             LogHandler.LogMessage("Running Message Tasks", LogSeverity.Verbose);
                             context = await LevelHelper.DoLevels(context);
-                            await ChannelHelper.DoMediaChannel(context);
                             await ChannelHelper.DoAutoMessage(context);
                             StatHelper.LogMessage(context.Message);
                         });
