@@ -149,7 +149,7 @@
             if (Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
                 var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").ToList();
-                var inviteMetadata = Context.Guild.GetInvitesAsync().Result;
+                var inviteMetadata = await Context.Guild.GetInvitesAsync();
                 var mismatch = false;
                 foreach (var invite in invites)
                 {
@@ -162,8 +162,11 @@
 
                 if (mismatch)
                 {
-                    throw new Exception("Only invites from this server are allowed in the partner message!\n" +
-                                        "NOTE: please ensure that the invite link you are using is set to never expire\n" +
+                    throw new Exception("Please ensure the message passes all checks:\n" + 
+                                        "1.Only invites from this server are allowed in the partner message!\n" +
+                                        "2.Ensure that the invite link you are using is set to never expire\n" +
+                                        "3.Ensure that it does not have a use limit.\n" + 
+                                        "4.If your server uses 2FA please disable it while running the command then re-enable it after\n" + 
                                         "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
                                         $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}");
                 }
