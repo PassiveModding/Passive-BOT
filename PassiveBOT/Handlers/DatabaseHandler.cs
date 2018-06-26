@@ -61,7 +61,7 @@
         /// <summary>
         /// Gets or sets the settings.
         /// </summary>
-        public DatabaseObject Settings { get; set; }
+        public static DatabaseObject Settings { get; set; }
 
         /// <summary>
         /// Pings a web url

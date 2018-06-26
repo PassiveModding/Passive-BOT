@@ -30,6 +30,12 @@
     public class EventHandler
     {
         /// <summary>
+        /// true = will override all prefixes and read from DatabaseObject
+        /// Useful for testing on the main bot account without a prefix conflict
+        /// </summary>
+        private readonly bool prefixOverride;
+
+        /// <summary>
         /// Messages that have already been translated.
         /// </summary>
         private readonly Dictionary<ulong, List<LanguageMap.LanguageCode>> translated = new Dictionary<ulong, List<LanguageMap.LanguageCode>>();
@@ -38,12 +44,6 @@
         /// true = check and update all missing servers on start.
         /// </summary>
         private bool guildCheck = true;
-
-        /// <summary>
-        /// true = will override all prefixes and read from DatabaseObject
-        /// Useful for testing on the main bot account without a prefix conflict
-        /// </summary>
-        private bool prefixOverride = false;
 
         /// <summary>
         /// Displays bot invite on connection Once then gets toggled off.
@@ -71,6 +71,7 @@
             Config = config;
             Provider = service;
             CommandService = commandService;
+            prefixOverride = DatabaseHandler.Settings.UsePrefixOverride;
 
             CancellationToken = new CancellationTokenSource();
         }

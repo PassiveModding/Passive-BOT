@@ -45,6 +45,11 @@
         /// <summary>
         /// Gets or sets the prefix override
         /// </summary>
-        public string PrefixOverride {get;set; } = null;
+        public string PrefixOverride { get; set; } = null;
+        
+        /// <summary>
+        /// Gets or sets a value indicating whether the default bot prefix will be overridden
+        /// </summary>
+        public bool UsePrefixOverride { get; set; } = false;
     }
 }
