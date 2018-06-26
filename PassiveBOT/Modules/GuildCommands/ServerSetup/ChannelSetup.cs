@@ -168,7 +168,7 @@
             /// <exception cref="Exception">
             /// Throws if no channels set up
             /// </exception>
-            [Command("List", RunMode = RunMode.Async)]
+            [Command("List")]
             [Summary("List all Media Channels in the Server")]
             public async Task List()
             {
@@ -251,7 +251,7 @@
             /// <exception cref="Exception">
             /// Throws if the message is too long or channel is not enabled
             /// </exception>
-            [Command("Message", RunMode = RunMode.Async)]
+            [Command("Message")]
             [Summary("Set the AutoMessage for the current channel.")]
             public async Task SetMessage([Remainder] string message = null)
             {
@@ -284,7 +284,7 @@
             /// <exception cref="Exception">
             /// throws if the channel is not an auto-message channel
             /// </exception>
-            [Command("Limit", RunMode = RunMode.Async)]
+            [Command("Limit")]
             [Summary("Set number of messages between each Auto Message")]
             public async Task SetLimit(int limit)
             {
@@ -308,7 +308,7 @@
             /// <exception cref="Exception">
             /// throws if there are no channels
             /// </exception>
-            [Command("List", RunMode = RunMode.Async)]
+            [Command("List")]
             [Summary("List all Auto Messages in the Server")]
             public async Task List()
             {
