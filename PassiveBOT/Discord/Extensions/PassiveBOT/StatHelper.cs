@@ -40,7 +40,7 @@
         public static void LogCommand(CommandInfo command, SocketUserMessage message, bool isError = false)
         {
             var model = StatModel.Load();
-            var currentCommand = model.CommandStats.FirstOrDefault(x => x.CommandName == command.Name);
+            var currentCommand = model.CommandStats.FirstOrDefault(x => x.CommandName == command.Aliases.FirstOrDefault());
             if (currentCommand == null)
             {
                 // Ensure a guild is only logged IF the command is used in a guild
@@ -53,7 +53,7 @@
                 // Initialize the command information
                 model.CommandStats.Add(new StatModel.CommandStat
                 {
-                    CommandName = command.Name,
+                    CommandName = command.Aliases.FirstOrDefault(),
                     CommandUses = 1,
                     CommandUsers = new List<StatModel.CommandStat.CommandUser>
                                                                   {
