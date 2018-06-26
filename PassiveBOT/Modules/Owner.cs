@@ -273,7 +273,7 @@
                 throw new Exception("Server is unavailable");
             }
 
-            foreach (var inv in target.GetInvitesAsync().Result)
+            foreach (var inv in await target.GetInvitesAsync())
             {
                 if (inv.IsRevoked)
                 {
