@@ -62,7 +62,7 @@
                     {
                         ThrowOnError = false,
                         IgnoreExtraArgs = false,
-                        DefaultRunMode = RunMode.Async
+                        DefaultRunMode = RunMode.Sync
                     }))
                     .AddSingleton(new HttpClient())
                     .AddSingleton<BotHandler>()

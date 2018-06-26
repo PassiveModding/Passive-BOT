@@ -23,7 +23,7 @@
         /// <summary>
         /// Gets or sets the messages received since update.
         /// </summary>
-        private static int messagesReceivedSinceUpdate { get; set; } = 0;
+        private static int messagesReceivedSinceUpdate;
 
         /// <summary>
         /// Updates a command's uses in the stat-model
@@ -98,8 +98,6 @@
 
             model.Save();
         }
-
-
 
         /// <summary>
         /// Logs a message's stats to the stat file

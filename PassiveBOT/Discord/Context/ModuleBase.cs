@@ -157,6 +157,7 @@
 
         /// <summary>
         /// Waits until a new Message is sent in the channel.
+        /// RunMode MUST be set to async to use this
         /// </summary>
         /// <param name="fromSourceUser">Command invoker only</param>
         /// <param name="inSourceChannel">Context.Channel only</param>
