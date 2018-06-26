@@ -31,7 +31,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Info")]
-        [Remarks("Show partner info and stats")]
+        [Summary("Show partner info and stats")]
         public async Task Info()
         {
             await SimpleEmbedAsync("**Stats**\n" +
@@ -58,7 +58,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("RawMessage")]
-        [Remarks("Show raw partner message with formatting")]
+        [Summary("Show raw partner message with formatting")]
         public async Task RawMessage()
         {
             await SimpleEmbedAsync(Format.Sanitize(Context.Server.Partner.Message.Content));
@@ -71,8 +71,7 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Toggle")]
-        [Summary("Toggle")]
-        [Remarks("Toggle the Program in the server")]
+        [Summary("Toggle the Program in the server")]
         public async Task Toggle()
         {
             Context.Server.Partner.Settings.Enabled = !Context.Server.Partner.Settings.Enabled;
@@ -92,7 +91,7 @@
         /// throws if channel does not have enough users
         /// </exception>
         [Command("SetChannel")]
-        [Remarks("Set the partner channel")]
+        [Summary("Set the current channel as partner channel")]
         public async Task SetChannel()
         {
             if ((decimal)(Context.Channel as SocketTextChannel).Users.Count / Context.Guild.Users.Count * 100 < 90)
@@ -120,7 +119,7 @@
         /// throws if the message does not comply with the rules.
         /// </exception>
         [Command("Message")]
-        [Remarks("Set the partner message for this server")]
+        [Summary("Set the partner message for this server")]
         public async Task SetMessage([Remainder] string message)
         {
             if (message.Length > 1000)

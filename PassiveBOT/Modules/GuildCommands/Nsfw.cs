@@ -396,8 +396,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Cureninja", RunMode = RunMode.Async)]
-        [Summary("Cureninja <tags>")]
-        [Remarks("Search Cureninja Porn using tags")]
+        [Summary("Search Cureninja Porn using tags")]
         public async Task Cureninja(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Cureninja, tags.ToList());
@@ -428,8 +427,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Konachan", RunMode = RunMode.Async)]
-        [Summary("Konachan <tags>")]
-        [Remarks("Search Konachan Porn using tags")]
+        [Summary("Search Konachan Porn using tags")]
         public async Task Konachan(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Konachan, tags.ToList());

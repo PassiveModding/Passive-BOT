@@ -169,8 +169,7 @@
             /// Throws if no channels set up
             /// </exception>
             [Command("List", RunMode = RunMode.Async)]
-            [Summary("List")]
-            [Remarks("List all Media Channels in the Server")]
+            [Summary("List all Media Channels in the Server")]
             public async Task List()
             {
                 if (!Context.Server.CustomChannel.MediaChannels.Any())
@@ -216,7 +215,7 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("Toggle")]
-            [Remarks("Toggle the use of Auto-Messages in the current channel")]
+            [Summary("Toggle the use of Auto-Messages in the current channel")]
             public async Task Toggle()
             {
                 var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
@@ -253,8 +252,7 @@
             /// Throws if the message is too long or channel is not enabled
             /// </exception>
             [Command("Message", RunMode = RunMode.Async)]
-            [Summary("Message <Message>")]
-            [Remarks("Set the AutoMessage for the current channel.")]
+            [Summary("Set the AutoMessage for the current channel.")]
             public async Task SetMessage([Remainder] string message = null)
             {
                 var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
@@ -287,8 +285,7 @@
             /// throws if the channel is not an auto-message channel
             /// </exception>
             [Command("Limit", RunMode = RunMode.Async)]
-            [Summary("Limit <Limit>")]
-            [Remarks("Set number of messages between each Auto Message")]
+            [Summary("Set number of messages between each Auto Message")]
             public async Task SetLimit(int limit)
             {
                 var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
@@ -312,8 +309,7 @@
             /// throws if there are no channels
             /// </exception>
             [Command("List", RunMode = RunMode.Async)]
-            [Summary("List")]
-            [Remarks("List all Auto Messages in the Server")]
+            [Summary("List all Auto Messages in the Server")]
             public async Task List()
             {
                 if (!Context.Server.CustomChannel.AutoMessageChannels.Any())
