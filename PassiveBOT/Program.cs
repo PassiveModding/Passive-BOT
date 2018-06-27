@@ -37,7 +37,7 @@
         /// <param name="args">Discarded Args</param>
         public static void Main(string[] args)
         {
-            new Program().Start().GetAwaiter().GetResult();
+            new Program().StartAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -46,7 +46,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task Start()
+        public async Task StartAsync()
         {
             // This ensures that our bots setup directory is initialized and will be were the database config is stored.
             if (!Directory.Exists(Path.Combine(AppContext.BaseDirectory, "setup/")))

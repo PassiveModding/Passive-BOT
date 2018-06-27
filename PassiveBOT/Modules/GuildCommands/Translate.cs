@@ -1,7 +1,6 @@
 ﻿// ReSharper disable StringLiteralTypo
 namespace PassiveBOT.Modules.GuildCommands
 {
-    using System;
     using System.Threading.Tasks;
 
     using global::Discord;
@@ -35,12 +34,12 @@ namespace PassiveBOT.Modules.GuildCommands
         [Command]
         [RateLimit(12, 2, Measure.Minutes, RateLimitFlags.ApplyPerGuild)]
         [Summary("Translate from one language to another")]
-        public async Task TranslateCmd(LanguageMap.LanguageCode languageCode, [Remainder] string message)
+        public async Task TranslateCmdAsync(LanguageMap.LanguageCode languageCode, [Remainder] string message)
         {
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
             var original = TextManagement.FixLength(message);
             var language = TranslateMethods.LanguageCodeToString(languageCode);
-            var file = await TranslateMethods.TranslateMessage(language, message, Context.Provider);
+            var file = await TranslateMethods.TranslateMessageAsync(language, message, Context.Provider);
             var response = TextManagement.FixLength(TranslateMethods.HandleResponse(file));
             embed.AddField($"Translated [{language}]", $"{response}");
             embed.AddField($"Original [{file[2]}]", $"{original}");
@@ -57,7 +56,7 @@ namespace PassiveBOT.Modules.GuildCommands
         [Priority(2)]
         [Command("languages")]
         [Summary("A list of available languages codes to convert between")]
-        public async Task TranslateList()
+        public async Task TranslateListAsync()
         {
             var embed2 = new EmbedBuilder();
             embed2.AddField("INFORMATION", "Format:\n" +

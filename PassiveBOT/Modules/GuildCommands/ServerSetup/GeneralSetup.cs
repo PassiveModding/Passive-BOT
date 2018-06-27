@@ -25,14 +25,14 @@
         /// </returns>
         [Command("GeneralSetup")]
         [Summary("Setup Information for the general setup module")]
-        public async Task GeneralSetupTask()
+        public Task GeneralSetupTaskAsync()
         {
             var settings = Context.Server.Settings;
-            await SimpleEmbedAsync($"Save Guild Model: {settings.Config.SaveGuildModel}\n" + 
-                                   $"Custom Prefix: `{settings.Prefix.CustomPrefix}`\n" + 
-                                   $"Deny Default Prefix: {settings.Prefix.DenyDefaultPrefix}\n" + 
-                                   $"Deny Mention Prefix: {settings.Prefix.DenyMentionPrefix}\n" + 
-                                   $"Allow NSFW: {settings.Nsfw.Enabled}");
+            return SimpleEmbedAsync($"Save Guild Model: {settings.Config.SaveGuildModel}\n" + 
+                                    $"Custom Prefix: `{settings.Prefix.CustomPrefix}`\n" + 
+                                    $"Deny Default Prefix: {settings.Prefix.DenyDefaultPrefix}\n" + 
+                                    $"Deny Mention Prefix: {settings.Prefix.DenyMentionPrefix}\n" + 
+                                    $"Allow NSFW: {settings.Nsfw.Enabled}");
         }
 
         /// <summary>
@@ -47,13 +47,13 @@
         [Command("SetPrefix")]
         [Summary("Set a custom prefix for the bot")]
         [Remarks("Will reset the prefix if no value provided\nAlso, use \"prefix \" to use spaces in the prefix")]
-        public async Task SetPrefix(string prefix = null)
+        public Task SetPrefixAsync(string prefix = null)
         {
             Context.Server.Settings.Prefix.CustomPrefix = prefix;
             Context.Server.Save();
-            await SimpleEmbedAsync("The bot's prefix has been updated for this server.\n" +
-                                   "Command usage is now as follows:\n" +
-                                   $"`{prefix ?? Context.Provider.GetRequiredService<ConfigModel>().Prefix}help`");
+            return SimpleEmbedAsync("The bot's prefix has been updated for this server.\n" +
+                                    "Command usage is now as follows:\n" +
+                                    $"`{prefix ?? Context.Provider.GetRequiredService<ConfigModel>().Prefix}help`");
         }
 
         /// <summary>
@@ -64,11 +64,11 @@
         /// </returns>
         [Command("ToggleNsfw")]
         [Summary("Toggles the use of Nsfw Commands AT ALL in the server")]
-        public async Task ToggleNsfw()
+        public Task ToggleNsfwAsync()
         {
             Context.Server.Settings.Nsfw.Enabled = !Context.Server.Settings.Nsfw.Enabled;
             Context.Server.Save();
-            await SimpleEmbedAsync($"Nsfw Allowed: {Context.Server.Settings.Nsfw.Enabled}");
+            return SimpleEmbedAsync($"Nsfw Allowed: {Context.Server.Settings.Nsfw.Enabled}");
         }
 
         /// <summary>
@@ -79,11 +79,11 @@
         /// </returns>
         [Command("DenyMentionPrefix")]
         [Summary("Toggle whether or not users can @ the bot to use a command")]
-        public async Task ToggleMentionPrefix()
+        public Task ToggleMentionPrefixAsync()
         {
             Context.Server.Settings.Prefix.DenyMentionPrefix = !Context.Server.Settings.Prefix.DenyMentionPrefix;
             Context.Server.Save();
-            await SimpleEmbedAsync($"Mention Prefix Enabled = {!Context.Server.Settings.Prefix.DenyMentionPrefix}");
+            return SimpleEmbedAsync($"Mention Prefix Enabled = {!Context.Server.Settings.Prefix.DenyMentionPrefix}");
         }
 
         /// <summary>
@@ -94,11 +94,11 @@
         /// </returns>
         [Command("DenyDefaultPrefix")]
         [Summary("Toggle whether or not users can use the Default bot prefix in the server")]
-        public async Task ToggleDenyPrefix()
+        public Task ToggleDenyPrefixAsync()
         {
             Context.Server.Settings.Prefix.DenyDefaultPrefix = !Context.Server.Settings.Prefix.DenyDefaultPrefix;
             Context.Server.Save();
-            await SimpleEmbedAsync($"Default Prefix Enabled = {!Context.Server.Settings.Prefix.DenyDefaultPrefix}");
+            return SimpleEmbedAsync($"Default Prefix Enabled = {!Context.Server.Settings.Prefix.DenyDefaultPrefix}");
         }
 
         /// <summary>
@@ -109,12 +109,12 @@
         /// </returns>
         [Command("SaveGuildConfig")]
         [Summary("Toggle whether to save the guild config even when the bot has left the server.")]
-        public async Task SaveGuildConfig()
+        public Task SaveGuildConfigAsync()
         {
             Context.Server.Settings.Config.SaveGuildModel = !Context.Server.Settings.Config.SaveGuildModel;
             Context.Server.Save();
-            await SimpleEmbedAsync($"Save guild Model = {Context.Server.Settings.Config.SaveGuildModel}\n" + 
-                                   "If set to false, all bot saved data for the server will be deleted when you remove the bot from the server.");
+            return SimpleEmbedAsync($"Save guild Model = {Context.Server.Settings.Config.SaveGuildModel}\n" + 
+                                    "If set to false, all bot saved data for the server will be deleted when you remove the bot from the server.");
         }
     }
 }

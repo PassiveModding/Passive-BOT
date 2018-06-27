@@ -6,14 +6,12 @@
     using System.Linq;
     using System.Net;
     using System.Text;
-    using System.Threading.Tasks;
 
     using global::Discord;
 
     using Newtonsoft.Json;
 
     using PassiveBOT.Models;
-    using PassiveBOT.Models.DepreciatedGuildModels;
 
     using Raven.Client.Documents;
     using Raven.Client.Documents.Operations.Backups;
@@ -87,27 +85,6 @@
         }
 
         /// <summary>
-        /// The migrate.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public Task Migrate()
-        {
-            LogHandler.LogMessage("Migrating Documents!");
-            LogHandler.LogMessage("Enter the Old Database Name (one with old server configs)");
-            var oldName = Console.ReadLine();
-            LogHandler.LogMessage("Enter the Backup Database Name (one to save all old configs to.)");
-            var backupName = Console.ReadLine();
-            LogHandler.LogMessage("Enter the New Database Name (where you want to store the migrated documents.)");
-            var newName = Console.ReadLine();
-
-            MigrateFrom7271092f1095b95c4f9b6c92b213a23f81b9e325.Migrate(oldName, backupName, newName);
-            LogHandler.LogMessage("Migration Complete");
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
         /// Initializes the database for use
         /// </summary>
         public void Initialize()
@@ -156,13 +133,6 @@
             if (!Ping(Settings.URL))
             {
                 LogHandler.LogMessage("Failed to Ping Server.", LogSeverity.Critical);
-            }
-
-            if (Settings.IsMigratingDatabase)
-            {
-                Migrate();
-                Settings.IsMigratingDatabase = false;
-                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(Settings, Formatting.Indented), Encoding.UTF8);
             }
 
             // This creates the database

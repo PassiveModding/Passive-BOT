@@ -41,7 +41,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task UserJoined(GuildModel guildModel, SocketGuildUser user)
+        public static async Task UserJoinedAsync(GuildModel guildModel, SocketGuildUser user)
         {
             if (guildModel.Events.Welcome.Enabled)
             {
@@ -98,7 +98,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task UserLeft(GuildModel guildModel, SocketGuildUser user)
+        public static async Task UserLeftAsync(GuildModel guildModel, SocketGuildUser user)
         {
             if (guildModel.Events.Goodbye.Enabled)
             {

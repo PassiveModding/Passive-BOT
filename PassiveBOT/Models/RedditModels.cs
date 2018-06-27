@@ -13,7 +13,7 @@
         /// <summary>
         /// Gets or sets sub reddits.
         /// </summary>
-        public static List<SubReddit> SubReddits { get; set;  }= new List<SubReddit>();
+        public static List<SubReddit> SubReddits { get; set; } = new List<SubReddit>();
 
         /// <summary>
         /// The subreddit module

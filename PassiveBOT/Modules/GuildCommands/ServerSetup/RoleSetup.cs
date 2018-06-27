@@ -27,35 +27,35 @@
         /// </returns>
         [Command("RoleSetup")]
         [Summary("Displays admin, mod and sub roles")]
-        public async Task RoleSetupTask()
+        public Task RoleSetupTaskAsync()
         {
-            await PagedReplyAsync(new PaginatedMessage
-                            {
-                                Pages = new List<PaginatedMessage.Page>
-                                            {
-                                                new PaginatedMessage.Page
-                                                    {
-                                                        Description = $"{string.Join("\n", Context.Server.Moderation.AdminRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
-                                                        Title = "Administrator roles"
-                                                    },
-                                                new PaginatedMessage.Page
-                                                    {
-                                                        Description = $"{string.Join("\n", Context.Server.Moderation.ModRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
-                                                        Title = "Moderator roles"
-                                                    },
-                                                new PaginatedMessage.Page
-                                                    {
-                                                        Description = $"{string.Join("\n", Context.Server.Moderation.SubRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
-                                                        Title = "Sub roles"
-                                                    }
-                                            },
-                                Color = Color.DarkRed
-                            }, new ReactionList
-                                   {
-                                       Forward = true,
-                                       Backward = true,
-                                       Trash = true
-                                   });
+            return PagedReplyAsync(new PaginatedMessage
+                                       {
+                                           Pages = new List<PaginatedMessage.Page>
+                                                       {
+                                                           new PaginatedMessage.Page
+                                                               {
+                                                                   Description = $"{string.Join("\n", Context.Server.Moderation.AdminRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
+                                                                   Title = "Administrator roles"
+                                                               },
+                                                           new PaginatedMessage.Page
+                                                               {
+                                                                   Description = $"{string.Join("\n", Context.Server.Moderation.ModRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
+                                                                   Title = "Moderator roles"
+                                                               },
+                                                           new PaginatedMessage.Page
+                                                               {
+                                                                   Description = $"{string.Join("\n", Context.Server.Moderation.SubRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
+                                                                   Title = "Sub roles"
+                                                               }
+                                                       },
+                                           Color = Color.DarkRed
+                                       }, new ReactionList
+                                              {
+                                                  Forward = true,
+                                                  Backward = true,
+                                                  Trash = true
+                                              });
         }
 
         /// <summary>
@@ -69,7 +69,7 @@
         /// </returns>
         [Command("SetAdmin")]
         [Summary("Add an admin role in the server (or remove it)")]
-        public async Task Admin(IRole role)
+        public async Task AdminAsync(IRole role)
         {
             if (Context.Server.Moderation.AdminRoleIDs.Contains(role.Id))
             {
@@ -96,7 +96,7 @@
         /// </returns>
         [Command("SetMod")]
         [Summary("Add a moderator role in the server (or remove it)")]
-        public async Task Moderator(IRole role)
+        public async Task ModeratorAsync(IRole role)
         {
             if (Context.Server.Moderation.ModRoleIDs.Contains(role.Id))
             {
@@ -124,7 +124,7 @@
         [Command("SetSub")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [Summary("Add a public role (or remove it)")]
-        public async Task SetSub(IRole role)
+        public async Task SetSubAsync(IRole role)
         {
             if (Context.Server.Moderation.SubRoleIDs.Contains(role.Id))
             {

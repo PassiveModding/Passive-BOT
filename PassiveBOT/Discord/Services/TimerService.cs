@@ -41,7 +41,7 @@
                 {
                     try
                     {
-                        await Partner();
+                        await PartnerAsync();
                     }
                     catch (Exception e)
                     {
@@ -95,7 +95,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public Task Partner()
+        public Task PartnerAsync()
         {
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
             var handler = Provider.GetRequiredService<DatabaseHandler>();
@@ -205,7 +205,7 @@
                                                   $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" +
                                                   $"{e}", LogSeverity.Error);
 
-                            await PartnerHelper.PartnerLog(ShardedClient,
+                            await PartnerHelper.PartnerLogAsync(ShardedClient,
                                                            receiverConfig,
                                                            new EmbedFieldBuilder
                                                            {
@@ -315,7 +315,7 @@
         }*/
 
         /// <summary>
-        /// The stop.
+        /// Stops the timer
         /// </summary>
         public void Stop()
         {
@@ -323,7 +323,7 @@
         }
 
         /// <summary>
-        /// The restart.
+        /// Restarts the timer
         /// </summary>
         public void Restart()
         {
@@ -331,7 +331,7 @@
         }
 
         /// <summary>
-        /// The change rate.
+        /// Changes the rate at which the timer fires
         /// </summary>
         /// <param name="newPeriod">
         /// The newPeriod.

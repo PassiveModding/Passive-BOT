@@ -68,7 +68,7 @@
                     break;
             }
 
-            var matches = await GetMatches(nsfwType, url);
+            var matches = await GetMatchesAsync(nsfwType, url);
 
             switch (nsfwType)
             {
@@ -104,7 +104,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task<MatchCollection> GetMatches(NsfwType nsfwType, string url)
+        public static async Task<MatchCollection> GetMatchesAsync(NsfwType nsfwType, string url)
         {
             using (var client = new HttpClient())
             {

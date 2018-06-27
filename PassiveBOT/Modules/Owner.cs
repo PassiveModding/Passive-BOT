@@ -58,7 +58,7 @@
         [Command("ServerStats")] // The Main Command Name
         [Summary("Bot Statistics Command")] // A summary of what the command does
         [Remarks("Can only be run within a server")] // Extra notes on the command
-        public async Task Stats()
+        public Task StatsAsync()
         {
             var embed = new EmbedBuilder
             {
@@ -74,7 +74,7 @@
                                      $"Text Channels: {Context.Guild.TextChannels.Count}\n" +
                                      $"Voice Channels: {Context.Guild.VoiceChannels.Count}\n" +
                                      $"Categories: {Context.Guild.CategoryChannels.Count}");
-            await ReplyAsync(string.Empty, false, embed.Build());
+            return ReplyAsync(string.Empty, false, embed.Build());
         }
 
         /// <summary>
@@ -85,7 +85,7 @@
         /// </returns>
         [Command("CommandStats")]
         [Summary("Displays command usage stats")]
-        public async Task CommandStats()
+        public Task CommandStatsAsync()
         {
             var model = StatModel.Load();
             var ordered = model.CommandStats.OrderByDescending(x => x.CommandUses).ToList();
@@ -95,7 +95,7 @@
                                 Title = "Command Usage",
                                 Pages = pages
                             };
-            await PagedReplyAsync(pager, new ReactionList { Backward = true, First = true, Forward = true, Info = true, Last = true, Trash = true });
+            return PagedReplyAsync(pager, new ReactionList { Backward = true, First = true, Forward = true, Info = true, Last = true, Trash = true });
         }
 
         /// <summary>
@@ -106,7 +106,7 @@
         /// </returns>
         [Command("DownloadConfig")]
         [Summary("Downloads the config file of the guild")]
-        public async Task DBDownload()
+        public async Task DBDownloadAsync()
         {
             var database = Context.Server;
             var serialized = JsonConvert.SerializeObject(database, Formatting.Indented);
@@ -117,8 +117,8 @@
                 var sw = new StreamWriter(ms, uniEncoding);
                 try
                 {
-                    sw.Write(serialized);
-                    sw.Flush();
+                    await sw.WriteAsync(serialized).ConfigureAwait(false);
+                    await sw.FlushAsync().ConfigureAwait(false);
                     ms.Seek(0, SeekOrigin.Begin);
 
                     // You can send files from a stream in discord too, This allows us to avoid having to read and write directly from a file for this command.
@@ -140,7 +140,7 @@
         /// <returns>Something or something</returns>
         [Command("embedreaction")]
         [Summary("Sends a custom message that performs a specific action upon reacting")]
-        public async Task Test_EmbedReactionReply(bool expires, bool singleuse, bool singleuser)
+        public Task Test_EmbedReactionReplyAsync(bool expires, bool singleuse, bool singleuser)
         {
             var one = new Emoji("1⃣");
             var two = new Emoji("2⃣");
@@ -154,14 +154,14 @@
             // This message does not expire after a single
             // it will not allow a user to react more than once
             // it allows more than one user to react
-            await InlineReactionReplyAsync(new ReactionCallbackData("text", embed, expires, singleuse)
+            return InlineReactionReplyAsync(new ReactionCallbackData("text", embed, expires, singleuse)
                     .WithCallback(one, (c, r) =>
-                    {
-                        // You can do additional things with your reaction here, NOTE: c references this commands context whereas r references our added reaction.
-                        // This is important to note because context.user can be a different user to reaction.user
-                        var reactor = r.User.Value;
-                        return c.Channel.SendMessageAsync($"{reactor.Mention} Here you go :beer:");
-                    }).WithCallback(two, (c, r) => c.Channel.SendMessageAsync($"{r.User.Value.Mention} Here you go :tropical_drink:")),
+                        {
+                            // You can do additional things with your reaction here, NOTE: c references this commands context whereas r references our added reaction.
+                            // This is important to note because context.user can be a different user to reaction.user
+                            var reactor = r.User.Value;
+                            return c.Channel.SendMessageAsync($"{reactor.Mention} Here you go :beer:");
+                        }).WithCallback(two, (c, r) => c.Channel.SendMessageAsync($"{r.User.Value.Mention} Here you go :tropical_drink:")),
                 singleuser);
         }
 
@@ -176,17 +176,17 @@
         /// </returns>
         [Command("SetShards")]
         [Summary("Set total amount of shards for the bot")]
-        public async Task SetShards(int shards)
+        public Task SetShardsAsync(int shards)
         {
             // Here we can access the service provider via our custom context.
             var config = Context.Provider.GetRequiredService<ConfigModel>();
             config.Shards = shards;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
-            await SimpleEmbedAsync($"Shard Count updated to: {shards}\n" +
-                                   "This will be effective after a restart.\n" +
+            return SimpleEmbedAsync($"Shard Count updated to: {shards}\n" +
+                                    "This will be effective after a restart.\n" +
 
-                                   // Note, 2500 Guilds is the max amount per shard, so this should be updated based on around 2000 as if you hit the 2500 limit discord will ban the account associated.
-                                   $"Recommended shard count: {(Context.Client.Guilds.Count / 2000 < 1 ? 1 : Context.Client.Guilds.Count / 2000)}");
+                                    // Note, 2500 Guilds is the max amount per shard, so this should be updated based on around 2000 as if you hit the 2500 limit discord will ban the account associated.
+                                    $"Recommended shard count: {(Context.Client.Guilds.Count / 2000 < 1 ? 1 : Context.Client.Guilds.Count / 2000)}");
         }
 
         /// <summary>
@@ -197,12 +197,12 @@
         /// </returns>
         [Command("ToggleMessageLog")]
         [Summary("Toggle the logging of all user messages to console")]
-        public async Task ToggleMessageLog()
+        public Task ToggleMessageLogAsync()
         {
             var config = Context.Provider.GetRequiredService<ConfigModel>();
             config.LogUserMessages = !config.LogUserMessages;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
-            await SimpleEmbedAsync($"Log user Messages: {config.LogUserMessages}");
+            return SimpleEmbedAsync($"Log user Messages: {config.LogUserMessages}");
         }
 
         /// <summary>
@@ -213,12 +213,12 @@
         /// </returns>
         [Command("ToggleCommandLog")]
         [Summary("Toggle the logging of all user messages to console")]
-        public async Task ToggleCommandLog()
+        public Task ToggleCommandLogAsync()
         {
             var config = Context.Provider.GetRequiredService<ConfigModel>();
             config.LogCommandUsages = !config.LogCommandUsages;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
-            await SimpleEmbedAsync($"Log Command Usages: {config.LogCommandUsages}");
+            return SimpleEmbedAsync($"Log Command Usages: {config.LogCommandUsages}");
         }
 
         /// <summary>
@@ -232,9 +232,9 @@
         /// </returns>
         [Command("Welcome_Event")]
         [Summary("Trigger a welcome event in the current server")]
-        public async Task WelcomeEvent(SocketGuildUser user)
+        public Task WelcomeEventAsync(SocketGuildUser user)
         {
-            await Events.UserJoined(Context.Server, user);
+            return Events.UserJoinedAsync(Context.Server, user);
         }
 
         /// <summary>
@@ -248,9 +248,9 @@
         /// </returns>
         [Command("Goodbye_Event")]
         [Summary("Trigger a Goodbye event in the current server")]
-        public async Task GoodbyeEvent(SocketGuildUser user)
+        public Task GoodbyeEventAsync(SocketGuildUser user)
         {
-            await Events.UserLeft(Context.Server, user);
+            return Events.UserLeftAsync(Context.Server, user);
         }
 
         /// <summary>
@@ -264,7 +264,7 @@
         /// </returns>
         [Command("GetInvite")]
         [Summary("Gets an invite to the specified server")]
-        public async Task GetInvite(ulong guildID)
+        public async Task GetInviteAsync(ulong guildID)
         {
             string invite = null;
             var target = Context.Client.GetGuild(guildID);
@@ -316,10 +316,10 @@
         /// </returns>
         [Command("Partner_Restart")]
         [Summary("Restart the partner service")]
-        public async Task Partner_Restart()
+        public Task Partner_RestartAsync()
         {
             timerService.Restart();
-            await ReplyAsync("Timer (re)started.");
+            return ReplyAsync("Timer (re)started.");
         }
 
         /// <summary>
@@ -330,9 +330,9 @@
         /// </returns>
         [Command("Partner_Trigger", RunMode = RunMode.Async)]
         [Summary("Trigger the partner service")]
-        public async Task Partner_Trigger()
+        public Task Partner_TriggerAsync()
         {
-            await timerService.Partner();
+            return timerService.PartnerAsync();
         }
 
         /// <summary>
@@ -343,10 +343,10 @@
         /// </returns>
         [Command("Partner_Stop")]
         [Summary("Stop the partner service")]
-        public async Task Partner_Stop()
+        public Task Partner_StopAsync()
         {
             timerService.Stop();
-            await ReplyAsync("Timer stopped.");
+            return ReplyAsync("Timer stopped.");
         }
 
         /// <summary>
@@ -362,12 +362,12 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("Guild")]
-            public async Task SetGuild()
+            public Task SetGuildAsync()
             {
                 var home = HomeModel.Load();
                 home.GuildId = Context.Guild.Id;
                 home.Save();
-                await SimpleEmbedAsync($"Home Guild Set to {Context.Guild.Id}");
+                return SimpleEmbedAsync($"Home Guild Set to {Context.Guild.Id}");
             }
 
             /// <summary>
@@ -380,12 +380,12 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("BotModerator")]
-            public async Task SetBotModerator(SocketRole role = null)
+            public Task SetBotModeratorAsync(SocketRole role = null)
             {
                 var home = HomeModel.Load();
                 home.BotModerator = role?.Id ?? 0;
                 home.Save();
-                await SimpleEmbedAsync("Bot Mod Set/Reset.");
+                return SimpleEmbedAsync("Bot Mod Set/Reset.");
             }
 
             /// <summary>
@@ -398,12 +398,12 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("Invite")]
-            public async Task SetBotModerator(string invite)
+            public Task SetBotModeratorAsync(string invite)
             {
                 var home = HomeModel.Load();
                 home.HomeInvite = invite;
                 home.Save();
-                await SimpleEmbedAsync($"Invite set to: {invite}");
+                return SimpleEmbedAsync($"Invite set to: {invite}");
             }
 
             /// <summary>
@@ -413,12 +413,12 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("LogPartners")]
-            public async Task LogPartnersToggle()
+            public Task LogPartnersToggleAsync()
             {
                 var home = HomeModel.Load();
                 home.Logging.LogPartnerChanges = !home.Logging.LogPartnerChanges;
                 home.Save();
-                await SimpleEmbedAsync($"Log Partner Changes: {home.Logging.LogPartnerChanges}");
+                return SimpleEmbedAsync($"Log Partner Changes: {home.Logging.LogPartnerChanges}");
             }
 
             /// <summary>
@@ -428,12 +428,12 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("PartnerLogChannel")]
-            public async Task PartnerChannel()
+            public Task PartnerChannelAsync()
             {
                 var home = HomeModel.Load();
                 home.Logging.PartnerLogChannel = Context.Channel.Id;
                 home.Save();
-                await SimpleEmbedAsync("Partner changes will be sent to the current channel.");
+                return SimpleEmbedAsync("Partner changes will be sent to the current channel.");
             }
 
             /// <summary>
@@ -446,9 +446,9 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("BlacklistUser")]
-            public async Task BlacklistUser(SocketUser user)
+            public Task BlacklistUserAsync(SocketUser user)
             {
-                await BlacklistUser(user.Id);
+                return BlacklistUserAsync(user.Id);
             }
 
             /// <summary>
@@ -461,7 +461,7 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("BlacklistUser")]
-            public async Task BlacklistUser(ulong userId)
+            public async Task BlacklistUserAsync(ulong userId)
             {
                 var home = HomeModel.Load();
                 if (home.Blacklist.BlacklistedUsers.Contains(userId))
@@ -488,7 +488,7 @@
             /// The <see cref="Task"/>.
             /// </returns>
             [Command("BlacklistGuild")]
-            public async Task BlacklistGuild(ulong guildId)
+            public async Task BlacklistGuildAsync(ulong guildId)
             {
                 var home = HomeModel.Load();
                 if (home.Blacklist.BlacklistedGuilds.Contains(guildId))

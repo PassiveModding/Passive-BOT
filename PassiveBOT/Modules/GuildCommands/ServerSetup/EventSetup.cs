@@ -30,18 +30,18 @@
             /// </returns>
             [Command("Info")]
             [Summary("Display welcome setup info")]
-            public async Task WelcomeInfo()
+            public Task WelcomeInfoAsync()
             {
-                await SimpleEmbedAsync("**Welcome Event**\n" +
-                                       $"`{Context.Prefix}Welcome Info` - This Message\n" +
-                                       $"`{Context.Prefix}Welcome Toggle` - Toggle the welcome event\n" +
-                                       $"`{Context.Prefix}Welcome SetChannel` - Set the channel where welcome events will be sent\n" +
-                                       $"`{Context.Prefix}Welcome Message <Message>` - Set the Welcome Message\n\n" +
-                                       "**Welcome Settings**\n" +
-                                       $"Enabled: {Context.Server.Events.Welcome.Enabled}\n" +
-                                       $"Channel: {Context.Guild.GetChannel(Context.Server.Events.Welcome.ChannelID)?.Name ?? "N/A"}\n" +
-                                       "Message:\n" +
-                                       $"{Context.Server.Events.Welcome.Message ?? "N/A"}");
+                return SimpleEmbedAsync("**Welcome Event**\n" +
+                                        $"`{Context.Prefix}Welcome Info` - This Message\n" +
+                                        $"`{Context.Prefix}Welcome Toggle` - Toggle the welcome event\n" +
+                                        $"`{Context.Prefix}Welcome SetChannel` - Set the channel where welcome events will be sent\n" +
+                                        $"`{Context.Prefix}Welcome Message <Message>` - Set the Welcome Message\n\n" +
+                                        "**Welcome Settings**\n" +
+                                        $"Enabled: {Context.Server.Events.Welcome.Enabled}\n" +
+                                        $"Channel: {Context.Guild.GetChannel(Context.Server.Events.Welcome.ChannelID)?.Name ?? "N/A"}\n" +
+                                        "Message:\n" +
+                                        $"{Context.Server.Events.Welcome.Message ?? "N/A"}");
             }
 
             /// <summary>
@@ -52,11 +52,11 @@
             /// </returns>
             [Command("Toggle")]
             [Summary("Toggle the welcome event in the server")]
-            public async Task Toggle()
+            public Task ToggleAsync()
             {
                 Context.Server.Events.Welcome.Enabled = !Context.Server.Events.Welcome.Enabled;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"Welcome Event: {Context.Server.Events.Welcome.Enabled}");
+                return SimpleEmbedAsync($"Welcome Event: {Context.Server.Events.Welcome.Enabled}");
             }
 
             /// <summary>
@@ -67,11 +67,11 @@
             /// </returns>
             [Command("Direct")]
             [Summary("Direct direct messaging of welcome messages")]
-            public async Task DmTask()
+            public Task DmTaskAsync()
             {
                 Context.Server.Events.Welcome.SendDMs = !Context.Server.Events.Welcome.SendDMs;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"Users will be private messaged the welcome message upon joining the server: {Context.Server.Events.Welcome.SendDMs}");
+                return SimpleEmbedAsync($"Users will be private messaged the welcome message upon joining the server: {Context.Server.Events.Welcome.SendDMs}");
             }
 
             /// <summary>
@@ -82,11 +82,11 @@
             /// </returns>
             [Command("SetChannel")]
             [Summary("Set the channel welcome events will be sent to")]
-            public async Task SetChannel()
+            public Task SetChannelAsync()
             {
                 Context.Server.Events.Welcome.ChannelID = Context.Channel.Id;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"Success, Welcome messages will now be sent in the channel: {Context.Channel.Name}");
+                return SimpleEmbedAsync($"Success, Welcome messages will now be sent in the channel: {Context.Channel.Name}");
             }
 
             /// <summary>
@@ -97,12 +97,12 @@
             /// </returns>
             [Command("UserCount")]
             [Summary("Toggle user count in welcome messages")]
-            public async Task UserCount()
+            public Task UserCountAsync()
             {
                 Context.Server.Events.Welcome.UserCount = !Context.Server.Events.Welcome.UserCount;
                 Context.Server.Save();
-                await SimpleEmbedAsync("**Success**\n" +
-                                       $"User count will be shown in the footer of Welcome messages: {Context.Server.Events.Welcome.UserCount}");
+                return SimpleEmbedAsync("**Success**\n" +
+                                        $"User count will be shown in the footer of Welcome messages: {Context.Server.Events.Welcome.UserCount}");
             }
 
             /// <summary>
@@ -116,12 +116,11 @@
             /// </returns>
             [Command("Message")]
             [Summary("Set the welcome message")]
-            public async Task SetMessage([Remainder] string message)
+            public Task SetMessageAsync([Remainder] string message)
             {
                 Context.Server.Events.Welcome.Message = message;
                 Context.Server.Save();
-                await SimpleEmbedAsync("**Success the welcome message is now:**\n" +
-                                       $"{message}");
+                return SimpleEmbedAsync($"**Success the welcome message is now:**\n{message}");
             }
         }
 
@@ -140,18 +139,18 @@
             /// </returns>
             [Command("Info")]
             [Summary("Display Goodbye setup info")]
-            public async Task GoodbyeEvent()
+            public Task GoodbyeEventAsync()
             {
-                await SimpleEmbedAsync("**Goodbye Event**\n" +
-                                       $"`{Context.Prefix}Goodbye Info` - This Message\n" +
-                                       $"`{Context.Prefix}Goodbye Toggle` - Toggle the Goodbye event\n" +
-                                       $"`{Context.Prefix}Goodbye SetChannel` - Set the channel where Goodbye events will be sent\n" +
-                                       $"`{Context.Prefix}Goodbye Message <Message>` - Set the Goodbye Message\n\n" +
-                                       "**Goodbye Settings**\n" +
-                                       $"Enabled: {Context.Server.Events.Goodbye.Enabled}\n" +
-                                       $"Channel: {Context.Guild.GetChannel(Context.Server.Events.Goodbye.ChannelID)?.Name ?? "N/A"}\n" +
-                                       "Message:\n" +
-                                       $"{Context.Server.Events.Goodbye.Message ?? "N/A"}");
+                return SimpleEmbedAsync("**Goodbye Event**\n" +
+                                        $"`{Context.Prefix}Goodbye Info` - This Message\n" +
+                                        $"`{Context.Prefix}Goodbye Toggle` - Toggle the Goodbye event\n" +
+                                        $"`{Context.Prefix}Goodbye SetChannel` - Set the channel where Goodbye events will be sent\n" +
+                                        $"`{Context.Prefix}Goodbye Message <Message>` - Set the Goodbye Message\n\n" +
+                                        "**Goodbye Settings**\n" +
+                                        $"Enabled: {Context.Server.Events.Goodbye.Enabled}\n" +
+                                        $"Channel: {Context.Guild.GetChannel(Context.Server.Events.Goodbye.ChannelID)?.Name ?? "N/A"}\n" +
+                                        "Message:\n" +
+                                        $"{Context.Server.Events.Goodbye.Message ?? "N/A"}");
             }
 
             /// <summary>
@@ -162,11 +161,11 @@
             /// </returns>
             [Command("Toggle")]
             [Summary("Toggle the Goodbye event in the server")]
-            public async Task Toggle()
+            public Task ToggleAsync()
             {
                 Context.Server.Events.Goodbye.Enabled = !Context.Server.Events.Goodbye.Enabled;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"Goodbye Event: {Context.Server.Events.Goodbye.Enabled}");
+                return SimpleEmbedAsync($"Goodbye Event: {Context.Server.Events.Goodbye.Enabled}");
             }
 
             /// <summary>
@@ -177,11 +176,11 @@
             /// </returns>
             [Command("SetChannel")]
             [Summary("Set the channel Goodbye events will be sent to")]
-            public async Task SetChannel()
+            public Task SetChannelAsync()
             {
                 Context.Server.Events.Goodbye.ChannelID = Context.Channel.Id;
                 Context.Server.Save();
-                await SimpleEmbedAsync($"Success, Goodbye messages will now be sent in the channel: {Context.Channel.Name}");
+                return SimpleEmbedAsync($"Success, Goodbye messages will now be sent in the channel: {Context.Channel.Name}");
             }
 
             /// <summary>
@@ -195,12 +194,12 @@
             /// </returns>
             [Command("Goodbye")]
             [Summary("Set the Goodbye message")]
-            public async Task SetMessage([Remainder] string message)
+            public Task SetMessageAsync([Remainder] string message)
             {
                 Context.Server.Events.Goodbye.Message = message;
                 Context.Server.Save();
-                await SimpleEmbedAsync("**Success the Goodbye message is now:**\n" +
-                                       $"{message}");
+                return SimpleEmbedAsync("**Success the Goodbye message is now:**\n" +
+                                        $"{message}");
             }
         }
     }

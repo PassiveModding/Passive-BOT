@@ -42,7 +42,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("RedditNSFW", RunMode = RunMode.Async)]
         [Summary("Get a random post from first 150 in hot of a sub")]
-        public async Task RedditNSFW(string subreddit = null)
+        public async Task RedditNSFWAsync(string subreddit = null)
         {
             if (subreddit == null)
             {
@@ -103,7 +103,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("BrowseRedditNSFW", RunMode = RunMode.Async)]
         [Summary("Get a random post from first 150 in hot of a sub")]
-        public async Task BRedditNSFW(string subreddit = null)
+        public async Task BRedditNSFWAsync(string subreddit = null)
         {
             if (subreddit == null)
             {
@@ -230,9 +230,9 @@ namespace PassiveBOT.Modules.GuildCommands
         [Command("nsfw", RunMode = RunMode.Async)]
         [Alias("nude", "porn")]
         [Summary("Sexy Stuff!")]
-        public async Task Porn()
+        public Task PornAsync()
         {
-            await RedditNSFW("nsfw");
+            return RedditNSFWAsync("nsfw");
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("pussy", RunMode = RunMode.Async)]
         [Summary(";)")]
-        public async Task Pussy()
+        public Task PussyAsync()
         {
             var rnd = new Random();
             var subs = new[]
@@ -261,7 +261,7 @@ namespace PassiveBOT.Modules.GuildCommands
                 "vagina",
                 "moundofvenus"
             };
-            await BRedditNSFW(subs[rnd.Next(subs.Length - 1)]);
+            return BRedditNSFWAsync(subs[rnd.Next(subs.Length - 1)]);
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("NsfwGif", RunMode = RunMode.Async)]
         [Summary("Gifs")]
-        public async Task NsfwGif()
+        public Task NsfwGifAsync()
         {
             var rnd = new Random();
             var subs = new[]
@@ -288,7 +288,7 @@ namespace PassiveBOT.Modules.GuildCommands
                 "porn_gifs",
                 "adultgifs"
             };
-            await BRedditNSFW(subs[rnd.Next(subs.Length - 1)]);
+            return BRedditNSFWAsync(subs[rnd.Next(subs.Length - 1)]);
         }
 
         /// <summary>
@@ -303,7 +303,7 @@ namespace PassiveBOT.Modules.GuildCommands
         [Command("Rule34", RunMode = RunMode.Async)]
         [Alias("R34")]
         [Summary("Search Rule34 Porn using tags")]
-        public async Task R34(params string[] tags)
+        public async Task R34Async(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Rule34, tags.ToList());
             if (result == null)
@@ -334,7 +334,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("Yandere", RunMode = RunMode.Async)]
         [Summary("Search Yandere Porn using tags")]
-        public async Task Yandere(params string[] tags)
+        public async Task YandereAsync(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Yandere, tags.ToList());
             if (result == null)
@@ -366,7 +366,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("Gelbooru", RunMode = RunMode.Async)]
         [Summary("Search Gelbooru Porn using tags")]
-        public async Task Gelbooru(params string[] tags)
+        public async Task GelbooruAsync(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Gelbooru, tags.ToList());
             if (result == null)
@@ -397,7 +397,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("Cureninja", RunMode = RunMode.Async)]
         [Summary("Search Cureninja Porn using tags")]
-        public async Task Cureninja(params string[] tags)
+        public async Task CureninjaAsync(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Cureninja, tags.ToList());
             if (result == null)
@@ -428,7 +428,7 @@ namespace PassiveBOT.Modules.GuildCommands
         /// </returns>
         [Command("Konachan", RunMode = RunMode.Async)]
         [Summary("Search Konachan Porn using tags")]
-        public async Task Konachan(params string[] tags)
+        public async Task KonachanAsync(params string[] tags)
         {
             var result = await NsfwHelper.HentaiAsync(Context.Provider.GetRequiredService<Random>(), NsfwHelper.NsfwType.Konachan, tags.ToList());
             if (result == null)

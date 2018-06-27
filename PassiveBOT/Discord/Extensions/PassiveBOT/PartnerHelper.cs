@@ -80,7 +80,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task PartnerLog(DiscordShardedClient client, GuildModel partnerGuild, EmbedFieldBuilder fieldInfo)
+        public static async Task PartnerLogAsync(DiscordShardedClient client, GuildModel partnerGuild, EmbedFieldBuilder fieldInfo)
         {
             var home = HomeModel.Load();
             if (home.Logging.LogPartnerChanges)

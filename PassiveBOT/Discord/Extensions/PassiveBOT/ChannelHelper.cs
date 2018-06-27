@@ -22,7 +22,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task<Context> DoAutoMessage(Context context)
+        public static async Task<Context> DoAutoMessageAsync(Context context)
         {
             if (context.Channel is IDMChannel)
             {
@@ -66,7 +66,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task DoMediaChannel(Context context)
+        public static async Task DoMediaChannelAsync(Context context)
         {
             var mediaChannel = context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.Enabled && x.ChannelID == context.Channel.Id);
             if (mediaChannel != null)

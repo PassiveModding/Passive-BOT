@@ -33,7 +33,7 @@
         /// </returns>
         [Command("dog")]
         [Summary("Gets a random dog image from random.dog")]
-        public async Task Dog()
+        public async Task DogAsync()
         {
             var woof = "http://random.dog/" + await SearchHelper.GetResponseStringAsync("https://random.dog/woof")
                            .ConfigureAwait(false);
@@ -58,7 +58,7 @@
         /// </exception>
         [Command("RedditPost", RunMode = RunMode.Async)]
         [Summary("Get a random post from first 25 in hot of a sub")]
-        public async Task GetPost(string subreddit)
+        public async Task GetPostAsync(string subreddit)
         {
             var checkCache = RedditModels.SubReddits.FirstOrDefault(x => string.Equals(x.Title, subreddit, StringComparison.CurrentCultureIgnoreCase));
             var rnd = new Random();
@@ -112,7 +112,7 @@
         [Command("RedditImage", RunMode = RunMode.Async)]
         [Alias("rimg", "rimage")]
         [Summary("Get a random post from first 25 in hot of a sub")]
-        public async Task RedditIMG(string subreddit)
+        public async Task RedditIMGAsync(string subreddit)
         {
             if (subreddit == null)
             {
@@ -190,7 +190,7 @@
         /// </returns>
         [Command("xkcd", RunMode = RunMode.Async)]
         [Summary("Get a random xkcd post")]
-        public async Task Xkcd(string number = null)
+        public async Task XkcdAsync(string number = null)
         {
             var random = new Random();
             using (var http = new HttpClient())
@@ -238,7 +238,7 @@
         /// </returns>
         [Command("urbanDictionary")]
         [Summary("Search Urban Dictionary")]
-        public async Task Urban([Remainder] string word)
+        public async Task UrbanAsync([Remainder] string word)
         {
             using (var http = new HttpClient())
             {

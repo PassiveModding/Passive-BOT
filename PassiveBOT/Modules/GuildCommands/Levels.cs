@@ -35,7 +35,7 @@
         [Alias("Rank")]
         [Summary("Find the level of a user")]
         [Remarks("Will default to the current user if none specified")]
-        public async Task Rank(IUser user = null)
+        public async Task RankAsync(IUser user = null)
         {
             var levelUser = Context.Server.Levels.Users.FirstOrDefault(x => x.UserID == (user?.Id ?? Context.User.Id));
             if (levelUser == null)
@@ -64,7 +64,7 @@
         /// </returns>
         [Command("LeaderBoard")]
         [Summary("Display the LeaderBoard")]
-        public async Task LeaderBoard()
+        public Task LeaderBoardAsync()
         {
             var users = Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).Take(100).ToList();
             var rgx = new Regex("[^a-zA-Z0-9 -#]");
@@ -79,11 +79,11 @@
                 Pages = pages,
                 Color = Color.DarkRed
             };
-            await PagedReplyAsync(pager, new ReactionList
-                                             {
-                                                 Forward = true,
-                                                 Backward = true
-                                             });
+            return PagedReplyAsync(pager, new ReactionList
+                                              {
+                                                  Forward = true,
+                                                  Backward = true
+                                              });
         }
 
         /// <summary>
@@ -94,14 +94,14 @@
         /// </returns>
         [Command("Ranks")]
         [Summary("Display the Level Rewards")]
-        public async Task Ranks()
+        public Task RanksAsync()
         {
             if (!Context.Server.Levels.RewardRoles.Any())
             {
                 throw new Exception("There are no ranks in this server");
             }
 
-            await SimpleEmbedAsync(string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}")));
+            return SimpleEmbedAsync(string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}")));
         }
     }
 }

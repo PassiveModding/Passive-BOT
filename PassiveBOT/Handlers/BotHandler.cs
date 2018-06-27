@@ -69,15 +69,15 @@
         public async Task InitializeAsync()
         {
             // These are our EventSetup, each time one of these is triggered it runs the corresponding method. Ie, the bot receives a PartnerMessage we run Event.MessageReceivedAsync
-            Client.Log += Event.Log;
-            Client.ShardReady += Event.ShardReady;
-            Client.LeftGuild += Event.LeftGuild;
-            Client.JoinedGuild += Event.JoinedGuild;
-            Client.ShardConnected += Event.ShardConnected;
-            Client.ReactionAdded += Event.ReactionAdded;
+            Client.Log += Event.LogAsync;
+            Client.ShardReady += Event.ShardReadyAsync;
+            Client.LeftGuild += Event.LeftGuildAsync;
+            Client.JoinedGuild += Event.JoinedGuildAsync;
+            Client.ShardConnected += Event.ShardConnectedAsync;
+            Client.ReactionAdded += Event.ReactionAddedAsync;
             Client.MessageReceived += Event.MessageReceivedAsync;
-            Client.UserJoined += user => Events.UserJoined(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
-            Client.UserLeft += user => Events.UserLeft(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
+            Client.UserJoined += user => Events.UserJoinedAsync(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
+            Client.UserLeft += user => Events.UserLeftAsync(Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, user.Guild.Id), user);
 
             // Here we log the bot in and start it. This MUST run for the bot to connect to discord.
             await Client.LoginAsync(TokenType.Bot, Config.Token);

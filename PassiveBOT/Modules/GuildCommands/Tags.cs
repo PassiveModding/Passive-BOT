@@ -37,7 +37,7 @@
         /// </exception>
         [Command("add")]
         [Summary("adds a tag to the server")]
-        public async Task AddTag(string tagName, [Remainder] string tagMessage)
+        public async Task AddTagAsync(string tagName, [Remainder] string tagMessage)
         {
             if (Context.Server.Tags.Settings.Enabled)
             {
@@ -84,7 +84,7 @@
         /// </exception>
         [Command("del")]
         [Summary("Removes a tag from the server")]
-        public async Task DelTag(string tagName)
+        public async Task DelTagAsync(string tagName)
         {
             if (Context.Server.Tags.Tags.Count > 0)
             {
@@ -130,7 +130,7 @@
         [Command]
         [Summary("Gets a tag")]
         [Remarks("Lists all tag names if none provided")]
-        public async Task Tag(string tagName = null)
+        public async Task TagAsync(string tagName = null)
         {
             if (tagName == null)
             {

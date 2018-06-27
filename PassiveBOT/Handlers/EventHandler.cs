@@ -126,7 +126,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal async Task ShardReady(DiscordSocketClient socketClient)
+        internal async Task ShardReadyAsync(DiscordSocketClient socketClient)
         {
             await socketClient.SetActivityAsync(new Game($"Shard: {socketClient.ShardId}", ActivityType.Watching));
 
@@ -212,7 +212,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal Task ShardConnected(DiscordSocketClient socketClient)
+        internal Task ShardConnectedAsync(DiscordSocketClient socketClient)
         {
             Task.Run(()
                 => CancellationToken.Cancel()).ContinueWith(x
@@ -230,7 +230,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal Task Log(LogMessage message)
+        internal Task LogAsync(LogMessage message)
         {
             return Task.Run(() => LogHandler.LogMessage(message.Message, message.Severity));
         }
@@ -244,7 +244,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal Task LeftGuild(SocketGuild guild)
+        internal Task LeftGuildAsync(SocketGuild guild)
         {
             return Task.Run(
                 () =>
@@ -278,7 +278,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal async Task JoinedGuild(SocketGuild guild)
+        internal async Task JoinedGuildAsync(SocketGuild guild)
         {
             var handler = Provider.GetRequiredService<DatabaseHandler>();
             if (handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, id: guild.Id) == null)
@@ -342,7 +342,7 @@
                 return;
             }
 
-            await ChannelHelper.DoMediaChannel(context);
+            await ChannelHelper.DoMediaChannelAsync(context);
 
             var argPos = 0;
             bool isPrefixed = true;
@@ -399,8 +399,8 @@
                     async () =>
                         {
                             LogHandler.LogMessage("Running Message Tasks", LogSeverity.Verbose);
-                            context = await LevelHelper.DoLevels(context);
-                            await ChannelHelper.DoAutoMessage(context);
+                            context = await LevelHelper.DoLevelsAsync(context);
+                            await ChannelHelper.DoAutoMessageAsync(context);
                             StatHelper.LogMessage(context.Message);
                         });
                 return;
@@ -420,7 +420,7 @@
                     // Generate an error Message for users if a command is unsuccessful
                     if (!result.IsSuccess)
                     {
-                        await CmdError(context, result, argPos);
+                        await CmdErrorAsync(context, result, argPos);
                     }
                     else
                     {
@@ -478,7 +478,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal async Task ReactionAdded(Cacheable<IUserMessage, ulong> messageCacheable, ISocketMessageChannel channel, SocketReaction reaction)
+        internal async Task ReactionAddedAsync(Cacheable<IUserMessage, ulong> messageCacheable, ISocketMessageChannel channel, SocketReaction reaction)
         {
             LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
 
@@ -498,6 +498,11 @@
             {
                 return;
             }
+            
+            if (reaction.User.Value.IsBot || string.IsNullOrWhiteSpace(message.Content))
+            {
+                return;
+            }
                 
             /*
             if (!reaction.User.IsSpecified)
@@ -512,67 +517,63 @@
             
             try
             {
-                if (reaction.User.Value.IsBot || string.IsNullOrWhiteSpace(message.Content))
-                {
-                    return;
-                }
+                var translateAction = Task.Run(
+                    async () =>
+                        {
+                            var guild = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, (channel as SocketGuildChannel).Guild.Id.ToString());
+                            if (!guild.Settings.Translate.EasyTranslate)
+                            {
+                                return;
+                            }
 
-                var guild = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, (channel as SocketGuildChannel).Guild.Id.ToString());
-                if (!guild.Settings.Translate.EasyTranslate)
-                {
-                    return;
-                }
+                            // Check custom matches first
+                            var languageType = guild.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
 
-                // Check custom matches first
-                var languageType = guild.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
+                            if (languageType == null)
+                            {
+                                // If no custom matches, check default matches
+                                languageType = LanguageMap.DefaultMap.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
+                                if (languageType == null)
+                                {
+                                    return;
+                                }
+                            }
 
-                if (languageType == null)
-                {
-                    // If no custom matches, check default matches
-                    languageType = LanguageMap.DefaultMap.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
-                    if (languageType == null)
-                    {
-                        return;
-                    }
-                }
+                            if (translated.Any(x => x.Key == reaction.MessageId && x.Value.Contains(languageType.Language)))
+                            {
+                                LogHandler.LogMessage("Ignored EasyTranslate Reaction", LogSeverity.Verbose);
+                                return;
+                            }
 
-                if (translated.Any(x => x.Key == reaction.MessageId && x.Value.Contains(languageType.Language)))
-                {
-                    LogHandler.LogMessage("Ignored EasyTranslate Reaction", LogSeverity.Verbose);
-                    return;
-                }
+                            var embed = await TranslateMethods.TranslateEmbedAsync(languageType.Language, Provider, message, reaction);
 
-                var embed = await TranslateMethods.TranslateEmbed(languageType.Language, Provider, message, reaction);
+                            if (guild.Settings.Translate.DMTranslations)
+                            {
+                                try
+                                {
+                                    await reaction.User.Value.SendMessageAsync(string.Empty, false, embed.Build());
+                                }
+                                catch
+                                {
+                                    await reaction.Channel.SendMessageAsync($"Unable to send DM Translation to {reaction.User.Value?.Mention}");
+                                }
+                            }
+                            else
+                            {
+                                await channel.SendMessageAsync(string.Empty, false, embed.Build());
+                                var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
+                                if (match.Value == null)
+                                {
+                                    translated.Add(reaction.MessageId, new List<LanguageMap.LanguageCode> { languageType.Language });
+                                }
+                                else
+                                {
+                                    match.Value.Add(languageType.Language);
+                                }
+                            }
 
-                if (guild.Settings.Translate.DMTranslations)
-                {
-                    try
-                    {
-                        await reaction.User.Value.SendMessageAsync(string.Empty, false, embed.Build());
-                    }
-                    catch
-                    {
-                        await reaction.Channel.SendMessageAsync($"Unable to send DM Translation to {reaction.User.Value?.Mention}");
-                    }
-                }
-                else
-                {
-                    await channel.SendMessageAsync(string.Empty, false, embed.Build());
-                    var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
-                    if (match.Value == null)
-                    {
-                        translated.Add(reaction.MessageId, new List<LanguageMap.LanguageCode>
-                                                               {
-                                                                   languageType.Language
-                                                               });
-                    }
-                    else
-                    {
-                        match.Value.Add(languageType.Language);
-                    }
-                }
-
-                LogHandler.LogMessage(guild.ID, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
+                            LogHandler.LogMessage(guild.ID, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
+                        });
             }
             catch (Exception e)
             {
@@ -595,7 +596,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        internal async Task CmdError(Context context, IResult result, int argPos)
+        internal async Task CmdErrorAsync(Context context, IResult result, int argPos)
         {
             string errorMessage;
             if (result.Error == CommandError.UnknownCommand)

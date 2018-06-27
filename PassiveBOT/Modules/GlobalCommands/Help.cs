@@ -51,9 +51,9 @@
         [Command("Help")]
         [Summary("Lists all accessible commands")]
         [Remarks("Use FullHelp for all commands")]
-        public async Task HelpCommand([Remainder] string checkForMatch = null)
+        public Task HelpCommandAsync([Remainder] string checkForMatch = null)
         {
-            await GenerateHelp(checkForMatch);
+            return GenerateHelpAsync(checkForMatch);
         }
 
         /// <summary>
@@ -67,9 +67,9 @@
         /// </returns>
         [Command("FullHelp")]
         [Summary("Lists all commands")]
-        public async Task FullHelp([Remainder] string checkForMatch = null)
+        public Task FullHelpAsync([Remainder] string checkForMatch = null)
         {
-            await GenerateHelp(checkForMatch, false);
+            return GenerateHelpAsync(checkForMatch, false);
         }
 
         /// <summary>
@@ -81,17 +81,17 @@
         /// <exception cref="Exception">
         /// Throws if command specified and no match is found
         /// </exception>
-        public async Task GenerateHelp(string checkForMatch = null, bool checkPreconditions = true)
+        public async Task GenerateHelpAsync(string checkForMatch = null, bool checkPreconditions = true)
         {
             try
             {
                 if (checkForMatch == null)
                 {
-                    await PagedHelp(checkPreconditions);
+                    await PagedHelpAsync(checkPreconditions);
                 }
                 else
                 {
-                    await ModuleCommandHelp(checkPreconditions, checkForMatch);
+                    await ModuleCommandHelpAsync(checkPreconditions, checkForMatch);
                 }
             }
             catch (Exception e)
@@ -115,7 +115,7 @@
         /// <exception cref="Exception">
         /// throws if none found
         /// </exception>
-        public async Task ModuleCommandHelp(bool checkPreconditions, string checkForMatch)
+        public Task ModuleCommandHelpAsync(bool checkPreconditions, string checkForMatch)
         {
             var module = service.Modules.FirstOrDefault(x => string.Equals(x.Name, checkForMatch, StringComparison.CurrentCultureIgnoreCase));
             var fields = new List<EmbedFieldBuilder>();
@@ -164,12 +164,12 @@
                 throw new Exception("There are no matches for this input.");
             }
 
-            await InlineReactionReplyAsync(new ReactionCallbackData(string.Empty, new EmbedBuilder
-            {
-                Fields = fields,
-                Color = Color.DarkRed
-            }.Build(), timeout: TimeSpan.FromMinutes(5))
-            .WithCallback(new Emoji("❌"),
+            return InlineReactionReplyAsync(new ReactionCallbackData(string.Empty, new EmbedBuilder
+                                                                                       {
+                                                                                           Fields = fields,
+                                                                                           Color = Color.DarkRed
+                                                                                       }.Build(), timeout: TimeSpan.FromMinutes(5))
+                .WithCallback(new Emoji("❌"),
                     async (c, r) =>
                         {
                             await r.Message.Value?.DeleteAsync();
@@ -186,22 +186,15 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task PagedHelp(bool checkPreconditions)
+        public Task PagedHelpAsync(bool checkPreconditions)
         {
             var pages = new List<PaginatedMessage.Page>();
             var moduleIndex = 1;
 
-            List<ModuleInfo> modules;
-
             // This ensures that we filter out all modules where the user cannot access ANY commands
-            if (checkPreconditions)
-            {
-                modules = service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList();
-            }
-            else
-            {
-                modules = service.Modules.OrderBy(x => x.Name).ToList();
-            }
+            var modules = checkPreconditions ? 
+                              service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList() : 
+                              service.Modules.OrderBy(x => x.Name).ToList();
             
             // Split the modules into groups of 5 to ensure the message doesn't get too long
             var moduleSets = TextManagement.SplitList(modules, 5);
@@ -244,7 +237,6 @@
 
                     try
                     {
-                        
                         // This gives us the prefix, command name and all parameters to the command.
                         var summary = passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
 
@@ -291,7 +283,7 @@
                 });
             }
 
-            await PagedReplyAsync(new PaginatedMessage { Pages = pages, Title = $"{Context.Client.CurrentUser.Username} Help || Prefix: {Context.Prefix}", Color = Color.DarkRed }, new ReactionList { Backward = true, Forward = true, Jump = true, Trash = true });
+            return PagedReplyAsync(new PaginatedMessage { Pages = pages, Title = $"{Context.Client.CurrentUser.Username} Help || Prefix: {Context.Prefix}", Color = Color.DarkRed }, new ReactionList { Backward = true, Forward = true, Jump = true, Trash = true });
         }
 
         /// <summary>

@@ -25,7 +25,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task<Context> DoLevels(Context context)
+        public static async Task<Context> DoLevelsAsync(Context context)
         {
             if (context.Channel is IDMChannel)
             {
@@ -40,7 +40,7 @@
             var levelUser = context.Server.Levels.Users.FirstOrDefault(x => x.UserID == context.User.Id);
             if (levelUser == null)
             {
-                return await InitializeUser(context);
+                return await InitializeUserAsync(context);
             }
 
             if (levelUser.LastUpdate > DateTime.UtcNow)
@@ -89,11 +89,11 @@
                             }
                         }
 
-                        await RemoveRoles(context, rolesToReceive, rolesAvailable);
+                        await RemoveRolesAsync(context, rolesToReceive, rolesAvailable);
                     }
                 }
 
-                await DoResponse(context, levelUser, requiredXP, roleAdded);
+                await DoResponseAsync(context, levelUser, requiredXP, roleAdded);
             }
 
             context.Server.Save();
@@ -150,7 +150,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task RemoveRoles(Context context, List<GuildModel.LevelSetup.LevelReward> rolesToReceive, List<GuildModel.LevelSetup.LevelReward> rolesAvailable)
+        public static async Task RemoveRolesAsync(Context context, List<GuildModel.LevelSetup.LevelReward> rolesToReceive, List<GuildModel.LevelSetup.LevelReward> rolesAvailable)
         {
             if (rolesToReceive.Count != rolesAvailable.Count && rolesToReceive.Count == 1)
             {
@@ -181,7 +181,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static Task<Context> InitializeUser(Context context)
+        public static Task<Context> InitializeUserAsync(Context context)
         {
             context.Server.Levels.Users.Add(new GuildModel.LevelSetup.LevelUser
             {
@@ -213,7 +213,7 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task DoResponse(Context context, GuildModel.LevelSetup.LevelUser levelUser, int requiredXP, string roleAdded)
+        public static async Task DoResponseAsync(Context context, GuildModel.LevelSetup.LevelUser levelUser, int requiredXP, string roleAdded)
         {
             var embed = new EmbedBuilder
             {

@@ -32,7 +32,7 @@
         /// </returns>
         [Command("Info")]
         [Summary("Show partner info and stats")]
-        public async Task Info()
+        public async Task InfoAsync()
         {
             await SimpleEmbedAsync("**Stats**\n" +
                                    $"Users Reached: {Context.Server.Partner.Stats.UsersReached}\n" +
@@ -59,9 +59,9 @@
         /// </returns>
         [Command("RawMessage")]
         [Summary("Show raw partner message with formatting")]
-        public async Task RawMessage()
+        public Task RawMessageAsync()
         {
-            await SimpleEmbedAsync(Format.Sanitize(Context.Server.Partner.Message.Content));
+            return SimpleEmbedAsync(Format.Sanitize(Context.Server.Partner.Message.Content));
         }
 
         /// <summary>
@@ -72,12 +72,12 @@
         /// </returns>
         [Command("Toggle")]
         [Summary("Toggle the Program in the server")]
-        public async Task Toggle()
+        public async Task ToggleAsync()
         {
             Context.Server.Partner.Settings.Enabled = !Context.Server.Partner.Settings.Enabled;
             Context.Server.Save();
 
-            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {Context.Server.Partner.Settings.Enabled}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {Context.Server.Partner.Settings.Enabled}" });
             await SimpleEmbedAsync($"Partner Program Enabled: {Context.Server.Partner.Settings.Enabled}");
         }
 
@@ -92,7 +92,7 @@
         /// </exception>
         [Command("SetChannel")]
         [Summary("Set the current channel as partner channel")]
-        public async Task SetChannel()
+        public async Task SetChannelAsync()
         {
             if ((decimal)(Context.Channel as SocketTextChannel).Users.Count / Context.Guild.Users.Count * 100 < 90)
             {
@@ -103,7 +103,7 @@
             Context.Server.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");
 
-            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -120,7 +120,7 @@
         /// </exception>
         [Command("Message")]
         [Summary("Set the partner message for this server")]
-        public async Task SetMessage([Remainder] string message)
+        public async Task SetMessageAsync([Remainder] string message)
         {
             if (message.Length > 1000)
             {
@@ -176,7 +176,7 @@
             var generateMessage = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
             await ReplyAsync(generateMessage);
 
-            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -187,11 +187,11 @@
         /// </returns>
         [Command("UserCount")]
         [Summary("Toggle the User Count in the footer of the partner message")]
-        public async Task UserCount()
+        public Task UserCountAsync()
         {
             Context.Server.Partner.Message.UserCount = !Context.Server.Partner.Message.UserCount;
             Context.Server.Save();
-            await ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            return ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
         }
 
         /// <summary>
@@ -205,7 +205,7 @@
         /// </returns>
         [Command("ImageUrl")]
         [Summary("Set an optional image url for the partner message")]
-        public async Task ImageURL(string imageUrl = null)
+        public async Task ImageURLAsync(string imageUrl = null)
         {
             if (!string.IsNullOrEmpty(imageUrl) && !Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
             {
@@ -217,7 +217,7 @@
             var partnerEmbed = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
             await ReplyAsync(partnerEmbed);
 
-            await PartnerHelper.PartnerLog(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -228,11 +228,11 @@
         /// </returns>
         [Command("Thumbnail")]
         [Summary("Toggle the Thumbnail of the server in the partner message")]
-        public async Task Thumbnail()
+        public Task ThumbnailAsync()
         {
             Context.Server.Partner.Message.UseThumb = !Context.Server.Partner.Message.UseThumb;
             Context.Server.Save();
-            await ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            return ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
         }
 
         /// <summary>
@@ -246,7 +246,7 @@
         /// </returns>
         [Command("Color")]
         [Summary("Set the embed color for the partner message")]
-        public async Task Color(string color)
+        public Task ColorAsync(string color)
         {
             var color_response = ColorManagement.GetColor(color);
 
@@ -257,7 +257,7 @@
                 B = color_response.B
             };
             Context.Server.Save();
-            await ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            return ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
         }
     }
 }

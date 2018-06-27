@@ -38,11 +38,11 @@
             /// </returns>
             [Command("AddChannel")]
             [Summary("Add the current channel to the media channels list")]
-            public async Task Add()
+            public Task AddAsync()
             {
                 Context.Server.CustomChannel.MediaChannels.Add(new GuildModel.CustomChannels.MediaChannel { ChannelID = Context.Channel.Id, Enabled = true, ExemptRoles = new List<ulong>() });
                 Context.Server.Save();
-                await SimpleEmbedAsync($"{Context.Channel.Name} is now a media channel. All messages without URLs or Attachments will be deleted");
+                return SimpleEmbedAsync($"{Context.Channel.Name} is now a media channel. All messages without URLs or Attachments will be deleted");
             }
 
             /// <summary>
@@ -56,7 +56,7 @@
             /// </returns>
             [Command("RemoveChannel")]
             [Summary("Remove the channel from the media channels list")]
-            public async Task Remove(ITextChannel channel = null)
+            public async Task RemoveAsync(ITextChannel channel = null)
             {
                 if (channel == null)
                 {
@@ -86,7 +86,7 @@
             /// </returns>
             [Command("Exempt")]
             [Summary("Set a specific role to not be checked my media channel restrictions")]
-            public async Task MediaExempt(ITextChannel channel, IRole role)
+            public Task MediaExemptAsync(ITextChannel channel, IRole role)
             {
                 var match = Context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.ChannelID == channel.Id);
                 if (match == null)
@@ -96,7 +96,7 @@
 
                 match.ExemptRoles.Add(role.Id);
                 Context.Server.Save();
-                await SimpleEmbedAsync($"{role.Name} will no longer be checked in this media channel");
+                return SimpleEmbedAsync($"{role.Name} will no longer be checked in this media channel");
             }
 
             /// <summary>
@@ -110,9 +110,9 @@
             /// </returns>
             [Command("Exempt")]
             [Summary("Set a specific role to not be checked my media channel restrictions")]
-            public async Task MediaExempt(IRole role)
+            public Task MediaExemptAsync(IRole role)
             {
-                await MediaExempt(Context.Channel as ITextChannel, role);
+                return MediaExemptAsync(Context.Channel as ITextChannel, role);
             }
 
             /// <summary>
@@ -129,7 +129,7 @@
             /// </returns>
             [Command("RemoveExempt")]
             [Summary("Remove a Media Exempt role in the specified channel")]
-            public async Task DelMediaExempt(ITextChannel channel, IRole role)
+            public async Task DelMediaExemptAsync(ITextChannel channel, IRole role)
             {
                 var match = Context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.ChannelID == channel.Id);
                 if (match != null)
@@ -154,9 +154,9 @@
             /// </returns>
             [Command("RemoveExempt")]
             [Summary("Remove a Media Exempt role in the current channel")]
-            public async Task DelMediaExempt(IRole role)
+            public Task DelMediaExemptAsync(IRole role)
             {
-                await DelMediaExempt(Context.Channel as ITextChannel, role);
+                return DelMediaExemptAsync(Context.Channel as ITextChannel, role);
             }
 
             /// <summary>
@@ -170,7 +170,7 @@
             /// </exception>
             [Command("List")]
             [Summary("List all Media Channels in the Server")]
-            public async Task List()
+            public Task ListAsync()
             {
                 if (!Context.Server.CustomChannel.MediaChannels.Any())
                 {
@@ -192,12 +192,12 @@
                         Fields = x
                     })
                 };
-                await PagedReplyAsync(pager, new ReactionList
-                {
-                    Forward = true,
-                    Backward = true,
-                    Trash = true
-                });
+                return PagedReplyAsync(pager, new ReactionList
+                                                  {
+                                                      Forward = true,
+                                                      Backward = true,
+                                                      Trash = true
+                                                  });
             }
         }
 
@@ -216,7 +216,7 @@
             /// </returns>
             [Command("Toggle")]
             [Summary("Toggle the use of Auto-Messages in the current channel")]
-            public async Task Toggle()
+            public async Task ToggleAsync()
             {
                 var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
                 if (channel == null)
@@ -253,7 +253,7 @@
             /// </exception>
             [Command("Message")]
             [Summary("Set the AutoMessage for the current channel.")]
-            public async Task SetMessage([Remainder] string message = null)
+            public async Task SetMessageAsync([Remainder] string message = null)
             {
                 var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
                 if (channel == null)
@@ -286,7 +286,7 @@
             /// </exception>
             [Command("Limit")]
             [Summary("Set number of messages between each Auto Message")]
-            public async Task SetLimit(int limit)
+            public async Task SetLimitAsync(int limit)
             {
                 var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
                 if (channel == null)
@@ -310,7 +310,7 @@
             /// </exception>
             [Command("List")]
             [Summary("List all Auto Messages in the Server")]
-            public async Task List()
+            public Task ListAsync()
             {
                 if (!Context.Server.CustomChannel.AutoMessageChannels.Any())
                 {
@@ -334,12 +334,12 @@
                         Fields = x
                     })
                 };
-                await PagedReplyAsync(pager, new ReactionList
-                {
-                    Forward = true,
-                    Backward = true,
-                    Trash = true
-                });
+                return PagedReplyAsync(pager, new ReactionList
+                                                  {
+                                                      Forward = true,
+                                                      Backward = true,
+                                                      Trash = true
+                                                  });
             }
         }
     }

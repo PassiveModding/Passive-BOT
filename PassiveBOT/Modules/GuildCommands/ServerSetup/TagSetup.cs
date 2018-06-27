@@ -24,9 +24,9 @@
         /// </returns>
         [Command("TagSetup")]
         [Summary("Setup information for the TagSetup Module")]
-        public async Task TagSetupTask()
+        public Task TagSetupTaskAsync()
         {
-            await SimpleEmbedAsync($"Tagging Enabled: {Context.Server.Tags.Settings.Enabled}\n" + $"Admin only Creation: {Context.Server.Tags.Settings.AdminOnly}");
+            return SimpleEmbedAsync($"Tagging Enabled: {Context.Server.Tags.Settings.Enabled}\n" + $"Admin only Creation: {Context.Server.Tags.Settings.AdminOnly}");
         }
 
         /// <summary>
@@ -37,11 +37,11 @@
         /// </returns>
         [Command("Toggle")]
         [Summary("Toggle the tagging system")]
-        public async Task TagToggle()
+        public Task TagToggleAsync()
         {
             Context.Server.Tags.Settings.Enabled = !Context.Server.Tags.Settings.Enabled;
             Context.Server.Save();
-            await SimpleEmbedAsync($"Tags Enabled: {Context.Server.Tags.Settings.Enabled}");
+            return SimpleEmbedAsync($"Tags Enabled: {Context.Server.Tags.Settings.Enabled}");
         }
 
         /// <summary>
@@ -53,11 +53,11 @@
         [Command("AdminOnly")]
         [Summary("Toggles admin only settings for tag creation")]
         [Remarks("Does not take parameters, just toggles")]
-        public async Task AdminOnly()
+        public Task AdminOnlyAsync()
         {
             Context.Server.Tags.Settings.AdminOnly = !Context.Server.Tags.Settings.AdminOnly;
             Context.Server.Save();
-            await SimpleEmbedAsync($"Tags are admin Only: {Context.Server.Tags.Settings.AdminOnly}");
+            return SimpleEmbedAsync($"Tags are admin Only: {Context.Server.Tags.Settings.AdminOnly}");
         }
     }
 }

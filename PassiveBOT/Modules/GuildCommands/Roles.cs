@@ -32,7 +32,7 @@
         [Command("Sub")]
         [Alias("JoinRole")]
         [Summary("Join a public role, or leave it")]
-        public async Task Subscribe(IRole role = null)
+        public async Task SubscribeAsync(IRole role = null)
         {
             if (role == null)
             {

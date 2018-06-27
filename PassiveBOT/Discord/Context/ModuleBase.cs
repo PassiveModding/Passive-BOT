@@ -45,9 +45,9 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task<IUserMessage> ReplyAsync(EmbedBuilder embed)
+        public Task<IUserMessage> ReplyAsync(EmbedBuilder embed)
         {
-            return await ReplyAsync(string.Empty, false, embed.Build());
+            return ReplyAsync(string.Empty, false, embed.Build());
         }
 
         /// <summary>
@@ -59,9 +59,9 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public async Task<IUserMessage> ReplyAsync(Embed embed)
+        public Task<IUserMessage> ReplyAsync(Embed embed)
         {
-            return await ReplyAsync(string.Empty, false, embed);
+            return ReplyAsync(string.Empty, false, embed);
         }
 
         /// <summary>
@@ -104,14 +104,14 @@
         /// <returns>
         /// The message that was sent
         /// </returns>
-        public async Task<IUserMessage> SimpleEmbedAsync(string message, Color? color = null)
+        public Task<IUserMessage> SimpleEmbedAsync(string message, Color? color = null)
         {
             var embed = new EmbedBuilder
             {
                 Description = message,
                 Color = color ?? Color.DarkRed
             };
-            return await ReplyAsync(string.Empty, false, embed.Build());
+            return ReplyAsync(string.Empty, false, embed.Build());
         }
 
         /// <summary>

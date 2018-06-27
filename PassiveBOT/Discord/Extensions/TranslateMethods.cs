@@ -54,7 +54,7 @@
         /// <returns>
         /// The response file
         /// </returns>
-        public static async Task<JArray> TranslateMessage(string language, string message, IServiceProvider provider)
+        public static async Task<JArray> TranslateMessageAsync(string language, string message, IServiceProvider provider)
         {
             var client = provider.GetRequiredService<HttpClient>();
 
@@ -114,12 +114,12 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task<EmbedBuilder> TranslateEmbed(LanguageMap.LanguageCode language, IServiceProvider provider, SocketUserMessage message, SocketReaction reaction = null)
+        public static async Task<EmbedBuilder> TranslateEmbedAsync(LanguageMap.LanguageCode language, IServiceProvider provider, SocketUserMessage message, SocketReaction reaction = null)
         {
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
             var original = TextManagement.FixLength(message.Content);
             var languageString = LanguageCodeToString(language);
-            var file = await TranslateMessage(languageString, message.Content, provider);
+            var file = await TranslateMessageAsync(languageString, message.Content, provider);
             var response = TextManagement.FixLength(HandleResponse(file));
             embed.AddField($"Translated [{language}{(reaction?.Emote == null ? "" : $"{reaction.Emote}")}]", $"{response}");
             embed.AddField($"Original [{file[2]}]", $"{original}");
