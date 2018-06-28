@@ -99,6 +99,11 @@
                 throw new Exception("Partner messages will not be shared as this channel has less than 90% visibility in the server,\n" + "You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
             }
 
+            if ((Context.Channel as SocketTextChannel).IsNsfw)
+            {
+                throw new Exception("Partner channel cannot be set in a NSFW channel");
+            }
+
             Context.Server.Partner.Settings.ChannelID = Context.Channel.Id;
             Context.Server.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");

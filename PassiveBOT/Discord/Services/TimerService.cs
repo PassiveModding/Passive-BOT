@@ -178,47 +178,61 @@
         /// </param>
         public async void SendPartnerMessage(SocketTextChannel messageChannel, GuildModel messageGuildModel, SocketTextChannel receiverChannel, SocketGuild receiverGuild, GuildModel receiverConfig)
         {
-                    if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
+            if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
+            {
+                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
                     {
-                        await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
-                        {
-                            Description = "NOTICE:\n" +
-                                          "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" +
-                                          "Please change the role settings of this channel to ensure all roles have the `read messages` permission"
-                        }.Build());
-                    }
-                    else
-                    {
-                        var partnerMessage = PartnerHelper.GenerateMessage(messageGuildModel, messageChannel.Guild).Build();
-                        try
-                        {
-                            await receiverChannel.SendMessageAsync(string.Empty, false, partnerMessage);
-                           messageGuildModel.Partner.Stats.ServersReached++;
-                           messageGuildModel.Partner.Stats.UsersReached += receiverGuild.MemberCount;
-                           messageGuildModel.Save();
-                           PartnerStats.UpdateReachableMembers += receiverChannel.Users.Count;
-                           PartnerStats.UpdatePartneredGuilds++;
-                        }
-                        catch (Exception e)
-                        {
-                            LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" +
-                                                  $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" +
-                                                  $"{e}", LogSeverity.Error);
+                        Description = "NOTICE:\n" +
+                                      "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" +
+                                      "Please change the role settings of this channel to ensure all roles have the `read messages` permission"
+                    }.Build());
+                receiverConfig.Partner.Settings.Enabled = false;
+                receiverConfig.Save();
+                return;
+            }
 
-                            await PartnerHelper.PartnerLogAsync(ShardedClient,
-                                                           receiverConfig,
-                                                           new EmbedFieldBuilder
-                                                           {
-                                                               Name = "Partner Server Auto Banned",
-                                                               Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}"
-                                                           });
+            if (receiverChannel.IsNsfw)
+            {
+                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
+                   {
+                       Description = "NOTICE:\n" +
+                                     "Partner channels must not be marked as NSFW"
+                   }.Build());
+                receiverConfig.Partner.Settings.Enabled = false;
+                receiverConfig.Save();
+                return;
+            }
 
-                            // Auto-Ban servers which deny permissions to send
-                            receiverConfig.Partner.Settings.Banned = true;
-                            receiverConfig.Partner.Settings.Enabled = false;
-                            receiverConfig.Save();
-                        }
-                    }
+            var partnerMessage = PartnerHelper.GenerateMessage(messageGuildModel, messageChannel.Guild).Build();
+
+            try
+            {
+                await receiverChannel.SendMessageAsync(string.Empty, false, partnerMessage);
+                messageGuildModel.Partner.Stats.ServersReached++;
+                messageGuildModel.Partner.Stats.UsersReached += receiverGuild.MemberCount;
+                messageGuildModel.Save();
+                PartnerStats.UpdateReachableMembers += receiverChannel.Users.Count;
+                PartnerStats.UpdatePartneredGuilds++;
+            }
+            catch (Exception e)
+            {
+                LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" +
+                                      $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" +
+                                      $"{e}", LogSeverity.Error);
+
+                await PartnerHelper.PartnerLogAsync(ShardedClient,
+                                               receiverConfig,
+                                               new EmbedFieldBuilder
+                                               {
+                                                   Name = "Partner Server Auto Banned",
+                                                   Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}"
+                                               });
+
+                // Auto-Ban servers which deny permissions to send
+                receiverConfig.Partner.Settings.Banned = true;
+                receiverConfig.Partner.Settings.Enabled = false;
+                receiverConfig.Save();
+            }
         }
 
         /*
