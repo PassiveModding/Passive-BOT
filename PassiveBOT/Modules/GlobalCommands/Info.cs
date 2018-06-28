@@ -48,10 +48,10 @@
         /// The <see cref="Task"/>.
         /// </returns>
         [Command("Invite")]
-        public async Task Invite()
+        public Task InviteAsync()
         {
-            await SimpleEmbedAsync("You may invite this bot to your own server using the following link:\n" + 
-                                   $"{InviteHelper.GetInvite(Context.Client)}");
+            return SimpleEmbedAsync("You may invite this bot to your own server using the following link:\n" + 
+                                    $"{InviteHelper.GetInvite(Context.Client)}");
         }
 
         /// <summary>
@@ -62,7 +62,7 @@
         /// </returns>
         [Command("Stats")]
         [Summary("Bot Statistics")]
-        public async Task Stats()
+        public Task StatsAsync()
         {
             var embed = new EmbedBuilder
                             {
@@ -112,7 +112,7 @@
             embed.AddField(":beginner:", "Written by: [PassiveModding](https://github.com/PassiveModding)\n" +
                                          $"Discord.Net {DiscordConfig.Version}", true);
 
-            await ReplyAsync(embed);
+            return ReplyAsync(embed);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@
         /// </returns>
         [Command("Info")]
         [Summary("Bot Info and Stats")]
-        public async Task Information()
+        public async Task InformationAsync()
         {
             var httpClient = Context.Provider.GetRequiredService<HttpClient>();
             string changes;
@@ -201,7 +201,7 @@
         [RequireContext(ContextType.Guild)]
         [Command("discrim")]
         [Summary("Get all users with a particular discriminator")]
-        public async Task Discrim(ushort disc = 0)
+        public async Task DiscrimAsync(ushort disc = 0)
         {
             var userMatches = Context.Guild.Users.Where(x => x.DiscriminatorValue == disc)
                 .Select(x => $"{x.Username}#{x.Discriminator}\n");
@@ -262,7 +262,7 @@
         [Command("user")]
         [Alias("whois", "userinfo")]
         [Summary("Returns info about the current user, or the given user")]
-        public async Task UserInformation([Remainder] IUser user = null)
+        public Task UserInformationAsync([Remainder] IUser user = null)
         {
             if (user == null)
             {
@@ -286,7 +286,7 @@
                 .AddField("Links",
                     $"[Invite]({InviteHelper.GetInvite(Context.Client)})\n[Support Server]({HomeModel.Load().HomeInvite})");
 
-            await ReplyAsync(builder);
+            return ReplyAsync(builder);
         }
         
         /// <summary>

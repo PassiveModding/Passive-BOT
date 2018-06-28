@@ -27,7 +27,7 @@
         /// <summary>
         /// Gets or sets the home invite.
         /// </summary>
-        public string HomeInvite { get; set; } = $"https://discord.me/passive";
+        public string HomeInvite { get; set; } = "https://discord.me/passive";
 
         /// <summary>
         /// Gets or sets the blacklist.

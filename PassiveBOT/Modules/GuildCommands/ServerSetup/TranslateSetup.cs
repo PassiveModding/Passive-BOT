@@ -34,7 +34,7 @@
             var translate = Context.Server.Settings.Translate;
             return SimpleEmbedAsync($"Reactions Enabled: {translate.EasyTranslate}\n" + 
                                     $"DM Translations: {translate.DMTranslations}\n" + 
-                                    $"For pairs refer to the `list` and `defaults` commands");
+                                    "For pairs refer to the `list` and `defaults` commands");
         }
 
         /// <summary>

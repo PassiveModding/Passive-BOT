@@ -345,7 +345,7 @@
             await ChannelHelper.DoMediaChannelAsync(context);
 
             var argPos = 0;
-            bool isPrefixed = true;
+            var isPrefixed = true;
             
             if (prefixOverride)
             {

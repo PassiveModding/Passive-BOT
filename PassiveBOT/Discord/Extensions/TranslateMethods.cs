@@ -1,7 +1,7 @@
 ﻿namespace PassiveBOT.Discord.Extensions
 {
     using System;
-    using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
     
@@ -30,11 +30,7 @@
         /// </returns>
         public static string HandleResponse(JArray input)
         {
-            var stringList = new List<string>();
-            foreach (var section in input[0])
-            {
-                stringList.Add(section[0].ToString());
-            }
+            var stringList = input[0].Select(section => section[0].ToString()).ToList();
 
             return string.Join(string.Empty, stringList);
         }
