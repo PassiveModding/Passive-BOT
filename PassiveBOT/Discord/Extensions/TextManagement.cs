@@ -6,7 +6,7 @@
     /// <summary>
     /// String Management
     /// </summary>
-    public class TextManagement
+    public static class TextManagement
     {
         /// <summary>
         /// Shortens a string to the specified length if it is too long.
@@ -20,7 +20,7 @@
         /// <returns>
         /// The <see cref="string"/>.
         /// </returns>
-        public static string FixLength(string message, int length = 1024)
+        public static string FixLength(this string message, int length = 1024)
         {
             if (message.Length > length)
             {
@@ -37,7 +37,7 @@
         /// <param name="fullList">Input list</param>
         /// <param name="groupSize">Size of Groups to output</param>
         /// <returns>A list of lists of the specified size</returns>
-        public static List<List<T>> SplitList<T>(List<T> fullList, int groupSize = 30)
+        public static List<List<T>> SplitList<T>(this List<T> fullList, int groupSize = 30)
         {
             var splitList = new List<List<T>>();
             for (var i = 0; i < fullList.Count; i += groupSize)

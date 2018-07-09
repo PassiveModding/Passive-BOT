@@ -128,7 +128,7 @@
                 }
 
                 var info = passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
-                var splitFields = TextManagement.SplitList(info, 10)
+                var splitFields = info.SplitList(10)
                     .Select(x => new EmbedFieldBuilder
                     {
                         Name = $"Module: {module.Name}",
@@ -197,7 +197,7 @@
                               service.Modules.OrderBy(x => x.Name).ToList();
             
             // Split the modules into groups of 5 to ensure the message doesn't get too long
-            var moduleSets = TextManagement.SplitList(modules, 5);
+            var moduleSets = modules.SplitList(5);
             moduleIndex += moduleSets.Count - 1;
             var fields = new List<EmbedFieldBuilder>
                                      {
@@ -271,7 +271,7 @@
             foreach (var contents in pageContents)
             {
                 // Split these into groups of 10 to ensure there is no embed field character limit being hit. (1024 characters bet field description)
-                var splitFields = TextManagement.SplitList(contents.Value, 10)
+                var splitFields = contents.Value.SplitList(10)
                     .Select(x => new EmbedFieldBuilder
                     {
                         Name = contents.Key,

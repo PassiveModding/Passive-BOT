@@ -37,10 +37,10 @@ namespace PassiveBOT.Modules.GuildCommands
         public async Task TranslateCmdAsync(LanguageMap.LanguageCode languageCode, [Remainder] string message)
         {
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
-            var original = TextManagement.FixLength(message);
+            var original = message.FixLength();
             var language = TranslateMethods.LanguageCodeToString(languageCode);
             var file = await TranslateMethods.TranslateMessageAsync(language, message, Context.Provider);
-            var response = TextManagement.FixLength(TranslateMethods.HandleResponse(file));
+            var response = TranslateMethods.HandleResponse(file).FixLength();
             embed.AddField($"Translated [{language}]", $"{response}");
             embed.AddField($"Original [{file[2]}]", $"{original}");
 

@@ -187,7 +187,7 @@
                 var pager = new PaginatedMessage
                 {
                     Title = "Media Channels",
-                    Pages = TextManagement.SplitList(list, 5).Select(x => new PaginatedMessage.Page
+                    Pages = list.SplitList(5).Select(x => new PaginatedMessage.Page
                     {
                         Fields = x
                     })
@@ -329,7 +329,7 @@
                 var pager = new PaginatedMessage
                 {
                     Title = "AutoMessage Channels",
-                    Pages = TextManagement.SplitList(list, 5).Select(x => new PaginatedMessage.Page
+                    Pages = list.SplitList(5).Select(x => new PaginatedMessage.Page
                     {
                         Fields = x
                     })

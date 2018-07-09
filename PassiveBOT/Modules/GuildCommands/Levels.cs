@@ -49,9 +49,29 @@
                 Color = Color.Purple,
                 ThumbnailUrl = user != null ? user.GetAvatarUrl() : Context.User.GetAvatarUrl()
             };
+
+            var requiredXP = (levelUser.Level * 50) + ((levelUser.Level * levelUser.Level) * 25);
+            var currentLvXP = ((levelUser.Level - 1) * 50) + (((levelUser.Level - 1) * (levelUser.Level - 1)) * 25);
+            var progressInt = ((float)(requiredXP - levelUser.XP) / (requiredXP - currentLvXP)) * 10;
+            var progressString = "`|";
+            for (int i = 0; i < 10; i++)
+            {
+                if (progressInt > i)
+                {
+                    progressString += "x";
+                }
+                else
+                {
+                    progressString += "_";
+                }
+            }
+
+            progressString += $"|` {(int)progressInt*10}%";
+
             embed.AddField("Level", $"{levelUser.Level - 1}", true);
-            embed.AddField("XP", $"{levelUser.XP}", true);
+            embed.AddField("XP", $"{levelUser.XP}/{requiredXP}", true);
             embed.AddField("Rank", $"#{Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).ToList().FindIndex(u => u == levelUser) + 1}", true);
+            embed.AddField("Progress", progressString);
             await ReplyAsync(embed);
             Context.Server.Save();
         }
@@ -69,7 +89,7 @@
             var users = Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).Take(100).ToList();
             var rgx = new Regex("[^a-zA-Z0-9 -#]");
             var list = users.Select(x => $"`{$"#{users.IndexOf(x) + 1} - {rgx.Replace(Context.Guild.GetUser(x.UserID).ToString(), "")}".PadRight(40)}\u200B || LV: {x.Level - 1} XP: {x.XP}`").ToList();
-            var pages = TextManagement.SplitList(list, 20).Select(x => new PaginatedMessage.Page
+            var pages = list.SplitList(20).Select(x => new PaginatedMessage.Page
             {
                 Description = string.Join("\n", x)
             });

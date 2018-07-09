@@ -89,7 +89,7 @@
         {
             var model = StatModel.Load();
             var ordered = model.CommandStats.OrderByDescending(x => x.CommandUses).ToList();
-            var pages = TextManagement.SplitList(ordered, 20).Select(x => new PaginatedMessage.Page { Description = string.Join("\n", x.Select(cmd => $"`{cmd.CommandName}` - Uses: {cmd.CommandUses} || Errors: {cmd.ErrorCount} || Users: {cmd.CommandUsers.Count} || Guilds: {cmd.CommandGuilds.Count}")) }).ToList();
+            var pages = ordered.SplitList(20).Select(x => new PaginatedMessage.Page { Description = string.Join("\n", x.Select(cmd => $"`{cmd.CommandName}` - Uses: {cmd.CommandUses} || Errors: {cmd.ErrorCount} || Users: {cmd.CommandUsers.Count} || Guilds: {cmd.CommandGuilds.Count}")) }).ToList();
             var pager = new PaginatedMessage
                             {
                                 Title = "Command Usage",

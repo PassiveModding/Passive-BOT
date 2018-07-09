@@ -113,10 +113,10 @@
         public static async Task<EmbedBuilder> TranslateEmbedAsync(LanguageMap.LanguageCode language, IServiceProvider provider, SocketUserMessage message, SocketReaction reaction = null)
         {
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
-            var original = TextManagement.FixLength(message.Content);
+            var original = message.Content.FixLength();
             var languageString = LanguageCodeToString(language);
             var file = await TranslateMessageAsync(languageString, message.Content, provider);
-            var response = TextManagement.FixLength(HandleResponse(file));
+            var response = HandleResponse(file).FixLength();
             embed.AddField($"Translated [{language}{(reaction?.Emote == null ? "" : $"{reaction.Emote}")}]", $"{response}");
             embed.AddField($"Original [{file[2]}]", $"{original}");
             embed.Footer = new EmbedFooterBuilder

@@ -15,6 +15,7 @@
     using PassiveBOT.Discord.Context;
     using PassiveBOT.Discord.Extensions;
     using PassiveBOT.Discord.Extensions.PassiveBOT;
+    using PassiveBOT.Discord.Preconditions;
     using PassiveBOT.Models;
 
     using RedditSharp;
@@ -236,6 +237,8 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
+        [RequireNsfw]
+        [NsfwAllowed]
         [Command("urbanDictionary")]
         [Summary("Search Urban Dictionary")]
         public async Task UrbanAsync([Remainder] string word)
