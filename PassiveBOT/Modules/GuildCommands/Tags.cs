@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Modules.GuildCommands
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -62,7 +63,7 @@
                     CreatorId = Context.User.Id,
                     Creator = $"{Context.User}"
                 };
-                t.Tags.Add(tagName.ToLower(), tg);
+                t.Tags.TryAdd(tagName.ToLower(), tg);
                 t.Save();
                 await SimpleEmbedAsync("Tag Added!");
             }
@@ -153,13 +154,13 @@
                 var embed = new EmbedBuilder();
                 if (t.Tags.Count > 0)
                 {
-                    t.Tags.TryGetValue(tagName.ToLower(), out var tag);
-                    if (tag == null)
+                    if (!t.Tags.ContainsKey(tagName.ToLower()))
                     {
                         await ReplyAsync($"No tag with the name **{tagName}** exists.");
                     }
                     else
                     {
+                        var tag = t.Tags[tagName.ToLower()];
                         var own = Context.Guild.GetUser(tag.CreatorId);
                         var ownerName = own?.Username ?? tag.Creator;
 
@@ -169,6 +170,7 @@
                             x.Text =
                                 $"Tag Owner: {ownerName} || Uses: {tag.Uses} || Command Invoker: {Context.User.Username}";
                         });
+
                         tag.Uses++;
                         t.Save();
                         await ReplyAsync(embed.Build());
