@@ -5,12 +5,13 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
     using PassiveBOT.Handlers;
 
     /// <summary>
@@ -29,10 +30,16 @@
         /// <param name="commandservice">
         /// The commandservice.
         /// </param>
-        private Help(CommandService commandservice)
+        /// <param name="prefixService">
+        /// The prefix Service.
+        /// </param>
+        private Help(CommandService commandservice, PrefixService prefixService)
         {
             service = commandservice;
+            PrefixService = prefixService;
         }
+
+        private PrefixService PrefixService { get; }
 
         /// <summary>
         /// Gets or sets the current command being executed
@@ -119,6 +126,8 @@
         {
             var module = service.Modules.FirstOrDefault(x => string.Equals(x.Name, checkForMatch, StringComparison.CurrentCultureIgnoreCase));
             var fields = new List<EmbedFieldBuilder>();
+            var pre = PrefixService.GetPrefix(Context.Guild?.Id ?? 0);
+
             if (module != null)
             {
                 var passingCommands = checkPreconditions ? module.Commands.Where(x => x.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess).ToList() : module.Commands;
@@ -127,7 +136,7 @@
                     throw new Exception("No Commands available with your current permission level.");
                 }
 
-                var info = passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
+                var info = passingCommands.Select(x => $"{pre}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
                 var splitFields = info.SplitList(10)
                     .Select(x => new EmbedFieldBuilder
                     {
@@ -137,7 +146,7 @@
                 fields.AddRange(splitFields);
             }
 
-            var command = service.Search(Context, Context.Message.Content.Substring(Command.Aliases.First().Length + Context.Prefix.Length + 1)).Commands?.FirstOrDefault().Command;
+            var command = service.Search(Context, Context.Message.Content.Substring(Command.Aliases.First().Length + pre.Length + 1)).Commands?.FirstOrDefault().Command;
             if (command != null)
             {
                 if (command.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)
@@ -146,7 +155,7 @@
                     {
                         Name = $"Command: {command.Name}",
                         Value = "**Usage:**\n" +
-                                               $"{Context.Prefix}{command.Aliases.FirstOrDefault()} {string.Join(" ", command.Parameters.Select(CommandInformation.ParameterInformation))}\n" +
+                                               $"{pre}{command.Aliases.FirstOrDefault()} {string.Join(" ", command.Parameters.Select(CommandInformation.ParameterInformation))}\n" +
                                                "**Aliases:**\n" +
                                                $"{string.Join("\n", command.Aliases)}\n" +
                                                "**Module:**\n" +
@@ -190,6 +199,7 @@
         {
             var pages = new List<PaginatedMessage.Page>();
             var moduleIndex = 1;
+            var pre = PrefixService.GetPrefix(Context.Guild?.Id ?? 0);
 
             // This ensures that we filter out all modules where the user cannot access ANY commands
             var modules = checkPreconditions ? 
@@ -209,7 +219,7 @@
                                                          "You can react with the :1234: emote and type a page number to go directly to that page too,\n" +
                                                          "otherwise react with the arrows (◀ ▶) to change pages.\n" +
                                                          "For more info on modules or commands,\n" +
-                                                         $"type `{Context.Prefix}help <ModuleName>` or `{Context.Prefix}help <CommandName>`"
+                                                         $"type `{pre}help <ModuleName>` or `{pre}help <CommandName>`"
                                              }
                                      };
 
@@ -238,7 +248,7 @@
                     try
                     {
                         // This gives us the prefix, command name and all parameters to the command.
-                        var summary = passingCommands.Select(x => $"{Context.Prefix}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
+                        var summary = passingCommands.Select(x => $"{pre}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
 
                         if (!string.IsNullOrEmpty(module.Summary))
                         {
@@ -283,7 +293,7 @@
                 });
             }
 
-            return PagedReplyAsync(new PaginatedMessage { Pages = pages, Title = $"{Context.Client.CurrentUser.Username} Help || Prefix: {Context.Prefix}", Color = Color.DarkRed }, new ReactionList { Backward = true, Forward = true, Jump = true, Trash = true });
+            return PagedReplyAsync(new PaginatedMessage { Pages = pages, Title = $"{Context.Client.CurrentUser.Username} Help || Prefix: {pre}", Color = Color.DarkRed }, new ReactionList { Backward = true, Forward = true, Jump = true, Trash = true });
         }
 
         /// <summary>

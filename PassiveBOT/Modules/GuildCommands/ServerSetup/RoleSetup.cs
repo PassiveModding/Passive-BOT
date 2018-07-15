@@ -4,12 +4,12 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Preconditions;
 
     /// <summary>
     /// The role setup.

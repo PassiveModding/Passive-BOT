@@ -5,15 +5,17 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Commands;
-    using global::Discord.WebSocket;
+    using Discord;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
+    using Discord.WebSocket;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
-    using PassiveBOT.Discord.Extensions.PassiveBOT;
-    using PassiveBOT.Discord.Preconditions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Extensions.PassiveBOT;
+    using PassiveBOT.Preconditions;
     using PassiveBOT.Models;
+    using PassiveBOT.Services;
 
     /// <summary>
     /// The partner module.
@@ -24,6 +26,17 @@
     [RequireContext(ContextType.Guild)]
     public class Partner : Base
     {
+        private PrefixService PrefixService { get; }
+
+        private PartnerService PartnerService { get; }
+
+        public Partner(PrefixService prefixService, PartnerService partnerService)
+        {
+            PrefixService = prefixService;
+            PartnerService = partnerService;
+        }
+
+
         /// <summary>
         /// Displays partner message info
         /// </summary>
@@ -34,21 +47,22 @@
         [Summary("Show partner info and stats")]
         public async Task InfoAsync()
         {
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             await SimpleEmbedAsync("**Stats**\n" +
-                                   $"Users Reached: {Context.Server.Partner.Stats.UsersReached}\n" +
-                                   $"Servers Reached: {Context.Server.Partner.Stats.ServersReached}\n" +
+                                   $"Users Reached: {p.Stats.UsersReached}\n" +
+                                   $"Servers Reached: {p.Stats.ServersReached}\n" +
                                    "**Settings**\n" +
-                                   $"Enabled: {Context.Server.Partner.Settings.Enabled}\n" +
-                                   $"Channel: {Context.Guild.GetChannel(Context.Server.Partner.Settings.ChannelID)?.Name ?? "N/A"}\n" +
+                                   $"Enabled: {p.Settings.Enabled}\n" +
+                                   $"Channel: {Context.Guild.GetChannel(p.Settings.ChannelId)?.Name ?? "N/A"}\n" +
                                    "**Config**\n" +
-                                   $"Color (RGB): [{Context.Server.Partner.Message.Color.R}, {Context.Server.Partner.Message.Color.G}, {Context.Server.Partner.Message.Color.B}]\n" +
-                                   $"Using Server Thumbnail: {Context.Server.Partner.Message.UseThumb}\n" +
-                                   $"Showing UserCount: {Context.Server.Partner.Message.UserCount}\n" +
-                                   $"Image URL: {Context.Server.Partner.Message.ImageUrl ?? "N/A"}\n" +
-                                   $"Message: (Refer to Partner Message Embed, for raw do `{Context.Prefix}partner RawMessage`)\n" +
+                                   $"Color (RGB): [{p.Message.Color.R}, {p.Message.Color.G}, {p.Message.Color.B}]\n" +
+                                   $"Using Server Thumbnail: {p.Message.UseThumb}\n" +
+                                   $"Showing UserCount: {p.Message.UserCount}\n" +
+                                   $"Image URL: {p.Message.ImageUrl ?? "N/A"}\n" +
+                                   $"Message: (Refer to Partner Message Embed, for raw do `{PrefixService.GetPrefix(Context.Guild.Id)}partner RawMessage`)\n" +
                                    "**Partner Message Embed**\n" +
                                    "(See Next Message)");
-            await ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            await ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
@@ -61,7 +75,8 @@
         [Summary("Show raw partner message with formatting")]
         public Task RawMessageAsync()
         {
-            return SimpleEmbedAsync(Format.Sanitize(Context.Server.Partner.Message.Content));
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            return SimpleEmbedAsync(Format.Sanitize(p.Message.Content));
         }
 
         /// <summary>
@@ -74,11 +89,12 @@
         [Summary("Toggle the Program in the server")]
         public async Task ToggleAsync()
         {
-            Context.Server.Partner.Settings.Enabled = !Context.Server.Partner.Settings.Enabled;
-            Context.Server.Save();
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Settings.Enabled = !p.Settings.Enabled;
+            p.Save();
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {Context.Server.Partner.Settings.Enabled}" });
-            await SimpleEmbedAsync($"Partner Program Enabled: {Context.Server.Partner.Settings.Enabled}");
+            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {p.Settings.Enabled}" });
+            await SimpleEmbedAsync($"Partner Program Enabled: {p.Settings.Enabled}");
         }
 
         /// <summary>
@@ -94,6 +110,7 @@
         [Summary("Set the current channel as partner channel")]
         public async Task SetChannelAsync()
         {
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             if ((decimal)(Context.Channel as SocketTextChannel).Users.Count / Context.Guild.Users.Count * 100 < 90)
             {
                 throw new Exception("Partner messages will not be shared as this channel has less than 90% visibility in the server,\n" + "You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
@@ -104,11 +121,11 @@
                 throw new Exception("Partner channel cannot be set in a NSFW channel");
             }
 
-            Context.Server.Partner.Settings.ChannelID = Context.Channel.Id;
-            Context.Server.Save();
+            p.Settings.ChannelId = Context.Channel.Id;
+            p.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -152,7 +169,7 @@
 
             if (Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
-                var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").ToList();
+                var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").OfType<Match>().ToList();
                 var inviteMetadata = await Context.Guild.GetInvitesAsync();
                 var mismatch = false;
                 foreach (var invite in invites)
@@ -175,13 +192,14 @@
                                         $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}");
                 }
             }
-
-            Context.Server.Partner.Message.Content = message;
-            Context.Server.Save();
-            var generateMessage = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
+            
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Message.Content = message;
+            p.Save();
+            var generateMessage = PartnerHelper.GenerateMessage(p, Context.Guild);
             await ReplyAsync(generateMessage);
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -194,9 +212,10 @@
         [Summary("Toggle the User Count in the footer of the partner message")]
         public Task UserCountAsync()
         {
-            Context.Server.Partner.Message.UserCount = !Context.Server.Partner.Message.UserCount;
-            Context.Server.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Message.UserCount = !p.Message.UserCount;
+            p.Save();
+            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
@@ -212,17 +231,18 @@
         [Summary("Set an optional image url for the partner message")]
         public async Task ImageURLAsync(string imageUrl = null)
         {
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             if (!string.IsNullOrEmpty(imageUrl) && !Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
             {
                 throw new Exception("Url must be a well-formed URI");
             }
 
-            Context.Server.Partner.Message.ImageUrl = imageUrl;
-            Context.Server.Save();
-            var partnerEmbed = PartnerHelper.GenerateMessage(Context.Server, Context.Guild);
+            p.Message.ImageUrl = imageUrl;
+            p.Save();
+            var partnerEmbed = PartnerHelper.GenerateMessage(p, Context.Guild);
             await ReplyAsync(partnerEmbed);
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, Context.Server, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -235,9 +255,10 @@
         [Summary("Toggle the Thumbnail of the server in the partner message")]
         public Task ThumbnailAsync()
         {
-            Context.Server.Partner.Message.UseThumb = !Context.Server.Partner.Message.UseThumb;
-            Context.Server.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Message.UseThumb = !p.Message.UseThumb;
+            p.Save();
+            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
@@ -254,15 +275,16 @@
         public Task ColorAsync(string color)
         {
             var color_response = ColorManagement.GetColor(color);
-
-            Context.Server.Partner.Message.Color = new GuildModel.PartnerSetup.PartnerMessage.RGB
+            
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Message.Color = new PartnerService.PartnerInfo.PartnerMessage.RGB
             {
                 R = color_response.R,
                 G = color_response.G,
                 B = color_response.B
             };
-            Context.Server.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(Context.Server, Context.Guild));
+            p.Save();
+            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
         }
     }
 }

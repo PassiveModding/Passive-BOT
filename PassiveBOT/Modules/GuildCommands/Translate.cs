@@ -3,12 +3,12 @@ namespace PassiveBOT.Modules.GuildCommands
 {
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Preconditions;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.Preconditions;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
     using PassiveBOT.Models;
     
     /// <summary>

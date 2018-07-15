@@ -4,12 +4,13 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions.PassiveBOT;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Models;
+    using PassiveBOT.Services;
 
     /// <summary>
     /// The tags module.
@@ -20,6 +21,13 @@
     [Summary("Tags are like shortcuts for messages, you can use one to have the bot respond with a specific message that you have pre-set.")]
     public class Tags : Base
     {
+        private TagService Service { get; }
+
+        public Tags(TagService service)
+        {
+            Service = service;
+        }
+
         /// <summary>
         /// adds a tag
         /// </summary>
@@ -39,30 +47,23 @@
         [Summary("adds a tag to the server")]
         public async Task AddTagAsync(string tagName, [Remainder] string tagMessage)
         {
-            if (Context.Server.Tags.Settings.Enabled)
+            var t = Service.GetTagSetup(Context.Guild.Id);
+            if (t.Enabled)
             {
-                if (Context.Server.Tags.Settings.AdminOnly)
-                {
-                    if (!CheckAdmin.IsAdmin(Context))
-                    {
-                        throw new Exception("Only Admins can Create tags.");
-                    }
-                }
-
-                if (Context.Server.Tags.Tags.Any(x => string.Equals(x.Name, tagName, StringComparison.CurrentCultureIgnoreCase)))
+                if (t.Tags.Any(x => string.Equals(x.Key, tagName, StringComparison.CurrentCultureIgnoreCase)))
                 {
                     throw new Exception("There is already a tag with this name in the server. Please delete it then add the new tag.");
                 }
 
-                var tg = new GuildModel.TagSetup.Tag
+                var tg = new TagService.TagSetup.Tag
                 {
                     Name = tagName,
                     Content = tagMessage,
-                    CreatorID = Context.User.Id,
-                    OwnerName = $"{Context.User}"
+                    CreatorId = Context.User.Id,
+                    Creator = $"{Context.User}"
                 };
-                Context.Server.Tags.Tags.Add(tg);
-                Context.Server.Save();
+                t.Tags.Add(tagName.ToLower(), tg);
+                t.Save();
                 await SimpleEmbedAsync("Tag Added!");
             }
             else
@@ -86,9 +87,10 @@
         [Summary("Removes a tag from the server")]
         public async Task DelTagAsync(string tagName)
         {
-            if (Context.Server.Tags.Tags.Count > 0)
+            var t = Service.GetTagSetup(Context.Guild.Id);
+            if (t.Tags.Count > 0)
             {
-                var tag = Context.Server.Tags.Tags.FirstOrDefault(x => string.Equals(x.Name, tagName, StringComparison.CurrentCultureIgnoreCase));
+                t.Tags.TryGetValue(tagName.ToLower(), out var tag);
 
                 if (tag == null)
                 {
@@ -97,12 +99,12 @@
 
                 if (CheckAdmin.IsAdmin(Context))
                 {
-                    Context.Server.Tags.Tags.Remove(tag);
+                    t.Tags.Remove(tagName.ToLower());
                     await SimpleEmbedAsync("Tag Deleted using Admin Permissions");
                 }
-                else if (tag.CreatorID == Context.User.Id)
+                else if (tag.CreatorId == Context.User.Id)
                 {
-                    Context.Server.Tags.Tags.Remove(tag);
+                    t.Tags.Remove(tagName.ToLower());
                     await SimpleEmbedAsync("Tag Deleted By Owner");
                 }
                 else
@@ -110,7 +112,7 @@
                     await SimpleEmbedAsync("You do not own this tag");
                 }
 
-                Context.Server.Save();
+                t.Save();
             }
             else
             {
@@ -132,12 +134,13 @@
         [Remarks("Lists all tag names if none provided")]
         public async Task TagAsync(string tagName = null)
         {
+            var t = Service.GetTagSetup(Context.Guild.Id);
             if (tagName == null)
             {
-                var tags = Context.Server.Tags.Tags;
+                var tags = t.Tags;
                 if (tags.Count > 0)
                 {
-                    var tagList = string.Join(", ", tags.Select(x => x.Name));
+                    var tagList = string.Join(", ", tags.Select(x => x.Value.Name));
                     await ReplyAsync($"**Tags:**\n{tagList}");
                 }
                 else
@@ -148,17 +151,17 @@
             else
             {
                 var embed = new EmbedBuilder();
-                if (Context.Server.Tags.Tags.Count > 0)
+                if (t.Tags.Count > 0)
                 {
-                    var tag = Context.Server.Tags.Tags.FirstOrDefault(x => string.Equals(x.Name, tagName, StringComparison.CurrentCultureIgnoreCase));
+                    t.Tags.TryGetValue(tagName.ToLower(), out var tag);
                     if (tag == null)
                     {
                         await ReplyAsync($"No tag with the name **{tagName}** exists.");
                     }
                     else
                     {
-                        var own = Context.Guild.GetUser(tag.CreatorID);
-                        var ownerName = own?.Username ?? tag.OwnerName;
+                        var own = Context.Guild.GetUser(tag.CreatorId);
+                        var ownerName = own?.Username ?? tag.Creator;
 
                         embed.AddField(tag.Name, tag.Content);
                         embed.WithFooter(x =>
@@ -167,7 +170,7 @@
                                 $"Tag Owner: {ownerName} || Uses: {tag.Uses} || Command Invoker: {Context.User.Username}";
                         });
                         tag.Uses++;
-                        Context.Server.Save();
+                        t.Save();
                         await ReplyAsync(embed.Build());
                     }
                 }

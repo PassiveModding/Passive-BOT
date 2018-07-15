@@ -6,31 +6,26 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    using global::Discord;
-
-    using global::Discord.Addons.Interactive;
-
-    using global::Discord.Commands;
-    using global::Discord.WebSocket;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
+    using Discord.WebSocket;
 
     using Microsoft.Extensions.DependencyInjection;
 
     using Newtonsoft.Json;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
-    using PassiveBOT.Discord.Extensions.PassiveBOT;
-    using PassiveBOT.Discord.Services;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Extensions.PassiveBOT;
+    using PassiveBOT.Services;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
 
-    /// <summary>
-    /// Base is what we inherit our context from, ie ReplyAsync, Context.Guild etc.
-    /// Example is our module name
-    /// </summary>
-    [Group("Owner")]// You can add a group attribute to a module to prefix all commands in that module. ie. +Example ServerStats rather than +ServerStats
+    [Group("Owner")]
     [RequireContext(ContextType.Guild)]
-    [RequireOwner]// You can also use precondition attributes on a module to ensure commands are only run if they pass the precondition
+    [RequireOwner]
     public class Owner : Base
     {
         /// <summary>
@@ -38,15 +33,21 @@
         /// </summary>
         private readonly TimerService timerService;
 
+        private readonly PrefixService prefixService;
+
+        private PartnerService PartnerService { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Owner"/> class.
         /// </summary>
         /// <param name="service">
         /// The service.
         /// </param>
-        public Owner(TimerService service)
+        public Owner(TimerService service, PartnerService partnerService, PrefixService prefix)
         {
             timerService = service;
+            prefixService = prefix;
+            PartnerService = partnerService;
         }
 
         /// <summary>
@@ -220,6 +221,40 @@
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             return SimpleEmbedAsync($"Log Command Usages: {config.LogCommandUsages}");
         }
+
+        /// <summary>
+        /// toggle command logging.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        [Command("UnbanAllPartners")]
+        [Summary("Unbans all banned partner servers")]
+        public Task UnbanAll()
+        {
+            SimpleEmbedAsync("Unbanning servers");
+
+            foreach (var guild in Context.Client.Guilds)
+            {
+                var config = PartnerService.GetPartnerInfo(guild.Id);
+                if (config.Settings.Banned)
+                {
+                    config.Settings.Banned = false;
+                }
+
+                config.Save();
+            }
+
+            return SimpleEmbedAsync("Success, servers have been unbanned");
+        }
+
+        [Command("SetDefaultPrefix")]
+        public Task SetDefaultAsync(string prefix)
+        {
+            prefixService.SetDefaultPrefix(prefix);
+            return SimpleEmbedAsync($"Success, prefix has been set to {prefix}");
+        }
+
 
         /// <summary>
         /// Trigger the Welcome event with the specified user

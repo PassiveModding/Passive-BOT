@@ -4,10 +4,11 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
+    using PassiveBOT.Context;
 
     /// <summary>
     /// The roles module
@@ -17,6 +18,14 @@
     [Summary("Join/Leave Roles")]
     public class Roles : Base
     {
+        private PrefixService PrefixService { get; }
+
+        public Roles(PrefixService prefixService)
+        {
+            PrefixService = prefixService;
+        }
+
+
         /// <summary>
         /// Joins a role
         /// </summary>
@@ -41,7 +50,7 @@
                  {
                      Title = "Public Roles",
                      Description = string.Join("\n", roleList.Select(x => x.Name)) + "\n\nYou can join any of the roles in this list using the command:\n" +
-                                   $"`{Context.Prefix}sub <@role>`"
+                                   $"`{PrefixService.GetPrefix(Context.Guild.Id)}sub <@role>`"
                  });
             }
 

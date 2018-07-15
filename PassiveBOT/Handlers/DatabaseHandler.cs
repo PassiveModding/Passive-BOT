@@ -6,8 +6,9 @@
     using System.Linq;
     using System.Net;
     using System.Text;
+    using System.Threading.Tasks;
 
-    using global::Discord;
+    using Discord;
 
     using Newtonsoft.Json;
 
@@ -87,7 +88,7 @@
         /// <summary>
         /// Initializes the database for use
         /// </summary>
-        public void Initialize()
+        public Task<IDocumentStore> Initialize()
         {
             // Ensure that the bots database settings are setup, if not prompt to enter details
             if (!File.Exists("setup/DBConfig.json"))
@@ -135,16 +136,16 @@
                 LogHandler.LogMessage("Failed to Ping Server.", LogSeverity.Critical);
             }
 
-            // This creates the database
-            if (Store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 5)).All(x => x != Settings.Name))
-            {
-                Store.Maintenance.Server.Send(new CreateDatabaseOperation(new DatabaseRecord(Settings.Name)));
-                LogHandler.LogMessage($"Created Database => {Settings.Name}");
-            }
-
             // To ensure the backup operation is functioning and backing up to our bots directory we update the backup operation on each boot of the bot
             try
             {
+                // This creates the database
+                if (Store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 5)).All(x => x != Settings.Name))
+                {
+                    Store.Maintenance.Server.Send(new CreateDatabaseOperation(new DatabaseRecord(Settings.Name)));
+                    LogHandler.LogMessage($"Created Database => {Settings.Name}");
+                }
+
                 var record = Store.Maintenance.ForDatabase(Settings.Name).Server.Send(new GetDatabaseRecordOperation(Settings.Name));
                 var backup = record.PeriodicBackups.FirstOrDefault(x => x.Name == "Backup");
 
@@ -206,6 +207,8 @@
                 .WriteTo.Console()
                 .WriteTo.RavenDB(Store, defaultDatabase: Settings.Name, expiration: TimeSpan.FromDays(7))
                 .CreateLogger();
+
+            return Task.FromResult(Store);
         }
 
         /// <summary>

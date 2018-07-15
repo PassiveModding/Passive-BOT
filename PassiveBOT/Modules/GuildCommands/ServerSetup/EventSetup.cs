@@ -2,10 +2,11 @@
 {
     using System.Threading.Tasks;
 
-    using global::Discord.Commands;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Preconditions;
 
     /// <summary>
     /// The event setup.
@@ -15,6 +16,14 @@
     [RequireContext(ContextType.Guild)]
     public class EventSetup : Base
     {
+        private static PrefixService PrefixService { get; set; }
+
+        public EventSetup(PrefixService prefixService)
+        {
+            PrefixService = prefixService;
+        }
+
+
         /// <summary>
         /// The welcome event setup
         /// </summary>
@@ -32,11 +41,12 @@
             [Summary("Display welcome setup info")]
             public Task WelcomeInfoAsync()
             {
+                var pre = PrefixService.GetPrefix(Context.Guild.Id);
                 return SimpleEmbedAsync("**Welcome Event**\n" +
-                                        $"`{Context.Prefix}Welcome Info` - This Message\n" +
-                                        $"`{Context.Prefix}Welcome Toggle` - Toggle the welcome event\n" +
-                                        $"`{Context.Prefix}Welcome SetChannel` - Set the channel where welcome events will be sent\n" +
-                                        $"`{Context.Prefix}Welcome Message <Message>` - Set the Welcome Message\n\n" +
+                                        $"`{pre}Welcome Info` - This Message\n" +
+                                        $"`{pre}Welcome Toggle` - Toggle the welcome event\n" +
+                                        $"`{pre}Welcome SetChannel` - Set the channel where welcome events will be sent\n" +
+                                        $"`{pre}Welcome Message <Message>` - Set the Welcome Message\n\n" +
                                         "**Welcome Settings**\n" +
                                         $"Enabled: {Context.Server.Events.Welcome.Enabled}\n" +
                                         $"Channel: {Context.Guild.GetChannel(Context.Server.Events.Welcome.ChannelID)?.Name ?? "N/A"}\n" +
@@ -141,11 +151,12 @@
             [Summary("Display Goodbye setup info")]
             public Task GoodbyeEventAsync()
             {
+                var pre = PrefixService.GetPrefix(Context.Guild.Id);
                 return SimpleEmbedAsync("**Goodbye Event**\n" +
-                                        $"`{Context.Prefix}Goodbye Info` - This Message\n" +
-                                        $"`{Context.Prefix}Goodbye Toggle` - Toggle the Goodbye event\n" +
-                                        $"`{Context.Prefix}Goodbye SetChannel` - Set the channel where Goodbye events will be sent\n" +
-                                        $"`{Context.Prefix}Goodbye Message <Message>` - Set the Goodbye Message\n\n" +
+                                        $"`{pre}Goodbye Info` - This Message\n" +
+                                        $"`{pre}Goodbye Toggle` - Toggle the Goodbye event\n" +
+                                        $"`{pre}Goodbye SetChannel` - Set the channel where Goodbye events will be sent\n" +
+                                        $"`{pre}Goodbye Message <Message>` - Set the Goodbye Message\n\n" +
                                         "**Goodbye Settings**\n" +
                                         $"Enabled: {Context.Server.Events.Goodbye.Enabled}\n" +
                                         $"Channel: {Context.Guild.GetChannel(Context.Server.Events.Goodbye.ChannelID)?.Name ?? "N/A"}\n" +

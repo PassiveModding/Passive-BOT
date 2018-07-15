@@ -5,12 +5,12 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
-    using PassiveBOT.Models;
+    using PassiveBOT.Context;
+    using PassiveBOT.Preconditions;
+    using PassiveBOT.Services;
 
     /// <summary>
     /// The level setup commands
@@ -21,6 +21,13 @@
     [Summary("Users can gain levels, special roles and xp based on activity in the server.")]
     public class LevelSetup : Base
     {
+        private static LevelService Service { get; set; }
+
+        public LevelSetup(LevelService service)
+        {
+            Service = service;
+        }
+
         /// <summary>
         /// The level setup task.
         /// </summary>
@@ -31,7 +38,7 @@
         [Summary("Setup information for the leveling module")]
         public Task LevelSetupTaskAsync()
         {
-            var leveling = Context.Server.Levels;
+            var leveling = Service.GetLevelSetup(Context.Guild.Id);
             return SimpleEmbedAsync($"Enabled: {leveling.Settings.Enabled}\n" + 
                                     $"Incremental Rewards: {leveling.Settings.IncrementLevelRewards}\n" + 
                                     "**Messaging**\n" + 
@@ -40,11 +47,11 @@
                                     $"Using Log Channel: {(leveling.Settings.UseLogChannel ? $"{Context.Guild.GetChannel(leveling.Settings.LogChannelID)?.Name}" : "false")}\n" + 
                                     "**Users**\n" + 
                                     $"Level User Count: {leveling.Users.Count}\n" + 
-                                    $"Total Levels: {leveling.Users.Sum(x => x.Level)}\n" + 
-                                    $"Total XP: {leveling.Users.Sum(x => x.XP)}\n" + 
-                                    $"Highest Level & XP: {leveling.Users.Max(x => x.Level)} || {leveling.Users.Max(x => x.XP)}\n" + 
+                                    $"Total Levels: {leveling.Users.Sum(x => x.Value.Level)}\n" + 
+                                    $"Total XP: {leveling.Users.Sum(x => x.Value.XP)}\n" + 
+                                    $"Highest Level & XP: {leveling.Users.Max(x => x.Value.Level)} || {leveling.Users.Max(x => x.Value.XP)}\n" + 
                                     "**Reward Roles**\n" + 
-                                    $"{string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}"))}");
+                                    $"{string.Join("\n", leveling.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}"))}");
         }
 
         /// <summary>
@@ -57,9 +64,10 @@
         [Summary("Toggle Leveling system on or off")]
         public Task ToggleSystemAsync()
         {
-            Context.Server.Levels.Settings.Enabled = !Context.Server.Levels.Settings.Enabled;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Leveling System Enabled: {Context.Server.Levels.Settings.Enabled}");
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Settings.Enabled = !l.Settings.Enabled;
+            l.Save();
+            return SimpleEmbedAsync($"Leveling System Enabled: {l.Settings.Enabled}");
         }
 
         /// <summary>
@@ -72,9 +80,10 @@
         [Summary("Toggle LevelUp messages on or off")]
         public Task ToggleLevelUpAsync()
         {
-            Context.Server.Levels.Settings.ReplyLevelUps = !Context.Server.Levels.Settings.ReplyLevelUps;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Level Up Notifications Enabled: {Context.Server.Levels.Settings.ReplyLevelUps}");
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Settings.ReplyLevelUps = !l.Settings.ReplyLevelUps;
+            l.Save();
+            return SimpleEmbedAsync($"Level Up Notifications Enabled: {l.Settings.ReplyLevelUps}");
         }
 
         /// <summary>
@@ -87,9 +96,10 @@
         [Summary("Toggle Direct Messaging of Level Up Messages")]
         public Task ToggleDMRepliesAsync()
         {
-            Context.Server.Levels.Settings.DMLevelUps = !Context.Server.Levels.Settings.DMLevelUps;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Users will receive a direct message upon leveling up: {Context.Server.Levels.Settings.DMLevelUps}");
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Settings.DMLevelUps = !l.Settings.DMLevelUps;
+            l.Save();
+            return SimpleEmbedAsync($"Users will receive a direct message upon leveling up: {l.Settings.DMLevelUps}");
         }
 
         /// <summary>
@@ -102,8 +112,9 @@
         [Summary("Set the Current channel to show all level ups")]
         public Task SetLevelChannelAsync()
         {
-            Context.Server.Levels.Settings.LogChannelID = Context.Channel.Id;
-            Context.Server.Save();
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Settings.LogChannelID = Context.Channel.Id;
+            l.Save();
             return SimpleEmbedAsync($"Level Up Notifications will now be sent to: {Context.Channel.Name}");
         }
 
@@ -117,9 +128,10 @@
         [Summary("Toggle Logging Level ups in a specific channel")]
         public Task ToggleLevelChannelAsync()
         {
-            Context.Server.Levels.Settings.UseLogChannel = !Context.Server.Levels.Settings.UseLogChannel;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Log Level up Messages: {Context.Server.Levels.Settings.UseLogChannel}");
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Settings.UseLogChannel = !l.Settings.UseLogChannel;
+            l.Save();
+            return SimpleEmbedAsync($"Log Level up Messages: {l.Settings.UseLogChannel}");
         }
 
         /// <summary>
@@ -133,9 +145,10 @@
         [Summary("Toggle whether to give a user only one role reward or all")]
         public Task ToggleLevelIncrementAsync()
         {
-            Context.Server.Levels.Settings.IncrementLevelRewards = !Context.Server.Levels.Settings.IncrementLevelRewards;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Users will only have one level reward at a time: {Context.Server.Levels.Settings.IncrementLevelRewards}");
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Settings.IncrementLevelRewards = !l.Settings.IncrementLevelRewards;
+            l.Save();
+            return SimpleEmbedAsync($"Users will only have one level reward at a time: {l.Settings.IncrementLevelRewards}");
         }
 
         /// <summary>
@@ -155,7 +168,8 @@
         [Summary("Add a role which users may receive upon getting a certain level")]
         public Task AddLevelAsync(IRole role, int level)
         {
-            if (Context.Server.Levels.RewardRoles.Any(x => x.RoleID == role.Id))
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            if (l.RewardRoles.Any(x => x.RoleID == role.Id))
             {
                 throw new Exception("This role is already a level you may remove it using the removeLevel command!");
             }
@@ -165,17 +179,17 @@
                 throw new Exception("Levels must be greater than zero");
             }
 
-            if (Context.Server.Levels.RewardRoles.Any(x => x.Requirement == level))
+            if (l.RewardRoles.Any(x => x.Requirement == level))
             {
                 throw new Exception("Users can only gain one role per level reward.");
             }
 
-            Context.Server.Levels.RewardRoles.Add(new GuildModel.LevelSetup.LevelReward
+            l.RewardRoles.Add(new LevelService.LevelSetup.LevelReward
             {
                 RoleID = role.Id,
                 Requirement = level
             });
-            Context.Server.Save();
+            l.Save();
             return SimpleEmbedAsync($"New Level Added: {role.Name}\n" +
                                     $"Level Requirement: {level}");
             }
@@ -193,10 +207,11 @@
         [Summary("Remove a level role")]
         public async Task RemoveLevelAsync(IRole role)
         {
-            if (Context.Server.Levels.RewardRoles.Any(x => x.RoleID == role.Id))
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            if (l.RewardRoles.Any(x => x.RoleID == role.Id))
             {
-                Context.Server.Levels.RewardRoles.Remove(Context.Server.Levels.RewardRoles.FirstOrDefault(x => x.RoleID == role.Id));
-                Context.Server.Save();
+                l.RewardRoles.Remove(l.RewardRoles.FirstOrDefault(x => x.RoleID == role.Id));
+                l.Save();
                 await SimpleEmbedAsync("Success Level Role has been removed.");
             }
             else
@@ -218,10 +233,11 @@
         [Summary("Remove a level role via ID")]
         public async Task RemoveLevelAsync(ulong roleId)
         {
-            if (Context.Server.Levels.RewardRoles.Any(x => x.RoleID == roleId))
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            if (l.RewardRoles.Any(x => x.RoleID == roleId))
             {
-                Context.Server.Levels.RewardRoles.Remove(Context.Server.Levels.RewardRoles.FirstOrDefault(x => x.RoleID == roleId));
-                Context.Server.Save();
+                l.RewardRoles.Remove(l.RewardRoles.FirstOrDefault(x => x.RoleID == roleId));
+                l.Save();
                 await SimpleEmbedAsync("Success Level Role has been removed.");
             }
             else
@@ -250,8 +266,9 @@
                 return;
             }
 
-            Context.Server.Levels.Users = new List<GuildModel.LevelSetup.LevelUser>();
-            Context.Server.Save();
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Users = new Dictionary<ulong, LevelService.LevelSetup.LevelUser>();
+            l.Save();
             await SimpleEmbedAsync("All user XP and Levels have been reset (note: Role Rewards will have to be manually reset if applicable)");
         }
     }

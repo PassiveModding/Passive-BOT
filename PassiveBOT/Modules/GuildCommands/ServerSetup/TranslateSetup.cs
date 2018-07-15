@@ -5,11 +5,12 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Preconditions;
     using PassiveBOT.Models;
 
     /// <summary>
@@ -21,6 +22,13 @@
     [RequireAdmin]
     public class TranslateSetup : Base
     {
+        private PrefixService PrefixService { get; }
+
+        public TranslateSetup(PrefixService prefixService)
+        {
+            PrefixService = prefixService;
+        }
+
         /// <summary>
         /// The translate setup task.
         /// </summary>
@@ -47,21 +55,22 @@
         [Summary("QuickTranslate Command Help")]
         public Task HowToAsync()
         {
+            var pre = PrefixService.GetPrefix(Context.Guild.Id);
             return SimpleEmbedAsync("**Translation Help**\n" +
                                     "What is QuickTranslation?\n" +
                                     "Quick translation enables you to react to a message with a specific emoji and have it auto-translated into a specific language.\n" +
                                     "You can add an Emoji and Set its language using the Add Command and Remove one using the Remove Command\n" +
                                     "The Quick Translation system can be toggled using the Toggle Command\n\n" +
                                     "**Usage**\n" +
-                                    $"`{Context.Prefix}TranslateSetup Add <Emoji> <Language>` - Adds a quick translation configuration\n" +
-                                    $"`{Context.Prefix}TranslateSetup Add :flag_us: en` - Reacting with the :flag_us: emoji will translate the message to english\n\n" +
-                                    $"`{Context.Prefix}TranslateSetup Remove <Emoji>` - Removes a quick translation configuration\n" +
-                                    $"`{Context.Prefix}TranslateSetup Remove :flag_us:` - Removed the custom configuration\n" +
-                                    $"`{Context.Prefix}TranslateSetup Toggle` - Toggles on or off Quick Translation via reactions\n" +
-                                    $"`{Context.Prefix}TranslateSetup List` - List the Custom Configuration\n" +
-                                    $"`{Context.Prefix}TranslateSetup Defaults` - List the Default Configuration\n\n" +
+                                    $"`{pre}TranslateSetup Add <Emoji> <Language>` - Adds a quick translation configuration\n" +
+                                    $"`{pre}TranslateSetup Add :flag_us: en` - Reacting with the :flag_us: emoji will translate the message to english\n\n" +
+                                    $"`{pre}TranslateSetup Remove <Emoji>` - Removes a quick translation configuration\n" +
+                                    $"`{pre}TranslateSetup Remove :flag_us:` - Removed the custom configuration\n" +
+                                    $"`{pre}TranslateSetup Toggle` - Toggles on or off Quick Translation via reactions\n" +
+                                    $"`{pre}TranslateSetup List` - List the Custom Configuration\n" +
+                                    $"`{pre}TranslateSetup Defaults` - List the Default Configuration\n\n" +
                                     "NOTE: For a list of Language Codes\n" +
-                                    $"`{Context.Prefix}Translate languages`\n" +
+                                    $"`{pre}Translate languages`\n" +
                                     "Also, \n" +
                                     "for `zh-CN - Chinese(Simplified)` use `zh_CN`\n" +
                                     "for `zh-TW - Chinese(Traditional)` use `zh_TW`\n" +

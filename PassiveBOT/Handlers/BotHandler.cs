@@ -3,13 +3,13 @@
     using System;
     using System.Threading.Tasks;
 
-    using global::Discord;
+    using Discord;
 
-    using global::Discord.WebSocket;
+    using Discord.WebSocket;
 
     using Microsoft.Extensions.DependencyInjection;
 
-    using PassiveBOT.Discord.Extensions.PassiveBOT;
+    using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Models;
 
     /// <summary>

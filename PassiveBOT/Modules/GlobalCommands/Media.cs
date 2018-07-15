@@ -5,17 +5,17 @@
     using System.Net.Http;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Commands;
 
     using Microsoft.Extensions.DependencyInjection;
 
     using Newtonsoft.Json;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
-    using PassiveBOT.Discord.Extensions.PassiveBOT;
-    using PassiveBOT.Discord.Preconditions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Extensions.PassiveBOT;
+    using PassiveBOT.Preconditions;
     using PassiveBOT.Models;
 
     using RedditSharp;

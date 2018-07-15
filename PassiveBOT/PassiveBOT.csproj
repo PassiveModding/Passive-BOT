@@ -1,32 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <SSDTUnitTestPath Condition="'$(SSDTUnitTestPath)' == ''">$(VsInstallRoot)\Common7\IDE\Extensions\Microsoft\SQLDB</SSDTUnitTestPath>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SSDTPath Condition="'$(SSDTPath)' == ''">$(VsInstallRoot)\Common7\IDE\Extensions\Microsoft\SQLDB\DAC\130</SSDTPath>
-  </PropertyGroup>
-  <PropertyGroup>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-  </PropertyGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Arx.Serilog.Sinks.RavenDb" Version="1.0.0" />
-    <PackageReference Include="Discord.Addons.PassiveInteractive" Version="2.0.2-Beta" />
-    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <PackageReference Include="Discord.Addons.PassiveInteractive" Version="2.0.3" />
+    <PackageReference Include="Discord.Addons.PrefixService" Version="1.0.3" />
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta2-00975" />
     <PackageReference Include="Humanizer.Core" Version="2.4.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="RavenDB.Client" Version="4.0.5" />
     <PackageReference Include="RedditSharp" Version="2.0.0-CI00065" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Sqlcs.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
-  <PropertyGroup>
-    <SsdtUnitTestVersion>3.1</SsdtUnitTestVersion>
-  </PropertyGroup>
+
 </Project>

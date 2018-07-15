@@ -9,7 +9,7 @@
     using System.Threading.Tasks;
 
     using global::Discord;
-
+    using global::Discord.Addons.PrefixService;
     using global::Discord.Commands;
 
     using global::Discord.WebSocket;
@@ -18,10 +18,10 @@
 
     using Newtonsoft.Json;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
-    using PassiveBOT.Discord.Extensions.PassiveBOT;
-    using PassiveBOT.Discord.TypeReaders;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Extensions.PassiveBOT;
+    using PassiveBOT.TypeReaders;
     using PassiveBOT.Models;
 
     /// <summary>
@@ -65,21 +65,32 @@
         /// <param name="commandService">
         /// The command service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, ConfigModel config, IServiceProvider service, CommandService commandService)
+        public EventHandler(DiscordShardedClient client, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
             Provider = service;
             CommandService = commandService;
             prefixOverride = DatabaseHandler.Settings.UsePrefixOverride;
-
+            PrefixService = prefixService;
+            _ChannelHelper = channelHelper;
+            _LevelHelper = levels;
             CancellationToken = new CancellationTokenSource();
         }
+
+        private LevelHelper _LevelHelper { get; }
+
+        /// <summary>
+        /// Gets the provider.
+        /// </summary>
+        private PrefixService PrefixService { get; }
 
         /// <summary>
         /// Gets the config.
         /// </summary>
         private ConfigModel Config { get; }
+
+        private ChannelHelper _ChannelHelper { get; }
 
         /// <summary>
         /// Gets the provider.
@@ -113,7 +124,7 @@
             CommandService.AddTypeReader(typeof(Emoji), new EmojiTypeReader());
 
             // This will add all our modules to the command service, allowing them to be accessed as necessary
-            await CommandService.AddModulesAsync(Assembly.GetEntryAssembly());
+            await CommandService.AddModulesAsync(Assembly.GetEntryAssembly(), Provider);
             LogHandler.LogMessage("RavenBOT: Modules Added");
         }
 
@@ -342,7 +353,7 @@
                 return;
             }
 
-            await ChannelHelper.DoMediaChannelAsync(context);
+            await _ChannelHelper.DoMediaChannelAsync(context);
 
             var argPos = 0;
             var isPrefixed = true;
@@ -366,29 +377,9 @@
             else
             {
                 // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
-                if (!(
-
-                         // If the message starts with @BOTNAME and the server has bot @'s toggled on        
-                         (context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) && !context.Server.Settings.Prefix.DenyMentionPrefix) ||
-
-                         // If the message starts with the default bot prefix and it is toggled on
-                         (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && !context.Server.Settings.Prefix.DenyDefaultPrefix) ||
-
-                         // If the message starts with the custom server prefix and the custom server prefix is set.
-                         (context.Server.Settings.Prefix.CustomPrefix != null && context.Message.HasStringPrefix(context.Server.Settings.Prefix.CustomPrefix, ref argPos))))
+                if (!(context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) || context.Message.HasStringPrefix(PrefixService.GetPrefix(context.Guild?.Id ?? 0), ref argPos)))
                 {
-                    if (context.Message.HasStringPrefix(Config.Prefix, ref argPos) && context.Server.Settings.Prefix.DenyDefaultPrefix)
-                    {
-                        if (context.Server.Settings.Prefix.CustomPrefix != null)
-                        {
-                            // Ensure that if for some reason the server's custom prefix isn't set and but they are denying the default prefix that commands are still allowed
-                            isPrefixed = false;
-                        }
-                    }
-                    else
-                    {
-                        isPrefixed = false;
-                    }
+                    isPrefixed = false;
                 }
             }
 
@@ -399,8 +390,8 @@
                     async () =>
                         {
                             LogHandler.LogMessage("Running Message Tasks", LogSeverity.Verbose);
-                            context = await LevelHelper.DoLevelsAsync(context);
-                            await ChannelHelper.DoAutoMessageAsync(context);
+                            await _LevelHelper.DoLevelsAsync(context);
+                            await _ChannelHelper.DoAutoMessageAsync(context);
                             StatHelper.LogMessage(context.Message);
                         });
                 return;

@@ -2,13 +2,11 @@
 {
     using System.Threading.Tasks;
 
-    using global::Discord.Commands;
+    using Discord.Addons.PrefixService;
+    using Discord.Commands;
 
-    using Microsoft.Extensions.DependencyInjection;
-
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
-    using PassiveBOT.Models;
+    using PassiveBOT.Context;
+    using PassiveBOT.Preconditions;
 
     /// <summary>
     /// General Server Setup
@@ -17,6 +15,13 @@
     [Summary("General Server setup commands")]
     public class GeneralSetup : Base
     {
+        private PrefixService PrefixService { get; }
+
+        public GeneralSetup(PrefixService prefixService)
+        {
+            PrefixService = prefixService;
+        }
+
         /// <summary>
         /// The general setup task.
         /// </summary>
@@ -28,10 +33,10 @@
         public Task GeneralSetupTaskAsync()
         {
             var settings = Context.Server.Settings;
+            var pre = PrefixService.GetPrefix(Context.Guild.Id);
+
             return SimpleEmbedAsync($"Save Guild Model: {settings.Config.SaveGuildModel}\n" + 
-                                    $"Custom Prefix: `{settings.Prefix.CustomPrefix}`\n" + 
-                                    $"Deny Default Prefix: {settings.Prefix.DenyDefaultPrefix}\n" + 
-                                    $"Deny Mention Prefix: {settings.Prefix.DenyMentionPrefix}\n" + 
+                                    $"Prefix: `{pre}`\n" + 
                                     $"Allow NSFW: {settings.Nsfw.Enabled}");
         }
 
@@ -49,11 +54,17 @@
         [Remarks("Will reset the prefix if no value provided\nAlso, use \"prefix \" to use spaces in the prefix")]
         public Task SetPrefixAsync(string prefix = null)
         {
-            Context.Server.Settings.Prefix.CustomPrefix = prefix;
-            Context.Server.Save();
+            var result = PrefixService.SetPrefix(Context.Guild.Id, prefix);
+            if (result == PrefixService.PrefixSetResult.success)
+            {
+                return SimpleEmbedAsync("The bot's prefix has been updated for this server.\n" +
+                                        "Command usage is now as follows:\n" +
+                                        $"`{prefix}help`");
+            }
+
             return SimpleEmbedAsync("The bot's prefix has been updated for this server.\n" +
                                     "Command usage is now as follows:\n" +
-                                    $"`{prefix ?? Context.Provider.GetRequiredService<ConfigModel>().Prefix}help`");
+                                    $"`{PrefixService.GetPrefix(Context.Guild.Id)}help`");
         }
 
         /// <summary>
@@ -69,36 +80,6 @@
             Context.Server.Settings.Nsfw.Enabled = !Context.Server.Settings.Nsfw.Enabled;
             Context.Server.Save();
             return SimpleEmbedAsync($"Nsfw Allowed: {Context.Server.Settings.Nsfw.Enabled}");
-        }
-
-        /// <summary>
-        /// The toggle mention prefix.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("DenyMentionPrefix")]
-        [Summary("Toggle whether or not users can @ the bot to use a command")]
-        public Task ToggleMentionPrefixAsync()
-        {
-            Context.Server.Settings.Prefix.DenyMentionPrefix = !Context.Server.Settings.Prefix.DenyMentionPrefix;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Mention Prefix Enabled = {!Context.Server.Settings.Prefix.DenyMentionPrefix}");
-        }
-
-        /// <summary>
-        /// Toggles the denial of the default bot prefix
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("DenyDefaultPrefix")]
-        [Summary("Toggle whether or not users can use the Default bot prefix in the server")]
-        public Task ToggleDenyPrefixAsync()
-        {
-            Context.Server.Settings.Prefix.DenyDefaultPrefix = !Context.Server.Settings.Prefix.DenyDefaultPrefix;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Default Prefix Enabled = {!Context.Server.Settings.Prefix.DenyDefaultPrefix}");
         }
 
         /// <summary>

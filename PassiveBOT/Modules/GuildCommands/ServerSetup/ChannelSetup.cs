@@ -5,14 +5,14 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
-    using PassiveBOT.Discord.Preconditions;
-    using PassiveBOT.Models;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Preconditions;
+    using PassiveBOT.Services;
 
     /// <summary>
     /// The custom channel setup.
@@ -22,6 +22,13 @@
     [RequireContext(ContextType.Guild)]
     public class ChannelSetup : Base
     {
+        private static ChannelService Service { get; set; }
+
+        public ChannelSetup(ChannelService service)
+        {
+            Service = service;
+        }
+
         /// <summary>
         /// The media channel setup
         /// </summary>
@@ -40,8 +47,9 @@
             [Summary("Add the current channel to the media channels list")]
             public Task AddAsync()
             {
-                Context.Server.CustomChannel.MediaChannels.Add(new GuildModel.CustomChannels.MediaChannel { ChannelID = Context.Channel.Id, Enabled = true, ExemptRoles = new List<ulong>() });
-                Context.Server.Save();
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                c.MediaChannels.Add(Context.Channel.Id, new ChannelService.CustomChannels.MediaChannel { ChannelID = Context.Channel.Id, Enabled = true, ExemptRoles = new List<ulong>() });
+                c.Save();
                 return SimpleEmbedAsync($"{Context.Channel.Name} is now a media channel. All messages without URLs or Attachments will be deleted");
             }
 
@@ -63,12 +71,12 @@
                     channel = Context.Channel as ITextChannel;
                 }
 
-                var match = Context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.ChannelID == channel.Id);
-                if (match != null)
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (c.MediaChannels.ContainsKey(channel.Id))
                 {
-                    Context.Server.CustomChannel.MediaChannels.Remove(match);
-                    Context.Server.Save();
-                    await SimpleEmbedAsync($"{Context.Channel.Name} is no longer a media channel");
+                    c.MediaChannels.Remove(channel.Id);
+                    c.Save();
+                    await SimpleEmbedAsync($"{channel.Name} is no longer a media channel");
                 }
             }
 
@@ -88,14 +96,14 @@
             [Summary("Set a specific role to not be checked my media channel restrictions")]
             public Task MediaExemptAsync(ITextChannel channel, IRole role)
             {
-                var match = Context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.ChannelID == channel.Id);
-                if (match == null)
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (!c.MediaChannels.ContainsKey(channel.Id))
                 {
                     throw new Exception("channel is not a media channel");
                 }
 
-                match.ExemptRoles.Add(role.Id);
-                Context.Server.Save();
+                c.MediaChannels[channel.Id].ExemptRoles.Add(role.Id);
+                c.Save();
                 return SimpleEmbedAsync($"{role.Name} will no longer be checked in this media channel");
             }
 
@@ -131,13 +139,13 @@
             [Summary("Remove a Media Exempt role in the specified channel")]
             public async Task DelMediaExemptAsync(ITextChannel channel, IRole role)
             {
-                var match = Context.Server.CustomChannel.MediaChannels.FirstOrDefault(x => x.ChannelID == channel.Id);
-                if (match != null)
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (c.MediaChannels.ContainsKey(channel.Id))
                 {
-                    if (match.ExemptRoles.Contains(role.Id))
+                    if (c.MediaChannels[channel.Id].ExemptRoles.Contains(role.Id))
                     {
-                        match.ExemptRoles.Remove(role.Id);
-                        Context.Server.Save();
+                        c.MediaChannels[channel.Id].ExemptRoles.Remove(role.Id);
+                        c.Save();
                         await SimpleEmbedAsync($"{role.Name} has been removed from the exempt roles");
                     }
                 }
@@ -172,17 +180,18 @@
             [Summary("List all Media Channels in the Server")]
             public Task ListAsync()
             {
-                if (!Context.Server.CustomChannel.MediaChannels.Any())
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (!c.MediaChannels.Any())
                 {
                     throw new Exception("This server has no Media Channels set up.");
                 }
 
-                var list = Context.Server.CustomChannel.MediaChannels.Where(x => Context.Guild.GetChannel(x.ChannelID) != null && x.Enabled).Select(m => new EmbedFieldBuilder
+                var list = c.MediaChannels.Where(x => Context.Guild.GetChannel(x.Key) != null && x.Value.Enabled).Select(m => new EmbedFieldBuilder
                 {
-                    Name = $"{Context.Guild.GetChannel(m.ChannelID)}",
-                    Value = $"Enabled: {m.Enabled}\n" +
+                    Name = $"{Context.Guild.GetChannel(m.Key)}",
+                    Value = $"Enabled: {m.Value.Enabled}\n" +
                              "Exempt Roles: \n" +
-                             $"{string.Join("\n", m.ExemptRoles.Select(x => Context.Guild.GetRole(x)).Where(x => x != null).Select(x => x.Mention))}"
+                             $"{string.Join("\n", m.Value.ExemptRoles.Select(x => Context.Guild.GetRole(x)).Where(x => x != null).Select(x => x.Mention))}"
                 }).ToList();
                 var pager = new PaginatedMessage
                 {
@@ -216,27 +225,21 @@
             /// </returns>
             [Command("Toggle")]
             [Summary("Toggle the use of Auto-Messages in the current channel")]
-            public async Task ToggleAsync()
+            public Task ToggleAsync()
             {
-                var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
-                if (channel == null)
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (!c.AutoMessageChannels.ContainsKey(Context.Channel.Id))
                 {
-                    Context.Server.CustomChannel.AutoMessageChannels.Add(new GuildModel.CustomChannels.AutoMessageChannel
-                    {
-                        ChannelID = Context.Channel.Id,
-                        Enabled = true,
-                        Limit = 100,
-                        Count = 0
-                    });
-                    channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
+                    var newChan = new ChannelService.CustomChannels.AutoMessageChannel { ChannelID = Context.Channel.Id, Enabled = true, Limit = 100, Count = 0 };
+                    c.AutoMessageChannels.Add(Context.Channel.Id, newChan);
                 }
                 else
                 {
-                    channel.Enabled = !channel.Enabled;
+                    c.AutoMessageChannels[Context.Channel.Id].Enabled = !c.AutoMessageChannels[Context.Channel.Id].Enabled;
                 }
 
-                await SimpleEmbedAsync($"AutoMessaging Enabled in {Context.Channel.Name}: {channel.Enabled}");
-                Context.Server.Save();
+                c.Save();
+                return SimpleEmbedAsync($"AutoMessaging Enabled in {Context.Channel.Name}: {c.AutoMessageChannels[Context.Channel.Id].Enabled}");
             }
 
             /// <summary>
@@ -253,10 +256,10 @@
             /// </exception>
             [Command("Message")]
             [Summary("Set the AutoMessage for the current channel.")]
-            public async Task SetMessageAsync([Remainder] string message = null)
+            public Task SetMessageAsync([Remainder] string message = null)
             {
-                var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
-                if (channel == null)
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (!c.AutoMessageChannels.ContainsKey(Context.Channel.Id))
                 {
                     throw new Exception("Please use the toggle command to initiate an Auto Message in this channel first.");
                 }
@@ -266,10 +269,10 @@
                     throw new Exception($"Auto Message character limit exceeded. Please limit it to 512 characters. Current: {message.Length}");
                 }
 
-                channel.Message = message;
-                await SimpleEmbedAsync("This channel's Auto Message is now:\n" +
-                                       $"{message}");
-                Context.Server.Save();
+                c.AutoMessageChannels[Context.Channel.Id].Message = message;
+                c.Save();
+                return SimpleEmbedAsync("This channel's Auto Message is now:\n" +
+                                        $"{message}");
             }
 
             /// <summary>
@@ -286,17 +289,17 @@
             /// </exception>
             [Command("Limit")]
             [Summary("Set number of messages between each Auto Message")]
-            public async Task SetLimitAsync(int limit)
+            public Task SetLimitAsync(int limit)
             {
-                var channel = Context.Server.CustomChannel.AutoMessageChannels.FirstOrDefault(x => x.ChannelID == Context.Channel.Id);
-                if (channel == null)
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (c.AutoMessageChannels.ContainsKey(Context.Channel.Id))
                 {
                     throw new Exception("Please use the toggle command to initiate an Auto Message in this channel first.");
                 }
 
-                channel.Limit = limit;
-                await SimpleEmbedAsync($"Auto Messages will be sent every {limit} messages in this channel");
-                Context.Server.Save();
+                c.AutoMessageChannels[Context.Channel.Id].Limit = limit;
+                c.Save();
+                return SimpleEmbedAsync($"Auto Messages will be sent every {limit} messages in this channel");
             }
 
             /// <summary>
@@ -312,19 +315,20 @@
             [Summary("List all Auto Messages in the Server")]
             public Task ListAsync()
             {
-                if (!Context.Server.CustomChannel.AutoMessageChannels.Any())
+                var c = Service.GetCustomChannels(Context.Guild.Id);
+                if (!c.AutoMessageChannels.Any())
                 {
                     throw new Exception("This server has no Auto Messages set up.");
                 }
 
-                var list = Context.Server.CustomChannel.AutoMessageChannels.Where(x => Context.Guild.GetChannel(x.ChannelID) != null && x.Message != null && x.Enabled).Select(am => new EmbedFieldBuilder
+                var list = c.AutoMessageChannels.Where(x => Context.Guild.GetChannel(x.Key) != null && x.Value.Message != null && x.Value.Enabled).Select(am => new EmbedFieldBuilder
                 {
-                    Name = $"{Context.Guild.GetChannel(am.ChannelID)}",
-                    Value = $"Enabled: {am.Enabled}\n" +
-                            $"Limit: {am.Limit}\n" +
-                            $"Count: {am.Count}\n" +
+                    Name = $"{Context.Guild.GetChannel(am.Key)}",
+                    Value = $"Enabled: {am.Value.Enabled}\n" +
+                            $"Limit: {am.Value.Limit}\n" +
+                            $"Count: {am.Value.Count}\n" +
                             "Message:\n" +
-                            $"{am.Message ?? "N/A"}"
+                            $"{am.Value.Message ?? "N/A"}"
                 }).ToList();
                 var pager = new PaginatedMessage
                 {

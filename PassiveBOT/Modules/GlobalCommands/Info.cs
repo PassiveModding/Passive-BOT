@@ -7,17 +7,17 @@
     using System.Net.Http;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Commands;
 
     using Microsoft.Extensions.DependencyInjection;
 
     using Newtonsoft.Json.Linq;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
-    using PassiveBOT.Discord.Services;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Services;
     using PassiveBOT.Models;
 
     /// <summary>

@@ -4,7 +4,7 @@
 
     using global::Discord;
 
-    using PassiveBOT.Discord.Context;
+    using PassiveBOT.Context;
     using PassiveBOT.Models;
 
     using Serilog;

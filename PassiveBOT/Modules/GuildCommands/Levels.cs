@@ -5,12 +5,13 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Extensions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
+    using PassiveBOT.Services;
 
     /// <summary>
     /// The levels commands
@@ -19,6 +20,14 @@
     [Summary("Level information for the server")]
     public class Levels : Base
     {
+        private static LevelService Service { get; set; }
+
+        public Levels(LevelService service)
+        {
+            Service = service;
+        }
+
+
         /// <summary>
         /// Shows the users rank
         /// </summary>
@@ -35,9 +44,10 @@
         [Alias("Rank")]
         [Summary("Find the level of a user")]
         [Remarks("Will default to the current user if none specified")]
-        public async Task RankAsync(IUser user = null)
+        public Task RankAsync(IUser user = null)
         {
-            var levelUser = Context.Server.Levels.Users.FirstOrDefault(x => x.UserID == (user?.Id ?? Context.User.Id));
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            l.Users.TryGetValue(user?.Id ?? Context.User.Id, out var levelUser);
             if (levelUser == null)
             {
                 throw new Exception("Error, Missing User");
@@ -70,10 +80,9 @@
 
             embed.AddField("Level", $"{levelUser.Level - 1}", true);
             embed.AddField("XP", $"{levelUser.XP}/{requiredXP}", true);
-            embed.AddField("Rank", $"#{Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).ToList().FindIndex(u => u == levelUser) + 1}", true);
+            embed.AddField("Rank", $"#{l.Users.OrderByDescending(x => x.Value.XP).Where(x => Context.Guild.GetUser(x.Key) != null).ToList().FindIndex(u => u.Key == levelUser.UserID) + 1}", true);
             embed.AddField("Progress", progressString);
-            await ReplyAsync(embed);
-            Context.Server.Save();
+            return ReplyAsync(embed);
         }
 
         /// <summary>
@@ -86,9 +95,10 @@
         [Summary("Display the LeaderBoard")]
         public Task LeaderBoardAsync()
         {
-            var users = Context.Server.Levels.Users.OrderByDescending(x => x.XP).Where(x => Context.Guild.GetUser(x.UserID) != null).Take(100).ToList();
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            var users = l.Users.OrderByDescending(x => x.Value.XP).Where(x => Context.Guild.GetUser(x.Key) != null).Take(100).ToList();
             var rgx = new Regex("[^a-zA-Z0-9 -#]");
-            var list = users.Select(x => $"`{$"#{users.IndexOf(x) + 1} - {rgx.Replace(Context.Guild.GetUser(x.UserID).ToString(), "")}".PadRight(40)}\u200B || LV: {x.Level - 1} XP: {x.XP}`").ToList();
+            var list = users.Select(x => $"`{$"#{users.IndexOf(x) + 1} - {rgx.Replace(Context.Guild.GetUser(x.Key).ToString(), "")}".PadRight(40)}\u200B || LV: {x.Value.Level - 1} XP: {x.Value.XP}`").ToList();
             var pages = list.SplitList(20).Select(x => new PaginatedMessage.Page
             {
                 Description = string.Join("\n", x)
@@ -116,12 +126,13 @@
         [Summary("Display the Level Rewards")]
         public Task RanksAsync()
         {
-            if (!Context.Server.Levels.RewardRoles.Any())
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            if (!l.RewardRoles.Any())
             {
                 throw new Exception("There are no ranks in this server");
             }
 
-            return SimpleEmbedAsync(string.Join("\n", Context.Server.Levels.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}")));
+            return SimpleEmbedAsync(string.Join("\n", l.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}")));
         }
     }
 }

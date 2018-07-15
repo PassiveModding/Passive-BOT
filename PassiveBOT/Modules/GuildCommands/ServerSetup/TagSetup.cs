@@ -2,10 +2,11 @@
 {
     using System.Threading.Tasks;
 
-    using global::Discord.Commands;
+    using Discord.Commands;
 
-    using PassiveBOT.Discord.Context;
-    using PassiveBOT.Discord.Preconditions;
+    using PassiveBOT.Context;
+    using PassiveBOT.Preconditions;
+    using PassiveBOT.Services;
 
     /// <summary>
     /// The tags.
@@ -16,6 +17,14 @@
     [RequireContext(ContextType.Guild)]
     public class Tags : Base
     {
+        private TagService Service { get; }
+
+        public Tags(TagService service)
+        {
+            Service = service;
+        }
+
+
         /// <summary>
         /// The tag setup task.
         /// </summary>
@@ -26,7 +35,8 @@
         [Summary("Setup information for the TagSetup Module")]
         public Task TagSetupTaskAsync()
         {
-            return SimpleEmbedAsync($"Tagging Enabled: {Context.Server.Tags.Settings.Enabled}\n" + $"Admin only Creation: {Context.Server.Tags.Settings.AdminOnly}");
+            var t = Service.GetTagSetup(Context.Guild.Id);
+            return SimpleEmbedAsync($"Tagging Enabled: {t.Enabled}");
         }
 
         /// <summary>
@@ -39,25 +49,10 @@
         [Summary("Toggle the tagging system")]
         public Task TagToggleAsync()
         {
-            Context.Server.Tags.Settings.Enabled = !Context.Server.Tags.Settings.Enabled;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Tags Enabled: {Context.Server.Tags.Settings.Enabled}");
-        }
-
-        /// <summary>
-        /// Toggles admin only settings for tag creation
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("AdminOnly")]
-        [Summary("Toggles admin only settings for tag creation")]
-        [Remarks("Does not take parameters, just toggles")]
-        public Task AdminOnlyAsync()
-        {
-            Context.Server.Tags.Settings.AdminOnly = !Context.Server.Tags.Settings.AdminOnly;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Tags are admin Only: {Context.Server.Tags.Settings.AdminOnly}");
+            var t = Service.GetTagSetup(Context.Guild.Id);
+            t.Enabled = !t.Enabled;
+            t.Save();
+            return SimpleEmbedAsync($"Tags Enabled: {t.Enabled}");
         }
     }
 }
