@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
 
     using Discord;
+    using Discord.WebSocket;
 
     using global::PassiveBOT.Context;
     using global::PassiveBOT.Services;
@@ -30,26 +31,29 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        public async Task DoAutoMessageAsync(Context context)
+        public async Task DoAutoMessageAsync(SocketUserMessage msg)
         {
-            if (context.Channel is IDMChannel)
+            if (msg.Channel is IDMChannel)
             {
                 return;
             }
 
-            var c = Service.GetCustomChannels(context.Guild.Id);
+            var gChannel = msg.Channel as ITextChannel;
+            var guild = gChannel.Guild;
+
+            var c = Service.GetCustomChannels(guild.Id);
 
             if (c == null)
             {
                 return;
             }
 
-            if (c.AutoMessageChannels.ContainsKey(context.Channel.Id))
+            if (c.AutoMessageChannels.ContainsKey(gChannel.Id))
             {
                 return;
             }
 
-            var channel = c.AutoMessageChannels[context.Channel.Id];
+            var channel = c.AutoMessageChannels[gChannel.Id];
 
             if (!channel.Enabled)
             {
@@ -60,7 +64,7 @@
 
             if (channel.Count >= channel.Limit)
             {
-                await context.Channel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Title = "Auto Message", Color = Color.Green, Description = channel.Message }.Build());
+                await gChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Title = "Auto Message", Color = Color.Green, Description = channel.Message }.Build());
                 channel.Count = 0;
             }
 
@@ -68,29 +72,30 @@
         }
 
         /// <summary>
-        ///     Checks for URLs or attachments to ensure the channel is used as a media channel.
+        /// Checks for URLs or attachments to ensure the channel is used as a media channel.
         /// </summary>
-        /// <param name="context">
-        ///     The context.
+        /// <param name="msg">
+        /// The msg.
         /// </param>
         /// <returns>
-        ///     The <see cref="Task" />.
+        /// The <see cref="Task"/>.
         /// </returns>
-        public async Task DoMediaChannelAsync(Context context)
+        public async Task DoMediaChannelAsync(SocketUserMessage msg)
         {
-            var c = Service.GetCustomChannels(context.Guild.Id);
+            var gChannel = msg.Channel as IGuildChannel;
+            var c = Service.GetCustomChannels(gChannel.Guild.Id);
 
             if (c == null)
             {
                 return;
             }
 
-            c.MediaChannels.TryGetValue(context.Channel.Id, out var mediaChannel);
+            c.MediaChannels.TryGetValue(gChannel.Id, out var mediaChannel);
             if (mediaChannel != null)
             {
-                if (mediaChannel.Enabled && (context.User as IGuildUser).RoleIds.All(x => !mediaChannel.ExemptRoles.Contains(x)) && !Regex.Match(context.Message.Content, @"(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?").Success && !context.Message.Attachments.Any())
+                if (mediaChannel.Enabled && (msg.Author as IGuildUser).RoleIds.All(x => !mediaChannel.ExemptRoles.Contains(x)) && !Regex.Match(msg.Content, @"(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?").Success && !msg.Attachments.Any())
                 {
-                    await context.Message.DeleteAsync();
+                    await msg.DeleteAsync();
                 }
             }
         }

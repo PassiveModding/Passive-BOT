@@ -114,7 +114,6 @@
         public Task PartnerAsync()
         {
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
-            var handler = Provider.GetRequiredService<DatabaseHandler>();
             PartnerStats.UpdatePartneredGuilds = 0;
             PartnerStats.UpdateReachableMembers = 0;
             foreach (var receiverGuild in ShardedClient.Guilds)

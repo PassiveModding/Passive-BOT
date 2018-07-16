@@ -353,14 +353,13 @@
                 return;
             }
 
-            if (Message.Author.IsBot)
+            if (Message.Author.IsBot || Message.Author.IsWebhook)
             {
                 // Filter out all bot messages from triggering commands.
                 return;
             }
 
-            var context = new Context(Client, Message, Provider);
-            await _ChannelHelper.DoMediaChannelAsync(context);
+            await _ChannelHelper.DoMediaChannelAsync(Message);
 
             var argPos = 0;
             var isPrefixed = true;
@@ -370,7 +369,7 @@
                 var config = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
                 if (config.PrefixOverride != null)
                 {
-                    if (!context.Message.HasStringPrefix(config.PrefixOverride, ref argPos))
+                    if (!Message.HasStringPrefix(config.PrefixOverride, ref argPos))
                     {
                         isPrefixed = false;
                     }
@@ -384,28 +383,28 @@
             else
             {
                 // Filter out all messages that don't start with our Bot PrefixSetup, bot mention or server specific PrefixSetup.
-                if (!(context.Message.HasMentionPrefix(context.Client.CurrentUser, ref argPos) || context.Message.HasStringPrefix(PrefixService.GetPrefix(context.Guild?.Id ?? 0), ref argPos)))
+                if (!(Message.HasMentionPrefix(Client.CurrentUser, ref argPos) || Message.HasStringPrefix(PrefixService.GetPrefix((Message.Channel as IGuildChannel)?.Guild?.Id ?? 0), ref argPos)))
                 {
                     isPrefixed = false;
                 }
             }
 
-            // run level check and auto-message channel check if the current message is not a 
+            // run level check and auto-message channel check if the current message is not a command prefixed message
             if (!isPrefixed)
             {
                 var messageTask = Task.Run(
                     async () =>
                         {
                             LogHandler.LogMessage("Running Message Tasks", LogSeverity.Verbose);
-                            await _LevelHelper.DoLevelsAsync(context);
-                            await _ChannelHelper.DoAutoMessageAsync(context);
-                            StatHelper.LogMessage(context.Message);
+                            await _LevelHelper.DoLevelsAsync(Message);
+                            await _ChannelHelper.DoAutoMessageAsync(Message);
+                            StatHelper.LogMessage(Message);
                         });
                 return;
             }
 
             // Ensure that blacklisted users/guilds are not allowed to run commands
-            if (CheckBlacklist(Message.Author.Id, context.Guild.Id))
+            if (CheckBlacklist(Message.Author.Id, (Message.Channel as IGuildChannel).Guild.Id))
             {
                 return;
             }
@@ -413,6 +412,7 @@
             // Here we attempt to execute a command based on the user Message
             var commandTask = Task.Run(async () =>
                 {
+                    var context = new Context(Client, Message, Provider);
                     var result = await CommandService.ExecuteAsync(context, argPos, Provider, MultiMatchHandling.Best);
 
                     // Generate an error Message for users if a command is unsuccessful

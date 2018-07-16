@@ -44,14 +44,18 @@
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task DoResponseAsync(Context context, LevelService.LevelSetup setup, LevelService.LevelSetup.LevelUser levelUser, int requiredXP, string roleAdded)
+        public static async Task DoResponseAsync(SocketUserMessage msg, LevelService.LevelSetup setup, LevelService.LevelSetup.LevelUser levelUser, int requiredXP, string roleAdded)
         {
-            var embed = new EmbedBuilder { Title = $"{context.User.Username} Leveled Up!", ThumbnailUrl = context.User.GetAvatarUrl(), Description = $"Level: {levelUser.Level - 1}\n" + $"{roleAdded}" + $"XP: {requiredXP}\n" + $"Next Level At: {levelUser.Level * 50 + levelUser.Level * levelUser.Level * 25} XP", Color = Color.Blue };
+            var gChannel = msg.Channel as ITextChannel;
+            var guild = gChannel.Guild as SocketGuild;
+            var gUser = msg.Author as SocketGuildUser;
+
+            var embed = new EmbedBuilder { Title = $"{gUser.Username} Leveled Up!", ThumbnailUrl = gUser.GetAvatarUrl(), Description = $"Level: {levelUser.Level - 1}\n" + $"{roleAdded}" + $"XP: {requiredXP}\n" + $"Next Level At: {levelUser.Level * 50 + levelUser.Level * levelUser.Level * 25} XP", Color = Color.Blue };
             if (setup.Settings.UseLogChannel)
             {
                 try
                 {
-                    if (context.Guild.GetChannel(setup.Settings.LogChannelID) is IMessageChannel chan)
+                    if (guild.GetChannel(setup.Settings.LogChannelID) is IMessageChannel chan)
                     {
                         await chan.SendMessageAsync(string.Empty, false, embed.Build());
                     }
@@ -66,7 +70,7 @@
             {
                 try
                 {
-                    await context.Channel.SendMessageAsync(string.Empty, false, embed.Build());
+                    await gChannel.SendMessageAsync(string.Empty, false, embed.Build());
                 }
                 catch
                 {
@@ -78,8 +82,8 @@
             {
                 try
                 {
-                    embed.Title = $"You Leveled up in {context.Guild.Name}!";
-                    await context.User.SendMessageAsync(string.Empty, false, embed.Build());
+                    embed.Title = $"You Leveled up in {guild.Name}!";
+                    await gUser.SendMessageAsync(string.Empty, false, embed.Build());
                 }
                 catch
                 {
@@ -124,21 +128,24 @@
         }
 
         /// <summary>
-        ///     Removes un-necessary roles from the user
+        /// Removes un-necessary roles from the user
         /// </summary>
-        /// <param name="context">
-        ///     The context.
+        /// <param name="user">
+        /// The user.
+        /// </param>
+        /// <param name="guild">
+        /// The guild.
         /// </param>
         /// <param name="rolesToReceive">
-        ///     The roles to receive.
+        /// The roles to receive.
         /// </param>
         /// <param name="rolesAvailable">
-        ///     The roles available.
+        /// The roles available.
         /// </param>
         /// <returns>
-        ///     The <see cref="Task" />.
+        /// The <see cref="Task"/>.
         /// </returns>
-        public static async Task RemoveRolesAsync(Context context, List<LevelService.LevelSetup.LevelReward> rolesToReceive, List<LevelService.LevelSetup.LevelReward> rolesAvailable)
+        public static async Task RemoveRolesAsync(SocketGuildUser user, SocketGuild guild, List<LevelService.LevelSetup.LevelReward> rolesToReceive, List<LevelService.LevelSetup.LevelReward> rolesAvailable)
         {
             if (rolesToReceive.Count != rolesAvailable.Count && rolesToReceive.Count == 1)
             {
@@ -148,9 +155,9 @@
                             try
                             {
                                 rolesAvailable.Remove(rolesToReceive.First());
-                                var toRemove = rolesAvailable.Select(x => context.Guild.GetRole(x.RoleID)).Where(x => x != null);
+                                var toRemove = rolesAvailable.Select(x => guild.GetRole(x.RoleID)).Where(x => x != null);
 
-                                await (context.User as SocketGuildUser).RemoveRolesAsync(toRemove);
+                                await user.RemoveRolesAsync(toRemove);
                             }
                             catch
                             {
@@ -161,22 +168,26 @@
         }
 
         /// <summary>
-        ///     Updates user XP and saves the server
+        /// Updates user XP and saves the server
         /// </summary>
-        /// <param name="context">
-        ///     The context.
+        /// <param name="msg">
+        /// The msg.
         /// </param>
         /// <returns>
-        ///     The <see cref="Task" />.
+        /// The <see cref="Task"/>.
         /// </returns>
-        public async Task DoLevelsAsync(Context context)
+        public async Task DoLevelsAsync(SocketUserMessage msg)
         {
-            if (context.Channel is IDMChannel)
+            if (msg.Channel is IDMChannel)
             {
                 return;
             }
 
-            var levels = Service.GetLevelSetup(context.Guild.Id);
+            var gChannel = msg.Channel as IGuildChannel;
+            var guild = gChannel.Guild as SocketGuild;
+            var gUser = msg.Author as SocketGuildUser;
+
+            var levels = Service.GetLevelSetup(guild.Id);
 
             if (levels == null)
             {
@@ -188,14 +199,14 @@
                 return;
             }
 
-            if (!levels.Users.ContainsKey(context.User.Id))
+            if (!levels.Users.ContainsKey(msg.Author.Id))
             {
-                levels.Users.TryAdd(context.User.Id, new LevelService.LevelSetup.LevelUser(context.User.Id));
+                levels.Users.TryAdd(msg.Author.Id, new LevelService.LevelSetup.LevelUser(msg.Author.Id));
                 levels.Save();
                 return;
             }
 
-            var levelUser = levels.Users[context.User.Id];
+            var levelUser = levels.Users[msg.Author.Id];
             if (levelUser.LastUpdate > DateTime.UtcNow)
             {
                 return;
@@ -218,17 +229,17 @@
                     {
                         foreach (var role in rolesToReceive)
                         {
-                            if (((IGuildUser)context.User).RoleIds.Contains(role.RoleID))
+                            if (((IGuildUser)msg.Author).RoleIds.Contains(role.RoleID))
                             {
                                 continue;
                             }
 
-                            var socketRole = context.Guild.GetRole(role.RoleID);
+                            var socketRole = guild.GetRole(role.RoleID);
                             if (socketRole != null)
                             {
                                 try
                                 {
-                                    await (context.User as SocketGuildUser).AddRoleAsync(socketRole);
+                                    await gUser.AddRoleAsync(socketRole);
                                     roleAdded += $"Role Reward: {socketRole.Name}\n";
                                 }
                                 catch
@@ -242,11 +253,11 @@
                             }
                         }
 
-                        await RemoveRolesAsync(context, rolesToReceive, rolesAvailable);
+                        await RemoveRolesAsync(gUser, guild, rolesToReceive, rolesAvailable);
                     }
                 }
 
-                await DoResponseAsync(context, levels, levelUser, requiredXP, roleAdded);
+                await DoResponseAsync(msg, levels, levelUser, requiredXP, roleAdded);
             }
 
             levels.Save();
