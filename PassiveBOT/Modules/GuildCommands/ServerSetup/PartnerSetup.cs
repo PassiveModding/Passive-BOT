@@ -174,14 +174,12 @@
             {
                 throw new Exception("Partner Message cannot contain profanity");
             }
-
-            if (!message.ToLower().Contains("discord.gg") && !message.ToLower().Contains("discordapp.com") && !message.ToLower().Contains("discord.me"))
+            
+            if (message.ToLower().Contains("discord.gg") || message.ToLower().Contains("discordapp.com") || message.ToLower().Contains("discord.me") || Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
-                throw new Exception("You should include an invite link to your server in the Partner Message too\n" + $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}\n" + "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" + "Please disable this during setup, you may re-enable after the message has been set.");
-            }
+                throw new Exception("No need to include an invite to the bot in your message. PassiveBOT will auto-generate one");
 
-            if (Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
-            {
+                /*
                 var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").OfType<Match>().ToList();
                 var inviteMetadata = await Context.Guild.GetInvitesAsync();
                 var mismatch = false;
@@ -198,6 +196,7 @@
                 {
                     throw new Exception("Please ensure the message passes all checks:\n" + "1.Only invites from this server are allowed in the partner message!\n" + "2.Ensure that the invite link you are using is set to never expire\n" + "3.Ensure that it does not have a use limit.\n" + "4.If your server uses 2FA please disable it while running the command then re-enable it after\n" + "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" + $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}");
                 }
+                */
             }
 
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);

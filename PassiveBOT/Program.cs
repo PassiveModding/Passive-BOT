@@ -16,6 +16,7 @@
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
+    using PassiveBOT.Models.Migration;
     using PassiveBOT.Services;
 
     using EventHandler = PassiveBOT.Handlers.EventHandler;
@@ -77,7 +78,15 @@
 
                             // Please change increase this as your server count grows beyond 2000 guilds. ie. < 2000 = 1, 2000 = 2, 4000 = 2 ...
                             TotalShards = config.Shards
-                        })).AddSingleton(new PrefixService(config.Prefix, store)).AddSingleton(new TagService(store)).AddSingleton(new PartnerService(store)).AddSingleton(new LevelService(store)).AddSingleton(new ChannelService(store)).AddSingleton<ChannelHelper>().AddSingleton<Interactive>().AddSingleton<LevelHelper>().AddSingleton<TimerService>();
+                        })).AddSingleton(new PrefixService(config.Prefix, store))
+                .AddSingleton(new TagService(store))
+                .AddSingleton(new PartnerService(store))
+                .AddSingleton(new LevelService(store))
+                .AddSingleton(new ChannelService(store))
+                .AddSingleton<ChannelHelper>()
+                .AddSingleton<Interactive>()
+                .AddSingleton<LevelHelper>()
+                .AddSingleton<TimerService>();
 
             // Build the service provider a second time so that the ShardedClient is now included.
             provider = services.BuildServiceProvider();

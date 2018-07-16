@@ -332,7 +332,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("UnbanAllPartners")]
+        [Command("UnbanAllPartners", RunMode = RunMode.Async)]
         [Summary("Unbans all banned partner servers")]
         public Task UnbanAll()
         {
@@ -344,6 +344,7 @@
                 if (config.Settings.Banned)
                 {
                     config.Settings.Banned = false;
+                    config.Settings.Enabled = true;
                 }
 
                 config.Save();

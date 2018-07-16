@@ -165,6 +165,11 @@
                 {
                     LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" + $"{e}", LogSeverity.Error);
                 }
+                finally
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
             }
 
             PartnerStats.PartneredGuilds = PartnerStats.UpdatePartneredGuilds;

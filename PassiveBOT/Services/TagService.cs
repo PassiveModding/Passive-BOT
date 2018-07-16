@@ -18,7 +18,6 @@
             using (var session = Store.OpenSession())
             {
                 var tagSetup = session.Load<TagSetup>($"{guildId}-Tags") ?? new TagSetup(guildId);
-                session.Dispose();
                 return tagSetup;
             }
         }

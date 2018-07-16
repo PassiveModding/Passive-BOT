@@ -119,6 +119,11 @@
                 public bool UseThumb { get; set; } = false;
 
                 /// <summary>
+                /// Gets or sets the partner Invite
+                /// </summary>
+                public string Invite { get; set; }
+
+                /// <summary>
                 ///     The rgb.
                 /// </summary>
                 public class RGB

@@ -23,6 +23,7 @@
     using PassiveBOT.Extensions;
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Models;
+    using PassiveBOT.Models.Migration;
     using PassiveBOT.TypeReaders;
 
     /// <summary>
@@ -85,6 +86,7 @@
             PrefixService = prefixService;
             _ChannelHelper = channelHelper;
             _LevelHelper = levels;
+
             CancellationToken = new CancellationTokenSource();
         }
 
@@ -167,7 +169,7 @@
 
                                 // Returns all stored guild models
                                 var guildIds = Client.Guilds.Select(g => g.Id).ToList();
-                                var missingList = handler.Query<GuildModel>().Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
+                                var missingList = handler.Query<GuildModel>().Where(g => !g.Settings.Config.SaveGuildModel).Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
 
                                 foreach (var id in missingList)
                                 {
@@ -176,6 +178,8 @@
                                     handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Channels");
                                     handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Levels");
                                 }
+
+                                missingList = null;
                             });
 
                     // Ensure that this is only run once as the bot initially connects.
@@ -190,17 +194,20 @@
                                 var handler = Provider.GetRequiredService<DatabaseHandler>();
 
                                 // This will load all guild models and retrieve their IDs
-                                // It also ensures that guilds which have set to save their data are not included here
-                                var Servers = handler.Query<GuildModel>().Where(x => !x.Settings.Config.SaveGuildModel).Select(x => x.ID).ToList();
+                                var Servers = handler.Query<GuildModel>();;
+                                var ids = Servers.Select(s => s.ID).ToList();
 
                                 // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
                                 foreach (var Guild in socketClient.Guilds.Select(x => x.Id))
                                 {
-                                    if (!Servers.Contains(Guild))
+                                    if (!ids.Contains(Guild))
                                     {
                                         handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = Guild }, Guild);
                                     }
                                 }
+
+                                ids = null;
+                                Servers = null;
                             });
                 }
             }
