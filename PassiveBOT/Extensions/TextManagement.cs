@@ -4,21 +4,21 @@
     using System.Linq;
 
     /// <summary>
-    /// String Management
+    ///     String Management
     /// </summary>
     public static class TextManagement
     {
         /// <summary>
-        /// Shortens a string to the specified length if it is too long.
+        ///     Shortens a string to the specified length if it is too long.
         /// </summary>
         /// <param name="message">
-        /// The message.
+        ///     The message.
         /// </param>
         /// <param name="length">
-        /// The length.
+        ///     The length.
         /// </param>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public static string FixLength(this string message, int length = 1024)
         {

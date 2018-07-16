@@ -1,4 +1,4 @@
-﻿namespace PassiveBOT.Models
+﻿namespace PassiveBOT.Modules.GlobalCommands.MediaModels
 {
     using Newtonsoft.Json;
 

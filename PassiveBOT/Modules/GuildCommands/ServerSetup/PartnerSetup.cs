@@ -13,12 +13,12 @@
     using PassiveBOT.Context;
     using PassiveBOT.Extensions;
     using PassiveBOT.Extensions.PassiveBOT;
-    using PassiveBOT.Preconditions;
     using PassiveBOT.Models;
+    using PassiveBOT.Preconditions;
     using PassiveBOT.Services;
 
     /// <summary>
-    /// The partner module.
+    ///     The partner module.
     /// </summary>
     [Group("Partner")]
     [Summary("PassiveBOT Partner program, sends your server's message to another guild periodically, also receives one periodically")]
@@ -26,50 +26,84 @@
     [RequireContext(ContextType.Guild)]
     public class Partner : Base
     {
-        private PrefixService PrefixService { get; }
-
-        private PartnerService PartnerService { get; }
-
         public Partner(PrefixService prefixService, PartnerService partnerService)
         {
             PrefixService = prefixService;
             PartnerService = partnerService;
         }
 
+        private PartnerService PartnerService { get; }
+
+        private PrefixService PrefixService { get; }
 
         /// <summary>
-        /// Displays partner message info
+        ///     Sets the partner message color
+        /// </summary>
+        /// <param name="color">
+        ///     The color.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        [Command("Color")]
+        [Summary("Set the embed color for the partner message")]
+        public Task ColorAsync(string color)
+        {
+            var color_response = ColorManagement.GetColor(color);
+
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Message.Color = new PartnerService.PartnerInfo.PartnerMessage.RGB { R = color_response.R, G = color_response.G, B = color_response.B };
+            p.Save();
+            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
+        }
+
+        /// <summary>
+        ///     The image url.
+        /// </summary>
+        /// <param name="imageUrl">
+        ///     The imageUrl.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        [Command("ImageUrl")]
+        [Summary("Set an optional image url for the partner message")]
+        public async Task ImageURLAsync(string imageUrl = null)
+        {
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            if (!string.IsNullOrEmpty(imageUrl) && !Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
+            {
+                throw new Exception("Url must be a well-formed URI");
+            }
+
+            p.Message.ImageUrl = imageUrl;
+            p.Save();
+            var partnerEmbed = PartnerHelper.GenerateMessage(p, Context.Guild);
+            await ReplyAsync(partnerEmbed);
+
+            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+        }
+
+        /// <summary>
+        ///     Displays partner message info
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("Info")]
         [Summary("Show partner info and stats")]
         public async Task InfoAsync()
         {
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
-            await SimpleEmbedAsync("**Stats**\n" +
-                                   $"Users Reached: {p.Stats.UsersReached}\n" +
-                                   $"Servers Reached: {p.Stats.ServersReached}\n" +
-                                   "**Settings**\n" +
-                                   $"Enabled: {p.Settings.Enabled}\n" +
-                                   $"Channel: {Context.Guild.GetChannel(p.Settings.ChannelId)?.Name ?? "N/A"}\n" +
-                                   "**Config**\n" +
-                                   $"Color (RGB): [{p.Message.Color.R}, {p.Message.Color.G}, {p.Message.Color.B}]\n" +
-                                   $"Using Server Thumbnail: {p.Message.UseThumb}\n" +
-                                   $"Showing UserCount: {p.Message.UserCount}\n" +
-                                   $"Image URL: {p.Message.ImageUrl ?? "N/A"}\n" +
-                                   $"Message: (Refer to Partner Message Embed, for raw do `{PrefixService.GetPrefix(Context.Guild.Id)}partner RawMessage`)\n" +
-                                   "**Partner Message Embed**\n" +
-                                   "(See Next Message)");
+            await SimpleEmbedAsync("**Stats**\n" + $"Users Reached: {p.Stats.UsersReached}\n" + $"Servers Reached: {p.Stats.ServersReached}\n" + "**Settings**\n" + $"Enabled: {p.Settings.Enabled}\n" + $"Channel: {Context.Guild.GetChannel(p.Settings.ChannelId)?.Name ?? "N/A"}\n" + "**Config**\n" + $"Color (RGB): [{p.Message.Color.R}, {p.Message.Color.G}, {p.Message.Color.B}]\n" + $"Using Server Thumbnail: {p.Message.UseThumb}\n" + $"Showing UserCount: {p.Message.UserCount}\n" + $"Image URL: {p.Message.ImageUrl ?? "N/A"}\n" + $"Message: (Refer to Partner Message Embed, for raw do `{PrefixService.GetPrefix(Context.Guild.Id)}partner RawMessage`)\n" + "**Partner Message Embed**\n" + "(See Next Message)");
             await ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
-        /// The raw message.
+        ///     The raw message.
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("RawMessage")]
         [Summary("Show raw partner message with formatting")]
@@ -80,31 +114,13 @@
         }
 
         /// <summary>
-        /// The toggle.
+        ///     Sets the partner channel
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("Toggle")]
-        [Summary("Toggle the Program in the server")]
-        public async Task ToggleAsync()
-        {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
-            p.Settings.Enabled = !p.Settings.Enabled;
-            p.Save();
-
-            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {p.Settings.Enabled}" });
-            await SimpleEmbedAsync($"Partner Program Enabled: {p.Settings.Enabled}");
-        }
-
-        /// <summary>
-        /// Sets the partner channel
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// throws if channel does not have enough users
+        ///     throws if channel does not have enough users
         /// </exception>
         [Command("SetChannel")]
         [Summary("Set the current channel as partner channel")]
@@ -129,16 +145,16 @@
         }
 
         /// <summary>
-        /// Sets the partner message
+        ///     Sets the partner message
         /// </summary>
         /// <param name="message">
-        /// The message.
+        ///     The message.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// throws if the message does not comply with the rules.
+        ///     throws if the message does not comply with the rules.
         /// </exception>
         [Command("Message")]
         [Summary("Set the partner message for this server")]
@@ -161,10 +177,7 @@
 
             if (!message.ToLower().Contains("discord.gg") && !message.ToLower().Contains("discordapp.com") && !message.ToLower().Contains("discord.me"))
             {
-                throw new Exception("You should include an invite link to your server in the Partner Message too\n" +
-                                    $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}\n" +
-                                    "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" +
-                                    "Please disable this during setup, you may re-enable after the message has been set.");
+                throw new Exception("You should include an invite link to your server in the Partner Message too\n" + $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}\n" + "NOTE: If you use 2 Factor Authentication for your server (User Must have a verified phone number on their Discord account)\n" + "Please disable this during setup, you may re-enable after the message has been set.");
             }
 
             if (Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
@@ -183,16 +196,10 @@
 
                 if (mismatch)
                 {
-                    throw new Exception("Please ensure the message passes all checks:\n" + 
-                                        "1.Only invites from this server are allowed in the partner message!\n" +
-                                        "2.Ensure that the invite link you are using is set to never expire\n" +
-                                        "3.Ensure that it does not have a use limit.\n" + 
-                                        "4.If your server uses 2FA please disable it while running the command then re-enable it after\n" + 
-                                        "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" +
-                                        $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}");
+                    throw new Exception("Please ensure the message passes all checks:\n" + "1.Only invites from this server are allowed in the partner message!\n" + "2.Ensure that the invite link you are using is set to never expire\n" + "3.Ensure that it does not have a use limit.\n" + "4.If your server uses 2FA please disable it while running the command then re-enable it after\n" + "If you are using an invite for your server and you are seeing this message, please generate a new invite for your server\n\n" + $"If you believe this is an error, please contact the support server: {HomeModel.Load().HomeInvite}");
                 }
             }
-            
+
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             p.Message.Content = message;
             p.Save();
@@ -203,53 +210,10 @@
         }
 
         /// <summary>
-        /// Toggles userCount in partner message
+        ///     Toggles the partner Thumbnail
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("UserCount")]
-        [Summary("Toggle the User Count in the footer of the partner message")]
-        public Task UserCountAsync()
-        {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
-            p.Message.UserCount = !p.Message.UserCount;
-            p.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
-        }
-
-        /// <summary>
-        /// The image url.
-        /// </summary>
-        /// <param name="imageUrl">
-        /// The imageUrl.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("ImageUrl")]
-        [Summary("Set an optional image url for the partner message")]
-        public async Task ImageURLAsync(string imageUrl = null)
-        {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
-            if (!string.IsNullOrEmpty(imageUrl) && !Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
-            {
-                throw new Exception("Url must be a well-formed URI");
-            }
-
-            p.Message.ImageUrl = imageUrl;
-            p.Save();
-            var partnerEmbed = PartnerHelper.GenerateMessage(p, Context.Guild);
-            await ReplyAsync(partnerEmbed);
-
-            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
-        }
-
-        /// <summary>
-        /// Toggles the partner Thumbnail
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("Thumbnail")]
         [Summary("Toggle the Thumbnail of the server in the partner message")]
@@ -262,27 +226,35 @@
         }
 
         /// <summary>
-        /// Sets the partner message color
+        ///     The toggle.
         /// </summary>
-        /// <param name="color">
-        /// The color.
-        /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        [Command("Color")]
-        [Summary("Set the embed color for the partner message")]
-        public Task ColorAsync(string color)
+        [Command("Toggle")]
+        [Summary("Toggle the Program in the server")]
+        public async Task ToggleAsync()
         {
-            var color_response = ColorManagement.GetColor(color);
-            
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
-            p.Message.Color = new PartnerService.PartnerInfo.PartnerMessage.RGB
-            {
-                R = color_response.R,
-                G = color_response.G,
-                B = color_response.B
-            };
+            p.Settings.Enabled = !p.Settings.Enabled;
+            p.Save();
+
+            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {p.Settings.Enabled}" });
+            await SimpleEmbedAsync($"Partner Program Enabled: {p.Settings.Enabled}");
+        }
+
+        /// <summary>
+        ///     Toggles userCount in partner message
+        /// </summary>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        [Command("UserCount")]
+        [Summary("Toggle the User Count in the footer of the partner message")]
+        public Task UserCountAsync()
+        {
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            p.Message.UserCount = !p.Message.UserCount;
             p.Save();
             return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
         }

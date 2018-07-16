@@ -3,18 +3,18 @@
     using Discord.Commands;
 
     /// <summary>
-    /// command info manipulation
+    ///     command info manipulation
     /// </summary>
     public class CommandInformation
     {
         /// <summary>
-        /// The parameter information.
+        ///     The parameter information.
         /// </summary>
         /// <param name="parameter">
-        /// The param.
+        ///     The param.
         /// </param>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public static string ParameterInformation(ParameterInfo parameter)
         {
@@ -37,7 +37,7 @@
                 initial = $"...{initial}";
                 isAttributed = true;
             }
-            
+
             if (!isAttributed)
             {
                 initial = $"<{initial}>";

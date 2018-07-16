@@ -5,32 +5,32 @@
     using PassiveBOT.Handlers;
 
     /// <summary>
-    /// A model that holds bot usage statistics and other info
+    ///     A model that holds bot usage statistics and other info
     /// </summary>
     public class StatModel
     {
-        /*
         /// <summary>
-        /// Gets or sets the message stats.
+        ///     Gets or sets the command stats.
         /// </summary>
-        public List<MessageStat> MessageStats { get; set; } = new List<MessageStat>();
-        */
+        public List<CommandStat> CommandStats { get; set; } = new List<CommandStat>();
+
+        /*
+                /// <summary>
+                /// Gets or sets the message stats.
+                /// </summary>
+                public List<MessageStat> MessageStats { get; set; } = new List<MessageStat>();
+                */
 
         /// <summary>
-        /// Gets or sets the message count.
+        ///     Gets or sets the message count.
         /// </summary>
         public int MessageCount { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the command stats.
-        /// </summary>
-        public List<CommandStat> CommandStats { get; set; } = new List<CommandStat>();
-
-        /// <summary>
-        /// The saves the config
+        ///     The saves the config
         /// </summary>
         /// <returns>
-        /// The <see cref="HomeModel"/>.
+        ///     The <see cref="HomeModel" />.
         /// </returns>
         public static StatModel Load()
         {
@@ -48,7 +48,7 @@
         }
 
         /// <summary>
-        /// The saves the config
+        ///     The saves the config
         /// </summary>
         public void Save()
         {
@@ -85,63 +85,63 @@
         */
 
         /// <summary>
-        /// Command Usage Statistics
+        ///     Command Usage Statistics
         /// </summary>
         public class CommandStat
         {
             /// <summary>
-            /// Gets or sets the command name.
-            /// </summary>
-            public string CommandName { get; set; }
-
-            /// <summary>
-            /// Gets or sets the command uses.
-            /// </summary>
-            public int CommandUses { get; set; }
-
-            /// <summary>
-            /// Gets or sets the error count
-            /// </summary>
-            public int ErrorCount { get; set; }
-
-            /// <summary>
-            /// Gets or sets the command users.
-            /// </summary>
-            public List<CommandUser> CommandUsers { get; set; } = new List<CommandUser>();
-
-            /// <summary>
-            /// Gets or sets the command guilds.
+            ///     Gets or sets the command guilds.
             /// </summary>
             public List<CommandGuild> CommandGuilds { get; set; } = new List<CommandGuild>();
 
             /// <summary>
-            /// The command guild.
+            ///     Gets or sets the command name.
+            /// </summary>
+            public string CommandName { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the command users.
+            /// </summary>
+            public List<CommandUser> CommandUsers { get; set; } = new List<CommandUser>();
+
+            /// <summary>
+            ///     Gets or sets the command uses.
+            /// </summary>
+            public int CommandUses { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the error count
+            /// </summary>
+            public int ErrorCount { get; set; }
+
+            /// <summary>
+            ///     The command guild.
             /// </summary>
             public class CommandGuild
             {
                 /// <summary>
-                /// Gets or sets the guild id.
+                ///     Gets or sets the guild id.
                 /// </summary>
                 public ulong GuildId { get; set; }
 
                 /// <summary>
-                /// Gets or sets the uses.
+                ///     Gets or sets the uses.
                 /// </summary>
                 public int Uses { get; set; } = 0;
             }
 
             /// <summary>
-            /// The command user.
+            ///     The command user.
             /// </summary>
             public class CommandUser
             {
                 /// <summary>
-                /// Gets or sets the user id.
+                ///     Gets or sets the user id.
                 /// </summary>
                 public ulong UserId { get; set; }
 
                 /// <summary>
-                /// Gets or sets the uses.
+                ///     Gets or sets the uses.
                 /// </summary>
                 public int Uses { get; set; } = 0;
             }

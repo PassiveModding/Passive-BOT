@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
 
     using Discord;
-
     using Discord.Commands;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -14,21 +13,21 @@
     using PassiveBOT.Models;
 
     /// <summary>
-    /// The require admin precondition
+    ///     The require admin precondition
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequireAdmin : PreconditionAttribute
     {
         /// <summary>
-        /// The _allow administrator.
+        ///     The _allow administrator.
         /// </summary>
         private readonly bool allowAdministrator;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequireAdmin"/> class.
+        ///     Initializes a new instance of the <see cref="RequireAdmin" /> class.
         /// </summary>
         /// <param name="allowAdminPermission">
-        /// The allow admin permission.
+        ///     The allow admin permission.
         /// </param>
         public RequireAdmin(bool allowAdminPermission = true)
         {
@@ -43,7 +42,7 @@
         /// <param name="services">The service provider</param>
         /// ///
         /// <returns>
-        /// A precondition result dictating whether or not the command is allowed to run.
+        ///     A precondition result dictating whether or not the command is allowed to run.
         /// </returns>
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {

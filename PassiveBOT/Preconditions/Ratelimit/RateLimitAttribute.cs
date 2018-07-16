@@ -41,63 +41,64 @@
         Seconds
     }
 
-    /// <summary> Sets how often a user is allowed to use this command
-    /// or any command in this module. </summary>
-    /// <remarks>This is backed by an in-memory collection
-    /// and will not persist with restarts.</remarks>
+    /// <summary>
+    ///     Sets how often a user is allowed to use this command
+    ///     or any command in this module.
+    /// </summary>
+    /// <remarks>
+    ///     This is backed by an in-memory collection
+    ///     and will not persist with restarts.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false)]
     public sealed class RateLimitAttribute : PreconditionAttribute
     {
         /// <summary>
-        /// The _invoke limit.
-        /// </summary>
-        private readonly uint invokeLimit;
-
-        /// <summary>
-        /// The _no limit in d ms.
-        /// </summary>
-        private readonly bool noLimitInDMs;
-
-        /// <summary>
-        /// The _no limit for admins.
-        /// </summary>
-        private readonly bool noLimitForAdmins;
-
-        /// <summary>
-        /// The _apply per guild.
+        ///     The _apply per guild.
         /// </summary>
         private readonly bool applyPerGuild;
 
         /// <summary>
-        /// The _invoke limit period.
+        ///     The _invoke limit.
+        /// </summary>
+        private readonly uint invokeLimit;
+
+        /// <summary>
+        ///     The _invoke limit period.
         /// </summary>
         private readonly TimeSpan invokeLimitPeriod;
 
         /// <summary>
-        /// The _invoke tracker.
+        ///     The _invoke tracker.
         /// </summary>
         private readonly Dictionary<(ulong, ulong?), CommandTimeout> invokeTracker = new Dictionary<(ulong, ulong?), CommandTimeout>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RateLimitAttribute"/> class.  Sets how often a user is allowed to use this command. 
+        ///     The _no limit for admins.
+        /// </summary>
+        private readonly bool noLimitForAdmins;
+
+        /// <summary>
+        ///     The _no limit in d ms.
+        /// </summary>
+        private readonly bool noLimitInDMs;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RateLimitAttribute" /> class.  Sets how often a user is allowed to use
+        ///     this command.
         /// </summary>
         /// <param name="times">
-        /// The number of times a user may use the command within a certain period.
+        ///     The number of times a user may use the command within a certain period.
         /// </param>
         /// <param name="period">
-        /// The amount of time since first invoke a user has until the limit is lifted.
+        ///     The amount of time since first invoke a user has until the limit is lifted.
         /// </param>
         /// <param name="measure">
-        /// The scale in which the <paramref name="period"/> parameter should be measured.
+        ///     The scale in which the <paramref name="period" /> parameter should be measured.
         /// </param>
         /// <param name="flags">
-        /// Flags to set behavior of the rate limit.
+        ///     Flags to set behavior of the rate limit.
         /// </param>
-        public RateLimitAttribute(
-            uint times,
-            double period,
-            Measure measure,
-            RateLimitFlags flags = RateLimitFlags.None)
+        public RateLimitAttribute(uint times, double period, Measure measure, RateLimitFlags flags = RateLimitFlags.None)
         {
             invokeLimit = times;
             noLimitInDMs = (flags & RateLimitFlags.NoLimitInDMs) == RateLimitFlags.NoLimitInDMs;
@@ -123,21 +124,19 @@
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RateLimitAttribute"/> class.  Sets how often a user is allowed to use this command. 
+        ///     Initializes a new instance of the <see cref="RateLimitAttribute" /> class.  Sets how often a user is allowed to use
+        ///     this command.
         /// </summary>
         /// <param name="times">
-        /// The number of times a user may use the command within a certain period.
+        ///     The number of times a user may use the command within a certain period.
         /// </param>
         /// <param name="period">
-        /// The amount of time since first invoke a user has until the limit is lifted.
+        ///     The amount of time since first invoke a user has until the limit is lifted.
         /// </param>
         /// <param name="flags">
-        /// Flags to set behavior of the rate limit.
+        ///     Flags to set behavior of the rate limit.
         /// </param>
-        public RateLimitAttribute(
-            uint times,
-            TimeSpan period,
-            RateLimitFlags flags = RateLimitFlags.None)
+        public RateLimitAttribute(uint times, TimeSpan period, RateLimitFlags flags = RateLimitFlags.None)
         {
             invokeLimit = times;
             noLimitInDMs = (flags & RateLimitFlags.NoLimitInDMs) == RateLimitFlags.NoLimitInDMs;
@@ -148,10 +147,7 @@
         }
 
         /// <inheritdoc />
-        public override Task<PreconditionResult> CheckPermissionsAsync(
-            ICommandContext context,
-            CommandInfo command,
-            IServiceProvider services)
+        public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
             if (noLimitInDMs && context.Channel is IPrivateChannel)
             {
@@ -166,9 +162,7 @@
             var now = DateTime.UtcNow;
             var key = applyPerGuild ? (context.User.Id, context.Guild?.Id) : (context.User.Id, null);
 
-            var timeout = (invokeTracker.TryGetValue(key, out var t)
-                && ((now - t.FirstInvoke) < invokeLimitPeriod))
-                    ? t : new CommandTimeout(now);
+            var timeout = (invokeTracker.TryGetValue(key, out var t) && ((now - t.FirstInvoke) < invokeLimitPeriod)) ? t : new CommandTimeout(now);
 
             timeout.TimesInvoked++;
 
@@ -182,30 +176,30 @@
         }
 
         /// <summary>
-        /// The command timeout.
+        ///     The command timeout.
         /// </summary>
         private sealed class CommandTimeout
         {
-             /// <summary>
-            /// Initializes a new instance of the <see cref="CommandTimeout"/> class.
+            /// <summary>
+            ///     Initializes a new instance of the <see cref="CommandTimeout" /> class.
             /// </summary>
             /// <param name="timeStarted">
-            /// The time started.
+            ///     The time started.
             /// </param>
             public CommandTimeout(DateTime timeStarted)
             {
                 FirstInvoke = timeStarted;
             }
-            
-            /// <summary>
-            /// Gets or sets the times invoked.
-            /// </summary>
-            public uint TimesInvoked { get; set; }
 
             /// <summary>
-            /// Gets the first invoke.
+            ///     Gets the first invoke.
             /// </summary>
             public DateTime FirstInvoke { get; }
+
+            /// <summary>
+            ///     Gets or sets the times invoked.
+            /// </summary>
+            public uint TimesInvoked { get; set; }
         }
     }
 }

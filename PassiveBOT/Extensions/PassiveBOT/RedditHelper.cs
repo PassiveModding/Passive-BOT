@@ -4,30 +4,22 @@
     using System.Linq;
 
     /// <summary>
-    /// The reddit helper.
+    ///     The reddit helper.
     /// </summary>
     public static class RedditHelper
     {
         /// <summary>
-        /// The IsImage.
+        ///     The IsImage.
         /// </summary>
         /// <param name="url">
-        /// The url.
+        ///     The url.
         /// </param>
         /// <returns>
-        /// The <see cref="IsImg"/>.
+        ///     The <see cref="IsImg" />.
         /// </returns>
         public static IsImg IsImage(string url)
         {
-            var imgextensions = new List<string>
-                                    {
-                                        ".jpg",
-                                        ".gif",
-                                        ".webm",
-                                        ".png",
-                                        "gfycat",
-                                        ".mp4"
-                                    };
+            var imgextensions = new List<string> { ".jpg", ".gif", ".webm", ".png", "gfycat", ".mp4" };
 
             if (!imgextensions.Any(ex => url.ToLower().Contains(ex)))
             {
@@ -45,33 +37,28 @@
                 url = url.Replace(".gifv", ".gif");
             }
 
-            return new IsImg
-                       {
-                           Extension = imgextensions.Find(ex => url.ToLower().Contains(ex)),
-                           IsImage = true,
-                           Url = url
-                       };
+            return new IsImg { Extension = imgextensions.Find(ex => url.ToLower().Contains(ex)), IsImage = true, Url = url };
         }
 
         /// <summary>
-        /// Image Info.
+        ///     Image Info.
         /// </summary>
         public class IsImg
         {
             /// <summary>
-            /// Gets or sets the url.
+            ///     Gets or sets the extension.
             /// </summary>
-            public string Url { get; set; }
+            public string Extension { get; set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether it is an image.
+            ///     Gets or sets a value indicating whether it is an image.
             /// </summary>
             public bool IsImage { get; set; }
 
             /// <summary>
-            /// Gets or sets the extension.
+            ///     Gets or sets the url.
             /// </summary>
-            public string Extension { get; set; }
+            public string Url { get; set; }
         }
     }
 }

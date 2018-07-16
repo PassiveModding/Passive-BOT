@@ -14,31 +14,49 @@
     using PassiveBOT.Services;
 
     /// <summary>
-    /// The levels commands
+    ///     The levels commands
     /// </summary>
     [RequireContext(ContextType.Guild)]
     [Summary("Level information for the server")]
     public class Levels : Base
     {
-        private static LevelService Service { get; set; }
-
         public Levels(LevelService service)
         {
             Service = service;
         }
 
+        private static LevelService Service { get; set; }
 
         /// <summary>
-        /// Shows the users rank
+        ///     The leader board.
+        /// </summary>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        [Command("LeaderBoard")]
+        [Summary("Display the LeaderBoard")]
+        public Task LeaderBoardAsync()
+        {
+            var l = Service.GetLevelSetup(Context.Guild.Id);
+            var users = l.Users.OrderByDescending(x => x.Value.XP).Where(x => Context.Guild.GetUser(x.Key) != null).Take(100).ToList();
+            var rgx = new Regex("[^a-zA-Z0-9 -#]");
+            var list = users.Select(x => $"`{$"#{users.IndexOf(x) + 1} - {rgx.Replace(Context.Guild.GetUser(x.Key).ToString(), string.Empty)}".PadRight(40)}\u200B || LV: {x.Value.Level - 1} XP: {x.Value.XP}`").ToList();
+            var pages = list.SplitList(20).Select(x => new PaginatedMessage.Page { Description = string.Join("\n", x) });
+            var pager = new PaginatedMessage { Title = $"{Context.Guild.Name} Levels", Pages = pages, Color = Color.DarkRed };
+            return PagedReplyAsync(pager, new ReactionList { Forward = true, Backward = true });
+        }
+
+        /// <summary>
+        ///     Shows the users rank
         /// </summary>
         /// <param name="user">
-        /// The user.
+        ///     The user.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// Throws if invalid user/no rank
+        ///     Throws if invalid user/no rank
         /// </exception>
         [Command("Level")]
         [Alias("Rank")]
@@ -53,18 +71,13 @@
                 throw new Exception("Error, Missing User");
             }
 
-            var embed = new EmbedBuilder
-            {
-                Title = $"{user?.Username ?? Context.User.Username}'s Rank",
-                Color = Color.Purple,
-                ThumbnailUrl = user != null ? user.GetAvatarUrl() : Context.User.GetAvatarUrl()
-            };
+            var embed = new EmbedBuilder { Title = $"{user?.Username ?? Context.User.Username}'s Rank", Color = Color.Purple, ThumbnailUrl = user != null ? user.GetAvatarUrl() : Context.User.GetAvatarUrl() };
 
             var requiredXP = (levelUser.Level * 50) + ((levelUser.Level * levelUser.Level) * 25);
             var currentLvXP = ((levelUser.Level - 1) * 50) + (((levelUser.Level - 1) * (levelUser.Level - 1)) * 25);
             var progressInt = ((float)(requiredXP - levelUser.XP) / (requiredXP - currentLvXP)) * 10;
             var progressString = "`|";
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 if (progressInt > i)
                 {
@@ -76,7 +89,7 @@
                 }
             }
 
-            progressString += $"|` {(int)progressInt*10}%";
+            progressString += $"|` {(int)progressInt * 10}%";
 
             embed.AddField("Level", $"{levelUser.Level - 1}", true);
             embed.AddField("XP", $"{levelUser.XP}/{requiredXP}", true);
@@ -86,41 +99,10 @@
         }
 
         /// <summary>
-        /// The leader board.
+        ///     The leader board.
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("LeaderBoard")]
-        [Summary("Display the LeaderBoard")]
-        public Task LeaderBoardAsync()
-        {
-            var l = Service.GetLevelSetup(Context.Guild.Id);
-            var users = l.Users.OrderByDescending(x => x.Value.XP).Where(x => Context.Guild.GetUser(x.Key) != null).Take(100).ToList();
-            var rgx = new Regex("[^a-zA-Z0-9 -#]");
-            var list = users.Select(x => $"`{$"#{users.IndexOf(x) + 1} - {rgx.Replace(Context.Guild.GetUser(x.Key).ToString(), "")}".PadRight(40)}\u200B || LV: {x.Value.Level - 1} XP: {x.Value.XP}`").ToList();
-            var pages = list.SplitList(20).Select(x => new PaginatedMessage.Page
-            {
-                Description = string.Join("\n", x)
-            });
-            var pager = new PaginatedMessage
-            {
-                Title = $"{Context.Guild.Name} Levels",
-                Pages = pages,
-                Color = Color.DarkRed
-            };
-            return PagedReplyAsync(pager, new ReactionList
-                                              {
-                                                  Forward = true,
-                                                  Backward = true
-                                              });
-        }
-
-        /// <summary>
-        /// The leader board.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("Ranks")]
         [Summary("Display the Level Rewards")]

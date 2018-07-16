@@ -1,10 +1,10 @@
 ﻿namespace PassiveBOT.Extensions.PassiveBOT
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
-    public static class Dictionary
+    public static class ConcurrentDictionary
     {
-        public static Dictionary<T, int> TryIncrementOrAdd<T>(this Dictionary<T, int> source, T key, int increment = 1)
+        public static ConcurrentDictionary<T, int> TryIncrementOrAdd<T>(this ConcurrentDictionary<T, int> source, T key, int increment = 1)
         {
             if (source.TryGetValue(key, out _))
             {
@@ -12,7 +12,7 @@
             }
             else
             {
-                source.Add(key, increment);
+                source.TryAdd(key, increment);
             }
 
             return source;

@@ -4,11 +4,10 @@
     using System.Threading.Tasks;
 
     using Discord;
-
     using Discord.Commands;
 
     /// <summary>
-    /// A precondition to check for the guilds owner
+    ///     A precondition to check for the guilds owner
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class GuildOwner : PreconditionAttribute

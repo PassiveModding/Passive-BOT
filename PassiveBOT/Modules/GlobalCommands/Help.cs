@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Modules.GlobalCommands
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -15,23 +16,23 @@
     using PassiveBOT.Handlers;
 
     /// <summary>
-    /// The help module
+    ///     The help module
     /// </summary>
     public class Help : Base
     {
         /// <summary>
-        /// The command service
+        ///     The command service
         /// </summary>
         private readonly CommandService service;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Help"/> class.
+        ///     Initializes a new instance of the <see cref="Help" /> class.
         /// </summary>
         /// <param name="commandservice">
-        /// The commandservice.
+        ///     The commandservice.
         /// </param>
         /// <param name="prefixService">
-        /// The prefix Service.
+        ///     The prefix Service.
         /// </param>
         private Help(CommandService commandservice, PrefixService prefixService)
         {
@@ -39,38 +40,21 @@
             PrefixService = prefixService;
         }
 
-        private PrefixService PrefixService { get; }
-
         /// <summary>
-        /// Gets or sets the current command being executed
+        ///     Gets or sets the current command being executed
         /// </summary>
         private CommandInfo Command { get; set; }
 
-        /// <summary>
-        /// The help command.
-        /// </summary>
-        /// <param name="checkForMatch">
-        /// The checkForMatch.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("Help")]
-        [Summary("Lists all accessible commands")]
-        [Remarks("Use FullHelp for all commands")]
-        public Task HelpCommandAsync([Remainder] string checkForMatch = null)
-        {
-            return GenerateHelpAsync(checkForMatch);
-        }
+        private PrefixService PrefixService { get; }
 
         /// <summary>
-        /// The full help.
+        ///     The full help.
         /// </summary>
         /// <param name="checkForMatch">
-        /// The check for match.
+        ///     The check for match.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("FullHelp")]
         [Summary("Lists all commands")]
@@ -80,13 +64,13 @@
         }
 
         /// <summary>
-        /// Generates a help message
+        ///     Generates a help message
         /// </summary>
         /// <param name="checkForMatch">Matching module name or command name</param>
         /// <param name="checkPreconditions">Whether or not to display commands the user does not have access to</param>
         /// <returns>Task Finished</returns>
         /// <exception cref="Exception">
-        /// Throws if command specified and no match is found
+        ///     Throws if command specified and no match is found
         /// </exception>
         public async Task GenerateHelpAsync(string checkForMatch = null, bool checkPreconditions = true)
         {
@@ -108,19 +92,36 @@
         }
 
         /// <summary>
-        /// The module/command help.
+        ///     The help command.
         /// </summary>
-        /// <param name="checkPreconditions">
-        /// The check preconditions.
-        /// </param>
         /// <param name="checkForMatch">
-        /// The check for match.
+        ///     The checkForMatch.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
+        /// </returns>
+        [Command("Help")]
+        [Summary("Lists all accessible commands")]
+        [Remarks("Use FullHelp for all commands")]
+        public Task HelpCommandAsync([Remainder] string checkForMatch = null)
+        {
+            return GenerateHelpAsync(checkForMatch);
+        }
+
+        /// <summary>
+        ///     The module/command help.
+        /// </summary>
+        /// <param name="checkPreconditions">
+        ///     The check preconditions.
+        /// </param>
+        /// <param name="checkForMatch">
+        ///     The check for match.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// throws if none found
+        ///     throws if none found
         /// </exception>
         public Task ModuleCommandHelpAsync(bool checkPreconditions, string checkForMatch)
         {
@@ -137,12 +138,7 @@
                 }
 
                 var info = passingCommands.Select(x => $"{pre}{x.Aliases.FirstOrDefault()} {string.Join(" ", x.Parameters.Select(CommandInformation.ParameterInformation))}").ToList();
-                var splitFields = info.SplitList(10)
-                    .Select(x => new EmbedFieldBuilder
-                    {
-                        Name = $"Module: {module.Name}",
-                        Value = string.Join("\n", x)
-                    }).ToList();
+                var splitFields = info.SplitList(10).Select(x => new EmbedFieldBuilder { Name = $"Module: {module.Name}", Value = string.Join("\n", x) }).ToList();
                 fields.AddRange(splitFields);
             }
 
@@ -151,20 +147,7 @@
             {
                 if (command.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)
                 {
-                    fields.Add(new EmbedFieldBuilder
-                    {
-                        Name = $"Command: {command.Name}",
-                        Value = "**Usage:**\n" +
-                                               $"{pre}{command.Aliases.FirstOrDefault()} {string.Join(" ", command.Parameters.Select(CommandInformation.ParameterInformation))}\n" +
-                                               "**Aliases:**\n" +
-                                               $"{string.Join("\n", command.Aliases)}\n" +
-                                               "**Module:**\n" +
-                                               $"{command.Module.Name}\n" +
-                                               "**Summary:**\n" +
-                                               $"{command.Summary ?? "N/A"}\n" +
-                                               "**Remarks:**\n" +
-                                               $"{command.Remarks ?? "N/A"}"
-                    });
+                    fields.Add(new EmbedFieldBuilder { Name = $"Command: {command.Name}", Value = "**Usage:**\n" + $"{pre}{command.Aliases.FirstOrDefault()} {string.Join(" ", command.Parameters.Select(CommandInformation.ParameterInformation))}\n" + "**Aliases:**\n" + $"{string.Join("\n", command.Aliases)}\n" + "**Module:**\n" + $"{command.Module.Name}\n" + "**Summary:**\n" + $"{command.Summary ?? "N/A"}\n" + "**Remarks:**\n" + $"{command.Remarks ?? "N/A"}" });
                 }
             }
 
@@ -173,12 +156,9 @@
                 throw new Exception("There are no matches for this input.");
             }
 
-            return InlineReactionReplyAsync(new ReactionCallbackData(string.Empty, new EmbedBuilder
-                                                                                       {
-                                                                                           Fields = fields,
-                                                                                           Color = Color.DarkRed
-                                                                                       }.Build(), timeout: TimeSpan.FromMinutes(5))
-                .WithCallback(new Emoji("❌"),
+            return InlineReactionReplyAsync(
+                new ReactionCallbackData(string.Empty, new EmbedBuilder { Fields = fields, Color = Color.DarkRed }.Build(), timeout: TimeSpan.FromMinutes(5)).WithCallback(
+                    new Emoji("❌"),
                     async (c, r) =>
                         {
                             await r.Message.Value?.DeleteAsync();
@@ -187,13 +167,13 @@
         }
 
         /// <summary>
-        /// The paged help.
+        ///     The paged help.
         /// </summary>
         /// <param name="checkPreconditions">
-        /// The check preconditions.
+        ///     The check preconditions.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         public Task PagedHelpAsync(bool checkPreconditions)
         {
@@ -202,28 +182,22 @@
             var pre = PrefixService.GetPrefix(Context.Guild?.Id ?? 0);
 
             // This ensures that we filter out all modules where the user cannot access ANY commands
-            var modules = checkPreconditions ? 
-                              service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList() : 
-                              service.Modules.OrderBy(x => x.Name).ToList();
-            
+            var modules = checkPreconditions ? service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList() : service.Modules.OrderBy(x => x.Name).ToList();
+
             // Split the modules into groups of 5 to ensure the message doesn't get too long
             var moduleSets = modules.SplitList(5);
             moduleIndex += moduleSets.Count - 1;
             var fields = new List<EmbedFieldBuilder>
+                             {
+                                 new EmbedFieldBuilder
                                      {
-                                         new EmbedFieldBuilder
-                                             {
-                                                 // This gives a brief overview of how to use the paginated message and help commands.
-                                                 Name = $"[1-{moduleIndex}] Commands Summary",
-                                                 Value = "Go to the respective page number of each module to view the commands in more detail. " +
-                                                         "You can react with the :1234: emote and type a page number to go directly to that page too,\n" +
-                                                         "otherwise react with the arrows (◀ ▶) to change pages.\n" +
-                                                         "For more info on modules or commands,\n" +
-                                                         $"type `{pre}help <ModuleName>` or `{pre}help <CommandName>`"
-                                             }
-                                     };
+                                         // This gives a brief overview of how to use the paginated message and help commands.
+                                         Name = $"[1-{moduleIndex}] Commands Summary",
+                                         Value = "Go to the respective page number of each module to view the commands in more detail. " + "You can react with the :1234: emote and type a page number to go directly to that page too,\n" + "otherwise react with the arrows (◀ ▶) to change pages.\n" + "For more info on modules or commands,\n" + $"type `{pre}help <ModuleName>` or `{pre}help <CommandName>`"
+                                     }
+                             };
 
-            var pageContents = new Dictionary<string, List<string>>();
+            var pageContents = new ConcurrentDictionary<string, List<string>>();
             var setIndex = 1;
 
             foreach (var moduleSet in moduleSets)
@@ -256,7 +230,7 @@
                         }
 
                         // Add a full page summary to our 'PageContents' list for later use
-                        pageContents.Add(module.Name, summary);
+                        pageContents.TryAdd(module.Name, summary);
                     }
                     catch (Exception e)
                     {
@@ -264,13 +238,9 @@
                         LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
                     }
                 }
-                
+
                 // Add the page for each Module Set to our pages list.
-                pages.Add(new PaginatedMessage.Page
-                {
-                    Fields = fields,
-                    Title = $"{Context.Client.CurrentUser.Username} Commands {setIndex}"
-                });
+                pages.Add(new PaginatedMessage.Page { Fields = fields, Title = $"{Context.Client.CurrentUser.Username} Commands {setIndex}" });
 
                 // Reset the fields list for the next module set
                 fields = new List<EmbedFieldBuilder>();
@@ -281,26 +251,18 @@
             foreach (var contents in pageContents)
             {
                 // Split these into groups of 10 to ensure there is no embed field character limit being hit. (1024 characters bet field description)
-                var splitFields = contents.Value.SplitList(10)
-                    .Select(x => new EmbedFieldBuilder
-                    {
-                        Name = contents.Key,
-                        Value = string.Join("\n", x)
-                    }).ToList();
-                pages.Add(new PaginatedMessage.Page
-                {
-                    Fields = splitFields
-                });
+                var splitFields = contents.Value.SplitList(10).Select(x => new EmbedFieldBuilder { Name = contents.Key, Value = string.Join("\n", x) }).ToList();
+                pages.Add(new PaginatedMessage.Page { Fields = splitFields });
             }
 
             return PagedReplyAsync(new PaginatedMessage { Pages = pages, Title = $"{Context.Client.CurrentUser.Username} Help || Prefix: {pre}", Color = Color.DarkRed }, new ReactionList { Backward = true, Forward = true, Jump = true, Trash = true });
         }
 
         /// <summary>
-        /// Runs before executing the command and sets the 'Command'
+        ///     Runs before executing the command and sets the 'Command'
         /// </summary>
         /// <param name="command">
-        /// The command.
+        ///     The command.
         /// </param>
         protected override void BeforeExecute(CommandInfo command)
         {

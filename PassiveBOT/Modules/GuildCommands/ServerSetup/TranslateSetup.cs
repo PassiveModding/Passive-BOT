@@ -10,11 +10,11 @@
     using Discord.Commands;
 
     using PassiveBOT.Context;
-    using PassiveBOT.Preconditions;
     using PassiveBOT.Models;
+    using PassiveBOT.Preconditions;
 
     /// <summary>
-    /// The translate setup module
+    ///     The translate setup module
     /// </summary>
     [Group("TranslateSetup")]
     [Summary("Setup for quick translation via reactions.")]
@@ -22,102 +22,107 @@
     [RequireAdmin]
     public class TranslateSetup : Base
     {
-        private PrefixService PrefixService { get; }
-
         public TranslateSetup(PrefixService prefixService)
         {
             PrefixService = prefixService;
         }
 
-        /// <summary>
-        /// The translate setup task.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("TranslateSetup")]
-        [Summary("Setup information for the translation setup module")]
-        public Task TranslateSetupTaskAsync()
-        {
-            var translate = Context.Server.Settings.Translate;
-            return SimpleEmbedAsync($"Reactions Enabled: {translate.EasyTranslate}\n" + 
-                                    $"DM Translations: {translate.DMTranslations}\n" + 
-                                    "For pairs refer to the `list` and `defaults` commands");
-        }
+        private PrefixService PrefixService { get; }
 
         /// <summary>
-        /// Tutorial on translation command usage
+        ///     Tutorial on translation command usage
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("HowTo")]
         [Summary("QuickTranslate Command Help")]
         public Task HowToAsync()
         {
             var pre = PrefixService.GetPrefix(Context.Guild.Id);
-            return SimpleEmbedAsync("**Translation Help**\n" +
-                                    "What is QuickTranslation?\n" +
-                                    "Quick translation enables you to react to a message with a specific emoji and have it auto-translated into a specific language.\n" +
-                                    "You can add an Emoji and Set its language using the Add Command and Remove one using the Remove Command\n" +
-                                    "The Quick Translation system can be toggled using the Toggle Command\n\n" +
-                                    "**Usage**\n" +
-                                    $"`{pre}TranslateSetup Add <Emoji> <Language>` - Adds a quick translation configuration\n" +
-                                    $"`{pre}TranslateSetup Add :flag_us: en` - Reacting with the :flag_us: emoji will translate the message to english\n\n" +
-                                    $"`{pre}TranslateSetup Remove <Emoji>` - Removes a quick translation configuration\n" +
-                                    $"`{pre}TranslateSetup Remove :flag_us:` - Removed the custom configuration\n" +
-                                    $"`{pre}TranslateSetup Toggle` - Toggles on or off Quick Translation via reactions\n" +
-                                    $"`{pre}TranslateSetup List` - List the Custom Configuration\n" +
-                                    $"`{pre}TranslateSetup Defaults` - List the Default Configuration\n\n" +
-                                    "NOTE: For a list of Language Codes\n" +
-                                    $"`{pre}Translate languages`\n" +
-                                    "Also, \n" +
-                                    "for `zh-CN - Chinese(Simplified)` use `zh_CN`\n" +
-                                    "for `zh-TW - Chinese(Traditional)` use `zh_TW`\n" +
-                                    "for `is - Icelandic` use `_is`");
+            return SimpleEmbedAsync("**Translation Help**\n" + "What is QuickTranslation?\n" + "Quick translation enables you to react to a message with a specific emoji and have it auto-translated into a specific language.\n" + "You can add an Emoji and Set its language using the Add Command and Remove one using the Remove Command\n" + "The Quick Translation system can be toggled using the Toggle Command\n\n" + "**Usage**\n" + $"`{pre}TranslateSetup Add <Emoji> <Language>` - Adds a quick translation configuration\n" + $"`{pre}TranslateSetup Add :flag_us: en` - Reacting with the :flag_us: emoji will translate the message to english\n\n" + $"`{pre}TranslateSetup Remove <Emoji>` - Removes a quick translation configuration\n" + $"`{pre}TranslateSetup Remove :flag_us:` - Removed the custom configuration\n" + $"`{pre}TranslateSetup Toggle` - Toggles on or off Quick Translation via reactions\n" + $"`{pre}TranslateSetup List` - List the Custom Configuration\n" + $"`{pre}TranslateSetup Defaults` - List the Default Configuration\n\n" + "NOTE: For a list of Language Codes\n" + $"`{pre}Translate languages`\n" + "Also, \n" + "for `zh-CN - Chinese(Simplified)` use `zh_CN`\n" + "for `zh-TW - Chinese(Traditional)` use `zh_TW`\n" + "for `is - Icelandic` use `_is`");
         }
 
         /// <summary>
-        /// Toggle quick translation in the server
+        ///     The custom emotes list
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        [Command("Toggle")]
-        [Summary("Toggle quick translation for the server")]
-        public Task ToggleAsync()
+        [Command("List")]
+        [Summary("List paired languages")]
+        public Task ListAsync()
         {
-            Context.Server.Settings.Translate.EasyTranslate = !Context.Server.Settings.Translate.EasyTranslate;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"Quick Translate Enabled: {Context.Server.Settings.Translate.EasyTranslate}");
+            var fields = Context.Server.Settings.Translate.CustomPairs.Select(x => new EmbedFieldBuilder { Name = x.Language.ToString(), Value = string.Join("\n", x.EmoteMatches), IsInline = true }).ToList();
+            var embed = new EmbedBuilder { Fields = fields };
+            return ReplyAsync(embed);
         }
 
         /// <summary>
-        /// toggle dm translations in the server
+        ///     The default emotes list
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        [Command("DM")]
-        [Summary("Toggle whether or not Translations will be sent in DMs")]
-        public Task ToggleDMAsync()
+        [Command("Defaults")]
+        [Summary("List Default paired languages")]
+        public Task ListDeAsync()
         {
-            Context.Server.Settings.Translate.DMTranslations = !Context.Server.Settings.Translate.DMTranslations;
-            Context.Server.Save();
-            return SimpleEmbedAsync($"DM Quick Translations: {Context.Server.Settings.Translate.DMTranslations}");
+            var fields = LanguageMap.DefaultMap.OrderByDescending(x => x.EmoteMatches.Count).Select(x => new EmbedFieldBuilder { Name = x.Language.ToString(), Value = string.Join("\n", x.EmoteMatches), IsInline = true }).ToList();
+            var embed = new EmbedBuilder { Fields = fields };
+            return ReplyAsync(embed);
         }
 
         /// <summary>
-        /// Removes a custom quick translation emote.
+        ///     Adds a quick translate pair.
         /// </summary>
         /// <param name="emote">
-        /// The emote.
+        ///     The input emote.
+        /// </param>
+        /// <param name="languageCode">
+        ///     The languageCode.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// Throws if there is no matching emote.
+        ///     Throws if a pair is already matched.
+        /// </exception>
+        [Command("Add")]
+        [Summary("Add a pair for quick translation of a language")]
+        [Remarks("For a list of language codes use the `Translate Languages` Command")]
+        public Task QuickTranslatePairAsync(Emoji emote, LanguageMap.LanguageCode languageCode)
+        {
+            var group = Context.Server.Settings.Translate.CustomPairs.FirstOrDefault(x => x.Language == languageCode);
+            if (group != null)
+            {
+                if (group.EmoteMatches.Any(x => x == emote.Name))
+                {
+                    throw new Exception("Emote already mapped to a language");
+                }
+
+                group.EmoteMatches.Add(emote.Name);
+            }
+            else
+            {
+                Context.Server.Settings.Translate.CustomPairs.Add(new GuildModel.GuildSetup.TranslateSetup.TranslationSet { EmoteMatches = new List<string> { emote.Name }, Language = languageCode });
+            }
+
+            Context.Server.Save();
+            return SimpleEmbedAsync("Pair Added:\n" + $"{emote.Name} => {languageCode}");
+        }
+
+        /// <summary>
+        ///     Removes a custom quick translation emote.
+        /// </summary>
+        /// <param name="emote">
+        ///     The emote.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        /// <exception cref="Exception">
+        ///     Throws if there is no matching emote.
         /// </exception>
         [Command("Remove")]
         [Summary("Remove a custom emote from QuickTranslation list")]
@@ -145,96 +150,47 @@
         }
 
         /// <summary>
-        /// Adds a quick translate pair.
+        ///     Toggle quick translation in the server
         /// </summary>
-        /// <param name="emote">
-        /// The input emote.
-        /// </param>
-        /// <param name="languageCode">
-        /// The languageCode.
-        /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        /// <exception cref="Exception">
-        /// Throws if a pair is already matched.
-        /// </exception>
-        [Command("Add")]
-        [Summary("Add a pair for quick translation of a language")]
-        [Remarks("For a list of language codes use the `Translate Languages` Command")]
-        public Task QuickTranslatePairAsync(Emoji emote, LanguageMap.LanguageCode languageCode)
+        [Command("Toggle")]
+        [Summary("Toggle quick translation for the server")]
+        public Task ToggleAsync()
         {
-            var group = Context.Server.Settings.Translate.CustomPairs.FirstOrDefault(x => x.Language == languageCode);
-            if (group != null)
-            {
-                if (group.EmoteMatches.Any(x => x == emote.Name))
-                {
-                    throw new Exception("Emote already mapped to a language");
-                }
-
-                group.EmoteMatches.Add(emote.Name);
-            }
-            else
-            {
-                Context.Server.Settings.Translate.CustomPairs.Add(new GuildModel.GuildSetup.TranslateSetup.TranslationSet
-                {
-                    EmoteMatches = new List<string>
-                    {
-                        emote.Name
-                    },
-                    Language = languageCode
-                });
-            }
-
+            Context.Server.Settings.Translate.EasyTranslate = !Context.Server.Settings.Translate.EasyTranslate;
             Context.Server.Save();
-            return SimpleEmbedAsync("Pair Added:\n" +
-                                    $"{emote.Name} => {languageCode}");
+            return SimpleEmbedAsync($"Quick Translate Enabled: {Context.Server.Settings.Translate.EasyTranslate}");
         }
 
         /// <summary>
-        /// The custom emotes list
+        ///     toggle dm translations in the server
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        [Command("List")]
-        [Summary("List paired languages")]
-        public Task ListAsync()
+        [Command("DM")]
+        [Summary("Toggle whether or not Translations will be sent in DMs")]
+        public Task ToggleDMAsync()
         {
-            var fields = Context.Server.Settings.Translate.CustomPairs.Select(x => new EmbedFieldBuilder
-            {
-                Name = x.Language.ToString(),
-                Value = string.Join("\n", x.EmoteMatches),
-                IsInline = true
-            }).ToList();
-            var embed = new EmbedBuilder
-            {
-                Fields = fields
-            };
-            return ReplyAsync(embed);
+            Context.Server.Settings.Translate.DMTranslations = !Context.Server.Settings.Translate.DMTranslations;
+            Context.Server.Save();
+            return SimpleEmbedAsync($"DM Quick Translations: {Context.Server.Settings.Translate.DMTranslations}");
         }
 
         /// <summary>
-        /// The default emotes list
+        ///     The translate setup task.
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        [Command("Defaults")]
-        [Summary("List Default paired languages")]
-        public Task ListDeAsync()
+        [Command("TranslateSetup")]
+        [Summary("Setup information for the translation setup module")]
+        public Task TranslateSetupTaskAsync()
         {
-            var fields = LanguageMap.DefaultMap.OrderByDescending(x => x.EmoteMatches.Count).Select(x => new EmbedFieldBuilder
-            {
-                Name = x.Language.ToString(),
-                Value = string.Join("\n", x.EmoteMatches),
-                IsInline = true
-            }).ToList();
-            var embed = new EmbedBuilder
-            {
-                Fields = fields
-            };
-            return ReplyAsync(embed);
+            var translate = Context.Server.Settings.Translate;
+            return SimpleEmbedAsync($"Reactions Enabled: {translate.EasyTranslate}\n" + $"DM Translations: {translate.DMTranslations}\n" + "For pairs refer to the `list` and `defaults` commands");
         }
     }
 }

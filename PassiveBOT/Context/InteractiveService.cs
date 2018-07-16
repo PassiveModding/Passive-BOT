@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
-    using global::Discord.WebSocket;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Commands;
+    using Discord.WebSocket;
 
     /// <inheritdoc />
     /// <summary>
@@ -16,10 +16,11 @@
     public class Interactive : IDisposable
     {
         private readonly Dictionary<ulong, IReactionCallback> _callbacks;
+
         private readonly TimeSpan _defaultTimeout;
 
         /// <summary>
-        /// Sets our necessary things
+        ///     Sets our necessary things
         /// </summary>
         /// <param name="discord"></param>
         /// <param name="defaultTimeout"></param>
@@ -33,12 +34,30 @@
         }
 
         /// <summary>
-        /// Gets the discordShardedclient
+        ///     Gets the discordShardedclient
         /// </summary>
         public DiscordShardedClient Discord { get; }
 
         /// <summary>
-        /// Disposes the reaction
+        ///     Adds reaction callback
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="callback"></param>
+        public void AddReactionCallback(IMessage message, IReactionCallback callback)
+        {
+            _callbacks[message.Id] = callback;
+        }
+
+        /// <summary>
+        ///     Clears all reaction callbacks
+        /// </summary>
+        public void ClearReactionCallbacks()
+        {
+            _callbacks.Clear();
+        }
+
+        /// <summary>
+        ///     Disposes the reaction
         /// </summary>
         public void Dispose()
         {
@@ -46,7 +65,7 @@
         }
 
         /// <summary>
-        /// Waits for the next Message
+        ///     Waits for the next Message
         /// </summary>
         /// <param name="context"></param>
         /// <param name="fromSourceUser"></param>
@@ -63,9 +82,8 @@
             return NextMessageAsync(context, criterion, timeout);
         }
 
-
         /// <summary>
-        /// Waits for the next Message to be sent
+        ///     Waits for the next Message to be sent
         /// </summary>
         /// <param name="context"></param>
         /// <param name="criterion"></param>
@@ -98,30 +116,25 @@
         }
 
         /// <summary>
-        /// Sends a Message with reaction callback
+        ///     Removes reaction callback
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="callbacks"></param>
-        /// <param name="fromSourceUser"></param>
-        /// <returns></returns>
-        public async Task<IUserMessage> SendMessageWithReactionCallbacksAsync(SocketCommandContext context, ReactionCallbackData callbacks, bool fromSourceUser = true)
+        /// <param name="message"></param>
+        public void RemoveReactionCallback(IMessage message)
         {
-            if (callbacks.Text == null)
-            {
-                throw new Exception("Input text must not be null. Use an empty string instead.");
-            }
-            var criterion = new Criteria<SocketReaction>();
-            if (fromSourceUser)
-                criterion.AddCriterion(new EnsureReactionFromSourceUserCriterion());
-            var callback = new InlineReactionCallback(new InteractiveService(Discord.GetShardFor(context.Guild)), context, callbacks, criterion);
-
-            await callback.DisplayAsync().ConfigureAwait(false);
-            
-            return callback.Message;
+            RemoveReactionCallback(message.Id);
         }
 
         /// <summary>
-        /// Sends a Message then deletes it
+        ///     Removes reaction callback
+        /// </summary>
+        /// <param name="id"></param>
+        public void RemoveReactionCallback(ulong id)
+        {
+            _callbacks.Remove(id);
+        }
+
+        /// <summary>
+        ///     Sends a Message then deletes it
         /// </summary>
         /// <param name="context"></param>
         /// <param name="content"></param>
@@ -134,14 +147,36 @@
         {
             timeout = timeout ?? _defaultTimeout;
             var message = await context.Channel.SendMessageAsync(content, isTTS, embed, options).ConfigureAwait(false);
-            _ = Task.Delay(timeout.Value)
-                .ContinueWith(_ => message.DeleteAsync().ConfigureAwait(false))
-                .ConfigureAwait(false);
+            _ = Task.Delay(timeout.Value).ContinueWith(_ => message.DeleteAsync().ConfigureAwait(false)).ConfigureAwait(false);
             return message;
         }
 
         /// <summary>
-        /// Sends a multi-pages Message
+        ///     Sends a Message with reaction callback
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="callbacks"></param>
+        /// <param name="fromSourceUser"></param>
+        /// <returns></returns>
+        public async Task<IUserMessage> SendMessageWithReactionCallbacksAsync(SocketCommandContext context, ReactionCallbackData callbacks, bool fromSourceUser = true)
+        {
+            if (callbacks.Text == null)
+            {
+                throw new Exception("Input text must not be null. Use an empty string instead.");
+            }
+
+            var criterion = new Criteria<SocketReaction>();
+            if (fromSourceUser)
+                criterion.AddCriterion(new EnsureReactionFromSourceUserCriterion());
+            var callback = new InlineReactionCallback(new InteractiveService(Discord.GetShardFor(context.Guild)), context, callbacks, criterion);
+
+            await callback.DisplayAsync().ConfigureAwait(false);
+
+            return callback.Message;
+        }
+
+        /// <summary>
+        ///     Sends a multi-pages Message
         /// </summary>
         /// <param name="context"></param>
         /// <param name="pager"></param>
@@ -155,42 +190,6 @@
             return callback.Message;
         }
 
-        /// <summary>
-        /// Adds reaction callback
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="callback"></param>
-        public void AddReactionCallback(IMessage message, IReactionCallback callback)
-        {
-            _callbacks[message.Id] = callback;
-        }
-
-        /// <summary>
-        /// Removes reaction callback
-        /// </summary>
-        /// <param name="message"></param>
-        public void RemoveReactionCallback(IMessage message)
-        {
-            RemoveReactionCallback(message.Id);
-        }
-
-        /// <summary>
-        /// Removes reaction callback
-        /// </summary>
-        /// <param name="id"></param>
-        public void RemoveReactionCallback(ulong id)
-        {
-            _callbacks.Remove(id);
-        }
-
-        /// <summary>
-        /// Clears all reaction callbacks
-        /// </summary>
-        public void ClearReactionCallbacks()
-        {
-            _callbacks.Clear();
-        }
-
         private async Task HandleReactionAsync(Cacheable<IUserMessage, ulong> message, ISocketMessageChannel channel, SocketReaction reaction)
         {
             if (reaction.UserId == Discord.CurrentUser.Id) return;
@@ -200,11 +199,12 @@
             switch (callback.RunMode)
             {
                 case RunMode.Async:
-                    _ = Task.Run(async () =>
-                    {
-                        if (await callback.HandleCallbackAsync(reaction).ConfigureAwait(false))
-                            RemoveReactionCallback(message.Id);
-                    });
+                    _ = Task.Run(
+                        async () =>
+                            {
+                                if (await callback.HandleCallbackAsync(reaction).ConfigureAwait(false))
+                                    RemoveReactionCallback(message.Id);
+                            });
                     break;
                 default:
                     if (await callback.HandleCallbackAsync(reaction).ConfigureAwait(false))

@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Services
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using Raven.Client.Documents;
@@ -8,20 +9,20 @@
     public class LevelService
     {
         /// <summary>
-        /// Gets or sets the store.
-        /// </summary>
-        private static IDocumentStore Store { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LevelService"/> class. 
+        ///     Initializes a new instance of the <see cref="LevelService" /> class.
         /// </summary>
         /// <param name="store">
-        /// The store.
+        ///     The store.
         /// </param>
         public LevelService(IDocumentStore store)
         {
             Store = store;
         }
+
+        /// <summary>
+        ///     Gets or sets the store.
+        /// </summary>
+        private static IDocumentStore Store { get; set; }
 
         public LevelSetup GetLevelSetup(ulong guildId)
         {
@@ -32,16 +33,31 @@
         }
 
         /// <summary>
-        /// The level setup.
+        ///     The level setup.
         /// </summary>
         public class LevelSetup
         {
-            public ulong GuildId { get; }
-
             public LevelSetup(ulong guildId)
             {
                 GuildId = guildId;
             }
+
+            public ulong GuildId { get; }
+
+            /// <summary>
+            ///     Gets or sets the reward roles.
+            /// </summary>
+            public List<LevelReward> RewardRoles { get; set; } = new List<LevelReward>();
+
+            /// <summary>
+            ///     Gets or sets the settings.
+            /// </summary>
+            public LevelSettings Settings { get; set; } = new LevelSettings();
+
+            /// <summary>
+            ///     Gets or sets the users.
+            /// </summary>
+            public ConcurrentDictionary<ulong, LevelUser> Users { get; set; } = new ConcurrentDictionary<ulong, LevelUser>();
 
             public void Save()
             {
@@ -53,74 +69,59 @@
             }
 
             /// <summary>
-            /// Gets or sets the settings.
-            /// </summary>
-            public LevelSettings Settings { get; set; } = new LevelSettings();
-
-            /// <summary>
-            /// Gets or sets the reward roles.
-            /// </summary>
-            public List<LevelReward> RewardRoles { get; set; } = new List<LevelReward>();
-
-            /// <summary>
-            /// Gets or sets the users.
-            /// </summary>
-            public Dictionary<ulong, LevelUser> Users { get; set; } = new Dictionary<ulong, LevelUser>();
-
-            /// <summary>
-            /// The level settings.
-            /// </summary>
-            public class LevelSettings
-            {
-                /// <summary>
-                /// Gets or sets a value indicating whether leveling is enabled.
-                /// </summary>
-                public bool Enabled { get; set; } = false;
-
-                /// <summary>
-                /// Gets or sets a value indicating whether use log channel.
-                /// </summary>
-                public bool UseLogChannel { get; set; } = false;
-
-                /// <summary>
-                /// Gets or sets the log channel id.
-                /// </summary>
-                public ulong LogChannelID { get; set; }
-
-                /// <summary>
-                /// Gets or sets a value indicating whether to dm level ups.
-                /// </summary>
-                public bool DMLevelUps { get; set; } = false;
-
-                /// <summary>
-                /// Gets or sets a value indicating whether reply level up messages.
-                /// </summary>
-                public bool ReplyLevelUps { get; set; } = true;
-
-                /// <summary>
-                /// Gets or sets a value indicating whether to increment level rewards.
-                /// </summary>
-                public bool IncrementLevelRewards { get; set; } = false;
-            }
-
-            /// <summary>
-            /// The level reward.
+            ///     The level reward.
             /// </summary>
             public class LevelReward
             {
                 /// <summary>
-                /// Gets or sets the requirement level to receive the role
+                ///     Gets or sets the requirement level to receive the role
                 /// </summary>
                 public int Requirement { get; set; }
 
                 /// <summary>
-                /// Gets or sets the role id.
+                ///     Gets or sets the role id.
                 /// </summary>
                 public ulong RoleID { get; set; }
             }
 
             /// <summary>
-            /// The level user.
+            ///     The level settings.
+            /// </summary>
+            public class LevelSettings
+            {
+                /// <summary>
+                ///     Gets or sets a value indicating whether to dm level ups.
+                /// </summary>
+                public bool DMLevelUps { get; set; } = false;
+
+                /// <summary>
+                ///     Gets or sets a value indicating whether leveling is enabled.
+                /// </summary>
+                public bool Enabled { get; set; } = false;
+
+                /// <summary>
+                ///     Gets or sets a value indicating whether to increment level rewards.
+                /// </summary>
+                public bool IncrementLevelRewards { get; set; } = false;
+
+                /// <summary>
+                ///     Gets or sets the log channel id.
+                /// </summary>
+                public ulong LogChannelID { get; set; }
+
+                /// <summary>
+                ///     Gets or sets a value indicating whether reply level up messages.
+                /// </summary>
+                public bool ReplyLevelUps { get; set; } = true;
+
+                /// <summary>
+                ///     Gets or sets a value indicating whether use log channel.
+                /// </summary>
+                public bool UseLogChannel { get; set; } = false;
+            }
+
+            /// <summary>
+            ///     The level user.
             /// </summary>
             public class LevelUser
             {
@@ -130,24 +131,24 @@
                 }
 
                 /// <summary>
-                /// Gets the user id.
+                ///     Gets or sets the last update.
                 /// </summary>
-                public ulong UserID { get; }
+                public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
 
                 /// <summary>
-                /// Gets or sets the level.
+                ///     Gets or sets the level.
                 /// </summary>
                 public int Level { get; set; } = 1;
 
                 /// <summary>
-                /// Gets or sets the xp.
+                ///     Gets the user id.
                 /// </summary>
-                public int XP { get; set; } = 0;
+                public ulong UserID { get; }
 
                 /// <summary>
-                /// Gets or sets the last update.
+                ///     Gets or sets the xp.
                 /// </summary>
-                public DateTime LastUpdate { get; set; } = DateTime.UtcNow;
+                public int XP { get; set; } = 0;
             }
         }
     }

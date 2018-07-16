@@ -6,7 +6,7 @@
     using Discord;
 
     /// <summary>
-    /// The emoji extensions.
+    ///     The emoji extensions.
     /// </summary>
     public static class EmojiExtensions
     {

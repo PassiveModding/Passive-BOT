@@ -12,7 +12,7 @@
     using PassiveBOT.Preconditions;
 
     /// <summary>
-    /// The role setup.
+    ///     The role setup.
     /// </summary>
     [GuildOwner]
     [Summary("Role setup commands")]
@@ -20,52 +20,13 @@
     public class RoleSetup : Base
     {
         /// <summary>
-        /// The role setup task.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        [Command("RoleSetup")]
-        [Summary("Displays admin, mod and sub roles")]
-        public Task RoleSetupTaskAsync()
-        {
-            return PagedReplyAsync(new PaginatedMessage
-                                       {
-                                           Pages = new List<PaginatedMessage.Page>
-                                                       {
-                                                           new PaginatedMessage.Page
-                                                               {
-                                                                   Description = $"{string.Join("\n", Context.Server.Moderation.AdminRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
-                                                                   Title = "Administrator roles"
-                                                               },
-                                                           new PaginatedMessage.Page
-                                                               {
-                                                                   Description = $"{string.Join("\n", Context.Server.Moderation.ModRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
-                                                                   Title = "Moderator roles"
-                                                               },
-                                                           new PaginatedMessage.Page
-                                                               {
-                                                                   Description = $"{string.Join("\n", Context.Server.Moderation.SubRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}",
-                                                                   Title = "Sub roles"
-                                                               }
-                                                       },
-                                           Color = Color.DarkRed
-                                       }, new ReactionList
-                                              {
-                                                  Forward = true,
-                                                  Backward = true,
-                                                  Trash = true
-                                              });
-        }
-
-        /// <summary>
-        /// Adds or removes an admin role
+        ///     Adds or removes an admin role
         /// </summary>
         /// <param name="role">
-        /// The admin role.
+        ///     The admin role.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("SetAdmin")]
         [Summary("Add an admin role in the server (or remove it)")]
@@ -86,13 +47,13 @@
         }
 
         /// <summary>
-        /// Adds or removes a moderator role
+        ///     Adds or removes a moderator role
         /// </summary>
         /// <param name="role">
-        /// The mod role.
+        ///     The mod role.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("SetMod")]
         [Summary("Add a moderator role in the server (or remove it)")]
@@ -113,13 +74,26 @@
         }
 
         /// <summary>
-        /// Sets or removes a public role
+        ///     The role setup task.
+        /// </summary>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        [Command("RoleSetup")]
+        [Summary("Displays admin, mod and sub roles")]
+        public Task RoleSetupTaskAsync()
+        {
+            return PagedReplyAsync(new PaginatedMessage { Pages = new List<PaginatedMessage.Page> { new PaginatedMessage.Page { Description = $"{string.Join("\n", Context.Server.Moderation.AdminRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}", Title = "Administrator roles" }, new PaginatedMessage.Page { Description = $"{string.Join("\n", Context.Server.Moderation.ModRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}", Title = "Moderator roles" }, new PaginatedMessage.Page { Description = $"{string.Join("\n", Context.Server.Moderation.SubRoleIDs.Select(x => Context.Guild.GetRole(x)?.Mention).Where(x => x != null))}", Title = "Sub roles" } }, Color = Color.DarkRed }, new ReactionList { Forward = true, Backward = true, Trash = true });
+        }
+
+        /// <summary>
+        ///     Sets or removes a public role
         /// </summary>
         /// <param name="role">
-        /// The sub role.
+        ///     The sub role.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("SetSub")]
         [RequireBotPermission(GuildPermission.ManageRoles)]

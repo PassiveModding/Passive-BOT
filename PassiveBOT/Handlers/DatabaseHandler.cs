@@ -22,71 +22,113 @@
     using Serilog;
 
     /// <summary>
-    /// The database handler.
+    ///     The database handler.
     /// </summary>
     public class DatabaseHandler
     {
         /// <summary>
-        /// The operation.
+        ///     The operation.
         /// </summary>
         public enum Operation
         {
             /// <summary>
-            /// Saves the a document
+            ///     Saves the a document
             /// </summary>
             SAVE,
 
             /// <summary>
-            /// Loads a document
+            ///     Loads a document
             /// </summary>
             LOAD,
 
             /// <summary>
-            /// Deletes a document
+            ///     Deletes a document
             /// </summary>
             DELETE,
 
             /// <summary>
-            /// Adds a new document
+            ///     Adds a new document
             /// </summary>
             CREATE
         }
 
         /// <summary>
-        /// Gets or sets the store.
-        /// </summary>
-        public static IDocumentStore Store { get; set; }
-
-        /// <summary>
-        /// Gets or sets the settings.
+        ///     Gets or sets the settings.
         /// </summary>
         public static DatabaseObject Settings { get; set; }
 
         /// <summary>
-        /// Pings a web url
+        ///     Gets or sets the store.
         /// </summary>
-        /// <param name="url">
-        /// The url.
+        public static IDocumentStore Store { get; set; }
+
+        /// <summary>
+        ///     Gets or Posts to the database
+        /// </summary>
+        /// <typeparam name="T">
+        ///     The Object's Type being queried
+        /// </typeparam>
+        /// <param name="operation">
+        ///     The operation.
+        /// </param>
+        /// <param name="data">
+        ///     The object to save (if applicable)
+        /// </param>
+        /// <param name="id">
+        ///     The unique name of the object
         /// </param>
         /// <returns>
-        /// The <see cref="bool"/>.
+        ///     The <see cref="T" />.
         /// </returns>
-        public bool Ping(string url)
+        public T Execute<T>(Operation operation, object data = null, object id = null)
+            where T : class
         {
-            try
+            using (var session = Store.OpenSession(Store.Database))
             {
-                var webClient = new WebClient();
-                var unused = webClient.DownloadData(url);
-                return true;
+                switch (operation)
+                {
+                    case Operation.CREATE:
+                        if (session.Advanced.Exists($"{id}"))
+                        {
+                            break;
+                        }
+
+                        session.Store((T)data, $"{id}");
+                        LogHandler.LogMessage($"RavenDB: Created => {typeof(T).Name} | ID: {id}");
+                        break;
+
+                    case Operation.DELETE:
+                        LogHandler.LogMessage($"RavenDB: Removed => {typeof(T).Name} | ID: {id}");
+                        session.Delete(session.Load<T>($"{id}"));
+                        break;
+                    case Operation.LOAD:
+                        return session.Load<T>($"{id}");
+                    case Operation.SAVE:
+                        var load = session.Load<T>($"{id}");
+                        if (session.Advanced.IsLoaded($"{id}") == false || load == data)
+                        {
+                            break;
+                        }
+
+                        session.Advanced.Evict(load);
+                        session.Store((T)data, $"{id}");
+                        session.SaveChanges();
+                        break;
+                }
+
+                if (operation == Operation.CREATE || operation == Operation.DELETE)
+                {
+                    session.SaveChanges();
+                }
+
+                session.Dispose();
             }
-            catch
-            {
-                return false;
-            }
+
+            return null;
         }
 
         /// <summary>
-        /// Initializes the database for use
+        ///     Initializes the database for use
         /// </summary>
         public Task<IDocumentStore> Initialize()
         {
@@ -108,20 +150,14 @@
                     databaseUrl = "http://127.0.0.1:8080";
                 }
 
-                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(new DatabaseObject
-                {
-                    Name = databaseName,
-                    URL = databaseUrl
-                }, Formatting.Indented), Encoding.UTF8);
+                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(new DatabaseObject { Name = databaseName, URL = databaseUrl }, Formatting.Indented), Encoding.UTF8);
 
                 Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
             }
             else
             {
                 Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
-                LogHandler.LogMessage("Connecting to Server\n" + 
-                                      $"=> URL: {Settings.URL}\n" + 
-                                      $"=> Name: {Settings.Name}");
+                LogHandler.LogMessage("Connecting to Server\n" + $"=> URL: {Settings.URL}\n" + $"=> Name: {Settings.Name}");
             }
 
             // This initializes the document store, and ensures that RavenDB is working properly
@@ -151,14 +187,7 @@
 
                 if (backup == null)
                 {
-                    var newbackup = new PeriodicBackupConfiguration
-                    {
-                        Name = "Backup",
-                        BackupType = BackupType.Backup,
-                        FullBackupFrequency = Settings.FullBackup,
-                                            IncrementalBackupFrequency = Settings.IncrementalBackup,
-                                            LocalSettings = new LocalSettings { FolderPath = Settings.BackupFolder }
-                                        };
+                    var newbackup = new PeriodicBackupConfiguration { Name = "Backup", BackupType = BackupType.Backup, FullBackupFrequency = Settings.FullBackup, IncrementalBackupFrequency = Settings.IncrementalBackup, LocalSettings = new LocalSettings { FolderPath = Settings.BackupFolder } };
                     Store.Maintenance.ForDatabase(Settings.Name).Send(new UpdatePeriodicBackupOperation(newbackup));
                 }
                 else
@@ -203,22 +232,42 @@
             LogHandler.PrintApplicationInformation(Settings, Execute<ConfigModel>(Operation.LOAD, null, "Config"));
 
             // Note the logger has to be updated/re-set after we set the database up otherwise there will be a null reference when trying to log initially
-            LogHandler.Log = new LoggerConfiguration()
-                .WriteTo.Console()
-                .WriteTo.RavenDB(Store, defaultDatabase: Settings.Name, expiration: TimeSpan.FromDays(7))
-                .CreateLogger();
+            LogHandler.Log = new LoggerConfiguration().WriteTo.Console().WriteTo.RavenDB(Store, defaultDatabase: Settings.Name, expiration: TimeSpan.FromDays(7)).CreateLogger();
 
             return Task.FromResult(Store);
         }
 
         /// <summary>
-        /// RavenDb allows the user to query all objects in the database based on their Object Type.
+        ///     Pings a web url
+        /// </summary>
+        /// <param name="url">
+        ///     The url.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="bool" />.
+        /// </returns>
+        public bool Ping(string url)
+        {
+            try
+            {
+                var webClient = new WebClient();
+                var unused = webClient.DownloadData(url);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        ///     RavenDb allows the user to query all objects in the database based on their Object Type.
         /// </summary>
         /// <typeparam name="T">
-        /// Object Type to query
+        ///     Object Type to query
         /// </typeparam>
         /// <returns>
-        /// List of the queried objects
+        ///     List of the queried objects
         /// </returns>
         public List<T> Query<T>()
         {
@@ -236,70 +285,6 @@
 
                 return queriedItems;
             }
-        }
-
-        /// <summary>
-        /// Gets or Posts to the database
-        /// </summary>
-        /// <typeparam name="T">
-        /// The Object's Type being queried
-        /// </typeparam>
-        /// <param name="operation">
-        /// The operation.
-        /// </param>
-        /// <param name="data">
-        /// The object to save (if applicable)
-        /// </param>
-        /// <param name="id">
-        /// The unique name of the object
-        /// </param>
-        /// <returns>
-        /// The <see cref="T"/>.
-        /// </returns>
-        public T Execute<T>(Operation operation, object data = null, object id = null) where T : class
-        {
-            using (var session = Store.OpenSession(Store.Database))
-            {
-                switch (operation)
-                {
-                    case Operation.CREATE:
-                        if (session.Advanced.Exists($"{id}"))
-                        {
-                            break;
-                        }
-
-                        session.Store((T)data, $"{id}");
-                        LogHandler.LogMessage($"RavenDB: Created => {typeof(T).Name} | ID: {id}");
-                        break;
-
-                    case Operation.DELETE:
-                        LogHandler.LogMessage($"RavenDB: Removed => {typeof(T).Name} | ID: {id}");
-                        session.Delete(session.Load<T>($"{id}"));
-                        break;
-                    case Operation.LOAD:
-                        return session.Load<T>($"{id}");
-                    case Operation.SAVE:
-                        var load = session.Load<T>($"{id}");
-                        if (session.Advanced.IsLoaded($"{id}") == false || load == data)
-                        {
-                            break;
-                        }
-
-                        session.Advanced.Evict(load);
-                        session.Store((T)data, $"{id}");
-                        session.SaveChanges();
-                        break;
-                }
-
-                if (operation == Operation.CREATE || operation == Operation.DELETE)
-                {
-                    session.SaveChanges();
-                }
-
-                session.Dispose();
-            }
-
-            return null;
         }
     }
 }

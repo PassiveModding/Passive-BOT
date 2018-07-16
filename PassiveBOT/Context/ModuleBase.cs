@@ -3,109 +3,54 @@
     using System;
     using System.Threading.Tasks;
 
-    using global::Discord;
-    using global::Discord.Addons.Interactive;
-    using global::Discord.Commands;
-    using global::Discord.WebSocket;
-
-    using PassiveBOT.Context;
+    using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Commands;
+    using Discord.WebSocket;
 
     /// <summary>
-    /// The module base.
+    ///     The module base.
     /// </summary>
     public abstract class Base : ModuleBase<Context>
     {
         /// <summary>
-        /// Gets or sets Our Custom Interactive Base
+        ///     Gets or sets Our Custom Interactive Base
         /// </summary>
         public Interactive Interactive { get; set; }
 
         /// <summary>
-        /// Reply in the server. Shorthand for Context.Channel.SendMessageAsync()
+        ///     Sends a Message that will do a custom action upon reactions
         /// </summary>
-        /// <param name="message">
-        /// The message.
-        /// </param>
-        /// <param name="embed">
-        /// The embed.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public async Task<IUserMessage> ReplyAsync(string message, Embed embed = null)
+        /// <param name="data">The main settings used for the Message</param>
+        /// <param name="fromSourceUser">True = Only the user who invoked this method can invoke the callback</param>
+        /// <returns>The Message sent</returns>
+        public Task<IUserMessage> InlineReactionReplyAsync(ReactionCallbackData data, bool fromSourceUser = true)
         {
-            await Context.Channel.TriggerTypingAsync();
-            return await ReplyAsync(message, false, embed);
+            return Interactive.SendMessageWithReactionCallbacksAsync(SocketContext(), data, fromSourceUser);
         }
 
         /// <summary>
-        /// Shorthand for  replying with just an embed
+        ///     Waits for the next Message. NOTE: Your run-mode must be async or this will lock up.
         /// </summary>
-        /// <param name="embed">
-        /// The embed.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public Task<IUserMessage> ReplyAsync(EmbedBuilder embed)
+        /// <param name="criterion">The criterion for the Message</param>
+        /// <param name="timeout">Time to wait before exiting</param>
+        /// <returns>The Message received</returns>
+        public Task<SocketMessage> NextMessageAsync(ICriterion<SocketMessage> criterion, TimeSpan? timeout = null)
         {
-            return ReplyAsync(string.Empty, false, embed.Build());
+            return Interactive.NextMessageAsync(SocketContext(), criterion, timeout);
         }
 
         /// <summary>
-        /// Shorthand for  replying with just an embed
+        ///     Waits until a new Message is sent in the channel.
+        ///     RunMode MUST be set to async to use this
         /// </summary>
-        /// <param name="embed">
-        /// The embed.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public Task<IUserMessage> ReplyAsync(Embed embed)
+        /// <param name="fromSourceUser">Command invoker only</param>
+        /// <param name="inSourceChannel">Context.Channel only</param>
+        /// <param name="timeout">Time before exiting</param>
+        /// <returns>The Message received</returns>
+        public Task<SocketMessage> NextMessageAsync(bool fromSourceUser = true, bool inSourceChannel = true, TimeSpan? timeout = null)
         {
-            return ReplyAsync(string.Empty, false, embed);
-        }
-
-        /// <summary>
-        /// Reply in the server and then delete after the provided delay.
-        /// </summary>
-        /// <param name="message">
-        /// The Message.
-        /// </param>
-        /// <param name="timeout">
-        /// The timeout.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public async Task<IUserMessage> ReplyAndDeleteAsync(string message, TimeSpan? timeout = null)
-        {
-            timeout = timeout ?? TimeSpan.FromSeconds(5);
-            var msg = await Context.Channel.SendMessageAsync(message).ConfigureAwait(false);
-            _ = Task.Delay(timeout.Value).ContinueWith(_ => msg.DeleteAsync().ConfigureAwait(false)).ConfigureAwait(false);
-            return msg;
-        }
-
-        /// <summary>
-        /// Rather than just replying, we can spice things up a bit and embed them in a small message
-        /// </summary>
-        /// <param name="message">
-        /// The text that will be contained in the embed
-        /// </param>
-        /// <param name="color">
-        /// The color.
-        /// </param>
-        /// <returns>
-        /// The message that was sent
-        /// </returns>
-        public Task<IUserMessage> SimpleEmbedAsync(string message, Color? color = null)
-        {
-            var embed = new EmbedBuilder
-            {
-                Description = message,
-                Color = color ?? Color.DarkRed
-            };
-            return ReplyAsync(string.Empty, false, embed.Build());
+            return Interactive.NextMessageAsync(SocketContext(), fromSourceUser, inSourceChannel, timeout);
         }
 
         /// <summary>
@@ -127,7 +72,7 @@
         }
 
         /// <summary>
-        /// Sends a paginated Message
+        ///     Sends a paginated Message
         /// </summary>
         /// <param name="pager">The paginated Message</param>
         /// <param name="criterion">The criterion for the reply</param>
@@ -139,38 +84,23 @@
         }
 
         /// <summary>
-        ///     Waits for the next Message. NOTE: Your run-mode must be async or this will lock up.
+        ///     Reply in the server and then delete after the provided delay.
         /// </summary>
-        /// <param name="criterion">The criterion for the Message</param>
-        /// <param name="timeout">Time to wait before exiting</param>
-        /// <returns>The Message received</returns>
-        public Task<SocketMessage> NextMessageAsync(ICriterion<SocketMessage> criterion, TimeSpan? timeout = null)
+        /// <param name="message">
+        ///     The Message.
+        /// </param>
+        /// <param name="timeout">
+        ///     The timeout.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        public async Task<IUserMessage> ReplyAndDeleteAsync(string message, TimeSpan? timeout = null)
         {
-            return Interactive.NextMessageAsync(SocketContext(), criterion, timeout);
-        }
-
-        /// <summary>
-        /// Waits until a new Message is sent in the channel.
-        /// RunMode MUST be set to async to use this
-        /// </summary>
-        /// <param name="fromSourceUser">Command invoker only</param>
-        /// <param name="inSourceChannel">Context.Channel only</param>
-        /// <param name="timeout">Time before exiting</param>
-        /// <returns>The Message received</returns>
-        public Task<SocketMessage> NextMessageAsync(bool fromSourceUser = true, bool inSourceChannel = true, TimeSpan? timeout = null)
-        {
-            return Interactive.NextMessageAsync(SocketContext(), fromSourceUser, inSourceChannel, timeout);
-        }
-
-        /// <summary>
-        ///     Sends a Message that will do a custom action upon reactions
-        /// </summary>
-        /// <param name="data">The main settings used for the Message</param>
-        /// <param name="fromSourceUser">True = Only the user who invoked this method can invoke the callback</param>
-        /// <returns>The Message sent</returns>
-        public Task<IUserMessage> InlineReactionReplyAsync(ReactionCallbackData data, bool fromSourceUser = true)
-        {
-            return Interactive.SendMessageWithReactionCallbacksAsync(SocketContext(), data, fromSourceUser);
+            timeout = timeout ?? TimeSpan.FromSeconds(5);
+            var msg = await Context.Channel.SendMessageAsync(message).ConfigureAwait(false);
+            _ = Task.Delay(timeout.Value).ContinueWith(_ => msg.DeleteAsync().ConfigureAwait(false)).ConfigureAwait(false);
+            return msg;
         }
 
         /// <summary>
@@ -190,7 +120,71 @@
 
             return Interactive.ReplyAndDeleteAsync(SocketContext(), content, false, embed, timeout, options);
         }
-        
+
+        /// <summary>
+        ///     Reply in the server. Shorthand for Context.Channel.SendMessageAsync()
+        /// </summary>
+        /// <param name="message">
+        ///     The message.
+        /// </param>
+        /// <param name="embed">
+        ///     The embed.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        public async Task<IUserMessage> ReplyAsync(string message, Embed embed = null)
+        {
+            await Context.Channel.TriggerTypingAsync();
+            return await ReplyAsync(message, false, embed);
+        }
+
+        /// <summary>
+        ///     Shorthand for  replying with just an embed
+        /// </summary>
+        /// <param name="embed">
+        ///     The embed.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        public Task<IUserMessage> ReplyAsync(EmbedBuilder embed)
+        {
+            return ReplyAsync(string.Empty, false, embed.Build());
+        }
+
+        /// <summary>
+        ///     Shorthand for  replying with just an embed
+        /// </summary>
+        /// <param name="embed">
+        ///     The embed.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        public Task<IUserMessage> ReplyAsync(Embed embed)
+        {
+            return ReplyAsync(string.Empty, false, embed);
+        }
+
+        /// <summary>
+        ///     Rather than just replying, we can spice things up a bit and embed them in a small message
+        /// </summary>
+        /// <param name="message">
+        ///     The text that will be contained in the embed
+        /// </param>
+        /// <param name="color">
+        ///     The color.
+        /// </param>
+        /// <returns>
+        ///     The message that was sent
+        /// </returns>
+        public Task<IUserMessage> SimpleEmbedAsync(string message, Color? color = null)
+        {
+            var embed = new EmbedBuilder { Description = message, Color = color ?? Color.DarkRed };
+            return ReplyAsync(string.Empty, false, embed.Build());
+        }
+
         /// <summary>
         ///     This is just a shorthand conversion from out custom context to a socket context, for use in things like Interactive
         /// </summary>

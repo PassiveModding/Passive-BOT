@@ -3,18 +3,18 @@
     using Discord.WebSocket;
 
     /// <summary>
-    /// Helps with generating discord invites
+    ///     Helps with generating discord invites
     /// </summary>
     public class InviteHelper
     {
         /// <summary>
-        /// Gets a discord invite via client ID
+        ///     Gets a discord invite via client ID
         /// </summary>
         /// <param name="clientId">
-        /// The client id.
+        ///     The client id.
         /// </param>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public static string GetInvite(ulong clientId)
         {
@@ -22,13 +22,13 @@
         }
 
         /// <summary>
-        /// Gets a discord bot invite via the client
+        ///     Gets a discord bot invite via the client
         /// </summary>
         /// <param name="client">
-        /// The client.
+        ///     The client.
         /// </param>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public static string GetInvite(DiscordSocketClient client)
         {
@@ -36,13 +36,13 @@
         }
 
         /// <summary>
-        /// Gets a discord bot invite via the client
+        ///     Gets a discord bot invite via the client
         /// </summary>
         /// <param name="client">
-        /// The client.
+        ///     The client.
         /// </param>
         /// <returns>
-        /// The <see cref="string"/>.
+        ///     The <see cref="string" />.
         /// </returns>
         public static string GetInvite(DiscordShardedClient client)
         {

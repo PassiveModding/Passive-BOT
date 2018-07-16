@@ -11,21 +11,21 @@
     using global::PassiveBOT.Services;
 
     /// <summary>
-    /// The partner helper.
+    ///     The partner helper.
     /// </summary>
     public class PartnerHelper
     {
         /// <summary>
-        /// Generates a partner message based off the input server
+        ///     Generates a partner message based off the input server
         /// </summary>
         /// <param name="guildObj">
-        /// The guild obj.
+        ///     The guild obj.
         /// </param>
         /// <param name="guild">
-        /// The guild.
+        ///     The guild.
         /// </param>
         /// <returns>
-        /// The <see cref="EmbedBuilder"/>.
+        ///     The <see cref="EmbedBuilder" />.
         /// </returns>
         public static EmbedBuilder GenerateMessage(PartnerService.PartnerInfo guildObj, SocketGuild guild)
         {
@@ -48,38 +48,30 @@
                 embed.ImageUrl = image;
                 embed.Color = new Color(guildObj.Message.Color.R, guildObj.Message.Color.G, guildObj.Message.Color.B);
                 embed.ThumbnailUrl = guildObj.Message.UseThumb ? guild.IconUrl : null;
-                embed.Footer = new EmbedFooterBuilder
-                                   {
-                                       Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} || " : "")}Get PassiveBOT: {HomeModel.Load().HomeInvite}",
-                                       IconUrl = guild.IconUrl
-                                   };
+                embed.Footer = new EmbedFooterBuilder { Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} || " : string.Empty)}Get PassiveBOT: {HomeModel.Load().HomeInvite}", IconUrl = guild.IconUrl };
                 return embed;
             }
             catch (Exception e)
             {
                 LogHandler.LogMessage($"Partner Embed Build Error for {guild.Name} [{guild.Id}]\n" + $"{e}");
-                return new EmbedBuilder
-                           {
-                               Description = $"Partner Embed Build Error for {guild.Name} [{guild.Id}]\n" + 
-                                             $"{e.Message}"
-                           };
+                return new EmbedBuilder { Description = $"Partner Embed Build Error for {guild.Name} [{guild.Id}]\n" + $"{e.Message}" };
             }
         }
 
         /// <summary>
-        /// Logs a partner update
+        ///     Logs a partner update
         /// </summary>
         /// <param name="client">
-        /// The client.
+        ///     The client.
         /// </param>
         /// <param name="partnerGuild">
-        /// The partner guild.
+        ///     The partner guild.
         /// </param>
         /// <param name="fieldInfo">
-        /// The field info.
+        ///     The field info.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         public static async Task PartnerLogAsync(DiscordShardedClient client, PartnerService.PartnerInfo partnerGuild, EmbedFieldBuilder fieldInfo)
         {

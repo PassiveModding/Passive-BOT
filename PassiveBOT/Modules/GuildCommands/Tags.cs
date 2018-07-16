@@ -1,7 +1,6 @@
 ﻿namespace PassiveBOT.Modules.GuildCommands
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -10,11 +9,10 @@
 
     using PassiveBOT.Context;
     using PassiveBOT.Extensions.PassiveBOT;
-    using PassiveBOT.Models;
     using PassiveBOT.Services;
 
     /// <summary>
-    /// The tags module.
+    ///     The tags module.
     /// </summary>
     [RequireContext(ContextType.Guild)]
     [Group("Tag")]
@@ -22,27 +20,27 @@
     [Summary("Tags are like shortcuts for messages, you can use one to have the bot respond with a specific message that you have pre-set.")]
     public class Tags : Base
     {
-        private TagService Service { get; }
-
         public Tags(TagService service)
         {
             Service = service;
         }
 
+        private TagService Service { get; }
+
         /// <summary>
-        /// adds a tag
+        ///     adds a tag
         /// </summary>
         /// <param name="tagName">
-        /// The tagName.
+        ///     The tagName.
         /// </param>
         /// <param name="tagMessage">
-        /// The tagMessage.
+        ///     The tagMessage.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// Throws if a tag exists with the name or if admin check fails
+        ///     Throws if a tag exists with the name or if admin check fails
         /// </exception>
         [Command("add")]
         [Summary("adds a tag to the server")]
@@ -56,13 +54,7 @@
                     throw new Exception("There is already a tag with this name in the server. Please delete it then add the new tag.");
                 }
 
-                var tg = new TagService.TagSetup.Tag
-                {
-                    Name = tagName,
-                    Content = tagMessage,
-                    CreatorId = Context.User.Id,
-                    Creator = $"{Context.User}"
-                };
+                var tg = new TagService.TagSetup.Tag { Name = tagName, Content = tagMessage, CreatorId = Context.User.Id, Creator = $"{Context.User}" };
                 t.Tags.TryAdd(tagName.ToLower(), tg);
                 t.Save();
                 await SimpleEmbedAsync("Tag Added!");
@@ -74,15 +66,16 @@
         }
 
         /// <summary>
-        /// Deletes a Tag
+        ///     Deletes a Tag
         /// </summary>
         /// <param name="tagName">
-        /// The tagName.
+        ///     The tagName.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        /// <exception cref="Exception"> throws if the name is invalid
+        /// <exception cref="Exception">
+        ///     throws if the name is invalid
         /// </exception>
         [Command("del")]
         [Summary("Removes a tag from the server")]
@@ -100,12 +93,12 @@
 
                 if (CheckAdmin.IsAdmin(Context))
                 {
-                    t.Tags.Remove(tagName.ToLower());
+                    t.Tags.TryRemove(tagName.ToLower(), out _);
                     await SimpleEmbedAsync("Tag Deleted using Admin Permissions");
                 }
                 else if (tag.CreatorId == Context.User.Id)
                 {
-                    t.Tags.Remove(tagName.ToLower());
+                    t.Tags.TryRemove(tagName.ToLower(), out _);
                     await SimpleEmbedAsync("Tag Deleted By Owner");
                 }
                 else
@@ -122,13 +115,13 @@
         }
 
         /// <summary>
-        /// gets a tag or tag list
+        ///     gets a tag or tag list
         /// </summary>
         /// <param name="tagName">
-        /// The tag name.
+        ///     The tag name.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command]
         [Summary("Gets a tag")]
@@ -165,11 +158,7 @@
                         var ownerName = own?.Username ?? tag.Creator;
 
                         embed.AddField(tag.Name, tag.Content);
-                        embed.WithFooter(x =>
-                        {
-                            x.Text =
-                                $"Tag Owner: {ownerName} || Uses: {tag.Uses} || Command Invoker: {Context.User.Username}";
-                        });
+                        embed.WithFooter(x => { x.Text = $"Tag Owner: {ownerName} || Uses: {tag.Uses} || Command Invoker: {Context.User.Username}"; });
 
                         tag.Uses++;
                         t.Save();

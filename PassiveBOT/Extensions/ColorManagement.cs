@@ -6,21 +6,21 @@
     using Discord;
 
     /// <summary>
-    /// TColor Helpers
+    ///     TColor Helpers
     /// </summary>
     public class ColorManagement
     {
         /// <summary>
-        /// The get col.
+        ///     The get col.
         /// </summary>
         /// <param name="color">
-        /// The color.
+        ///     The color.
         /// </param>
         /// <returns>
-        /// The <see cref="Color"/>.
+        ///     The <see cref="Color" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// Throws if unable to convert.
+        ///     Throws if unable to convert.
         /// </exception>
         public static Color GetColor(string color)
         {

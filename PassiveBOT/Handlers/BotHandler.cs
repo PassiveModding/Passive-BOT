@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
 
     using Discord;
-
     using Discord.WebSocket;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -13,24 +12,24 @@
     using PassiveBOT.Models;
 
     /// <summary>
-    /// The bot handler.
+    ///     The bot handler.
     /// </summary>
     public class BotHandler
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BotHandler"/> class.
+        ///     Initializes a new instance of the <see cref="BotHandler" /> class.
         /// </summary>
         /// <param name="client">
-        /// The client.
+        ///     The client.
         /// </param>
         /// <param name="events">
-        /// The EventSetup.
+        ///     The EventSetup.
         /// </param>
         /// <param name="config">
-        /// The config.
+        ///     The config.
         /// </param>
         /// <param name="provider">
-        /// The provider.
+        ///     The provider.
         /// </param>
         public BotHandler(DiscordShardedClient client, EventHandler events, ConfigModel config, IServiceProvider provider)
         {
@@ -41,30 +40,30 @@
         }
 
         /// <summary>
-        /// Gets the provider.
-        /// </summary>
-        private IServiceProvider Provider { get; }
-
-        /// <summary>
-        /// Gets the config.
-        /// </summary>
-        private ConfigModel Config { get; }
-
-        /// <summary>
-        /// Gets the event.
-        /// </summary>
-        private EventHandler Event { get; }
-
-        /// <summary>
-        /// Gets the client.
+        ///     Gets the client.
         /// </summary>
         private DiscordShardedClient Client { get; }
 
         /// <summary>
-        /// Initializes and logs the bot in.
+        ///     Gets the config.
+        /// </summary>
+        private ConfigModel Config { get; }
+
+        /// <summary>
+        ///     Gets the event.
+        /// </summary>
+        private EventHandler Event { get; }
+
+        /// <summary>
+        ///     Gets the provider.
+        /// </summary>
+        private IServiceProvider Provider { get; }
+
+        /// <summary>
+        ///     Initializes and logs the bot in.
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         public async Task InitializeAsync()
         {

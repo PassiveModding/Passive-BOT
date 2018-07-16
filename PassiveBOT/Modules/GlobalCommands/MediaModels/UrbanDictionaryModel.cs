@@ -1,7 +1,7 @@
 ﻿// ReSharper disable StyleCop.SA1300
 // ReSharper disable IdentifierTypo
 // ReSharper disable CommentTypo
-namespace PassiveBOT.Models
+namespace PassiveBOT.Modules.GlobalCommands.MediaModels
 {
     using System;
     using System.Collections.Generic;

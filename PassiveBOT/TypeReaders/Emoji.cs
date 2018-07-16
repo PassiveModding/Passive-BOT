@@ -8,24 +8,24 @@
     using PassiveBOT.TypeReaders.EmojiTools;
 
     /// <summary>
-    /// The emoji type reader.
+    ///     The emoji type reader.
     /// </summary>
     public class EmojiTypeReader : TypeReader
     {
         /// <summary>
-        /// tries to parse an emoji as a parameter
+        ///     tries to parse an emoji as a parameter
         /// </summary>
         /// <param name="context">
-        /// The context.
+        ///     The context.
         /// </param>
         /// <param name="input">
-        /// The input.
+        ///     The input.
         /// </param>
         /// <param name="services">
-        /// The services.
+        ///     The services.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {

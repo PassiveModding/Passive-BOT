@@ -2,24 +2,24 @@
 {
     using System.Linq;
 
-    using global::Discord;
+    using Discord;
 
     using global::PassiveBOT.Context;
 
     /// <summary>
-    /// Admin check class
+    ///     Admin check class
     /// </summary>
     public class CheckAdmin
     {
         /// <summary>
-        /// Checks if a user is an admin in the current server
+        ///     Checks if a user is an admin in the current server
         /// </summary>
         /// <param name="context">
-        /// The context.
+        ///     The context.
         /// </param>
         /// <returns>
-        /// The <see cref="bool"/>.
-        /// True if they are an admin
+        ///     The <see cref="bool" />.
+        ///     True if they are an admin
         /// </returns>
         public static bool IsAdmin(Context context)
         {

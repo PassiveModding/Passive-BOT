@@ -9,7 +9,7 @@
     using PassiveBOT.Services;
 
     /// <summary>
-    /// The tags.
+    ///     The tags.
     /// </summary>
     [Group("TagSetup")]
     [Summary("Tag Setup commands")]
@@ -17,19 +17,18 @@
     [RequireContext(ContextType.Guild)]
     public class Tags : Base
     {
-        private TagService Service { get; }
-
         public Tags(TagService service)
         {
             Service = service;
         }
 
+        private TagService Service { get; }
 
         /// <summary>
-        /// The tag setup task.
+        ///     The tag setup task.
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("TagSetup")]
         [Summary("Setup information for the TagSetup Module")]
@@ -40,10 +39,10 @@
         }
 
         /// <summary>
-        /// Toggles the tag system
+        ///     Toggles the tag system
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         [Command("Toggle")]
         [Summary("Toggle the tagging system")]

@@ -11,32 +11,31 @@
     using PassiveBOT.Context;
 
     /// <summary>
-    /// The roles module
+    ///     The roles module
     /// </summary>
     [RequireContext(ContextType.Guild)]
     [RequireBotPermission(GuildPermission.ManageRoles)]
     [Summary("Join/Leave Roles")]
     public class Roles : Base
     {
-        private PrefixService PrefixService { get; }
-
         public Roles(PrefixService prefixService)
         {
             PrefixService = prefixService;
         }
 
+        private PrefixService PrefixService { get; }
 
         /// <summary>
-        /// Joins a role
+        ///     Joins a role
         /// </summary>
         /// <param name="role">
-        /// The role.
+        ///     The role.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// Throws if role is not enabled for joining
+        ///     Throws if role is not enabled for joining
         /// </exception>
         [Command("Sub")]
         [Alias("JoinRole")]
@@ -46,12 +45,7 @@
             if (role == null)
             {
                 var roleList = Context.Guild.Roles.Where(x => Context.Server.Moderation.SubRoleIDs.Contains(x.Id));
-                await ReplyAsync(new EmbedBuilder
-                 {
-                     Title = "Public Roles",
-                     Description = string.Join("\n", roleList.Select(x => x.Name)) + "\n\nYou can join any of the roles in this list using the command:\n" +
-                                   $"`{PrefixService.GetPrefix(Context.Guild.Id)}sub <@role>`"
-                 });
+                await ReplyAsync(new EmbedBuilder { Title = "Public Roles", Description = string.Join("\n", roleList.Select(x => x.Name)) + "\n\nYou can join any of the roles in this list using the command:\n" + $"`{PrefixService.GetPrefix(Context.Guild.Id)}sub <@role>`" });
             }
 
             if (Context.Server.Moderation.SubRoleIDs.Contains(role.Id))

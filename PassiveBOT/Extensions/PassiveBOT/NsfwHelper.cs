@@ -8,40 +8,92 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// The nsfw helper.
+    ///     The nsfw helper.
     /// </summary>
     public class NsfwHelper
     {
         /// <summary>
-        /// The nsfw type.
+        ///     The nsfw type.
         /// </summary>
         public enum NsfwType
         {
             Rule34,
+
             Yandere,
+
             Gelbooru,
+
             Konachan,
+
             Danbooru,
+
             Cureninja
         }
-                
+
         /// <summary>
-        /// The hentai async.
+        ///     Gets matches from the URL
         /// </summary>
-        /// <param name="random">
-        /// The random.
-        /// </param>
         /// <param name="nsfwType">
-        /// The nsfw type.
+        ///     The nsfw type.
         /// </param>
-        /// <param name="tags">
-        /// The tags.
+        /// <param name="url">
+        ///     The url.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
-        public static async Task<string> HentaiAsync(Random random, NsfwType nsfwType,
-            List<string> tags)
+        public static async Task<MatchCollection> GetMatchesAsync(NsfwType nsfwType, string url)
+        {
+            using (var client = new HttpClient())
+            {
+                MatchCollection matches;
+                var get = await client.GetStringAsync(url).ConfigureAwait(false);
+                switch (nsfwType)
+                {
+                    case NsfwType.Danbooru:
+                        matches = Regex.Matches(get, "data-large-file-url=\"(.*)\"");
+                        break;
+                    case NsfwType.Yandere:
+                    case NsfwType.Gelbooru:
+                    case NsfwType.Rule34:
+                        matches = Regex.Matches(get, "file_url=\"(.*?)\" ");
+                        break;
+                    case NsfwType.Cureninja:
+                        matches = Regex.Matches(get, "\"url\":\"(.*?)\"");
+                        break;
+                    case NsfwType.Konachan:
+                        matches = Regex.Matches(get, "<a class=\"directlink smallimg\" href=\"(.*?)\"");
+                        break;
+                    default:
+                        matches = Regex.Matches(get, "\"url\":\"(.*?)\"");
+                        break;
+                }
+
+                if (!matches.OfType<Match>().Any())
+                {
+                    return null;
+                }
+
+                return matches;
+            }
+        }
+
+        /// <summary>
+        ///     The hentai async.
+        /// </summary>
+        /// <param name="random">
+        ///     The random.
+        /// </param>
+        /// <param name="nsfwType">
+        ///     The nsfw type.
+        /// </param>
+        /// <param name="tags">
+        ///     The tags.
+        /// </param>
+        /// <returns>
+        ///     The <see cref="Task" />.
+        /// </returns>
+        public static async Task<string> HentaiAsync(Random random, NsfwType nsfwType, List<string> tags)
         {
             string url = null;
             string result;
@@ -90,54 +142,6 @@
 
             result = result.EndsWith("/") ? result.Substring(0, result.Length - 1) : result;
             return result;
-        }
-
-        /// <summary>
-        /// Gets matches from the URL
-        /// </summary>
-        /// <param name="nsfwType">
-        /// The nsfw type.
-        /// </param>
-        /// <param name="url">
-        /// The url.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public static async Task<MatchCollection> GetMatchesAsync(NsfwType nsfwType, string url)
-        {
-            using (var client = new HttpClient())
-            {
-                MatchCollection matches;
-                var get = await client.GetStringAsync(url).ConfigureAwait(false);
-                switch (nsfwType)
-                {
-                    case NsfwType.Danbooru:
-                        matches = Regex.Matches(get, "data-large-file-url=\"(.*)\"");
-                        break;
-                    case NsfwType.Yandere:
-                    case NsfwType.Gelbooru:
-                    case NsfwType.Rule34:
-                        matches = Regex.Matches(get, "file_url=\"(.*?)\" ");
-                        break;
-                    case NsfwType.Cureninja:
-                        matches = Regex.Matches(get, "\"url\":\"(.*?)\"");
-                        break;
-                    case NsfwType.Konachan:
-                        matches = Regex.Matches(get, "<a class=\"directlink smallimg\" href=\"(.*?)\"");
-                        break;
-                    default:
-                        matches = Regex.Matches(get, "\"url\":\"(.*?)\"");
-                        break;
-                }
-
-                if (!matches.OfType<Match>().Any())
-                {
-                    return null;
-                }
-
-                return matches;
-            }
         }
     }
 }

@@ -12,91 +12,104 @@
 
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
-    using PassiveBOT.Models;
 
     /// <summary>
-    /// The timer service.
+    ///     The timer service.
     /// </summary>
     public class TimerService
     {
         /// <summary>
-        /// The _timer.
+        ///     The _timer.
         /// </summary>
         private readonly Timer timer;
 
-        private PartnerService PartnerService { get; }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="TimerService"/> class.
+        ///     Initializes a new instance of the <see cref="TimerService" /> class.
         /// </summary>
         /// <param name="client">
-        /// The client.
+        ///     The client.
         /// </param>
         /// <param name="provider">
-        /// The provider.
+        ///     The provider.
         /// </param>
         public TimerService(DiscordShardedClient client, PartnerService partnerService, IServiceProvider provider)
         {
             PartnerService = partnerService;
             Provider = provider;
             ShardedClient = client;
-            timer = new Timer(async _ =>
-                {
-                    try
+            timer = new Timer(
+                async _ =>
                     {
-                        await PartnerAsync();
-                    }
-                    catch (Exception e)
-                    {
-                        LogHandler.LogMessage("Partner Error:\n" +
-                                              $"{e}", LogSeverity.Error);
-                    }
+                        try
+                        {
+                            await PartnerAsync();
+                        }
+                        catch (Exception e)
+                        {
+                            LogHandler.LogMessage("Partner Error:\n" + $"{e}", LogSeverity.Error);
+                        }
 
-                    try
-                    {
-                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                        GC.WaitForPendingFinalizers();
-                    }
-                    catch (Exception e)
-                    {
-                        LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
-                    }
+                        try
+                        {
+                            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                            GC.WaitForPendingFinalizers();
+                        }
+                        catch (Exception e)
+                        {
+                            LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
+                        }
 
-                    LastFireTime = DateTime.UtcNow;
-                },
-                null, TimeSpan.Zero, TimeSpan.FromMinutes(FirePeriod));
+                        LastFireTime = DateTime.UtcNow;
+                    },
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromMinutes(FirePeriod));
         }
 
         /// <summary>
-        /// Gets or sets the last fire time.
-        /// </summary>
-        public static DateTime LastFireTime { get; set; } = DateTime.MinValue;
-
-        /// <summary>
-        /// Gets or sets the fire period.
+        ///     Gets or sets the fire period.
         /// </summary>
         public static int FirePeriod { get; set; } = 30;
 
         /// <summary>
-        /// Gets or sets the partner stats.
+        ///     Gets or sets the last fire time.
+        /// </summary>
+        public static DateTime LastFireTime { get; set; } = DateTime.MinValue;
+
+        /// <summary>
+        ///     Gets or sets the partner stats.
         /// </summary>
         public PartnerStatistics PartnerStats { get; set; } = new PartnerStatistics();
 
         /// <summary>
-        /// Gets the provider.
+        ///     Gets the provider.
         /// </summary>
         public IServiceProvider Provider { get; }
 
         /// <summary>
-        /// Gets or sets the sharded client.
+        ///     Gets or sets the sharded client.
         /// </summary>
         public DiscordShardedClient ShardedClient { get; set; }
 
+        private PartnerService PartnerService { get; }
+
         /// <summary>
-        /// The partner message event
+        ///     Changes the rate at which the timer fires
+        /// </summary>
+        /// <param name="newPeriod">
+        ///     The newPeriod.
+        /// </param>
+        public void ChangeRate(int newPeriod = 60)
+        {
+            FirePeriod = newPeriod;
+            timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
+        }
+
+        /// <summary>
+        ///     The partner message event
         /// </summary>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         public Task PartnerAsync()
         {
@@ -150,8 +163,7 @@
                 }
                 catch (Exception e)
                 {
-                    LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" +
-                                          $"{e}", LogSeverity.Error);
+                    LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" + $"{e}", LogSeverity.Error);
                 }
             }
 
@@ -162,33 +174,36 @@
         }
 
         /// <summary>
-        /// The send partner message.
+        ///     Restarts the timer
+        /// </summary>
+        public void Restart()
+        {
+            timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
+        }
+
+        /// <summary>
+        ///     The send partner message.
         /// </summary>
         /// <param name="messageChannel">
-        /// The message channel.
+        ///     The message channel.
         /// </param>
         /// <param name="messageGuildModel">
-        /// The message guild model.
+        ///     The message guild model.
         /// </param>
         /// <param name="receiverChannel">
-        /// The receiver channel.
+        ///     The receiver channel.
         /// </param>
         /// <param name="receiverGuild">
-        /// The receiver guild.
+        ///     The receiver guild.
         /// </param>
         /// <param name="receiverConfig">
-        /// The receiver config.
+        ///     The receiver config.
         /// </param>
         public async void SendPartnerMessage(SocketTextChannel messageChannel, PartnerService.PartnerInfo messageGuildModel, SocketTextChannel receiverChannel, SocketGuild receiverGuild, PartnerService.PartnerInfo receiverConfig)
         {
             if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
             {
-                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
-                    {
-                        Description = "NOTICE:\n" +
-                                      "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" +
-                                      "Please change the role settings of this channel to ensure all roles have the `read messages` permission"
-                    }.Build());
+                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Description = "NOTICE:\n" + "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" + "Please change the role settings of this channel to ensure all roles have the `read messages` permission" }.Build());
                 receiverConfig.Settings.Enabled = false;
                 receiverConfig.Save();
                 return;
@@ -196,11 +211,7 @@
 
             if (receiverChannel.IsNsfw)
             {
-                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
-                   {
-                       Description = "NOTICE:\n" +
-                                     "Partner channels must not be marked as NSFW"
-                   }.Build());
+                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Description = "NOTICE:\n" + "Partner channels must not be marked as NSFW" }.Build());
                 receiverConfig.Settings.Enabled = false;
                 receiverConfig.Save();
                 return;
@@ -219,17 +230,9 @@
             }
             catch (Exception e)
             {
-                LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" +
-                                      $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" +
-                                      $"{e}", LogSeverity.Error);
+                LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" + $"{e}", LogSeverity.Error);
 
-                await PartnerHelper.PartnerLogAsync(ShardedClient,
-                                               receiverConfig,
-                                               new EmbedFieldBuilder
-                                               {
-                                                   Name = "Partner Server Auto Banned",
-                                                   Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}"
-                                               });
+                await PartnerHelper.PartnerLogAsync(ShardedClient, receiverConfig, new EmbedFieldBuilder { Name = "Partner Server Auto Banned", Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}" });
 
                 // Auto-Ban servers which deny permissions to send
                 receiverConfig.Settings.Banned = true;
@@ -332,7 +335,7 @@
         }*/
 
         /// <summary>
-        /// Stops the timer
+        ///     Stops the timer
         /// </summary>
         public void Stop()
         {
@@ -340,49 +343,29 @@
         }
 
         /// <summary>
-        /// Restarts the timer
-        /// </summary>
-        public void Restart()
-        {
-            timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
-        }
-
-        /// <summary>
-        /// Changes the rate at which the timer fires
-        /// </summary>
-        /// <param name="newPeriod">
-        /// The newPeriod.
-        /// </param>
-        public void ChangeRate(int newPeriod = 60)
-        {
-            FirePeriod = newPeriod;
-            timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
-        }
-
-        /// <summary>
-        /// The partner statistics.
+        ///     The partner statistics.
         /// </summary>
         public class PartnerStatistics
         {
             /// <summary>
-            /// Gets or sets the up-datable partnered guilds count
-            /// </summary>
-            public int UpdatePartneredGuilds { get; set; }
-
-            /// <summary>
-            /// Gets or sets the up-datable reachable members count
-            /// </summary>
-            public int UpdateReachableMembers { get; set; }
-
-            /// <summary>
-            /// Gets or sets the partnered guilds count
+            ///     Gets or sets the partnered guilds count
             /// </summary>
             public int PartneredGuilds { get; set; }
 
             /// <summary>
-            /// Gets or sets the reachable members count
+            ///     Gets or sets the reachable members count
             /// </summary>
             public int ReachableMembers { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the up-datable partnered guilds count
+            /// </summary>
+            public int UpdatePartneredGuilds { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the up-datable reachable members count
+            /// </summary>
+            public int UpdateReachableMembers { get; set; }
         }
     }
 }

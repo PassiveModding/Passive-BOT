@@ -8,12 +8,11 @@
 
     using global::PassiveBOT.Models;
 
-
     /// <summary>
-    /// Helps with logging of command and message statistics
+    ///     Helps with logging of command and message statistics
     /// </summary>
     public class StatHelper
-    { 
+    {
         /*
         /// <summary>
         /// The message stats queue
@@ -22,21 +21,21 @@
         */
 
         /// <summary>
-        /// Gets or sets the messages received since update.
+        ///     Gets or sets the messages received since update.
         /// </summary>
         private static int messagesReceivedSinceUpdate;
 
         /// <summary>
-        /// Updates a command's uses in the stat-model
+        ///     Updates a command's uses in the stat-model
         /// </summary>
         /// <param name="command">
-        /// The command.
+        ///     The command.
         /// </param>
         /// <param name="message">
-        /// The message.
+        ///     The message.
         /// </param>
         /// <param name="isError">
-        /// if the command used throws an error
+        ///     if the command used throws an error
         /// </param>
         public static void LogCommand(CommandInfo command, SocketUserMessage message, bool isError = false)
         {
@@ -52,17 +51,7 @@
                 }
 
                 // Initialize the command information
-                model.CommandStats.Add(new StatModel.CommandStat
-                {
-                    CommandName = command.Aliases.FirstOrDefault(),
-                    CommandUses = 1,
-                    CommandUsers = new List<StatModel.CommandStat.CommandUser>
-                                                                  {
-                                                                      NewCommandUser(message.Author.Id)
-                                                                  },
-                    CommandGuilds = guilds,
-                    ErrorCount = isError ? 1 : 0
-                });
+                model.CommandStats.Add(new StatModel.CommandStat { CommandName = command.Aliases.FirstOrDefault(), CommandUses = 1, CommandUsers = new List<StatModel.CommandStat.CommandUser> { NewCommandUser(message.Author.Id) }, CommandGuilds = guilds, ErrorCount = isError ? 1 : 0 });
             }
             else
             {
@@ -101,10 +90,10 @@
         }
 
         /// <summary>
-        /// Logs a message's stats to the stat file
+        ///     Logs a message's stats to the stat file
         /// </summary>
         /// <param name="message">
-        /// The message.
+        ///     The message.
         /// </param>
         public static void LogMessage(SocketUserMessage message)
         {
@@ -143,13 +132,13 @@
         }
 
         /// <summary>
-        /// Creates a new command guild based on a guild Id
+        ///     Creates a new command guild based on a guild Id
         /// </summary>
         /// <param name="guildId">
-        /// The guild id.
+        ///     The guild id.
         /// </param>
         /// <returns>
-        /// The <see cref="StatModel.CommandStat.CommandGuild"/>.
+        ///     The <see cref="StatModel.CommandStat.CommandGuild" />.
         /// </returns>
         public static StatModel.CommandStat.CommandGuild NewCommandGuild(ulong guildId)
         {
@@ -157,13 +146,13 @@
         }
 
         /// <summary>
-        /// Creates a new command user
+        ///     Creates a new command user
         /// </summary>
         /// <param name="userId">
-        /// The user id.
+        ///     The user id.
         /// </param>
         /// <returns>
-        /// The <see cref="StatModel.CommandStat.CommandUser"/>.
+        ///     The <see cref="StatModel.CommandStat.CommandUser" />.
         /// </returns>
         public static StatModel.CommandStat.CommandUser NewCommandUser(ulong userId)
         {

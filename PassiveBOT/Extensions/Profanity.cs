@@ -1,4 +1,5 @@
 ﻿// ReSharper disable StringLiteralTypo
+
 namespace PassiveBOT.Extensions
 {
     using System.Globalization;
@@ -6,53 +7,23 @@ namespace PassiveBOT.Extensions
     using System.Text;
 
     /// <summary>
-    /// The profanity checker
+    ///     The profanity checker
     /// </summary>
     public class Profanity
     {
         /// <summary>
-        /// The list.
+        ///     The list.
         /// </summary>
-        private static readonly string[] List =
-            {
-                "porn",
-                "nigger",
-                "retard",
-                "shit",
-                "fuck",
-                "rape",
-                "cunt",
-                "slut",
-                "penis",
-                "dick",
-                "vagina",
-                "xxx",
-                "asshole",
-                "arsehole",
-                "bitch",
-                "blowjob",
-                "boob",
-                "tits",
-                "titties",
-                "breast",
-                "dildo",
-                "gay",
-                "whore",
-                "jizz",
-                "kkk",
-                "nigga",
-                "pussy",
-                "sex"
-            };
+        private static readonly string[] List = { "porn", "nigger", "retard", "shit", "fuck", "rape", "cunt", "slut", "penis", "dick", "vagina", "xxx", "asshole", "arsehole", "bitch", "blowjob", "boob", "tits", "titties", "breast", "dildo", "gay", "whore", "jizz", "kkk", "nigga", "pussy", "sex" };
 
         /// <summary>
-        /// True if message contains profanity
+        ///     True if message contains profanity
         /// </summary>
         /// <param name="input">
-        /// The input.
+        ///     The input.
         /// </param>
         /// <returns>
-        /// The <see cref="bool"/>.
+        ///     The <see cref="bool" />.
         /// </returns>
         public static bool ContainsProfanity(string input)
         {

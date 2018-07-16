@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Handlers
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -21,8 +22,8 @@
     using PassiveBOT.Context;
     using PassiveBOT.Extensions;
     using PassiveBOT.Extensions.PassiveBOT;
-    using PassiveBOT.TypeReaders;
     using PassiveBOT.Models;
+    using PassiveBOT.TypeReaders;
 
     /// <summary>
     /// The event handler.
@@ -38,7 +39,7 @@
         /// <summary>
         /// Messages that have already been translated.
         /// </summary>
-        private readonly Dictionary<ulong, List<LanguageMap.LanguageCode>> translated = new Dictionary<ulong, List<LanguageMap.LanguageCode>>();
+        private readonly ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>> translated = new ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>>();
 
         /// <summary>
         /// true = check and update all missing servers on start.
@@ -143,7 +144,7 @@
 
             /*
             //Here we select at random out 'playing' Message.
-             var Games = new Dictionary<ActivityType, string[]>
+             var Games = new ConcurrentDictionary<ActivityType, string[]>
             {
                 {ActivityType.Listening, new[]{"YT/PassiveModding", "Tech N9ne"} },
                 {ActivityType.Playing, new[]{$"{Config.Prefix}help"} },
@@ -555,7 +556,7 @@
                                 var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
                                 if (match.Value == null)
                                 {
-                                    translated.Add(reaction.MessageId, new List<LanguageMap.LanguageCode> { languageType.Language });
+                                    translated.TryAdd(reaction.MessageId, new List<LanguageMap.LanguageCode> { languageType.Language });
                                 }
                                 else
                                 {

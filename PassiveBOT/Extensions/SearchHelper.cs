@@ -7,63 +7,62 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// The search helper.
+    ///     The search helper.
     /// </summary>
     public class SearchHelper
     {
         /// <summary>
-        /// The request http method.
+        ///     The request http method.
         /// </summary>
         public enum RequestHttpMethod
         {
             Get,
+
             Post
         }
-        
+
         /// <summary>
-        /// The get response string async.
+        ///     The get response string async.
         /// </summary>
         /// <param name="url">
-        /// The url.
+        ///     The url.
         /// </param>
         /// <param name="headers">
-        /// The headers.
+        ///     The headers.
         /// </param>
         /// <param name="method">
-        /// The method.
+        ///     The method.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         public static async Task<string> GetResponseStringAsync(string url, IEnumerable<KeyValuePair<string, string>> headers = null, RequestHttpMethod method = RequestHttpMethod.Get)
         {
-            using (var streamReader =
-                new StreamReader(await GetResponseStreamAsync(url, headers, method).ConfigureAwait(false)))
+            using (var streamReader = new StreamReader(await GetResponseStreamAsync(url, headers, method).ConfigureAwait(false)))
             {
                 return await streamReader.ReadToEndAsync().ConfigureAwait(false);
             }
         }
 
         /// <summary>
-        /// The get response stream async.
+        ///     The get response stream async.
         /// </summary>
         /// <param name="url">
-        /// The url.
+        ///     The url.
         /// </param>
         /// <param name="headers">
-        /// The headers.
+        ///     The headers.
         /// </param>
         /// <param name="method">
-        /// The method.
+        ///     The method.
         /// </param>
         /// <returns>
-        /// The <see cref="Task"/>.
+        ///     The <see cref="Task" />.
         /// </returns>
         /// <exception cref="Exception">
-        /// Throws if incorrect method input.
+        ///     Throws if incorrect method input.
         /// </exception>
-        private static async Task<Stream> GetResponseStreamAsync(string url,
-            IEnumerable<KeyValuePair<string, string>> headers = null, RequestHttpMethod method = RequestHttpMethod.Get)
+        private static async Task<Stream> GetResponseStreamAsync(string url, IEnumerable<KeyValuePair<string, string>> headers = null, RequestHttpMethod method = RequestHttpMethod.Get)
         {
             var cl = new HttpClient();
             cl.DefaultRequestHeaders.Clear();
