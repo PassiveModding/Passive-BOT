@@ -34,5 +34,7 @@
 
             return PagedReplyAsync(new PaginatedMessage { Pages = pages }, new ReactionList { Forward = true, Backward = true });
         }
+
+        // TODO User, Channel, Current guild
     }
 }

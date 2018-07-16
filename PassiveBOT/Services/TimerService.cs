@@ -24,13 +24,16 @@
         private readonly Timer timer;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="TimerService" /> class.
+        /// Initializes a new instance of the <see cref="TimerService"/> class.
         /// </summary>
         /// <param name="client">
-        ///     The client.
+        /// The client.
+        /// </param>
+        /// <param name="partnerService">
+        /// The partner Service.
         /// </param>
         /// <param name="provider">
-        ///     The provider.
+        /// The provider.
         /// </param>
         public TimerService(DiscordShardedClient client, PartnerService partnerService, IServiceProvider provider)
         {
