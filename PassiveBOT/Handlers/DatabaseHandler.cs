@@ -128,9 +128,12 @@
         }
 
         /// <summary>
-        ///     Initializes the database for use
+        /// Initializes the database for use
         /// </summary>
-        public Task<IDocumentStore> Initialize()
+        /// <returns>
+        /// The Document Store
+        /// </returns>
+        public Task<IDocumentStore> InitializeAsync()
         {
             // Ensure that the bots database settings are setup, if not prompt to enter details
             if (!File.Exists("setup/DBConfig.json"))
@@ -172,16 +175,16 @@
                 LogHandler.LogMessage("Failed to Ping Server.", LogSeverity.Critical);
             }
 
+            // This creates the database
+            if (Store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 20)).All(x => x != Settings.Name))
+            {
+                Store.Maintenance.Server.Send(new CreateDatabaseOperation(new DatabaseRecord(Settings.Name)));
+                LogHandler.LogMessage($"Created Database => {Settings.Name}");
+            }
+
             // To ensure the backup operation is functioning and backing up to our bots directory we update the backup operation on each boot of the bot
             try
             {
-                // This creates the database
-                if (Store.Maintenance.Server.Send(new GetDatabaseNamesOperation(0, 5)).All(x => x != Settings.Name))
-                {
-                    Store.Maintenance.Server.Send(new CreateDatabaseOperation(new DatabaseRecord(Settings.Name)));
-                    LogHandler.LogMessage($"Created Database => {Settings.Name}");
-                }
-
                 var record = Store.Maintenance.ForDatabase(Settings.Name).Server.Send(new GetDatabaseRecordOperation(Settings.Name));
                 var backup = record.PeriodicBackups.FirstOrDefault(x => x.Name == "Backup");
 
@@ -208,7 +211,7 @@
                 var configModel = new ConfigModel();
                 LogHandler.LogMessage("Enter bots token: (You can get this from https://discordapp.com/developers/applications/me)");
                 var token = Console.ReadLine();
-                if (string.IsNullOrEmpty(token))
+                if (string.IsNullOrWhiteSpace(token))
                 {
                     throw new Exception("You must supply a token for this bot to operate.");
                 }

@@ -61,7 +61,7 @@
             // 1. Running
             // 2. Set up properly 
             // 3. contains the bot config itself
-            var store = await provider.GetRequiredService<DatabaseHandler>().Initialize();
+            var store = await provider.GetRequiredService<DatabaseHandler>().InitializeAsync();
 
             // The provider is split here so we can get our shard count from the database before actually logging into discord.
             // This is important to do so the bot always logs in with the required amount of shards.
