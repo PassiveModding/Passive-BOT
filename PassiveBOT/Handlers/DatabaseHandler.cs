@@ -98,8 +98,16 @@
                         break;
 
                     case Operation.DELETE:
-                        LogHandler.LogMessage($"RavenDB: Removed => {typeof(T).Name} | ID: {id}");
-                        session.Delete(session.Load<T>($"{id}"));
+                        try
+                        {
+                            session.Delete(session.Load<T>($"{id}"));
+                            LogHandler.LogMessage($"RavenDB: Removed => {typeof(T).Name} | ID: {id}");
+                        }
+                        catch
+                        {
+                            LogHandler.LogMessage($"RavenDB: Failed to Remove => {typeof(T).Name} | ID: {id} there may not have been a document with that name", LogSeverity.Warning);
+                        }
+
                         break;
                     case Operation.LOAD:
                         return session.Load<T>($"{id}");

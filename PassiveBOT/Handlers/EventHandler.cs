@@ -63,8 +63,17 @@
         /// <param name="service">
         /// The service.
         /// </param>
+        /// <param name="levels">
+        /// The levels.
+        /// </param>
+        /// <param name="channelHelper">
+        /// The channel Helper.
+        /// </param>
         /// <param name="commandService">
         /// The command service.
+        /// </param>
+        /// <param name="prefixService">
+        /// The prefix Service.
         /// </param>
         public EventHandler(DiscordShardedClient client, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
@@ -142,20 +151,6 @@
         {
             await socketClient.SetActivityAsync(new Game($"Shard: {socketClient.ShardId}", ActivityType.Watching));
 
-            /*
-            //Here we select at random out 'playing' Message.
-             var Games = new ConcurrentDictionary<ActivityType, string[]>
-            {
-                {ActivityType.Listening, new[]{"YT/PassiveModding", "Tech N9ne"} },
-                {ActivityType.Playing, new[]{$"{Config.Prefix}help"} },
-                {ActivityType.Watching, new []{"YT/PassiveModding"} }
-            };
-            var RandomActivity = Games.Keys.ToList()[Random.Next(Games.Keys.Count)];
-            var RandomName = Games[RandomActivity][Random.Next(Games[RandomActivity].Length)];
-            await socketClient.SetActivityAsync(new Game(RandomName, RandomActivity));
-            LogHandler.LogMessage($"Game has been set to: [{RandomActivity}] {RandomName}");
-            Games.Clear();
-            */
             if (guildCheck)
             {
                 if (Client.Shards.All(x => x.ConnectionState == ConnectionState.Connected))
@@ -177,6 +172,9 @@
                                 foreach (var id in missingList)
                                 {
                                     handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: id.ToString());
+                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Tags");
+                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Channels");
+                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Levels");
                                 }
                             });
 
