@@ -41,6 +41,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("AddLevel")]
+        [UsingLeveling]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [Summary("Add a role which users may receive upon getting a certain level")]
         public Task AddLevelAsync(IRole role, int level)
@@ -75,6 +76,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
+        [UsingLeveling]
         [Command("ResetLeaderBoard")]
         [Summary("Reset all user's levels and XP for the leveling system")]
         public async Task LeaderBoardResetAsync([Remainder] string confirm = null)
@@ -101,7 +103,7 @@
         [Summary("Setup information for the leveling module")]
         public Task LevelSetupTaskAsync()
         {
-            var leveling = Service.GetLevelSetup(Context.Guild.Id);
+            var leveling = Service.GetLevelSetup(Context.Guild.Id, true);
             return SimpleEmbedAsync($"Enabled: {leveling.Settings.Enabled}\n" + $"Incremental Rewards: {leveling.Settings.IncrementLevelRewards}\n" + "**Messaging**\n" + $"Reply In Channel: {leveling.Settings.ReplyLevelUps}\n" + $"DM Level Ups: {leveling.Settings.DMLevelUps}\n" + $"Using Log Channel: {(leveling.Settings.UseLogChannel ? $"{Context.Guild.GetChannel(leveling.Settings.LogChannelID)?.Name}" : "false")}\n" + "**Users**\n" + $"Level User Count: {leveling.Users.Count}\n" + $"Total Levels: {leveling.Users.Sum(x => x.Value.Level)}\n" + $"Total XP: {leveling.Users.Sum(x => x.Value.XP)}\n" + $"Highest Level & XP: {leveling.Users.Max(x => x.Value.Level)} || {leveling.Users.Max(x => x.Value.XP)}\n" + "**Reward Roles**\n" + $"{string.Join("\n", leveling.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}"))}");
         }
 
@@ -115,6 +117,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("RemoveLevel")]
+        [UsingLeveling]
         [Summary("Remove a level role")]
         public Task RemoveLevelAsync(IRole role)
         {
@@ -139,6 +142,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("RemoveLevel")]
+        [UsingLeveling]
         [Summary("Remove a level role via ID")]
         public Task RemoveLevelAsync(ulong roleId)
         {
@@ -160,6 +164,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("SetChannel")]
+        [UsingLeveling]
         [Summary("Set the Current channel to show all level ups")]
         public Task SetLevelChannelAsync()
         {
@@ -176,6 +181,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("ToggleDMs")]
+        [UsingLeveling]
         [Summary("Toggle Direct Messaging of Level Up Messages")]
         public Task ToggleDMRepliesAsync()
         {
@@ -192,6 +198,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("ToggleChannel")]
+        [UsingLeveling]
         [Summary("Toggle Logging Level ups in a specific channel")]
         public Task ToggleLevelChannelAsync()
         {
@@ -208,6 +215,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("ToggleIncrementalLeveling")]
+        [UsingLeveling]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [Summary("Toggle whether to give a user only one role reward or all")]
         public Task ToggleLevelIncrementAsync()
@@ -225,6 +233,7 @@
         ///     The <see cref="Task" />.
         /// </returns>
         [Command("ToggleMessages")]
+        [UsingLeveling]
         [Summary("Toggle LevelUp messages on or off")]
         public Task ToggleLevelUpAsync()
         {
@@ -244,9 +253,9 @@
         [Summary("Toggle Leveling system on or off")]
         public Task ToggleSystemAsync()
         {
-            var l = Service.GetLevelSetup(Context.Guild.Id);
+            var l = Service.GetLevelSetup(Context.Guild.Id, true);
             l.Settings.Enabled = !l.Settings.Enabled;
-            l.Save();
+            l.Save(true);
             return SimpleEmbedAsync($"Leveling System Enabled: {l.Settings.Enabled}");
         }
     }

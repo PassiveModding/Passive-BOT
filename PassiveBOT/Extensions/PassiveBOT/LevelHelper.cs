@@ -178,6 +178,11 @@
 
             var levels = Service.GetLevelSetup(context.Guild.Id);
 
+            if (levels == null)
+            {
+                return;
+            }
+
             if (!levels.Settings.Enabled)
             {
                 return;

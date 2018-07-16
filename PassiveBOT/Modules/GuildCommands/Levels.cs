@@ -38,6 +38,11 @@
         public Task LeaderBoardAsync()
         {
             var l = Service.GetLevelSetup(Context.Guild.Id);
+            if (l == null)
+            {
+                return SimpleEmbedAsync("Leveling is disabled in the current server");
+            }
+
             var users = l.Users.OrderByDescending(x => x.Value.XP).Where(x => Context.Guild.GetUser(x.Key) != null).Take(100).ToList();
             var rgx = new Regex("[^a-zA-Z0-9 -#]");
             var list = users.Select(x => $"`{$"#{users.IndexOf(x) + 1} - {rgx.Replace(Context.Guild.GetUser(x.Key).ToString(), string.Empty)}".PadRight(40)}\u200B || LV: {x.Value.Level - 1} XP: {x.Value.XP}`").ToList();

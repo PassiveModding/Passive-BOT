@@ -24,11 +24,30 @@
         /// </summary>
         private static IDocumentStore Store { get; set; }
 
-        public LevelSetup GetLevelSetup(ulong guildId)
+        private static ConcurrentDictionary<ulong, bool> UsingLevels { get; } = new ConcurrentDictionary<ulong, bool>();
+
+        public LevelSetup GetLevelSetup(ulong guildId, bool forceLoad = false)
         {
             using (var session = Store.OpenSession())
             {
-                return session.Load<LevelSetup>($"{guildId}-Levels") ?? new LevelSetup(guildId);
+                if (forceLoad)
+                {
+                    return session.Load<LevelSetup>($"{guildId}-Levels") ?? new LevelSetup(guildId);
+                }
+
+                if (UsingLevels.TryGetValue(guildId, out var usingLevels))
+                {
+                    if (usingLevels)
+                    {
+                        return session.Load<LevelSetup>($"{guildId}-Levels") ?? new LevelSetup(guildId);
+                    }
+
+                    return null;
+                }
+
+                var res = session.Load<LevelSetup>($"{guildId}-Levels") ?? new LevelSetup(guildId);
+                UsingLevels.TryAdd(guildId, res.Settings.Enabled);
+                return res;
             }
         }
         
@@ -68,10 +87,22 @@
             /// </summary>
             public ConcurrentDictionary<ulong, LevelUser> Users { get; set; } = new ConcurrentDictionary<ulong, LevelUser>();
 
-            public void Save()
+            public void Save(bool enabledStatusChanged = false)
             {
                 using (var session = Store.OpenSession())
                 {
+                    if (enabledStatusChanged)
+                    {
+                        if (UsingLevels.ContainsKey(GuildId))
+                        {
+                            UsingLevels[GuildId] = Settings.Enabled;
+                        }
+                        else
+                        {
+                            UsingLevels.TryAdd(GuildId, Settings.Enabled);
+                        }
+                    }
+
                     session.Store(this, $"{GuildId}-Levels");
                     session.SaveChanges();
                 }
