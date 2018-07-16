@@ -353,20 +353,13 @@
                 return;
             }
 
-            var context = new Context(Client, Message, Provider);
-
-            if (Config.LogUserMessages)
-            {
-                // Log user messages if enabled.
-                LogHandler.LogMessage(context);
-            }
-
-            if (context.User.IsBot)
+            if (Message.Author.IsBot)
             {
                 // Filter out all bot messages from triggering commands.
                 return;
             }
 
+            var context = new Context(Client, Message, Provider);
             await _ChannelHelper.DoMediaChannelAsync(context);
 
             var argPos = 0;
