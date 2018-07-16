@@ -202,7 +202,7 @@
                                 {
                                     if (!ids.Contains(Guild))
                                     {
-                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = Guild }, Guild);
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel(Guild), Guild);
                                     }
                                 }
 
@@ -300,7 +300,7 @@
             var handler = Provider.GetRequiredService<DatabaseHandler>();
             if (handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, id: guild.Id) == null)
             {
-                handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel { ID = guild.Id }, guild.Id);
+                handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel(guild.Id), guild.Id);
             }
 
             var general = guild.TextChannels.FirstOrDefault(x => string.Equals(x.Name, "general", StringComparison.CurrentCultureIgnoreCase));

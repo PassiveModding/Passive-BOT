@@ -31,9 +31,14 @@
         public EventSetup Events { get; set; } = new EventSetup();
 
         /// <summary>
-        ///     Gets or sets the id.
+        ///     Gets the id.
         /// </summary>
-        public ulong ID { get; set; }
+        public ulong ID { get; }
+
+        public GuildModel(ulong guildId)
+        {
+            ID = guildId;
+        }
 
         /// <summary>
         /// Gets or sets the custom channel setup
