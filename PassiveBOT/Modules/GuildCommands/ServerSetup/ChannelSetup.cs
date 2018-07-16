@@ -45,7 +45,7 @@
             /// <exception cref="Exception">
             ///     throws if there are no channels
             /// </exception>
-            [Command("List")]
+            [Command("List", RunMode = RunMode.Async)]
             [Summary("List all Auto Messages in the Server")]
             public Task ListAsync()
             {
@@ -222,7 +222,7 @@
             /// <exception cref="Exception">
             ///     Throws if no channels set up
             /// </exception>
-            [Command("List")]
+            [Command("List", RunMode = RunMode.Async)]
             [Summary("List all Media Channels in the Server")]
             public Task ListAsync()
             {

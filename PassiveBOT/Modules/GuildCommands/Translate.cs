@@ -32,7 +32,7 @@ namespace PassiveBOT.Modules.GuildCommands
         ///     The <see cref="Task" />.
         /// </returns>
         [Priority(1)]
-        [Command]
+        [Command(RunMode = RunMode.Async)]
         [RateLimit(12, 2, Measure.Minutes, RateLimitFlags.ApplyPerGuild)]
         [Summary("Translate from one language to another")]
         public async Task TranslateCmdAsync(LanguageMap.LanguageCode languageCode, [Remainder] string message)
@@ -55,7 +55,7 @@ namespace PassiveBOT.Modules.GuildCommands
         ///     The <see cref="Task" />.
         /// </returns>
         [Priority(2)]
-        [Command("languages")]
+        [Command("languages", RunMode = RunMode.Async)]
         [Summary("A list of available languages codes to convert between")]
         public async Task TranslateListAsync()
         {

@@ -31,6 +31,15 @@
             }
         }
 
+        public void OverWrite(CustomChannels newObj)
+        {
+            using (var session = Store.OpenSession())
+            {
+                session.Store(newObj, $"{newObj.GuildId}-Channels");
+                session.SaveChanges();
+            }
+        }
+
         public class CustomChannels
         {
             public CustomChannels(ulong guildId)
@@ -43,7 +52,7 @@
             /// </summary>
             public ConcurrentDictionary<ulong, AutoMessageChannel> AutoMessageChannels { get; set; } = new ConcurrentDictionary<ulong, AutoMessageChannel>();
 
-            public ulong GuildId { get; }
+            public ulong GuildId { get; set; }
 
             /// <summary>
             ///     Gets or sets the media channels.

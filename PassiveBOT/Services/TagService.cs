@@ -21,6 +21,15 @@
                 return tagSetup;
             }
         }
+        
+        public void OverWrite(TagSetup newObj)
+        {
+            using (var session = Store.OpenSession())
+            {
+                session.Store(newObj, $"{newObj.GuildId}-Tags");
+                session.SaveChanges();
+            }
+        }
 
         /// <summary>
         ///     The tag setup.
@@ -46,7 +55,7 @@
             /// <summary>
             ///     Gets the guild id.
             /// </summary>
-            public ulong GuildId { get; }
+            public ulong GuildId { get; set; }
 
             /// <summary>
             ///     Gets or sets the tags.

@@ -37,7 +37,7 @@
         /// <exception cref="Exception">
         ///     Throws if role is not enabled for joining
         /// </exception>
-        [Command("Sub")]
+        [Command("Sub", RunMode = RunMode.Async)]
         [Alias("JoinRole")]
         [Summary("Join a public role, or leave it")]
         public async Task SubscribeAsync(IRole role = null)

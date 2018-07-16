@@ -30,7 +30,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("TagSetup")]
+        [Command("TagSetup", RunMode = RunMode.Async)]
         [Summary("Setup information for the TagSetup Module")]
         public Task TagSetupTaskAsync()
         {

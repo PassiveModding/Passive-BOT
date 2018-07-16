@@ -185,7 +185,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("TranslateSetup")]
+        [Command("TranslateSetup", RunMode = RunMode.Async)]
         [Summary("Setup information for the translation setup module")]
         public Task TranslateSetupTaskAsync()
         {

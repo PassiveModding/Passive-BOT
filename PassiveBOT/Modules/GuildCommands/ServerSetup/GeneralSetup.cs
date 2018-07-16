@@ -28,7 +28,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("GeneralSetup")]
+        [Command("GeneralSetup", RunMode = RunMode.Async)]
         [Summary("Setup Information for the general setup module")]
         public Task GeneralSetupTaskAsync()
         {

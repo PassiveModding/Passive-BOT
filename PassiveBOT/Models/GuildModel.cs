@@ -33,7 +33,7 @@
         /// <summary>
         ///     Gets the id.
         /// </summary>
-        public ulong ID { get; }
+        public ulong ID { get; set; }
 
         public GuildModel(ulong guildId)
         {

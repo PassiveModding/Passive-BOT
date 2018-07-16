@@ -97,7 +97,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("LevelSetup")]
+        [Command("LevelSetup", RunMode = RunMode.Async)]
         [Summary("Setup information for the leveling module")]
         public Task LevelSetupTaskAsync()
         {
@@ -116,19 +116,17 @@
         /// </returns>
         [Command("RemoveLevel")]
         [Summary("Remove a level role")]
-        public async Task RemoveLevelAsync(IRole role)
+        public Task RemoveLevelAsync(IRole role)
         {
             var l = Service.GetLevelSetup(Context.Guild.Id);
-            if (l.RewardRoles.Any(x => x.RoleID == role.Id))
-            {
-                l.RewardRoles.Remove(l.RewardRoles.FirstOrDefault(x => x.RoleID == role.Id));
-                l.Save();
-                await SimpleEmbedAsync("Success Level Role has been removed.");
-            }
-            else
+            if (l.RewardRoles.All(x => x.RoleID != role.Id))
             {
                 throw new Exception("This role is not a level!");
             }
+
+            l.RewardRoles.Remove(l.RewardRoles.FirstOrDefault(x => x.RoleID == role.Id));
+            l.Save();
+            return SimpleEmbedAsync("Success Level Role has been removed.");
         }
 
         /// <summary>
@@ -142,19 +140,17 @@
         /// </returns>
         [Command("RemoveLevel")]
         [Summary("Remove a level role via ID")]
-        public async Task RemoveLevelAsync(ulong roleId)
+        public Task RemoveLevelAsync(ulong roleId)
         {
             var l = Service.GetLevelSetup(Context.Guild.Id);
-            if (l.RewardRoles.Any(x => x.RoleID == roleId))
-            {
-                l.RewardRoles.Remove(l.RewardRoles.FirstOrDefault(x => x.RoleID == roleId));
-                l.Save();
-                await SimpleEmbedAsync("Success Level Role has been removed.");
-            }
-            else
+            if (l.RewardRoles.All(x => x.RoleID != roleId))
             {
                 throw new Exception("This role is not a level!");
             }
+
+            l.RewardRoles.Remove(l.RewardRoles.FirstOrDefault(x => x.RoleID == roleId));
+            l.Save();
+            return SimpleEmbedAsync("Success Level Role has been removed.");
         }
 
         /// <summary>

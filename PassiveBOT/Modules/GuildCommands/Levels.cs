@@ -33,7 +33,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("LeaderBoard")]
+        [Command("LeaderBoard", RunMode = RunMode.Async)]
         [Summary("Display the LeaderBoard")]
         public Task LeaderBoardAsync()
         {
@@ -58,7 +58,7 @@
         /// <exception cref="Exception">
         ///     Throws if invalid user/no rank
         /// </exception>
-        [Command("Level")]
+        [Command("Level", RunMode = RunMode.Async)]
         [Alias("Rank")]
         [Summary("Find the level of a user")]
         [Remarks("Will default to the current user if none specified")]
@@ -94,7 +94,7 @@
             embed.AddField("Level", $"{levelUser.Level - 1}", true);
             embed.AddField("XP", $"{levelUser.XP}/{requiredXP}", true);
             embed.AddField("Rank", $"#{l.Users.OrderByDescending(x => x.Value.XP).Where(x => Context.Guild.GetUser(x.Key) != null).ToList().FindIndex(u => u.Key == levelUser.UserID) + 1}", true);
-            embed.AddField("Progress", progressString);
+            embed.AddField("Progress Left", progressString);
             return ReplyAsync(embed);
         }
 
@@ -104,7 +104,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("Ranks")]
+        [Command("Ranks", RunMode = RunMode.Async)]
         [Summary("Display the Level Rewards")]
         public Task RanksAsync()
         {

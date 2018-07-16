@@ -90,7 +90,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("Info")]
+        [Command("Info", RunMode = RunMode.Async)]
         [Summary("Show partner info and stats")]
         public async Task InfoAsync()
         {

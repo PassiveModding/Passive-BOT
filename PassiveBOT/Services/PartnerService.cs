@@ -39,6 +39,15 @@
                 return session.Load<PartnerInfo>($"{guildId}-Partner") ?? new PartnerInfo(guildId);
             }
         }
+        
+        public void OverWrite(PartnerInfo newObj)
+        {
+            using (var session = Store.OpenSession())
+            {
+                session.Store(newObj, $"{newObj.GuildId}-Partner");
+                session.SaveChanges();
+            }
+        }
 
         /// <summary>
         ///     The partner info.
@@ -59,7 +68,7 @@
             /// <summary>
             ///     Gets the guild id.
             /// </summary>
-            public ulong GuildId { get; }
+            public ulong GuildId { get; set; }
 
             /// <summary>
             ///     Gets or sets the message.

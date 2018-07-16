@@ -24,22 +24,25 @@
         private static LevelService Service { get; set; }
 
         /// <summary>
-        ///     Responds with the relevant level up messages
+        /// Responds with the relevant level up messages
         /// </summary>
         /// <param name="context">
-        ///     The context.
+        /// The context.
+        /// </param>
+        /// <param name="setup">
+        /// The setup.
         /// </param>
         /// <param name="levelUser">
-        ///     The level user.
+        /// The level user.
         /// </param>
         /// <param name="requiredXP">
-        ///     The required xp.
+        /// The required xp.
         /// </param>
         /// <param name="roleAdded">
-        ///     The role added.
+        /// The role added.
         /// </param>
         /// <returns>
-        ///     The <see cref="Task" />.
+        /// The <see cref="Task"/>.
         /// </returns>
         public static async Task DoResponseAsync(Context context, LevelService.LevelSetup setup, LevelService.LevelSetup.LevelUser levelUser, int requiredXP, string roleAdded)
         {

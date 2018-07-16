@@ -36,7 +36,7 @@
             /// <returns>
             ///     The <see cref="Task" />.
             /// </returns>
-            [Command("Info")]
+            [Command("Info", RunMode = RunMode.Async)]
             [Summary("Display Goodbye setup info")]
             public Task GoodbyeEventAsync()
             {
@@ -184,7 +184,7 @@
             /// <returns>
             ///     The <see cref="Task" />.
             /// </returns>
-            [Command("Info")]
+            [Command("Info", RunMode = RunMode.Async)]
             [Summary("Display welcome setup info")]
             public Task WelcomeInfoAsync()
             {

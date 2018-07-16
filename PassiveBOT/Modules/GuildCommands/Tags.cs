@@ -123,7 +123,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command]
+        [Command(RunMode = RunMode.Async)]
         [Summary("Gets a tag")]
         [Remarks("Lists all tag names if none provided")]
         public async Task TagAsync(string tagName = null)

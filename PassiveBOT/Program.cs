@@ -86,6 +86,7 @@
                 .AddSingleton<ChannelHelper>()
                 .AddSingleton<Interactive>()
                 .AddSingleton<LevelHelper>()
+                // .AddSingleton<GuildModelToServices>()
                 .AddSingleton<TimerService>();
 
             // Build the service provider a second time so that the ShardedClient is now included.

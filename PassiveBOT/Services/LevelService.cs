@@ -31,6 +31,15 @@
                 return session.Load<LevelSetup>($"{guildId}-Levels") ?? new LevelSetup(guildId);
             }
         }
+        
+        public void OverWrite(LevelSetup newObj)
+        {
+            using (var session = Store.OpenSession())
+            {
+                session.Store(newObj, $"{newObj.GuildId}-Levels");
+                session.SaveChanges();
+            }
+        }
 
         /// <summary>
         ///     The level setup.
@@ -42,7 +51,7 @@
                 GuildId = guildId;
             }
 
-            public ulong GuildId { get; }
+            public ulong GuildId { get; set; }
 
             /// <summary>
             ///     Gets or sets the reward roles.

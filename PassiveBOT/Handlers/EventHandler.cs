@@ -169,7 +169,7 @@
 
                                 // Returns all stored guild models
                                 var guildIds = Client.Guilds.Select(g => g.Id).ToList();
-                                var missingList = handler.Query<GuildModel>().Where(g => !g.Settings.Config.SaveGuildModel).Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
+                                var missingList = handler.Query<GuildModel>().Where(g => !g.Settings.Config.SaveGuildModel && g.ID != 0).Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
 
                                 foreach (var id in missingList)
                                 {
@@ -179,7 +179,18 @@
                                     handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Levels");
                                 }
 
-                                missingList = null;
+                                /*
+                                 // Only to be used if migrating from older database where all items were stored in the same guildModel
+                                var convert = Provider.GetRequiredService<GuildModelToServices>();
+                                foreach (var guildId in guildIds)
+                                {
+                                    var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guildId);
+                                    if (model != null)
+                                    {
+                                        convert.SplitModelAsync(model);
+                                    }
+                                }
+                                */
                             });
 
                     // Ensure that this is only run once as the bot initially connects.
@@ -205,9 +216,6 @@
                                         handler.Execute<GuildModel>(DatabaseHandler.Operation.CREATE, new GuildModel(Guild), Guild);
                                     }
                                 }
-
-                                ids = null;
-                                Servers = null;
                             });
                 }
             }

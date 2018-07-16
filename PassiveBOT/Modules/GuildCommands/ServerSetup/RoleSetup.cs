@@ -79,7 +79,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        [Command("RoleSetup")]
+        [Command("RoleSetup", RunMode = RunMode.Async)]
         [Summary("Displays admin, mod and sub roles")]
         public Task RoleSetupTaskAsync()
         {
