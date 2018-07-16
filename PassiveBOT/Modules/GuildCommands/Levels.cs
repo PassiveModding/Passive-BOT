@@ -11,6 +11,7 @@
 
     using PassiveBOT.Context;
     using PassiveBOT.Extensions;
+    using PassiveBOT.Preconditions;
     using PassiveBOT.Services;
 
     /// <summary>
@@ -35,6 +36,7 @@
         /// </returns>
         [Command("LeaderBoard", RunMode = RunMode.Async)]
         [Summary("Display the LeaderBoard")]
+        [UsingLeveling]
         public Task LeaderBoardAsync()
         {
             var l = Service.GetLevelSetup(Context.Guild.Id);
@@ -67,6 +69,7 @@
         [Alias("Rank")]
         [Summary("Find the level of a user")]
         [Remarks("Will default to the current user if none specified")]
+        [UsingLeveling]
         public Task RankAsync(IUser user = null)
         {
             var l = Service.GetLevelSetup(Context.Guild.Id);

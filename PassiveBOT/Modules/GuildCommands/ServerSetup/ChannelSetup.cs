@@ -46,6 +46,7 @@
             ///     throws if there are no channels
             /// </exception>
             [Command("List", RunMode = RunMode.Async)]
+            [UsingCustomChannels]
             [Summary("List all Auto Messages in the Server")]
             public Task ListAsync()
             {
@@ -73,6 +74,7 @@
             ///     throws if the channel is not an auto-message channel
             /// </exception>
             [Command("Limit")]
+            [UsingCustomChannels]
             [Summary("Set number of messages between each Auto Message")]
             public Task SetLimitAsync(int limit)
             {
@@ -100,6 +102,7 @@
             ///     Throws if the message is too long or channel is not enabled
             /// </exception>
             [Command("Message")]
+            [UsingCustomChannels]
             [Summary("Set the AutoMessage for the current channel.")]
             public Task SetMessageAsync([Remainder] string message = null)
             {
@@ -129,7 +132,7 @@
             [Summary("Toggle the use of Auto-Messages in the current channel")]
             public Task ToggleAsync()
             {
-                var c = Service.GetCustomChannels(Context.Guild.Id);
+                var c = Service.GetCustomChannels(Context.Guild.Id, true);
                 if (!c.AutoMessageChannels.ContainsKey(Context.Channel.Id))
                 {
                     var newChan = new ChannelService.CustomChannels.AutoMessageChannel { ChannelID = Context.Channel.Id, Enabled = true, Limit = 100, Count = 0 };
@@ -140,7 +143,7 @@
                     c.AutoMessageChannels[Context.Channel.Id].Enabled = !c.AutoMessageChannels[Context.Channel.Id].Enabled;
                 }
 
-                c.Save();
+                c.Save(true);
                 return SimpleEmbedAsync($"AutoMessaging Enabled in {Context.Channel.Name}: {c.AutoMessageChannels[Context.Channel.Id].Enabled}");
             }
         }
@@ -163,9 +166,9 @@
             [Summary("Add the current channel to the media channels list")]
             public Task AddAsync()
             {
-                var c = Service.GetCustomChannels(Context.Guild.Id);
+                var c = Service.GetCustomChannels(Context.Guild.Id, true);
                 c.MediaChannels.TryAdd(Context.Channel.Id, new ChannelService.CustomChannels.MediaChannel { ChannelID = Context.Channel.Id, Enabled = true, ExemptRoles = new List<ulong>() });
-                c.Save();
+                c.Save(true);
                 return SimpleEmbedAsync($"{Context.Channel.Name} is now a media channel. All messages without URLs or Attachments will be deleted");
             }
 
@@ -182,6 +185,7 @@
             ///     The <see cref="Task" />.
             /// </returns>
             [Command("RemoveExempt")]
+            [UsingCustomChannels]
             [Summary("Remove a Media Exempt role in the specified channel")]
             public async Task DelMediaExemptAsync(ITextChannel channel, IRole role)
             {
@@ -207,6 +211,7 @@
             ///     The <see cref="Task" />.
             /// </returns>
             [Command("RemoveExempt")]
+            [UsingCustomChannels]
             [Summary("Remove a Media Exempt role in the current channel")]
             public Task DelMediaExemptAsync(IRole role)
             {
@@ -223,6 +228,7 @@
             ///     Throws if no channels set up
             /// </exception>
             [Command("List", RunMode = RunMode.Async)]
+            [UsingCustomChannels]
             [Summary("List all Media Channels in the Server")]
             public Task ListAsync()
             {
@@ -250,6 +256,7 @@
             ///     The <see cref="Task" />.
             /// </returns>
             [Command("Exempt")]
+            [UsingCustomChannels]
             [Summary("Set a specific role to not be checked my media channel restrictions")]
             public Task MediaExemptAsync(ITextChannel channel, IRole role)
             {
@@ -274,6 +281,7 @@
             ///     The <see cref="Task" />.
             /// </returns>
             [Command("Exempt")]
+            [UsingCustomChannels]
             [Summary("Set a specific role to not be checked my media channel restrictions")]
             public Task MediaExemptAsync(IRole role)
             {
@@ -298,11 +306,11 @@
                     channel = Context.Channel as ITextChannel;
                 }
 
-                var c = Service.GetCustomChannels(Context.Guild.Id);
+                var c = Service.GetCustomChannels(Context.Guild.Id, true);
                 if (c.MediaChannels.ContainsKey(channel.Id))
                 {
                     c.MediaChannels.TryRemove(channel.Id, out _);
-                    c.Save();
+                    c.Save(true);
                     await SimpleEmbedAsync($"{channel.Name} is no longer a media channel");
                 }
             }

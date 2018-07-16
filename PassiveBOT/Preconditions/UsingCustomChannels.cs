@@ -17,7 +17,7 @@
     ///     The require admin precondition
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class UsingLeveling : PreconditionAttribute
+    public class UsingCustomChannels : PreconditionAttribute
     {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
@@ -26,9 +26,9 @@
                 return Task.FromResult(PreconditionResult.FromError("This is a guild only command"));
             }
 
-            if (services.GetRequiredService<LevelService>().GetLevelSetup(context.Guild.Id) == null)
+            if (services.GetRequiredService<ChannelService>().GetCustomChannels(context.Guild.Id) == null)
             {
-                return Task.FromResult(PreconditionResult.FromError("Leveling is disabled in the current server."));
+                return Task.FromResult(PreconditionResult.FromError("Custom Channels are disabled in the current server."));
             }
 
             return Task.FromResult(PreconditionResult.FromSuccess());

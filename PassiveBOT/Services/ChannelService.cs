@@ -2,8 +2,10 @@
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
 
     using Raven.Client.Documents;
+    using Raven.Client.Documents.Operations;
 
     public class ChannelService
     {
@@ -23,11 +25,30 @@
         /// </summary>
         private static IDocumentStore Store { get; set; }
 
-        public CustomChannels GetCustomChannels(ulong guildId)
+        private static ConcurrentDictionary<ulong, bool> UsingCustomChannels { get; set; } = new ConcurrentDictionary<ulong, bool>();
+
+        public CustomChannels GetCustomChannels(ulong guildId, bool forceLoad = false)
         {
             using (var session = Store.OpenSession())
             {
-                return session.Load<CustomChannels>($"{guildId}-Channels") ?? new CustomChannels(guildId);
+                if (forceLoad)
+                {
+                    return session.Load<CustomChannels>($"{guildId}-Channels") ?? new CustomChannels(guildId);
+                }
+
+                if (UsingCustomChannels.TryGetValue(guildId, out var usingCustomChannels))
+                {
+                    if (usingCustomChannels)
+                    {
+                        return session.Load<CustomChannels>($"{guildId}-Channels") ?? new CustomChannels(guildId);
+                    }
+
+                    return null;
+                }
+
+                var res = session.Load<CustomChannels>($"{guildId}-Channels") ?? new CustomChannels(guildId);
+                UsingCustomChannels.TryAdd(guildId, res.AutoMessageChannels.Any(x => x.Value.Enabled) || res.MediaChannels.Any(x => x.Value.Enabled));
+                return res;
             }
         }
 
@@ -59,10 +80,22 @@
             /// </summary>
             public ConcurrentDictionary<ulong, MediaChannel> MediaChannels { get; set; } = new ConcurrentDictionary<ulong, MediaChannel>();
 
-            public void Save()
+            public void Save(bool enabledStatusChanged = false)
             {
                 using (var session = Store.OpenSession())
                 {
+                    if (enabledStatusChanged)
+                    {
+                        if (UsingCustomChannels.ContainsKey(GuildId))
+                        {
+                            UsingCustomChannels[GuildId] = AutoMessageChannels.Any(x => x.Value.Enabled) || MediaChannels.Any(x => x.Value.Enabled);
+                        }
+                        else
+                        {
+                            UsingCustomChannels.TryAdd(GuildId, AutoMessageChannels.Any(x => x.Value.Enabled) || MediaChannels.Any(x => x.Value.Enabled));
+                        }
+                    }
+
                     session.Store(this, $"{GuildId}-Channels");
                     session.SaveChanges();
                 }

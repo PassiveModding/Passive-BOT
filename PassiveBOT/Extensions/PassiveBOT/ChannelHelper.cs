@@ -30,24 +30,30 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        public async Task<Context> DoAutoMessageAsync(Context context)
+        public async Task DoAutoMessageAsync(Context context)
         {
             if (context.Channel is IDMChannel)
             {
-                return context;
+                return;
             }
 
             var c = Service.GetCustomChannels(context.Guild.Id);
+
+            if (c == null)
+            {
+                return;
+            }
+
             if (c.AutoMessageChannels.ContainsKey(context.Channel.Id))
             {
-                return context;
+                return;
             }
 
             var channel = c.AutoMessageChannels[context.Channel.Id];
 
             if (!channel.Enabled)
             {
-                return context;
+                return;
             }
 
             channel.Count++;
@@ -59,7 +65,6 @@
             }
 
             c.Save();
-            return context;
         }
 
         /// <summary>
@@ -73,7 +78,14 @@
         /// </returns>
         public async Task DoMediaChannelAsync(Context context)
         {
-            Service.GetCustomChannels(context.Guild.Id).MediaChannels.TryGetValue(context.Channel.Id, out var mediaChannel);
+            var c = Service.GetCustomChannels(context.Guild.Id);
+
+            if (c == null)
+            {
+                return;
+            }
+
+            c.MediaChannels.TryGetValue(context.Channel.Id, out var mediaChannel);
             if (mediaChannel != null)
             {
                 if (mediaChannel.Enabled && (context.User as IGuildUser).RoleIds.All(x => !mediaChannel.ExemptRoles.Contains(x)) && !Regex.Match(context.Message.Content, @"(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?").Success && !context.Message.Attachments.Any())
