@@ -36,10 +36,16 @@
         private readonly TimerService timerService;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Owner" /> class.
+        /// Initializes a new instance of the <see cref="Owner"/> class.
         /// </summary>
         /// <param name="service">
-        ///     The service.
+        /// The service.
+        /// </param>
+        /// <param name="partnerService">
+        /// The partner Service.
+        /// </param>
+        /// <param name="prefix">
+        /// The prefix.
         /// </param>
         public Owner(TimerService service, PartnerService partnerService, PrefixService prefix)
         {
@@ -237,7 +243,7 @@
             config.Shards = shards;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             return SimpleEmbedAsync(
-                $"Shard Count updated to: {shards}\n" + "This will be effective after a restart.\n" +
+                $"Shard Count updated to: {shards}\nThis will be effective after a restart.\n" +
 
                 // Note, 2500 Guilds is the max amount per shard, so this should be updated based on around 2000 as if you hit the 2500 limit discord will ban the account associated.
                 $"Recommended shard count: {(Context.Client.Guilds.Count / 2000 < 1 ? 1 : Context.Client.Guilds.Count / 2000)}");
