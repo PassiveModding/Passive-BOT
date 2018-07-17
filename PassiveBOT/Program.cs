@@ -92,7 +92,7 @@
             // Build the service provider a second time so that the ShardedClient is now included.
             provider = services.BuildServiceProvider();
 
-            provider.GetRequiredService<PrefixService>().Initialize();
+            await provider.GetRequiredService<PrefixService>().InitializeAsync();
             await provider.GetRequiredService<BotHandler>().InitializeAsync();
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
 
