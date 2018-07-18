@@ -23,7 +23,7 @@
     using PassiveBOT.Extensions;
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Models;
-    using PassiveBOT.Models.Migration;
+    using PassiveBOT.Services;
     using PassiveBOT.TypeReaders;
 
     /// <summary>
@@ -58,6 +58,9 @@
         /// <param name="client">
         /// The client.
         /// </param>
+        /// <param name="homeService">
+        /// The home Service.
+        /// </param>
         /// <param name="config">
         /// The config.
         /// </param>
@@ -76,7 +79,7 @@
         /// <param name="prefixService">
         /// The prefix Service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
+        public EventHandler(DiscordShardedClient client, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
@@ -86,9 +89,12 @@
             PrefixService = prefixService;
             _ChannelHelper = channelHelper;
             _LevelHelper = levels;
+            _HomeService = homeService;
 
             CancellationToken = new CancellationTokenSource();
         }
+
+        private HomeService _HomeService { get; }
 
         private LevelHelper _LevelHelper { get; }
 
@@ -205,7 +211,7 @@
                                 var handler = Provider.GetRequiredService<DatabaseHandler>();
 
                                 // This will load all guild models and retrieve their IDs
-                                var Servers = handler.Query<GuildModel>();;
+                                var Servers = handler.Query<GuildModel>();
                                 var ids = Servers.Select(s => s.ID).ToList();
 
                                 // Now if the bots server list contains a guild but 'Servers' does not, we create a new object for the guild
@@ -447,7 +453,7 @@
         /// </returns>
         internal bool CheckBlacklist(ulong userId, ulong guildId)
         {
-            var home = HomeModel.Load();
+            var home = _HomeService.CurrentHomeModel;
             if (home.Blacklist.BlacklistedUsers.Contains(userId))
             {
                 return true;

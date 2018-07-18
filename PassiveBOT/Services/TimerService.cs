@@ -134,6 +134,8 @@
 
                     PartnerService.PartnerInfo messageGuildModel = null;
                     SocketTextChannel messageChannel = null;
+
+                    // Find a channel to send the message from!
                     foreach (var id in senderIds.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList())
                     {
                         if (id == receiverGuild.Id)
@@ -208,9 +210,17 @@
         /// </param>
         public async void SendPartnerMessage(SocketTextChannel messageChannel, PartnerService.PartnerInfo messageGuildModel, SocketTextChannel receiverChannel, SocketGuild receiverGuild, PartnerService.PartnerInfo receiverConfig)
         {
-            if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
+            if ((((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count) * 100) < 90)
             {
-                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Description = "NOTICE:\n" + "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" + "Please change the role settings of this channel to ensure all roles have the `read messages` permission" }.Build());
+                try
+                {
+                    await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Description = "NOTICE:\n" + "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" + "Please change the role settings of this channel to ensure all roles have the `read messages` permission" }.Build());
+                }
+                catch
+                {
+                    // Ignored
+                }
+
                 receiverConfig.Settings.Enabled = false;
                 receiverConfig.Save();
                 return;
@@ -218,7 +228,15 @@
 
             if (receiverChannel.IsNsfw)
             {
-                await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Description = "NOTICE:\n" + "Partner channels must not be marked as NSFW" }.Build());
+                try
+                {
+                    await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder { Description = "NOTICE:\n" + "Partner channels must not be marked as NSFW" }.Build());
+                }
+                catch
+                {
+                    // Ignored
+                }
+
                 receiverConfig.Settings.Enabled = false;
                 receiverConfig.Save();
                 return;
@@ -247,99 +265,6 @@
                 receiverConfig.Save();
             }
         }
-
-        /*
-        /// <summary>
-        /// The partner.
-        /// </summary>
-        /// <returns>
-        /// The <see cref="Task"/>.
-        /// </returns>
-        public async Task Partner()
-        {
-            var guildModels = Provider.GetRequiredService<DatabaseHandler>().Query<GuildModel>().Where(x =>
-
-                   // Ensure the partner is not banned
-                   !x.Partner.Settings.Banned &&
-
-                   // Ensure they have enabled the partner service and set a channel
-                   x.Partner.Settings.Enabled && x.Partner.Settings.ChannelID != 0 &&
-
-                   // Ensure they have set a message
-                   x.Partner.Message.Content != null &&
-
-                   // Ensure the channel actually exists 
-                   ShardedClient.GetChannel(x.Partner.Settings.ChannelID) != null)
-                .Select(x => new KeyValuePair<GuildModel, SocketTextChannel>(x, ShardedClient.GetChannel(x.Partner.Settings.ChannelID) as SocketTextChannel))
-                .ToList();
-
-            PartnerStats.PartneredGuilds = guildModels.Count;
-            PartnerStats.ReachableMembers = guildModels.Sum(x => x.Value.Users.Count);
-
-            // Randomize the guilds so that repeats each time are minimal.
-            var reduced_GuildList = guildModels.Select(x => x.Key.ID).OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList();
-            foreach (var pair in guildModels)
-            {
-                try
-                {
-                    var receiverConfig = pair.Key;
-                    var receiverGuild = ShardedClient.GetGuild(receiverConfig.ID);
-                    var textChannel = pair.Value;
-
-                    var messageConfig = guildModels.First(g => g.Key.ID == reduced_GuildList.First(x => x != receiverGuild.Id));
-                    var messageGuild = messageConfig.Key;
-                    var messageChannel = messageConfig.Value;
-
-                    if ((decimal)messageChannel.Users.Count / messageChannel.Guild.Users.Count * 100 < 90)
-                    {
-                        await messageChannel.SendMessageAsync(string.Empty, false, new EmbedBuilder
-                        {
-                            Description = "NOTICE:\n" +
-                                          "This server's partner message was not shared to any other guilds because this channel's visibility is less than 90%\n" +
-                                          "Please change the role settings of this channel to ensure all roles have the `read messages` permission"
-                        }.Build());
-                    }
-                    else
-                    {
-                        var partnerMessage = PartnerHelper.GenerateMessage(messageGuild, messageChannel.Guild).Build();
-                        try
-                        {
-                            await textChannel.SendMessageAsync(string.Empty, false, partnerMessage);
-                            messageGuild.Partner.Stats.ServersReached++;
-                            messageGuild.Partner.Stats.UsersReached += receiverGuild.MemberCount;
-                            messageGuild.Save();
-                            await Task.Delay(500);
-                        }
-                        catch (Exception e)
-                        {
-                            LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" +
-                                                  $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}\n" +
-                                                  $"{e}", LogSeverity.Error);
-
-                            await PartnerHelper.PartnerLog(ShardedClient,
-                                                           receiverConfig,
-                                                           new EmbedFieldBuilder
-                                                           {
-                                                               Name = "Partner Server Auto Banned",
-                                                               Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{textChannel.Name}"
-                                                           });
-
-                            // Auto-Ban servers which deny permissions to send
-                            receiverConfig.Partner.Settings.Banned = true;
-                            receiverConfig.Partner.Settings.Enabled = false;
-                            receiverConfig.Save();
-                        }
-                    }
-
-                    reduced_GuildList.Remove(messageConfig.Key.ID);
-                }
-                catch (Exception e)
-                {
-                    LogHandler.LogMessage($"Partner Event Error for Guild: [{pair.Key.ID}]\n" +
-                                          $"{e}", LogSeverity.Error);
-                }
-            }
-        }*/
 
         /// <summary>
         ///     Stops the timer

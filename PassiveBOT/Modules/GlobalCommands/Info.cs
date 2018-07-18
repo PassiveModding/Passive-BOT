@@ -30,15 +30,18 @@
         /// </summary>
         private readonly TimerService timerService;
 
+        private HomeService _Home { get; }
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="Info" /> class.
         /// </summary>
         /// <param name="service">
         ///     The timer service.
         /// </param>
-        public Info(TimerService service)
+        public Info(TimerService service, HomeService home)
         {
             timerService = service;
+            _Home = home;
         }
 
         /// <summary>
@@ -133,7 +136,7 @@
 
             embed.AddField("Members", $"Bot: {Context.Client.Guilds.Sum(x => x.Users.Count(z => z.IsBot))}\n" + $"Human: {Context.Client.Guilds.Sum(x => x.Users.Count(z => !z.IsBot))}\n" + $"Total: {Context.Client.Guilds.Sum(x => x.Users.Count)}", true);
             embed.AddField("Channels", $"Text: {Context.Client.Guilds.Sum(x => x.TextChannels.Count)}\n" + $"Voice: {Context.Client.Guilds.Sum(x => x.VoiceChannels.Count)}\n" + $"Total: {Context.Client.Guilds.Sum(x => x.Channels.Count)}", true);
-            embed.AddField("Guilds", $"{Context.Client.Guilds.Count}\n[Support Server]({HomeModel.Load().HomeInvite})", true);
+            embed.AddField("Guilds", $"{Context.Client.Guilds.Count}\n[Support Server]({_Home.CurrentHomeModel.HomeInvite})", true);
             var orderedShards = Context.Client.Shards.OrderByDescending(x => x.Guilds.Count).ToList();
             embed.AddField("Stats", $"**Guilds:** {Context.Client.Guilds.Count}\n" + $"**Users:** {Context.Client.Guilds.Sum(x => x.MemberCount)}\n" + $"**Shards:** {Context.Client.Shards.Count}\n" + $"**Max Shard:** G:{orderedShards.First().Guilds.Count} ID:{orderedShards.First().ShardId}\n" + $"**Min Shard:** G:{orderedShards.Last().Guilds.Count} ID:{orderedShards.Last().ShardId}");
             embed.AddField("Partner Stats", $"**Partners:** {timerService.PartnerStats.PartneredGuilds}\n" + $"**Reachable Members:** {timerService.PartnerStats.ReachableMembers}");
@@ -216,7 +219,7 @@
                 status = "Null";
             }
 
-            var builder = new EmbedBuilder().WithTitle($"Who Is: {user}").WithThumbnailUrl(user.GetAvatarUrl()).AddField("Sign Up Date", user.CreatedAt.Date).AddField("User ID", user.Id).AddField("Username", user.Username).AddField("Discriminator", user.Discriminator).AddField("Status", status).AddField("Links", $"[Invite]({InviteHelper.GetInvite(Context.Client)})\n[Support Server]({HomeModel.Load().HomeInvite})");
+            var builder = new EmbedBuilder().WithTitle($"Who Is: {user}").WithThumbnailUrl(user.GetAvatarUrl()).AddField("Sign Up Date", user.CreatedAt.Date).AddField("User ID", user.Id).AddField("Username", user.Username).AddField("Discriminator", user.Discriminator).AddField("Status", status).AddField("Links", $"[Invite]({InviteHelper.GetInvite(Context.Client)})\n[Support Server]({_Home.CurrentHomeModel.HomeInvite})");
 
             return ReplyAsync(builder);
         }

@@ -172,7 +172,7 @@
         /// </param>
         public static void PrintApplicationInformation(DatabaseObject settings, ConfigModel config)
         {
-            Console.WriteLine("-> INFORMATION\n" + $"-> Database URL: {settings?.URL}\n" + $"-> Database Name: {settings?.Name}\n" + $"-> Prefix: {config.Prefix}\n" + $"-> Shards: {config.Shards}\n" + $"    Author: PassiveModding | Discord: {HomeModel.Load().HomeInvite}\n" + $"=======================[ {DateTime.UtcNow} ]=======================");
+            Console.WriteLine("-> INFORMATION\n" + $"-> Database URL: {settings?.URL}\n" + $"-> Database Name: {settings?.Name}\n" + $"-> Prefix: {config.Prefix}\n" + $"-> Shards: {config.Shards}\n" + $"    Author: PassiveModding | Discord: https://discord.me/Passive\n" + $"=======================[ {DateTime.UtcNow} ]=======================");
         }
     }
 }

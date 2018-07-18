@@ -15,6 +15,13 @@
     /// </summary>
     public class PartnerHelper
     {
+        public PartnerHelper(HomeService homeService)
+        {
+            _HomeService = homeService;
+        }
+
+        private static HomeService _HomeService { get; set; }
+
         /// <summary>
         ///     Generates a partner message based off the input server
         /// </summary>
@@ -54,7 +61,7 @@
                 }
                 embed.AddField("Invite", $"{guildObj.Message.Invite ?? "N/A"}");
                 embed.ThumbnailUrl = guildObj.Message.UseThumb ? guild.IconUrl : null;
-                embed.Footer = new EmbedFooterBuilder { Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} || " : string.Empty)}Get PassiveBOT: {HomeModel.Load().HomeInvite}", IconUrl = guild.IconUrl };
+                embed.Footer = new EmbedFooterBuilder { Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} || " : string.Empty)}Get PassiveBOT: {_HomeService.CurrentHomeModel.HomeInvite}", IconUrl = guild.IconUrl };
                 return embed;
             }
             catch (Exception e)
@@ -81,7 +88,7 @@
         /// </returns>
         public static async Task PartnerLogAsync(DiscordShardedClient client, PartnerService.PartnerInfo partnerGuild, EmbedFieldBuilder fieldInfo)
         {
-            var home = HomeModel.Load();
+            var home = _HomeService.CurrentHomeModel;
             if (home.Logging.LogPartnerChanges)
             {
                 if (client.GetChannel(home.Logging.PartnerLogChannel) is SocketTextChannel logChannel)

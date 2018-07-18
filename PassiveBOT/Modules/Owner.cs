@@ -381,6 +381,13 @@
         [Group("Home")]
         public class Home : Base
         {
+            private HomeService _Home { get; }
+
+            public Home(HomeService home)
+            {
+                _Home = home;
+            }
+
             /// <summary>
             ///     The blacklist user.
             /// </summary>
@@ -393,7 +400,7 @@
             [Command("BlacklistGuild")]
             public async Task BlacklistGuildAsync(ulong guildId)
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 if (home.Blacklist.BlacklistedGuilds.Contains(guildId))
                 {
                     home.Blacklist.BlacklistedGuilds.Remove(guildId);
@@ -435,7 +442,7 @@
             [Command("BlacklistUser")]
             public async Task BlacklistUserAsync(ulong userId)
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 if (home.Blacklist.BlacklistedUsers.Contains(userId))
                 {
                     home.Blacklist.BlacklistedUsers.Remove(userId);
@@ -459,7 +466,7 @@
             [Command("LogPartners")]
             public Task LogPartnersToggleAsync()
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 home.Logging.LogPartnerChanges = !home.Logging.LogPartnerChanges;
                 home.Save();
                 return SimpleEmbedAsync($"Log Partner Changes: {home.Logging.LogPartnerChanges}");
@@ -474,7 +481,7 @@
             [Command("PartnerLogChannel")]
             public Task PartnerChannelAsync()
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 home.Logging.PartnerLogChannel = Context.Channel.Id;
                 home.Save();
                 return SimpleEmbedAsync("Partner changes will be sent to the current channel.");
@@ -492,7 +499,7 @@
             [Command("BotModerator")]
             public Task SetBotModeratorAsync(SocketRole role = null)
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 home.BotModerator = role?.Id ?? 0;
                 home.Save();
                 return SimpleEmbedAsync("Bot Mod Set/Reset.");
@@ -510,7 +517,7 @@
             [Command("Invite")]
             public Task SetBotModeratorAsync(string invite)
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 home.HomeInvite = invite;
                 home.Save();
                 return SimpleEmbedAsync($"Invite set to: {invite}");
@@ -525,7 +532,7 @@
             [Command("Guild")]
             public Task SetGuildAsync()
             {
-                var home = HomeModel.Load();
+                var home = _Home.CurrentHomeModel;
                 home.GuildId = Context.Guild.Id;
                 home.Save();
                 return SimpleEmbedAsync($"Home Guild Set to {Context.Guild.Id}");

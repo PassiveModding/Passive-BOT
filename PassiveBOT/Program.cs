@@ -54,7 +54,16 @@
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/"));
             }
 
-            var services = new ServiceCollection().AddSingleton<DatabaseHandler>().AddSingleton(x => x.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.LOAD, id: "Config")).AddSingleton(x => x.GetRequiredService<DatabaseHandler>().Execute<HomeModel>(DatabaseHandler.Operation.LOAD, id: "HomeServer")).AddSingleton(new CommandService(new CommandServiceConfig { ThrowOnError = false, IgnoreExtraArgs = false, DefaultRunMode = RunMode.Sync })).AddSingleton(new HttpClient()).AddSingleton<BotHandler>().AddSingleton<EventHandler>().AddSingleton<Events>().AddSingleton(new Random(Guid.NewGuid().GetHashCode()));
+            var services = new ServiceCollection().AddSingleton<DatabaseHandler>()
+                .AddSingleton(x => x.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.LOAD, id: "Config"))
+                .AddSingleton(new CommandService(new CommandServiceConfig
+                            {
+                                ThrowOnError = false,
+                                IgnoreExtraArgs = false,
+                                DefaultRunMode = RunMode.Sync
+                            })).AddSingleton(new HttpClient()).AddSingleton<BotHandler>()
+                .AddSingleton<EventHandler>().AddSingleton<Events>()
+                .AddSingleton(new Random(Guid.NewGuid().GetHashCode()));
 
             var provider = services.BuildServiceProvider();
 
@@ -83,6 +92,7 @@
                 .AddSingleton(new PartnerService(store))
                 .AddSingleton(new LevelService(store))
                 .AddSingleton(new ChannelService(store))
+                .AddSingleton(new HomeService(store))
                 .AddSingleton<ChannelHelper>()
                 .AddSingleton<Interactive>()
                 .AddSingleton<LevelHelper>()
@@ -92,6 +102,7 @@
             // Build the service provider a second time so that the ShardedClient is now included.
             provider = services.BuildServiceProvider();
 
+            provider.GetRequiredService<HomeService>().Update();
             await provider.GetRequiredService<PrefixService>().InitializeAsync();
             await provider.GetRequiredService<BotHandler>().InitializeAsync();
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
