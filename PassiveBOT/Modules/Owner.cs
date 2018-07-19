@@ -162,22 +162,6 @@
         }
 
         /// <summary>
-        ///     Trigger the goodbye event with the specified user
-        /// </summary>
-        /// <param name="user">
-        ///     The user.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="Task" />.
-        /// </returns>
-        [Command("Goodbye_Event")]
-        [Summary("Trigger a Goodbye event in the current server")]
-        public Task GoodbyeEventAsync(SocketGuildUser user)
-        {
-            return Events.UserLeftAsync(Context.Server, user);
-        }
-
-        /// <summary>
         ///     The partner_ restart.
         /// </summary>
         /// <returns>
@@ -269,38 +253,6 @@
         }
 
         /// <summary>
-        ///     Sends a custom message that performs a specific action upon reacting
-        /// </summary>
-        /// <param name="expires">True = Expires after first use</param>
-        /// <param name="singleuse">True = Only one use per user</param>
-        /// <param name="singleuser">True = Only the command invoker can use</param>
-        /// <returns>Something or something</returns>
-        [Command("embedreaction")]
-        [Summary("Sends a custom message that performs a specific action upon reacting")]
-        public Task Test_EmbedReactionReplyAsync(bool expires, bool singleuse, bool singleuser)
-        {
-            var one = new Emoji("1⃣");
-            var two = new Emoji("2⃣");
-
-            var embed = new EmbedBuilder().WithTitle("Choose one").AddField(one.Name, "Beer", true).AddField(two.Name, "Drink", true).Build();
-
-            // This message does not expire after a single
-            // it will not allow a user to react more than once
-            // it allows more than one user to react
-            return InlineReactionReplyAsync(
-                new ReactionCallbackData("text", embed, expires, singleuse).WithCallback(
-                    one,
-                    (c, r) =>
-                        {
-                            // You can do additional things with your reaction here, NOTE: c references this commands context whereas r references our added reaction.
-                            // This is important to note because context.user can be a different user to reaction.user
-                            var reactor = r.User.Value;
-                            return c.Channel.SendMessageAsync($"{reactor.Mention} Here you go :beer:");
-                        }).WithCallback(two, (c, r) => c.Channel.SendMessageAsync($"{r.User.Value.Mention} Here you go :tropical_drink:")),
-                singleuser);
-        }
-
-        /// <summary>
         ///     toggle command logging.
         /// </summary>
         /// <returns>
@@ -340,7 +292,7 @@
         /// </returns>
         [Command("UnbanAllPartners", RunMode = RunMode.Async)]
         [Summary("Unbans all banned partner servers")]
-        public Task UnbanAll()
+        public Task UnbanAllAsync()
         {
             SimpleEmbedAsync("Unbanning servers");
 
@@ -359,20 +311,90 @@
             return SimpleEmbedAsync("Success, servers have been unbanned");
         }
 
-        /// <summary>
-        ///     Trigger the Welcome event with the specified user
-        /// </summary>
-        /// <param name="user">
-        ///     The user.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="Task" />.
-        /// </returns>
-        [Command("Welcome_Event")]
-        [Summary("Trigger a welcome event in the current server")]
-        public Task WelcomeEventAsync(SocketGuildUser user)
+        [Group("Tests")]
+        public class Tests : Base
         {
-            return Events.UserJoinedAsync(Context.Server, user);
+            public Tests(PartnerService pService, PartnerHelper pHelper)
+            {
+                _Partner = pService;
+                _PartnerHelp = pHelper;
+            }
+
+            private PartnerService _Partner { get; }
+
+            private PartnerHelper _PartnerHelp { get; }
+
+            /// <summary>
+            ///     Trigger the goodbye event with the specified user
+            /// </summary>
+            /// <param name="user">
+            ///     The user.
+            /// </param>
+            /// <returns>
+            ///     The <see cref="Task" />.
+            /// </returns>
+            [Command("Goodbye_Event")]
+            [Summary("Trigger a Goodbye event in the current server")]
+            public Task GoodbyeEventAsync(SocketGuildUser user)
+            {
+                return Events.UserLeftAsync(Context.Server, user);
+            }
+
+            /// <summary>
+            ///     Sends a custom message that performs a specific action upon reacting
+            /// </summary>
+            /// <param name="expires">True = Expires after first use</param>
+            /// <param name="singleuse">True = Only one use per user</param>
+            /// <param name="singleuser">True = Only the command invoker can use</param>
+            /// <returns>Something or something</returns>
+            [Command("embedreaction")]
+            [Summary("Sends a custom message that performs a specific action upon reacting")]
+            public Task Test_EmbedReactionReplyAsync(bool expires, bool singleuse, bool singleuser)
+            {
+                var one = new Emoji("1⃣");
+                var two = new Emoji("2⃣");
+
+                var embed = new EmbedBuilder().WithTitle("Choose one").AddField(one.Name, "Beer", true).AddField(two.Name, "Drink", true).Build();
+
+                // This message does not expire after a single
+                // it will not allow a user to react more than once
+                // it allows more than one user to react
+                return InlineReactionReplyAsync(
+                    new ReactionCallbackData("text", embed, expires, singleuse).WithCallback(
+                        one,
+                        (c, r) =>
+                            {
+                                // You can do additional things with your reaction here, NOTE: c references this commands context whereas r references our added reaction.
+                                // This is important to note because context.user can be a different user to reaction.user
+                                var reactor = r.User.Value;
+                                return c.Channel.SendMessageAsync($"{reactor.Mention} Here you go :beer:");
+                            }).WithCallback(two, (c, r) => c.Channel.SendMessageAsync($"{r.User.Value.Mention} Here you go :tropical_drink:")),
+                    singleuser);
+            }
+
+            /// <summary>
+            ///     Trigger the Welcome event with the specified user
+            /// </summary>
+            /// <param name="user">
+            ///     The user.
+            /// </param>
+            /// <returns>
+            ///     The <see cref="Task" />.
+            /// </returns>
+            [Command("Welcome_Event")]
+            [Summary("Trigger a welcome event in the current server")]
+            public Task WelcomeEventAsync(SocketGuildUser user)
+            {
+                return Events.UserJoinedAsync(Context.Server, user);
+            }
+
+            [Command("GeneratePartner")]
+            [Summary("Generate a partner message")]
+            public Task GenerateAsync()
+            {
+                var msg = _PartnerHelp.GenerateMessage(_Partner.GetPartnerInfo(Context.Guild.Id), Context.Guild);
+                return ReplyAsync(msg);
+            }
         }
 
         /// <summary>
