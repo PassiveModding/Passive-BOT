@@ -33,10 +33,13 @@
         private HomeService _Home { get; }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Info" /> class.
+        /// Initializes a new instance of the <see cref="Info"/> class.
         /// </summary>
         /// <param name="service">
-        ///     The timer service.
+        /// The timer service.
+        /// </param>
+        /// <param name="home">
+        /// The home.
         /// </param>
         public Info(TimerService service, HomeService home)
         {

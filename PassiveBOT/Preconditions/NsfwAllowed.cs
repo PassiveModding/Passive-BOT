@@ -36,7 +36,7 @@
             var database = services.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, context.Guild.Id);
 
             // Check to see if the current user's ID matches the guild owners 
-            return Task.FromResult(database.Settings.Nsfw.Enabled ? PreconditionResult.FromSuccess() : PreconditionResult.FromError("NSFW is disabled in this guild."));
+            return Task.FromResult(database?.Settings.Nsfw.Enabled == true ? PreconditionResult.FromSuccess() : PreconditionResult.FromError("NSFW is disabled in this guild. This can be enabled in the general setup module."));
         }
     }
 }

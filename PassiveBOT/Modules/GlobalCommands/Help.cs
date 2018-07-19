@@ -182,7 +182,9 @@
             var pre = PrefixService.GetPrefix(Context.Guild?.Id ?? 0);
 
             // This ensures that we filter out all modules where the user cannot access ANY commands
-            var modules = checkPreconditions ? service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList() : service.Modules.OrderBy(x => x.Name).ToList();
+            var modules = checkPreconditions 
+                              ? service.Modules.OrderBy(x => x.Name).Where(x => x.Commands.Any(c => c.CheckPreconditionsAsync(Context, Context.Provider).Result.IsSuccess)).ToList() 
+                              : service.Modules.OrderBy(x => x.Name).ToList();
 
             // Split the modules into groups of 5 to ensure the message doesn't get too long
             var moduleSets = modules.SplitList(5);
@@ -193,7 +195,12 @@
                                      {
                                          // This gives a brief overview of how to use the paginated message and help commands.
                                          Name = $"[1-{moduleIndex}] Commands Summary",
-                                         Value = "Go to the respective page number of each module to view the commands in more detail. " + "You can react with the :1234: emote and type a page number to go directly to that page too,\n" + "otherwise react with the arrows (◀ ▶) to change pages.\n" + "For more info on modules or commands,\n" + $"type `{pre}help <ModuleName>` or `{pre}help <CommandName>`"
+                                         Value =
+                                             "Go to the respective page number of each module to view the commands in more detail. "
+                                             + "You can react with the :1234: emote and type a page number to go directly to that page too,\n"
+                                             + "otherwise react with the arrows (◀ ▶) to change pages.\n"
+                                             + "For more info on modules or commands,\n"
+                                             + $"type `{pre}help <ModuleName>` or `{pre}help <CommandName>`"
                                      }
                              };
 

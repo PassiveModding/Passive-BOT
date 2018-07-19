@@ -23,6 +23,8 @@
         /// </summary>
         private readonly Timer timer;
 
+        private readonly PartnerHelper partnerHelper;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TimerService"/> class.
         /// </summary>
@@ -32,11 +34,15 @@
         /// <param name="partnerService">
         /// The partner Service.
         /// </param>
+        /// <param name="pHelper">
+        /// The p Helper.
+        /// </param>
         /// <param name="provider">
         /// The provider.
         /// </param>
-        public TimerService(DiscordShardedClient client, PartnerService partnerService, IServiceProvider provider)
+        public TimerService(DiscordShardedClient client, PartnerService partnerService, PartnerHelper pHelper, IServiceProvider provider)
         {
+            partnerHelper = pHelper;
             PartnerService = partnerService;
             Provider = provider;
             ShardedClient = client;
@@ -52,15 +58,8 @@
                             LogHandler.LogMessage("Partner Error:\n" + $"{e}", LogSeverity.Error);
                         }
 
-                        try
-                        {
-                            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-                            GC.WaitForPendingFinalizers();
-                        }
-                        catch (Exception e)
-                        {
-                            LogHandler.LogMessage(e.ToString(), LogSeverity.Error);
-                        }
+                        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+                        GC.WaitForPendingFinalizers();
 
                         LastFireTime = DateTime.UtcNow;
                     },
@@ -72,7 +71,7 @@
         /// <summary>
         ///     Gets or sets the fire period.
         /// </summary>
-        public static int FirePeriod { get; set; } = 30;
+        public static int FirePeriod { get; set; } = 60;
 
         /// <summary>
         ///     Gets or sets the last fire time.
@@ -169,12 +168,10 @@
                 {
                     LogHandler.LogMessage($"Partner Event Error for Guild: [{receiverGuild.Id}]\n" + $"{e}", LogSeverity.Error);
                 }
-                finally
-                {
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
             }
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
 
             PartnerStats.PartneredGuilds = PartnerStats.UpdatePartneredGuilds;
             PartnerStats.ReachableMembers = PartnerStats.UpdateReachableMembers;
@@ -242,7 +239,7 @@
                 return;
             }
 
-            var partnerMessage = PartnerHelper.GenerateMessage(messageGuildModel, messageChannel.Guild).Build();
+            var partnerMessage = partnerHelper.GenerateMessage(messageGuildModel, messageChannel.Guild).Build();
 
             try
             {
@@ -257,7 +254,7 @@
             {
                 LogHandler.LogMessage("AUTOBAN: Partner Message Send Error in:\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}\n" + $"{e}", LogSeverity.Error);
 
-                await PartnerHelper.PartnerLogAsync(ShardedClient, receiverConfig, new EmbedFieldBuilder { Name = "Partner Server Auto Banned", Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}" });
+                await partnerHelper.PartnerLogAsync(ShardedClient, receiverConfig, new EmbedFieldBuilder { Name = "Partner Server Auto Banned", Value = "Unable to send message to channel\n" + $"S:{receiverGuild.Name} [{receiverGuild.Id}] : C:{receiverChannel.Name}" });
 
                 // Auto-Ban servers which deny permissions to send
                 receiverConfig.Settings.Banned = true;

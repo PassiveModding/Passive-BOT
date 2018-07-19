@@ -20,7 +20,7 @@
             _HomeService = homeService;
         }
 
-        private static HomeService _HomeService { get; set; }
+        private HomeService _HomeService { get; set; }
 
         /// <summary>
         ///     Generates a partner message based off the input server
@@ -34,7 +34,7 @@
         /// <returns>
         ///     The <see cref="EmbedBuilder" />.
         /// </returns>
-        public static EmbedBuilder GenerateMessage(PartnerService.PartnerInfo guildObj, SocketGuild guild)
+        public EmbedBuilder GenerateMessage(PartnerService.PartnerInfo guildObj, SocketGuild guild)
         {
             var image = guildObj.Message.ImageUrl;
             if (image != null)
@@ -86,7 +86,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        public static async Task PartnerLogAsync(DiscordShardedClient client, PartnerService.PartnerInfo partnerGuild, EmbedFieldBuilder fieldInfo)
+        public async Task PartnerLogAsync(DiscordShardedClient client, PartnerService.PartnerInfo partnerGuild, EmbedFieldBuilder fieldInfo)
         {
             var home = _HomeService.CurrentHomeModel;
             if (home.Logging.LogPartnerChanges)

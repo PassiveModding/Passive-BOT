@@ -26,13 +26,15 @@
     [RequireContext(ContextType.Guild)]
     public class Partner : Base
     {
-        public Partner(PrefixService prefixService, PartnerService partnerService)
+        public Partner(PrefixService prefixService, PartnerService partnerService, PartnerHelper partnerHelper)
         {
             PrefixService = prefixService;
             PartnerService = partnerService;
         }
 
         private PartnerService PartnerService { get; }
+
+        private PartnerHelper PartnerHelp { get; }
 
         private PrefixService PrefixService { get; }
 
@@ -54,7 +56,7 @@
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             p.Message.Color = new PartnerService.PartnerInfo.PartnerMessage.RGB { R = color_response.R, G = color_response.G, B = color_response.B };
             p.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
+            return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
@@ -78,10 +80,10 @@
 
             p.Message.ImageUrl = imageUrl;
             p.Save();
-            var partnerEmbed = PartnerHelper.GenerateMessage(p, Context.Guild);
+            var partnerEmbed = PartnerHelp.GenerateMessage(p, Context.Guild);
             await ReplyAsync(partnerEmbed);
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelp.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Image Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -96,7 +98,7 @@
         {
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             await SimpleEmbedAsync("**Stats**\n" + $"Users Reached: {p.Stats.UsersReached}\n" + $"Servers Reached: {p.Stats.ServersReached}\n" + "**Settings**\n" + $"Enabled: {p.Settings.Enabled}\n" + $"Channel: {Context.Guild.GetChannel(p.Settings.ChannelId)?.Name ?? "N/A"}\n" + "**Config**\n" + $"Color (RGB): [{p.Message.Color.R}, {p.Message.Color.G}, {p.Message.Color.B}]\n" + $"Using Server Thumbnail: {p.Message.UseThumb}\n" + $"Showing UserCount: {p.Message.UserCount}\n" + $"Image URL: {p.Message.ImageUrl ?? "N/A"}\n" + $"Message: (Refer to Partner Message Embed, for raw do `{PrefixService.GetPrefix(Context.Guild.Id)}partner RawMessage`)\n" + "**Partner Message Embed**\n" + "(See Next Message)");
-            await ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
+            await ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
@@ -141,7 +143,7 @@
             p.Save();
             await SimpleEmbedAsync($"Partner Updates will now be sent in {Context.Channel.Name}");
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelp.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Channel Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -202,10 +204,10 @@
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             p.Message.Content = message;
             p.Save();
-            var generateMessage = PartnerHelper.GenerateMessage(p, Context.Guild);
+            var generateMessage = PartnerHelp.GenerateMessage(p, Context.Guild);
             await ReplyAsync(generateMessage);
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
+            await PartnerHelp.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Message Updated", Value = $"Guild: {Context.Guild.Name} [{Context.Guild.Id}]\n" + $"Owner: {Context.Guild.Owner.Username}\n" + $"Users: {Context.Guild.MemberCount}" });
         }
 
         /// <summary>
@@ -221,7 +223,7 @@
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             p.Message.UseThumb = !p.Message.UseThumb;
             p.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
+            return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
         }
 
         /// <summary>
@@ -238,7 +240,7 @@
             p.Settings.Enabled = !p.Settings.Enabled;
             p.Save();
 
-            await PartnerHelper.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {p.Settings.Enabled}" });
+            await PartnerHelp.PartnerLogAsync(Context.Client, p, new EmbedFieldBuilder { Name = "Partner Toggled", Value = $"Enabled: {p.Settings.Enabled}" });
             await SimpleEmbedAsync($"Partner Program Enabled: {p.Settings.Enabled}");
         }
 
@@ -255,7 +257,7 @@
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
             p.Message.UserCount = !p.Message.UserCount;
             p.Save();
-            return ReplyAsync(PartnerHelper.GenerateMessage(p, Context.Guild));
+            return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
         }
     }
 }

@@ -19,6 +19,8 @@
     using PassiveBOT.Models.Migration;
     using PassiveBOT.Services;
 
+    using Raven.Client.Documents;
+
     using EventHandler = PassiveBOT.Handlers.EventHandler;
 
     /// <summary>
@@ -54,60 +56,59 @@
                 Directory.CreateDirectory(Path.Combine(AppContext.BaseDirectory, "setup/"));
             }
 
-            var services = new ServiceCollection().AddSingleton<DatabaseHandler>()
+            LogHandler.LogMessage("Loading initial provider", LogSeverity.Verbose);
+            var services = new ServiceCollection()
+                .AddSingleton<DatabaseHandler>()
                 .AddSingleton(x => x.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.LOAD, id: "Config"))
                 .AddSingleton(new CommandService(new CommandServiceConfig
                             {
                                 ThrowOnError = false,
                                 IgnoreExtraArgs = false,
-                                DefaultRunMode = RunMode.Sync
-                            })).AddSingleton(new HttpClient()).AddSingleton<BotHandler>()
-                .AddSingleton<EventHandler>().AddSingleton<Events>()
-                .AddSingleton(new Random(Guid.NewGuid().GetHashCode()));
-
-            var provider = services.BuildServiceProvider();
-
-            // This method ensures that the database is
-            // 1. Running
-            // 2. Set up properly 
-            // 3. contains the bot config itself
-            var store = await provider.GetRequiredService<DatabaseHandler>().InitializeAsync();
-
-            // The provider is split here so we can get our shard count from the database before actually logging into discord.
-            // This is important to do so the bot always logs in with the required amount of shards.
-            var config = provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.LOAD, id: "Config");
-
-            services.AddSingleton(
+                                DefaultRunMode = RunMode.Async
+                            }))
+                .AddSingleton<HttpClient>()
+                .AddSingleton<BotHandler>()
+                .AddSingleton<EventHandler>()
+                .AddSingleton<Events>()
+                .AddSingleton(x => x.GetRequiredService<DatabaseHandler>().InitializeAsync().Result)
+                .AddSingleton(new Random(Guid.NewGuid().GetHashCode()))
+                .AddSingleton(x =>
                 new DiscordShardedClient(
                     new DiscordSocketConfig
                         {
-                            MessageCacheSize = 20,
+                            MessageCacheSize = 0,
                             AlwaysDownloadUsers = false,
                             LogLevel = LogSeverity.Info,
-
-                            // Please change increase this as your server count grows beyond 2000 guilds. ie. < 2000 = 1, 2000 = 2, 4000 = 2 ...
-                            TotalShards = config.Shards
-                        })).AddSingleton(new PrefixService(config.Prefix, store))
-                .AddSingleton(new TagService(store))
-                .AddSingleton(new PartnerService(store))
-                .AddSingleton(new LevelService(store))
-                .AddSingleton(new ChannelService(store))
-                .AddSingleton(new HomeService(store))
+                            TotalShards = x.GetRequiredService<ConfigModel>().Shards
+                        }))
+                .AddSingleton(
+                   x =>
+                        {
+                            var config = x.GetRequiredService<ConfigModel>().Prefix;
+                            var store = x.GetRequiredService<IDocumentStore>();
+                            return new PrefixService(config, store);
+                        })
+                .AddSingleton<TagService>()
+                .AddSingleton<PartnerService>()
+                .AddSingleton<LevelService>()
+                .AddSingleton<ChannelService>()
+                .AddSingleton<HomeService>()
                 .AddSingleton<ChannelHelper>()
+                .AddSingleton<PartnerHelper>()
                 .AddSingleton<Interactive>()
                 .AddSingleton<LevelHelper>()
-                // .AddSingleton<GuildModelToServices>()
                 .AddSingleton<TimerService>();
 
-            // Build the service provider a second time so that the ShardedClient is now included.
-            provider = services.BuildServiceProvider();
+            var provider = services.BuildServiceProvider();
 
+            LogHandler.LogMessage("Initializing HomeService", LogSeverity.Verbose);
             provider.GetRequiredService<HomeService>().Update();
+            LogHandler.LogMessage("Initializing PrefixService", LogSeverity.Verbose);
             await provider.GetRequiredService<PrefixService>().InitializeAsync();
+            LogHandler.LogMessage("Initializing BotHandler", LogSeverity.Verbose);
             await provider.GetRequiredService<BotHandler>().InitializeAsync();
+            LogHandler.LogMessage("Initializing EventHandler", LogSeverity.Verbose);
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
-
-            // provider.GetRequiredService<TimerService>().Restart();
 
             // Indefinitely delay the method from finishing so that the program stays running until stopped.
             await Task.Delay(-1);
