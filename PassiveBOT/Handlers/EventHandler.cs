@@ -41,7 +41,7 @@
         /// Messages that have already been translated.
         /// </summary>
         private readonly ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>> translated = new ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>>();
-
+        
         /// <summary>
         /// true = check and update all missing servers on start.
         /// </summary>
@@ -79,7 +79,7 @@
         /// <param name="prefixService">
         /// The prefix Service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
+        public EventHandler(DiscordShardedClient client, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
@@ -90,9 +90,12 @@
             _ChannelHelper = channelHelper;
             _LevelHelper = levels;
             _HomeService = homeService;
+            _Translate = translationService;
 
             CancellationToken = new CancellationTokenSource();
         }
+
+        private TranslationService _Translate { get; }
 
         private HomeService _HomeService { get; }
 
@@ -486,52 +489,43 @@
         {
             LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
 
-            SocketUserMessage message;
-
-            // SocketUser reactor;
-            if (!reaction.Message.IsSpecified)
-            {
-                message = (await channel.GetMessageAsync(reaction.MessageId)) as SocketUserMessage;
-            }
-            else
-            {
-                message = reaction.Message.Value;
-            }
+            IUserMessage message = await channel.GetMessageAsync(reaction.MessageId) as IUserMessage;
 
             if (message == null)
             {
                 return;
             }
             
-            if (reaction.User.Value.IsBot || string.IsNullOrWhiteSpace(message.Content))
+            if (reaction.User.Value?.IsBot == true || string.IsNullOrWhiteSpace(message.Content))
             {
                 return;
             }
                 
-            /*
-            if (!reaction.User.IsSpecified)
-            {
-                reactor = (channel as SocketGuildChannel).Guild.GetUser(reaction.UserId);
-            }
-            else
-            {
-                reactor = reaction.User.Value as SocketUser;
-            }
-            */
-            
             try
             {
                 var translateAction = Task.Run(
                     async () =>
                         {
-                            var guild = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, (channel as SocketGuildChannel).Guild.Id.ToString());
-                            if (!guild.Settings.Translate.EasyTranslate)
+                            var guildId = (channel as SocketGuildChannel).Guild.Id;
+                            var translationSetup = _Translate.GetSetup(guildId);
+                            if (translationSetup == null)
+                            {
+                                translationSetup = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guildId.ToString())?.Settings.Translate;
+                                if (translationSetup == null)
+                                {
+                                    return;
+                                }
+
+                                await _Translate.UpdateSetupAsync(guildId, translationSetup);
+                            }
+
+                            if (!translationSetup.EasyTranslate)
                             {
                                 return;
                             }
 
                             // Check custom matches first
-                            var languageType = guild.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
+                            var languageType = translationSetup.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
 
                             if (languageType == null)
                             {
@@ -551,7 +545,7 @@
 
                             var embed = await TranslateMethods.TranslateEmbedAsync(languageType.Language, Provider, message, reaction);
 
-                            if (guild.Settings.Translate.DMTranslations)
+                            if (translationSetup.DMTranslations)
                             {
                                 try
                                 {
@@ -576,7 +570,7 @@
                                 }
                             }
 
-                            LogHandler.LogMessage(guild.ID, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
+                            LogHandler.LogMessage(guildId, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
                         });
             }
             catch (Exception e)

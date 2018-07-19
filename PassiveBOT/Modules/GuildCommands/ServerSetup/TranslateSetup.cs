@@ -12,6 +12,7 @@
     using PassiveBOT.Context;
     using PassiveBOT.Models;
     using PassiveBOT.Preconditions;
+    using PassiveBOT.Services;
 
     /// <summary>
     ///     The translate setup module
@@ -22,10 +23,13 @@
     [RequireAdmin]
     public class TranslateSetup : Base
     {
-        public TranslateSetup(PrefixService prefixService)
+        public TranslateSetup(PrefixService prefixService, TranslationService translateService)
         {
             PrefixService = prefixService;
+            _Translate = translateService;
         }
+
+        private TranslationService _Translate { get; }
 
         private PrefixService PrefixService { get; }
 
@@ -91,7 +95,7 @@
         [Command("Add")]
         [Summary("Add a pair for quick translation of a language")]
         [Remarks("For a list of language codes use the `Translate Languages` Command")]
-        public Task QuickTranslatePairAsync(Emoji emote, LanguageMap.LanguageCode languageCode)
+        public async Task QuickTranslatePairAsync(Emoji emote, LanguageMap.LanguageCode languageCode)
         {
             var group = Context.Server.Settings.Translate.CustomPairs.FirstOrDefault(x => x.Language == languageCode);
             if (group != null)
@@ -109,7 +113,8 @@
             }
 
             Context.Server.Save();
-            return SimpleEmbedAsync("Pair Added:\n" + $"{emote.Name} => {languageCode}");
+            await _Translate.UpdateSetupAsync(Context.Guild.Id, Context.Server.Settings.Translate);
+            await SimpleEmbedAsync("Pair Added:\n" + $"{emote.Name} => {languageCode}");
         }
 
         /// <summary>
@@ -126,7 +131,7 @@
         /// </exception>
         [Command("Remove")]
         [Summary("Remove a custom emote from QuickTranslation list")]
-        public Task RemoveAsync(Emoji emote)
+        public async Task RemoveAsync(Emoji emote)
         {
             var matchingPair = Context.Server.Settings.Translate.CustomPairs.FirstOrDefault(x => x.EmoteMatches.Contains(emote.Name));
             if (matchingPair != null)
@@ -146,7 +151,8 @@
             }
 
             Context.Server.Save();
-            return SimpleEmbedAsync("Removed.");
+            await _Translate.UpdateSetupAsync(Context.Guild.Id, Context.Server.Settings.Translate);
+            await SimpleEmbedAsync("Removed.");
         }
 
         /// <summary>
@@ -157,11 +163,12 @@
         /// </returns>
         [Command("Toggle")]
         [Summary("Toggle quick translation for the server")]
-        public Task ToggleAsync()
+        public async Task ToggleAsync()
         {
             Context.Server.Settings.Translate.EasyTranslate = !Context.Server.Settings.Translate.EasyTranslate;
             Context.Server.Save();
-            return SimpleEmbedAsync($"Quick Translate Enabled: {Context.Server.Settings.Translate.EasyTranslate}");
+            await _Translate.UpdateSetupAsync(Context.Guild.Id, Context.Server.Settings.Translate);
+            await SimpleEmbedAsync($"Quick Translate Enabled: {Context.Server.Settings.Translate.EasyTranslate}");
         }
 
         /// <summary>
@@ -172,11 +179,12 @@
         /// </returns>
         [Command("DM")]
         [Summary("Toggle whether or not Translations will be sent in DMs")]
-        public Task ToggleDMAsync()
+        public async Task ToggleDMAsync()
         {
             Context.Server.Settings.Translate.DMTranslations = !Context.Server.Settings.Translate.DMTranslations;
             Context.Server.Save();
-            return SimpleEmbedAsync($"DM Quick Translations: {Context.Server.Settings.Translate.DMTranslations}");
+            await _Translate.UpdateSetupAsync(Context.Guild.Id, Context.Server.Settings.Translate);
+            await SimpleEmbedAsync($"DM Quick Translations: {Context.Server.Settings.Translate.DMTranslations}");
         }
 
         /// <summary>

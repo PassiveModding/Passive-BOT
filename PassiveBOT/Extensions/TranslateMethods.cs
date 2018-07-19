@@ -83,7 +83,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
-        public static async Task<EmbedBuilder> TranslateEmbedAsync(LanguageMap.LanguageCode language, IServiceProvider provider, SocketUserMessage message, SocketReaction reaction = null)
+        public static async Task<EmbedBuilder> TranslateEmbedAsync(LanguageMap.LanguageCode language, IServiceProvider provider, IUserMessage message, SocketReaction reaction = null)
         {
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
             var original = message.Content.FixLength();

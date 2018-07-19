@@ -16,7 +16,6 @@
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
-    using PassiveBOT.Models.Migration;
     using PassiveBOT.Services;
 
     using Raven.Client.Documents;
@@ -97,6 +96,7 @@
                 .AddSingleton<PartnerHelper>()
                 .AddSingleton<Interactive>()
                 .AddSingleton<LevelHelper>()
+                .AddSingleton<TranslationService>()
                 .AddSingleton<TimerService>();
 
             var provider = services.BuildServiceProvider();
