@@ -243,7 +243,17 @@
             LogHandler.PrintApplicationInformation(Settings, Execute<ConfigModel>(Operation.LOAD, null, "Config"));
 
             // Note the logger has to be updated/re-set after we set the database up otherwise there will be a null reference when trying to log initially
-            LogHandler.Log = new LoggerConfiguration().WriteTo.Console().WriteTo.RavenDB(Store, defaultDatabase: Settings.Name, expiration: TimeSpan.FromDays(7)).CreateLogger();
+            if (Settings.LogToDatabase)
+            {
+                LogHandler.Log = new LoggerConfiguration().MinimumLevel.Is(LogHandler.DiscordLogToEventLevel(Settings.LogSeverity)).WriteTo.Console().WriteTo.RavenDB(
+                    Store,
+                    defaultDatabase: Settings.Name,
+                    expiration: TimeSpan.FromDays(2)).CreateLogger();
+            }
+            else
+            {
+                LogHandler.Log = new LoggerConfiguration().MinimumLevel.Is(LogHandler.DiscordLogToEventLevel(Settings.LogSeverity)).CreateLogger();
+            }
 
             return Task.FromResult(Store);
         }

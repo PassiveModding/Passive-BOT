@@ -19,7 +19,7 @@
         /// <summary>
         ///     Gets or sets the Log.
         /// </summary>
-        public static Logger Log { get; set; } = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+        public static Logger Log { get; set; } = new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Console().CreateLogger();
 
         /// <summary>
         ///     Converts from discord LogSeverity to Serilog LogEventLevel

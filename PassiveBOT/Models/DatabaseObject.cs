@@ -2,6 +2,8 @@
 {
     using System.IO;
 
+    using Discord;
+
     /// <summary>
     ///     The object used for initializing and using our database
     /// </summary>
@@ -46,5 +48,9 @@
         ///     Gets or sets a value indicating whether the default bot prefix will be overridden
         /// </summary>
         public bool UsePrefixOverride { get; set; } = false;
+
+        public LogSeverity LogSeverity { get; set; } = LogSeverity.Info;
+
+        public bool LogToDatabase { get; set; } = true;
     }
 }
