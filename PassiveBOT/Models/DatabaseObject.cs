@@ -1,5 +1,6 @@
 ﻿namespace PassiveBOT.Models
 {
+    using System.Collections.Generic;
     using System.IO;
 
     using Discord;
@@ -40,9 +41,9 @@
         public string PrefixOverride { get; set; } = null;
 
         /// <summary>
-        ///     Gets or sets The url.
+        ///     Gets or sets The urls.
         /// </summary>
-        public string URL { get; set; } = "http://127.0.0.1:8080";
+        public List<string> Urls { get; set; } = new List<string>();
 
         /// <summary>
         ///     Gets or sets a value indicating whether the default bot prefix will be overridden

@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -161,26 +160,33 @@
                     databaseUrl = "http://127.0.0.1:8080";
                 }
 
-                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(new DatabaseObject { Name = databaseName, URL = databaseUrl }, Formatting.Indented), Encoding.UTF8);
+                File.WriteAllText("setup/DBConfig.json", JsonConvert.SerializeObject(
+                        new DatabaseObject
+                        {
+                            Name = databaseName,
+                            Urls = new List<string> { databaseUrl }
+                        },
+                        Formatting.Indented),
+                    Encoding.UTF8);
 
                 Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
             }
             else
             {
                 Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
-                LogHandler.LogMessage("Connecting to Server\n" + $"=> URL: {Settings.URL}\n" + $"=> Name: {Settings.Name}");
+                LogHandler.LogMessage("Connecting to Server\n" + $"=> URL: \n{string.Join("\n", Settings.Urls)}\n" + $"=> Name: {Settings.Name}");
+            }
+
+            if (Settings.Urls.Count == 0)
+            {
+                throw new Exception("No database urls have been detected in config, please add one");
             }
 
             // This initializes the document store, and ensures that RavenDB is working properly
-            Store = new Lazy<IDocumentStore>(() => new DocumentStore { Database = Settings.Name, Urls = new[] { Settings.URL } }.Initialize(), true).Value;
+            Store = new Lazy<IDocumentStore>(() => new DocumentStore { Database = Settings.Name, Urls = Settings.Urls.ToArray() }.Initialize(), true).Value;
             if (Store == null)
             {
                 LogHandler.LogMessage("Failed to build document store.", LogSeverity.Critical);
-            }
-
-            if (!Ping(Settings.URL))
-            {
-                LogHandler.LogMessage("Failed to Ping Server.", LogSeverity.Critical);
             }
 
             // This creates the database
@@ -256,29 +262,6 @@
             }
 
             return Task.FromResult(Store);
-        }
-
-        /// <summary>
-        ///     Pings a web url
-        /// </summary>
-        /// <param name="url">
-        ///     The url.
-        /// </param>
-        /// <returns>
-        ///     The <see cref="bool" />.
-        /// </returns>
-        public bool Ping(string url)
-        {
-            try
-            {
-                var webClient = new WebClient();
-                var unused = webClient.DownloadData(url);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         /// <summary>
