@@ -115,7 +115,8 @@
         /// </returns>
         public Task PartnerAsync()
         {
-            var senderIds = ShardedClient.Guilds.Select(x => x.Id).ToList();
+            var rnd = Provider.GetRequiredService<Random>();
+            var senderIds = ShardedClient.Guilds.Select(x => x.Id).OrderByDescending(x => rnd.Next()).ToList();
             PartnerStats.UpdatePartneredGuilds = 0;
             PartnerStats.UpdateReachableMembers = 0;
             foreach (var receiverGuild in ShardedClient.Guilds)
@@ -123,7 +124,13 @@
                 try
                 {
                     var receiverConfig = PartnerService.GetPartnerInfo(receiverGuild.Id);
-                    if (receiverConfig == null || receiverConfig.Settings.Banned || !receiverConfig.Settings.Enabled || string.IsNullOrWhiteSpace(receiverConfig.Message.Content) || !(ShardedClient.GetChannel(receiverConfig.Settings.ChannelId) is SocketTextChannel receiverChannel))
+                    if (receiverConfig == null)
+                    {
+                        senderIds.Remove(receiverGuild.Id);
+                        continue;
+                    }
+
+                    if (receiverConfig.Settings.Banned || !receiverConfig.Settings.Enabled || string.IsNullOrWhiteSpace(receiverConfig.Message.Content) || !(ShardedClient.GetChannel(receiverConfig.Settings.ChannelId) is SocketTextChannel receiverChannel))
                     {
                         senderIds.Remove(receiverGuild.Id);
                         continue;
@@ -135,7 +142,7 @@
                     SocketTextChannel messageChannel = null;
 
                     // Find a channel to send the message from!
-                    foreach (var id in senderIds.OrderByDescending(x => Provider.GetRequiredService<Random>().Next()).ToList())
+                    foreach (var id in senderIds)
                     {
                         if (id == receiverGuild.Id)
                         {
@@ -143,13 +150,16 @@
                         }
 
                         var model = PartnerService.GetPartnerInfo(id);
-                        if (model == null || model.Settings.Banned || !model.Settings.Enabled || string.IsNullOrWhiteSpace(model.Message.Content) || !(ShardedClient.GetChannel(model.Settings.ChannelId) is SocketTextChannel mChannel))
+                        if (model == null)
                         {
-                            senderIds.Remove(id);
                             continue;
                         }
 
-                        senderIds.Remove(id);
+                        if (model.Settings.Banned || !model.Settings.Enabled || string.IsNullOrWhiteSpace(model.Message.Content) || !(ShardedClient.GetChannel(model.Settings.ChannelId) is SocketTextChannel mChannel))
+                        {
+                            continue;
+                        }
+                        
                         messageGuildModel = model;
                         messageChannel = mChannel;
                         break;
@@ -159,6 +169,8 @@
                     {
                         return Task.CompletedTask;
                     }
+
+                    senderIds.Remove(messageGuildModel.GuildId);
 
                     SendPartnerMessage(messageChannel, messageGuildModel, receiverChannel, receiverGuild, receiverConfig);
 

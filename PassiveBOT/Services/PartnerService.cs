@@ -1,5 +1,7 @@
 ﻿namespace PassiveBOT.Services
 {
+    using System.Collections.Concurrent;
+
     using Raven.Client.Documents;
 
     /// <summary>
@@ -24,27 +26,52 @@
         private static IDocumentStore Store { get; set; }
 
         /// <summary>
-        ///     Gets a partner info config via guild ID
+        /// Gets a partner info config via guild ID
         /// </summary>
         /// <param name="guildId">
-        ///     The guild id.
+        /// The guild id.
+        /// </param>
+        /// <param name="forced">
+        /// The forced.
         /// </param>
         /// <returns>
-        ///     The <see cref="PartnerInfo" />.
+        /// The <see cref="PartnerInfo"/>.
         /// </returns>
-        public PartnerInfo GetPartnerInfo(ulong guildId)
+        public PartnerInfo GetPartnerInfo(ulong guildId, bool forced = false)
         {
+            if (!forced)
+            {
+                if (PartnerStatuses.ContainsKey(guildId))
+                {
+                    PartnerStatuses.TryGetValue(guildId, out var status);
+                    if (status == false)
+                    {
+                        return null;
+                    }
+                }
+            }
+
             using (var session = Store.OpenSession())
             {
-                return session.Load<PartnerInfo>($"{guildId}-Partner") ?? new PartnerInfo(guildId);
+                var res = session.Load<PartnerInfo>($"{guildId}-Partner") ?? new PartnerInfo(guildId);
+                PartnerStatuses.TryRemove(guildId, out _);
+                PartnerStatuses.TryAdd(guildId, res.Settings.Enabled && !res.Settings.Banned);
+
+                return res;
             }
         }
+
+        /// <summary>
+        /// A dictionary of guildID's and statuses that tell whether a guild uses the partner service or not
+        /// </summary>
+        private static readonly ConcurrentDictionary<ulong, bool> PartnerStatuses = new ConcurrentDictionary<ulong, bool>();
         
         public void OverWrite(PartnerInfo newObj)
         {
             using (var session = Store.OpenSession())
             {
                 session.Store(newObj, $"{newObj.GuildId}-Partner");
+                PartnerStatuses.TryRemove(newObj.GuildId, out _);
                 session.SaveChanges();
             }
         }
@@ -66,7 +93,7 @@
             }
 
             /// <summary>
-            ///     Gets the guild id.
+            ///     Gets or sets the guild id.
             /// </summary>
             public ulong GuildId { get; set; }
 
@@ -93,6 +120,8 @@
                 using (var session = Store.OpenSession())
                 {
                     session.Store(this, $"{GuildId}-Partner");
+                    PartnerStatuses.TryRemove(GuildId, out _);
+                    PartnerStatuses.TryAdd(GuildId, Settings.Enabled && !Settings.Banned);
                     session.SaveChanges();
                 }
             }

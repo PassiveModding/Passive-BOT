@@ -30,6 +30,7 @@
         {
             PrefixService = prefixService;
             PartnerService = partnerService;
+            PartnerHelp = partnerHelper;
         }
 
         private PartnerService PartnerService { get; }
@@ -37,6 +38,8 @@
         private PartnerHelper PartnerHelp { get; }
 
         private PrefixService PrefixService { get; }
+
+
 
         /// <summary>
         ///     Sets the partner message color
@@ -53,7 +56,7 @@
         {
             var color_response = ColorManagement.GetColor(color);
 
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             p.Message.Color = new PartnerService.PartnerInfo.PartnerMessage.RGB { R = color_response.R, G = color_response.G, B = color_response.B };
             p.Save();
             return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
@@ -72,7 +75,7 @@
         [Summary("Set an optional image url for the partner message")]
         public async Task ImageURLAsync(string imageUrl = null)
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             if (!string.IsNullOrEmpty(imageUrl) && !Uri.IsWellFormedUriString(imageUrl, UriKind.Absolute))
             {
                 throw new Exception("Url must be a well-formed URI");
@@ -96,7 +99,7 @@
         [Summary("Show partner info and stats")]
         public async Task InfoAsync()
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             await SimpleEmbedAsync("**Stats**\n" + $"Users Reached: {p.Stats.UsersReached}\n" + $"Servers Reached: {p.Stats.ServersReached}\n" + "**Settings**\n" + $"Enabled: {p.Settings.Enabled}\n" + $"Channel: {Context.Guild.GetChannel(p.Settings.ChannelId)?.Name ?? "N/A"}\n" + "**Config**\n" + $"Color (RGB): [{p.Message.Color.R}, {p.Message.Color.G}, {p.Message.Color.B}]\n" + $"Using Server Thumbnail: {p.Message.UseThumb}\n" + $"Showing UserCount: {p.Message.UserCount}\n" + $"Image URL: {p.Message.ImageUrl ?? "N/A"}\n" + $"Message: (Refer to Partner Message Embed, for raw do `{PrefixService.GetPrefix(Context.Guild.Id)}partner RawMessage`)\n" + "**Partner Message Embed**\n" + "(See Next Message)");
             await ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
         }
@@ -111,7 +114,7 @@
         [Summary("Show raw partner message with formatting")]
         public Task RawMessageAsync()
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             return SimpleEmbedAsync(Format.Sanitize(p.Message.Content));
         }
 
@@ -128,7 +131,7 @@
         [Summary("Set the current channel as partner channel")]
         public async Task SetChannelAsync()
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             if ((decimal)(Context.Channel as SocketTextChannel).Users.Count / Context.Guild.Users.Count * 100 < 90)
             {
                 throw new Exception("Partner messages will not be shared as this channel has less than 90% visibility in the server,\n" + "You can fix this by ensuring that all roles have permissions to view messages and message history in the channel settings");
@@ -201,7 +204,7 @@
                 */
             }
 
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             p.Message.Content = message;
             p.Save();
             var generateMessage = PartnerHelp.GenerateMessage(p, Context.Guild);
@@ -220,7 +223,7 @@
         [Summary("Toggle the Thumbnail of the server in the partner message")]
         public Task ThumbnailAsync()
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             p.Message.UseThumb = !p.Message.UseThumb;
             p.Save();
             return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
@@ -236,7 +239,7 @@
         [Summary("Toggle the Program in the server")]
         public async Task ToggleAsync()
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             p.Settings.Enabled = !p.Settings.Enabled;
             p.Save();
 
@@ -254,7 +257,7 @@
         [Summary("Toggle the User Count in the footer of the partner message")]
         public Task UserCountAsync()
         {
-            var p = PartnerService.GetPartnerInfo(Context.Guild.Id);
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             p.Message.UserCount = !p.Message.UserCount;
             p.Save();
             return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
