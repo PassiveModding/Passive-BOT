@@ -130,7 +130,7 @@
                         continue;
                     }
 
-                    if (receiverConfig.Settings.Banned || !receiverConfig.Settings.Enabled || string.IsNullOrWhiteSpace(receiverConfig.Message.Content) || !(ShardedClient.GetChannel(receiverConfig.Settings.ChannelId) is SocketTextChannel receiverChannel))
+                    if (receiverConfig.Settings.Banned || !receiverConfig.Settings.Enabled || !(ShardedClient.GetChannel(receiverConfig.Settings.ChannelId) is SocketTextChannel receiverChannel))
                     {
                         senderIds.Remove(receiverGuild.Id);
                         continue;
@@ -155,7 +155,7 @@
                             continue;
                         }
 
-                        if (model.Settings.Banned || !model.Settings.Enabled || string.IsNullOrWhiteSpace(model.Message.Content) || !(ShardedClient.GetChannel(model.Settings.ChannelId) is SocketTextChannel mChannel))
+                        if (model.Settings.Banned || !model.Settings.Enabled || !(ShardedClient.GetChannel(model.Settings.ChannelId) is SocketTextChannel mChannel))
                         {
                             continue;
                         }
