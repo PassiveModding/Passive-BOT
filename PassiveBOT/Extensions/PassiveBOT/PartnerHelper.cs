@@ -59,6 +59,7 @@
                     guildObj.Message.Invite = guild.GetTextChannel(guildObj.Settings.ChannelId)?.CreateInviteAsync(null).Result?.Url;
                     guildObj.Save();
                 }
+
                 embed.AddField("Invite", $"{guildObj.Message.Invite ?? "N/A"}");
                 embed.ThumbnailUrl = guildObj.Message.UseThumb ? guild.IconUrl : null;
                 embed.Footer = new EmbedFooterBuilder { Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} || " : string.Empty)}Get PassiveBOT: {_HomeService.CurrentHomeModel.HomeInvite}", IconUrl = guild.IconUrl };

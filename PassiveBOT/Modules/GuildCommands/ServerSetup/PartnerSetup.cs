@@ -13,7 +13,6 @@
     using PassiveBOT.Context;
     using PassiveBOT.Extensions;
     using PassiveBOT.Extensions.PassiveBOT;
-    using PassiveBOT.Models;
     using PassiveBOT.Preconditions;
     using PassiveBOT.Services;
 
@@ -38,8 +37,6 @@
         private PartnerHelper PartnerHelp { get; }
 
         private PrefixService PrefixService { get; }
-
-
 
         /// <summary>
         ///     Sets the partner message color
@@ -207,6 +204,7 @@
             var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
             p.Message.Content = message;
             p.Save();
+
             var generateMessage = PartnerHelp.GenerateMessage(p, Context.Guild);
             await ReplyAsync(generateMessage);
 
