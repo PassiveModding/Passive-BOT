@@ -48,7 +48,7 @@
                 return;
             }
 
-            if (c.AutoMessageChannels.ContainsKey(gChannel.Id))
+            if (!c.AutoMessageChannels.ContainsKey(gChannel.Id))
             {
                 return;
             }

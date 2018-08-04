@@ -113,6 +113,6 @@
 
             // Indefinitely delay the method from finishing so that the program stays running until stopped.
             await Task.Delay(-1);
-        }
+        }        
     }
 }
