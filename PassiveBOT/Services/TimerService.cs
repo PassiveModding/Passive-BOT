@@ -79,11 +79,6 @@
         public static DateTime LastFireTime { get; set; } = DateTime.MinValue;
 
         /// <summary>
-        ///     Gets or sets the partner stats.
-        /// </summary>
-        public PartnerStatistics PartnerStats { get; set; } = new PartnerStatistics();
-
-        /// <summary>
         ///     Gets the provider.
         /// </summary>
         public IServiceProvider Provider { get; }
@@ -117,8 +112,7 @@
         {
             var rnd = Provider.GetRequiredService<Random>();
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).OrderByDescending(x => rnd.Next()).ToList();
-            PartnerStats.UpdatePartneredGuilds = 0;
-            PartnerStats.UpdateReachableMembers = 0;
+
             foreach (var receiverGuild in ShardedClient.Guilds)
             {
                 try
@@ -184,10 +178,7 @@
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-
-            PartnerStats.PartneredGuilds = PartnerStats.UpdatePartneredGuilds;
-            PartnerStats.ReachableMembers = PartnerStats.UpdateReachableMembers;
-            LogHandler.LogMessage($"Partner Event Completed: {PartnerStats.PartneredGuilds} Guild {PartnerStats.ReachableMembers} Members");
+            
             return Task.CompletedTask;
         }
 
@@ -259,8 +250,6 @@
                 messageGuildModel.Stats.ServersReached++;
                 messageGuildModel.Stats.UsersReached += receiverGuild.MemberCount;
                 messageGuildModel.Save();
-                PartnerStats.UpdateReachableMembers += receiverChannel.Users.Count;
-                PartnerStats.UpdatePartneredGuilds++;
             }
             catch (Exception e)
             {

@@ -142,7 +142,6 @@
             embed.AddField("Guilds", $"{Context.Client.Guilds.Count}\n[Support Server]({_Home.CurrentHomeModel.HomeInvite})", true);
             var orderedShards = Context.Client.Shards.OrderByDescending(x => x.Guilds.Count).ToList();
             embed.AddField("Stats", $"**Guilds:** {Context.Client.Guilds.Count}\n" + $"**Users:** {Context.Client.Guilds.Sum(x => x.MemberCount)}\n" + $"**Shards:** {Context.Client.Shards.Count}\n" + $"**Max Shard:** G:{orderedShards.First().Guilds.Count} ID:{orderedShards.First().ShardId}\n" + $"**Min Shard:** G:{orderedShards.Last().Guilds.Count} ID:{orderedShards.Last().ShardId}");
-            embed.AddField("Partner Stats", $"**Partners:** {timerService.PartnerStats.PartneredGuilds}\n" + $"**Reachable Members:** {timerService.PartnerStats.ReachableMembers}");
 
             embed.AddField(":hammer_pick:", $"Heap: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" + $"Up: {GetUptime()}", true);
             embed.AddField(":beginner:", "Written by: [PassiveModding](https://github.com/PassiveModding)\n" + $"Discord.Net {DiscordConfig.Version}", true);
@@ -188,13 +187,19 @@
 
             var orderedShards = Context.Client.Shards.OrderByDescending(x => x.Guilds.Count).ToList();
             embed.AddField("Stats", $":small_orange_diamond: **Guilds:** {Context.Client.Guilds.Count}\n" + $":small_blue_diamond: **Users:** {Context.Client.Guilds.Sum(x => x.MemberCount)}\n" + $":boom: **Shards:** {Context.Client.Shards.Count}\n" + $"**Max Shard:** G:{orderedShards.First().Guilds.Count} ID:{orderedShards.First().ShardId}\n" + $"**Min Shard:** G:{orderedShards.Last().Guilds.Count} ID:{orderedShards.Last().ShardId}");
-
-            embed.AddField("Partner Stats", $":handshake: **Partners:** {timerService.PartnerStats.PartneredGuilds}\n" + $":hand_splayed: **Reachable Members:** {timerService.PartnerStats.ReachableMembers}");
-
+            
             embed.AddField(":hammer_pick:", $"Heap: {Math.Round(GC.GetTotalMemory(true) / (1024.0 * 1024.0), 2)} MB\n" + $"Up: {GetUptime()}", true);
             embed.AddField(":beginner:", "Written by: [PassiveModding](https://github.com/PassiveModding)\n" + $"Discord.Net {DiscordConfig.Version}", true);
 
             return ReplyAsync(embed);
+        }
+
+        [Command("Shards")]
+        [Summary("Displays information about all shards")]
+        public Task ShardInfoAsync()
+        {
+            var info = Context.Client.Shards.Select(x => $"[{x.ShardId}] {x.Status} - Guilds: {x.Guilds} Users: {x.Guilds.Sum(g => g.MemberCount)}");
+            return SimpleEmbedAsync($"```\n" + $"{string.Join("\n", info)}\n" + $"```");
         }
 
         /// <summary>
