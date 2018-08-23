@@ -46,6 +46,7 @@
             PartnerService = partnerService;
             Provider = provider;
             ShardedClient = client;
+
             timer = new Timer(
                 async _ =>
                     {

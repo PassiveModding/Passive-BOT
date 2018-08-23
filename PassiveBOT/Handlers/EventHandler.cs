@@ -368,6 +368,12 @@
                 return;
             }
 
+            // Ensure that blacklisted users/guilds are not allowed to run commands
+            if (CheckBlacklist(Message.Author.Id, (Message.Channel as IGuildChannel).Guild.Id))
+            {
+                return;
+            }
+
             await _ChannelHelper.DoMediaChannelAsync(Message);
 
             var argPos = 0;
@@ -404,17 +410,12 @@
                 var messageTask = Task.Run(
                     async () =>
                         {
-                            LogHandler.LogMessage("Running Message Tasks", LogSeverity.Verbose);
+                            LogHandler.LogMessage($"G: {(Message.Channel as IGuildChannel)?.Guild?.Id} || C: {Message.Channel?.Id} || U: {Message.Author?.Id.ToString()} || M: {Message?.Content.Left(100)}", LogSeverity.Verbose);
                             await _LevelHelper.DoLevelsAsync(Message);
                             await _ChannelHelper.DoAutoMessageAsync(Message);
-                            StatHelper.LogMessage(Message);
                         });
-                return;
-            }
 
-            // Ensure that blacklisted users/guilds are not allowed to run commands
-            if (CheckBlacklist(Message.Author.Id, (Message.Channel as IGuildChannel).Guild.Id))
-            {
+                await StatHelper.LogMessageAsync(Message);
                 return;
             }
 
@@ -506,8 +507,10 @@
                 var translateAction = Task.Run(
                     async () =>
                         {
+                        
                             var guildId = (channel as SocketGuildChannel).Guild.Id;
                             var translationSetup = _Translate.GetSetup(guildId);
+
                             if (translationSetup == null)
                             {
                                 translationSetup = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guildId.ToString())?.Settings.Translate;

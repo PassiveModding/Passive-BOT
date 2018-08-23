@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using Discord.Commands;
     using Discord.WebSocket;
@@ -90,45 +91,27 @@
         }
 
         /// <summary>
-        ///     Logs a message's stats to the stat file
+        /// Logs a message's stats to the stat file
         /// </summary>
         /// <param name="message">
-        ///     The message.
+        /// The message.
         /// </param>
-        public static void LogMessage(SocketUserMessage message)
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
+        public static Task LogMessageAsync(SocketUserMessage message)
         {
             messagesReceivedSinceUpdate++;
-
+            
             if (messagesReceivedSinceUpdate > 500)
             {
                 var model = StatModel.Load();
-                model.MessageCount += messagesReceivedSinceUpdate;
+                model.MessageCount += 500;
                 model.Save();
                 messagesReceivedSinceUpdate = 0;
             }
-
-            /*
-            // Queue the message in the message stats queue
-            messageStatsQueue.Add(new StatModel.MessageStat
-                                      {
-                                          MessageLength = message.Content.Length,
-                                          MessageGuild = message.Author is SocketGuildUser gUser ? gUser.Guild.Id : 0,
-                                          MessageOwner = message.Author.Id
-                                      });
-
-            // Ensure that the file is only updates periodically to save un-necessary bandwidth usage
-            if (messageStatsQueue.Count <= 100)
-            {
-                return;
-            }
-
-            var model = StatModel.Load();
-            model.MessageStats.AddRange(messageStatsQueue);
-            model.Save();
-
-            // Reset the queue to ensure that the queue is never too long and messages aren't logged multiple times
-            messageStatsQueue = new List<StatModel.MessageStat>();
-            */
+            
+            return Task.CompletedTask;
         }
 
         /// <summary>
