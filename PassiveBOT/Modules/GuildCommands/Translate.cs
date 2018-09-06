@@ -19,6 +19,13 @@ namespace PassiveBOT.Modules.GuildCommands
     [Summary("Language translation commands and information")]
     public class Translate : Base
     {
+        private readonly TranslateLimits Limits;
+
+        public Translate(TranslateLimits limits)
+        {
+            Limits = limits;
+        }
+
         /// <summary>
         ///     The translate cmd.
         /// </summary>
@@ -37,6 +44,15 @@ namespace PassiveBOT.Modules.GuildCommands
         [Summary("Translate from one language to another")]
         public async Task TranslateCmdAsync(LanguageMap.LanguageCode languageCode, [Remainder] string message)
         {
+
+            var updateStatus = await Limits.UpdateAsync(Context.Guild?.Id ?? Context.User.Id, Context.User.Id);
+            if (updateStatus == TranslateLimits.ResponseStatus.GuildLimitExceeded || updateStatus == TranslateLimits.ResponseStatus.UserLimitExceeded)
+            {
+                await SimpleEmbedAsync($"**{updateStatus}** You have exceeded your translation limit for the day, for users this is 100 translations and servers this is 2000 translations\n" + 
+                                       "To bypass this limit please upgrade to premium translations.");
+                return;
+            }
+
             var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
             var original = message.FixLength();
             var language = TranslateMethods.LanguageCodeToString(languageCode);
@@ -46,6 +62,24 @@ namespace PassiveBOT.Modules.GuildCommands
             embed.AddField($"Original [{file[2]}]", $"{original}");
 
             await ReplyAsync(string.Empty, false, embed.Build());
+        }
+
+        [Priority(0)]
+        [Command("Redeem")]
+        [Summary("Redeem a translation upgrade for your discord account")]
+        public async Task RedeemAsync([Remainder] string key)
+        {
+            var result = await Limits.RedeemKey(Context.User.Id, key);
+
+            if (result.Success)
+            {
+                await SimpleEmbedAsync($"Success you have been upgraded to unlimited, this expures on: **{result.ValidUntil.ToLongDateString()}{result.ValidUntil.ToLongTimeString()}**");
+                Limits.Save();
+            }
+            else
+            {
+                await SimpleEmbedAsync("Error, you were unable to redeem the provided token");
+            }
         }
 
         /// <summary>

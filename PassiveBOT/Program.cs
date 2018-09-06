@@ -13,6 +13,7 @@
     using Microsoft.Extensions.DependencyInjection;
 
     using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
     using PassiveBOT.Models;
@@ -95,6 +96,7 @@
                 .AddSingleton<ChannelHelper>()
                 .AddSingleton<PartnerHelper>()
                 .AddSingleton<Interactive>()
+                .AddSingleton<TranslateLimits>()
                 .AddSingleton<LevelHelper>()
                 .AddSingleton<TranslationService>()
                 .AddSingleton<TimerService>();

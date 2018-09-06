@@ -41,7 +41,9 @@
         /// Messages that have already been translated.
         /// </summary>
         private readonly ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>> translated = new ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>>();
-        
+
+        private readonly TranslateLimits Limits;
+
         /// <summary>
         /// true = check and update all missing servers on start.
         /// </summary>
@@ -79,7 +81,7 @@
         /// <param name="prefixService">
         /// The prefix Service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
+        public EventHandler(DiscordShardedClient client, TranslateLimits limits, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
@@ -91,6 +93,7 @@
             _LevelHelper = levels;
             _HomeService = homeService;
             _Translate = translationService;
+            Limits = limits;
 
             CancellationToken = new CancellationTokenSource();
         }
@@ -174,6 +177,7 @@
                     _ = Task.Run(
                         () =>
                             {
+                                Limits.Initialize();
                                 var handler = Provider.GetRequiredService<DatabaseHandler>();
 
                                 // Returns all stored guild models
@@ -543,6 +547,19 @@
                             if (translated.Any(x => x.Key == reaction.MessageId && x.Value.Contains(languageType.Language)))
                             {
                                 LogHandler.LogMessage("Ignored EasyTranslate Reaction", LogSeverity.Verbose);
+                                return;
+                            }
+
+                            var updateStatus = await Limits.UpdateAsync(guildId, reaction.User.Value.Id);
+                            if (updateStatus == TranslateLimits.ResponseStatus.GuildLimitExceeded || updateStatus == TranslateLimits.ResponseStatus.UserLimitExceeded)
+                            {
+                                await reaction.Channel.SendMessageAsync("", false, new EmbedBuilder
+                                                                                       {
+                                                                                           Description = 
+                                                                                               $"**{updateStatus}** You have exceeded your translation limit for the day, for users this is 100 translations and servers this is 2000 translations\n" + 
+                                                                                               "To bypass this limit please upgrade to premium translations.",
+                                                                                           Color = Color.DarkRed
+                                                                                       }.Build());
                                 return;
                             }
 

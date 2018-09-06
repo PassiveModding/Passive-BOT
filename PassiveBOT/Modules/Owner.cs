@@ -3,6 +3,8 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -35,6 +37,10 @@
         /// </summary>
         private readonly TimerService timerService;
 
+        private HttpClient client;
+
+        private TranslateLimits Limits;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Owner"/> class.
         /// </summary>
@@ -47,14 +53,85 @@
         /// <param name="prefix">
         /// The prefix.
         /// </param>
-        public Owner(TimerService service, PartnerService partnerService, PrefixService prefix)
+        public Owner(TimerService service, PartnerService partnerService, PrefixService prefix, HttpClient httpClient, TranslateLimits limits)
         {
             timerService = service;
             prefixService = prefix;
             PartnerService = partnerService;
+            client = httpClient;
+            Limits = limits;
         }
 
         private PartnerService PartnerService { get; }
+
+        [Command("CreateKeys")]
+        public async Task CreateKeysAsync(int keyCount, int days)
+        {
+            if (keyCount > 100)
+            {
+                await SimpleEmbedAsync("Cannot Create more than 100 keys at a time");
+                return;
+            }
+
+            await InlineReactionReplyAsync(
+                new ReactionCallbackData(
+                    null,
+                    new EmbedBuilder
+                        {
+                            Description =
+                                $"Do you wish to create {keyCount} keys, each with {days} days?"
+                        }.Build(),
+                    true,
+                    true,
+                    TimeSpan.FromSeconds(30)).WithCallback(
+                    new Emoji("✅"),
+                    async (c, r) =>
+                        {
+                            var sb = new StringBuilder();
+                            for (var i = 0; i < keyCount; i++)
+                            {
+                                var token =
+                                    $"{GenerateRandomNo()}-{GenerateRandomNo()}-{GenerateRandomNo()}-{GenerateRandomNo()}";
+                                if (Limits.Keys.Any(x => x.Key == token))
+                                {
+                                    continue;
+                                }
+
+                                Limits.Keys.Add(
+                                    new TranslateLimits.UnRedeemedKey { Key = token, ValidFor = TimeSpan.FromDays(days) });
+                                sb.AppendLine(token);
+                            }
+
+                            Limits.Save();
+                            await SimpleEmbedAsync("Complete");
+                            await SimpleEmbedAsync($"New Tokens\n```\n{sb.ToString()}\n```");
+                            sb.Clear();
+                        }).WithCallback(
+                    new Emoji("❎"),
+                    (c, r) => SimpleEmbedAsync("Exited Token Task")));
+        }
+
+        private readonly Random random = new Random();
+
+        public string GenerateRandomNo()
+        {
+            return random.Next(0, 9999).ToString("D4");
+        }
+
+        [Command("SetProxy")]
+        [Summary("Sets a proxy for all http-client actions")]
+        public Task SetProxyAsync([Remainder] string proxy = null)
+        {
+            var httpClientHandler = new HttpClientHandler
+                                        {
+                                            Proxy = new WebProxy(proxy, false),
+                                            UseProxy = true
+                                        };
+
+            client = new HttpClient(httpClientHandler);
+
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         ///     Displays command usage stats
