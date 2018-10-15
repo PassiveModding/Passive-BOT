@@ -73,7 +73,7 @@ namespace PassiveBOT.Modules.GuildCommands
 
             if (result.Success)
             {
-                await SimpleEmbedAsync($"Success you have been upgraded to unlimited, this expures on: **{result.ValidUntil.ToLongDateString()}{result.ValidUntil.ToLongTimeString()}**");
+                await SimpleEmbedAsync($"Success you have been upgraded to unlimited, this expires on: **{result.ValidUntil.ToLongDateString()}{result.ValidUntil.ToLongTimeString()}**");
                 Limits.Save();
             }
             else

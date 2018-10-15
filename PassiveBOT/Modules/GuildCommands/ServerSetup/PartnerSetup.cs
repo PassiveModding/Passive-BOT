@@ -227,6 +227,16 @@
             return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
         }
 
+        [Command("RegenerateInvite")]
+        [Summary("Regenerate your server's invite for partner messages")]
+        public Task RegenerateAsync()
+        {
+            var p = PartnerService.GetPartnerInfo(Context.Guild.Id, true);
+            p.Message.Invite = Context.Guild.GetTextChannel(p.Settings.ChannelId)?.CreateInviteAsync(null).Result?.Url;
+            p.Save();
+            return ReplyAsync(PartnerHelp.GenerateMessage(p, Context.Guild));
+        }
+
         /// <summary>
         ///     The toggle.
         /// </summary>

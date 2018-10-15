@@ -198,7 +198,7 @@
         [Summary("Displays information about all shards")]
         public Task ShardInfoAsync()
         {
-            var info = Context.Client.Shards.Select(x => $"[{x.ShardId}] {x.Status} - Guilds: {x.Guilds} Users: {x.Guilds.Sum(g => g.MemberCount)}");
+            var info = Context.Client.Shards.Select(x => $"[{x.ShardId}] {x.Status} - Guilds: {x.Guilds.Count} Users: {x.Guilds.Sum(g => g.MemberCount)}");
             return SimpleEmbedAsync($"```\n" + $"{string.Join("\n", info)}\n" + $"```");
         }
 

@@ -639,7 +639,7 @@
 
             try
             {
-                await context.Channel.SendMessageAsync(string.Empty, false, new EmbedBuilder
+                await context.Channel.SendMessageAsync("", false, new EmbedBuilder
                 {
                     Title = "ERROR",
                     Description = errorMessage

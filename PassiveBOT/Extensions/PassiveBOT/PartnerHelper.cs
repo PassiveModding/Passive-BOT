@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Extensions.PassiveBOT
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Discord;
@@ -54,10 +55,21 @@
                 embed.Description = guildObj.Message.Content;
                 embed.ImageUrl = image;
                 embed.Color = new Color(guildObj.Message.Color.R, guildObj.Message.Color.G, guildObj.Message.Color.B);
+
                 if (guildObj.Message.Invite == null)
                 {
                     guildObj.Message.Invite = guild.GetTextChannel(guildObj.Settings.ChannelId)?.CreateInviteAsync(null).Result?.Url;
                     guildObj.Save();
+                }
+
+                var invites = guild.GetInvitesAsync().Result;
+                if (invites != null)
+                {
+                    if (!invites.Select(x => x.Url).Contains(guildObj.Message.Invite))
+                    {
+                        guildObj.Message.Invite = guild.GetTextChannel(guildObj.Settings.ChannelId)?.CreateInviteAsync(null).Result?.Url;
+                        guildObj.Save();
+                    }
                 }
 
                 embed.AddField("Invite", $"{guildObj.Message.Invite ?? "N/A"}");
