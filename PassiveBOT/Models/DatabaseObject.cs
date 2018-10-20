@@ -41,6 +41,11 @@
         public string PrefixOverride { get; set; } = null;
 
         /// <summary>
+        ///     Gets or sets whether to delete server configs for servers which no longer contain the bot
+        /// </summary>
+        public bool DenyConfigDeletion { get; set; } = false;
+
+        /// <summary>
         ///     Gets or sets The urls.
         /// </summary>
         public List<string> Urls { get; set; } = new List<string>();

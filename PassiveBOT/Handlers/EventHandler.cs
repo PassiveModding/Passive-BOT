@@ -171,39 +171,47 @@
                 { 
                     if (prefixOverride)
                     {
-                        LogHandler.LogMessage("Bot is in Prefix Override Mode!", LogSeverity.Warning);
+                        LogHandler.LogMessage($"Bot is in Prefix Override Mode! Current Prefix is: {DatabaseHandler.Settings.PrefixOverride}", LogSeverity.Warning);
                     }
 
                     _ = Task.Run(
                         () =>
                             {
                                 Limits.Initialize();
+
                                 var handler = Provider.GetRequiredService<DatabaseHandler>();
 
-                                // Returns all stored guild models
-                                var guildIds = Client.Guilds.Select(g => g.Id).ToList();
-                                var missingList = handler.Query<GuildModel>().Where(g => !g.Settings.Config.SaveGuildModel && g.ID != 0).Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
-
-                                foreach (var id in missingList)
+                                if (!DatabaseHandler.Settings.DenyConfigDeletion)
                                 {
-                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: id.ToString());
-                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Tags");
-                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Channels");
-                                    handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Levels");
-                                }
+                                    // Returns all stored guild models
+                                    var guildIds = Client.Guilds.Select(g => g.Id).ToList();
+                                    var missingList = handler.Query<GuildModel>().Where(g => !g.Settings.Config.SaveGuildModel && g.ID != 0).Select(x => x.ID).Where(x => !guildIds.Contains(x)).ToList();
 
-                                /*
-                                 // Only to be used if migrating from older database where all items were stored in the same guildModel
-                                var convert = Provider.GetRequiredService<GuildModelToServices>();
-                                foreach (var guildId in guildIds)
-                                {
-                                    var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guildId);
-                                    if (model != null)
+                                    foreach (var id in missingList)
                                     {
-                                        convert.SplitModelAsync(model);
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: id.ToString());
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Tags");
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Channels");
+                                        handler.Execute<GuildModel>(DatabaseHandler.Operation.DELETE, id: $"{id}-Levels");
                                     }
+
+                                    /*
+                                     // Only to be used if migrating from older database where all items were stored in the same guildModel
+                                    var convert = Provider.GetRequiredService<GuildModelToServices>();
+                                    foreach (var guildId in guildIds)
+                                    {
+                                        var model = handler.Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guildId);
+                                        if (model != null)
+                                        {
+                                            convert.SplitModelAsync(model);
+                                        }
+                                    }
+                                    */
                                 }
-                                */
+                                else
+                                {
+                                    LogHandler.LogMessage("Server configs for servers which do not contain the bot will be preserved!", LogSeverity.Warning);
+                                }
                             });
 
                     // Ensure that this is only run once as the bot initially connects.
