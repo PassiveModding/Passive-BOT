@@ -461,7 +461,7 @@
                     return;
                 }
 
-                await ReplyAsync("User not found")
+                await ReplyAsync("User not found");
             }
 
             [RequireContext(ContextType.Guild)]
