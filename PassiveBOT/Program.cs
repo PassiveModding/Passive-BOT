@@ -10,6 +10,8 @@
     using Discord.Commands;
     using Discord.WebSocket;
 
+    using DiscordBotsList.Api.Adapter.Discord.Net;
+
     using Microsoft.Extensions.DependencyInjection;
 
     using PassiveBOT.Context;
@@ -99,7 +101,8 @@
                 .AddSingleton<TranslateLimits>()
                 .AddSingleton<LevelHelper>()
                 .AddSingleton<TranslationService>()
-                .AddSingleton<TimerService>();
+                .AddSingleton<TimerService>()
+                .AddSingleton<DBLApiService>();
 
             var provider = services.BuildServiceProvider();
             
@@ -112,6 +115,8 @@
             LogHandler.LogMessage("Initializing EventHandler", LogSeverity.Verbose);
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
             provider.GetRequiredService<TimerService>().Restart();
+            provider.GetRequiredService<DBLApiService>().Initialize();
+
 
             // Indefinitely delay the method from finishing so that the program stays running until stopped.
             await Task.Delay(-1);

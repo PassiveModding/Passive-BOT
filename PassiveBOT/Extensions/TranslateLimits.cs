@@ -10,6 +10,7 @@
     using Discord;
 
     using global::PassiveBOT.Handlers;
+    using global::PassiveBOT.Services;
 
     using Raven.Client.Documents;
 
@@ -27,8 +28,11 @@
 
         private bool initialized = false;
 
-        public TranslateLimits(IDocumentStore store)
+        private DBLApiService DblApi;
+
+        public TranslateLimits(IDocumentStore store, DBLApiService dblApi)
         {
+            DblApi = dblApi;
             Store = store;
             timer = new Timer(
                 async _ =>
@@ -124,6 +128,14 @@
 
             if (userResult == ResponseStatus.UserLimitExceeded)
             {
+                if (DblApi.Initialized)
+                {
+                    if (await DblApi.DBLApi.HasVoted(userId))
+                    {
+                        return ResponseStatus.DefaultSuccess;
+                    }
+                }
+
                 return ResponseStatus.UserLimitExceeded;
             }
 

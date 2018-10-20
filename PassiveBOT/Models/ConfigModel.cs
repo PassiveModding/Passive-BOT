@@ -44,6 +44,8 @@
             return $"You may upgrade your translation limits by purchasing a token from {TranslateStoreUrl} and using the command `{Prefix}translate redeem <token>`";
         }
 
+        public string DiscordBotsListApi { get; set; } = null;
+
         /// <summary>
         ///     Gets or sets the token.
         /// </summary>

@@ -42,6 +42,8 @@
 
         private readonly TranslateLimits Limits;
 
+        private readonly DBLApiService DblApi;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Developer"/> class.
         /// </summary>
@@ -60,13 +62,14 @@
         /// <param name="limits">
         /// The limits.
         /// </param>
-        public Developer(TimerService service, PartnerService partnerService, PrefixService prefix, HttpClient httpClient, TranslateLimits limits)
+        public Developer(TimerService service, PartnerService partnerService, PrefixService prefix, HttpClient httpClient, TranslateLimits limits, DBLApiService dblApi)
         {
             timerService = service;
             prefixService = prefix;
             PartnerService = partnerService;
             client = httpClient;
             Limits = limits;
+            DblApi = dblApi;
         }
 
         private PartnerService PartnerService { get; }
@@ -327,6 +330,19 @@
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             return SimpleEmbedAsync(
                 $"Store URL is now: {url}");
+        }
+        
+        [Command("SetDBLToken")]
+        [Summary("Set the discordBotsList api token")]
+        public async Task SetDBLTokenAsync(string token = null)
+        {
+            // Here we can access the service provider via our custom context.
+            var config = Context.Provider.GetRequiredService<ConfigModel>();
+            config.DiscordBotsListApi = token;
+            Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
+            await Context.Message.DeleteAsync();
+            await SimpleEmbedAsync("Token is set!");
+            DblApi.Initialize();
         }
 
         /// <summary>
