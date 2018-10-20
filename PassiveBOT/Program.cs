@@ -102,7 +102,7 @@
                 .AddSingleton<TimerService>();
 
             var provider = services.BuildServiceProvider();
-
+            
             LogHandler.LogMessage("Initializing HomeService", LogSeverity.Verbose);
             provider.GetRequiredService<HomeService>().Update();
             LogHandler.LogMessage("Initializing PrefixService", LogSeverity.Verbose);

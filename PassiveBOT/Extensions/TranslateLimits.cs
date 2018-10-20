@@ -63,6 +63,7 @@
             }
 
             initialized = true;
+            timer.Change(TimeSpan.Zero, TimeSpan.FromHours(24));
         }
 
         public void Save()
@@ -78,7 +79,6 @@
                 {
                     Console.WriteLine(e);
                 }
-
             }
         }
 
@@ -195,8 +195,6 @@
         {
             if (Users.TryGetValue(userId, out var User))
             {
-                User.DailyTranslations++;
-                User.TotalTranslations++;
                 if (User.DailyTranslations > 100)
                 {
                     if (User.Upgrades.Any(x => x.Expiry >= DateTime.UtcNow))
@@ -206,6 +204,9 @@
 
                     return Task.FromResult(ResponseStatus.UserLimitExceeded);
                 }
+
+                User.DailyTranslations++;
+                User.TotalTranslations++;
             }
             else
             {
@@ -219,13 +220,13 @@
         {
             if (Guilds.TryGetValue(guildId, out var guild))
             {
-                guild.DailyTranslations++;
-                guild.TotalTranslations++;
-
                 if (guild.DailyTranslations > 2000)
                 {
                     return Task.FromResult(ResponseStatus.GuildLimitExceeded);
                 }
+
+                guild.DailyTranslations++;
+                guild.TotalTranslations++;
             }
             else
             {

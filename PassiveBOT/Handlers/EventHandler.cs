@@ -167,7 +167,7 @@
 
             if (guildCheck)
             {
-                if (Client.Shards.All(x => x.ConnectionState == ConnectionState.Connected))
+                if (Client.Shards.All(x => x.Guilds.Any()))
                 { 
                     if (prefixOverride)
                     {
@@ -557,7 +557,8 @@
                                                                                        {
                                                                                            Description = 
                                                                                                $"**{updateStatus}** You have exceeded your translation limit for the day, for users this is 100 translations and servers this is 2000 translations\n" + 
-                                                                                               "To bypass this limit please upgrade to premium translations.",
+                                                                                               "To bypass this limit please upgrade to premium translations.\n" + 
+                                                                                               $"{Config.GetTranslateUrl()}",
                                                                                            Color = Color.DarkRed
                                                                                        }.Build());
                                 return;

@@ -2,6 +2,7 @@
 
 namespace PassiveBOT.Modules.GuildCommands
 {
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Discord;
@@ -21,9 +22,12 @@ namespace PassiveBOT.Modules.GuildCommands
     {
         private readonly TranslateLimits Limits;
 
-        public Translate(TranslateLimits limits)
+        private readonly ConfigModel Config;
+
+        public Translate(TranslateLimits limits, ConfigModel config)
         {
             Limits = limits;
+            Config = config;
         }
 
         /// <summary>
@@ -49,7 +53,8 @@ namespace PassiveBOT.Modules.GuildCommands
             if (updateStatus == TranslateLimits.ResponseStatus.GuildLimitExceeded || updateStatus == TranslateLimits.ResponseStatus.UserLimitExceeded)
             {
                 await SimpleEmbedAsync($"**{updateStatus}** You have exceeded your translation limit for the day, for users this is 100 translations and servers this is 2000 translations\n" + 
-                                       "To bypass this limit please upgrade to premium translations.");
+                                       "To bypass this limit please upgrade to premium translations.\n" + 
+                                       $"{Config.GetTranslateUrl()}");
                 return;
             }
 
@@ -121,6 +126,23 @@ namespace PassiveBOT.Modules.GuildCommands
             embed2.AddField("Z", "`zu` - Zulu\n");
             await Context.User.SendMessageAsync(string.Empty, false, embed2.Build());
             await ReplyAsync("DM Sent.");
+        }
+
+        [Priority(2)]
+        [Command("Stats", RunMode = RunMode.Async)]
+        [Summary("Reveal user translation daily stats")]
+        public async Task TranslateStatsAsync()
+        {
+            if (Limits.Users.TryGetValue(Context.User.Id, out var user))
+            {
+                await SimpleEmbedAsync($"Daily Translations: {user.DailyTranslations}\n" + 
+                                       $"Total Translations: {user.TotalTranslations}\n" + 
+                                       $"Upgrades: \n{string.Join("\n", user.Upgrades.Select(x => $"{x.Key} || {x.Expiry.ToShortTimeString()} {x.Expiry.ToShortDateString()}"))}");
+            }
+            else
+            {
+                await SimpleEmbedAsync("Please use the translate command to initialise your user stats");
+            }
         }
     }
 }

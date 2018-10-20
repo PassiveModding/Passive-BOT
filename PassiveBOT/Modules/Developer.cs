@@ -25,10 +25,11 @@
     using PassiveBOT.Models;
     using PassiveBOT.Services;
 
-    [Group("Owner")]
+    [Group("Dev")]
+    [Summary("Bot Developer ONLY Commands")]
     [RequireContext(ContextType.Guild)]
     [RequireOwner]
-    public class Owner : Base
+    public class Developer : Base
     {
         private readonly PrefixService prefixService;
 
@@ -39,10 +40,10 @@
 
         private HttpClient client;
 
-        private TranslateLimits Limits;
+        private readonly TranslateLimits Limits;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Owner"/> class.
+        /// Initializes a new instance of the <see cref="Developer"/> class.
         /// </summary>
         /// <param name="service">
         /// The service.
@@ -53,7 +54,13 @@
         /// <param name="prefix">
         /// The prefix.
         /// </param>
-        public Owner(TimerService service, PartnerService partnerService, PrefixService prefix, HttpClient httpClient, TranslateLimits limits)
+        /// <param name="httpClient">
+        /// The http Client.
+        /// </param>
+        /// <param name="limits">
+        /// The limits.
+        /// </param>
+        public Developer(TimerService service, PartnerService partnerService, PrefixService prefix, HttpClient httpClient, TranslateLimits limits)
         {
             timerService = service;
             prefixService = prefix;
@@ -386,6 +393,88 @@
             }
 
             return SimpleEmbedAsync("Success, servers have been unbanned");
+        }
+
+        [Group("Inspections")]
+        public class Inspections : Base
+        {
+            private readonly PrefixService prefixService;
+
+            /// <summary>
+            ///     The timer service.
+            /// </summary>
+            private readonly TimerService timerService;
+            
+            private readonly TranslateLimits Limits;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Inspections"/> class. 
+            /// </summary>
+            /// <param name="service">
+            /// The service.
+            /// </param>
+            /// <param name="partnerService">
+            /// The partner Service.
+            /// </param>
+            /// <param name="prefix">
+            /// The prefix.
+            /// </param>
+            /// <param name="limits">
+            /// The limits.
+            /// </param>
+            public Inspections(TimerService service, PartnerService partnerService, PrefixService prefix, TranslateLimits limits)
+            {
+                timerService = service;
+                prefixService = prefix;
+                PartnerService = partnerService;
+                Limits = limits;
+            }
+
+            private PartnerService PartnerService { get; }
+
+            [RequireContext(ContextType.Guild)]
+            [Command("UpdateTranslateUser")]
+            [Summary("Set a user's daily translation count")]
+            public async Task GetTranslateInfoAsync(SocketGuildUser user, int newCount)
+            {
+                if (user == null)
+                {
+                    user = Context.User as SocketGuildUser;
+                }
+
+                if (Limits.Users.ContainsKey(user.Id))
+                {
+                    Limits.Users[user.Id].DailyTranslations = newCount;
+                    await ReplyAsync("User has been updated");
+                    return;
+                }
+
+                await ReplyAsync("User not found");
+            }
+
+            [RequireContext(ContextType.Guild)]
+            [Command("TranslateLimitInfo")]
+            [Summary("Gets translation limit info for the specified user")]
+            public async Task GetTranslateInfoAsync(SocketGuildUser user = null)
+            {
+                if (user == null)
+                {
+                    user = Context.User as SocketGuildUser;
+                }
+
+                Limits.Users.TryGetValue(user.Id, out var tUser);
+                if (tUser != null)
+                {
+                    await SimpleEmbedAsync($"Daily: {tUser.DailyTranslations}\n" + 
+                                           $"Total: {tUser.TotalTranslations}\n" + 
+                                           $"User ID: {tUser.UserId}\n" + 
+                                           $"Upgrades: \n{string.Join("\n", tUser.Upgrades.Select(x => $"{x.Key} || {x.Expiry.ToShortTimeString()} {x.Expiry.ToShortDateString()}"))}");
+                }
+                else
+                {
+                    await SimpleEmbedAsync("User not found");
+                }
+            }
         }
 
         [Group("Tests")]

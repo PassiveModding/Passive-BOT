@@ -26,6 +26,25 @@
         public int Shards { get; set; } = 1;
 
         /// <summary>
+        ///     Gets or sets the store URL for translation Upgrades
+        /// </summary>
+        public string TranslateStoreUrl { get; set; } = null;
+
+        /// <summary>
+        ///     Returns the translation store message
+        /// </summary>
+        /// <returns></returns>
+        public string GetTranslateUrl()
+        {
+            if (string.IsNullOrEmpty(TranslateStoreUrl))
+            {
+                return null;
+            }
+
+            return $"You may upgrade your translation limits by purchasing a token from {TranslateStoreUrl} and using the command `{Prefix}translate redeem <token>`";
+        }
+
+        /// <summary>
         ///     Gets or sets the token.
         /// </summary>
         public string Token { get; set; } = "Token";
