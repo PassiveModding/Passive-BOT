@@ -317,6 +317,18 @@
                 $"Recommended shard count: {(Context.Client.Guilds.Count / 2000 < 1 ? 1 : Context.Client.Guilds.Count / 2000)}");
         }
 
+        [Command("SetTranslationStoreUrl")]
+        [Summary("Set the displayed url for translation store limits")]
+        public Task SetTStoreUrlAsync(string url = null)
+        {
+            // Here we can access the service provider via our custom context.
+            var config = Context.Provider.GetRequiredService<ConfigModel>();
+            config.TranslateStoreUrl = url;
+            Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
+            return SimpleEmbedAsync(
+                $"Store URL is now: {url}");
+        }
+
         /// <summary>
         ///     The stats.
         /// </summary>
@@ -449,7 +461,7 @@
                     return;
                 }
 
-                await ReplyAsync("User not found");
+                await ReplyAsync("User not found")
             }
 
             [RequireContext(ContextType.Guild)]
