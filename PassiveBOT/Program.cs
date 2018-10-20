@@ -102,7 +102,8 @@
                 .AddSingleton<LevelHelper>()
                 .AddSingleton<TranslationService>()
                 .AddSingleton<TimerService>()
-                .AddSingleton<DBLApiService>();
+                .AddSingleton<DBLApiService>()
+                .AddSingleton<ReminderService>();
 
             var provider = services.BuildServiceProvider();
             

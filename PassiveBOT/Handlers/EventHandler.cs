@@ -81,7 +81,7 @@
         /// <param name="prefixService">
         /// The prefix Service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, TranslateLimits limits, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
+        public EventHandler(DiscordShardedClient client, TranslateLimits limits, ReminderService reminders, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
@@ -94,6 +94,7 @@
             _HomeService = homeService;
             _Translate = translationService;
             Limits = limits;
+            Reminders = reminders;
 
             CancellationToken = new CancellationTokenSource();
         }
@@ -103,6 +104,8 @@
         private HomeService _HomeService { get; }
 
         private LevelHelper _LevelHelper { get; }
+
+        private ReminderService Reminders { get; }
 
         /// <summary>
         /// Gets the provider.
@@ -178,6 +181,7 @@
                         () =>
                             {
                                 Limits.Initialize();
+                                Reminders.Initialize();
 
                                 var handler = Provider.GetRequiredService<DatabaseHandler>();
 
