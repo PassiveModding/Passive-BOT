@@ -199,6 +199,8 @@
                 {
                     if (User.Upgrades.Any(x => x.Expiry >= DateTime.UtcNow))
                     {
+                        User.DailyTranslations++;
+                        User.TotalTranslations++;
                         return Task.FromResult(ResponseStatus.UserUpgradedSuccess);
                     }
 
