@@ -128,19 +128,12 @@
             return random.Next(0, 9999).ToString("D4");
         }
 
-        [Command("SetProxy")]
-        [Summary("Sets a proxy for all http-client actions")]
-        public Task SetProxyAsync([Remainder] string proxy = null)
+        [Command("GetIP")]
+        [Summary("Displays ip based on http client")]
+        public async Task SetProxyAsync()
         {
-            var httpClientHandler = new HttpClientHandler
-                                        {
-                                            Proxy = new WebProxy(proxy, false),
-                                            UseProxy = true
-                                        };
-
-            client = new HttpClient(httpClientHandler);
-
-            return Task.CompletedTask;
+            var str = await client.GetStringAsync("http://api.ipify.org/");
+            await SimpleEmbedAsync(str);
         }
 
         /// <summary>

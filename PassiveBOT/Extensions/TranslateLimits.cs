@@ -130,9 +130,16 @@
             {
                 if (DblApi.Initialized)
                 {
-                    if (await DblApi.DBLApi.HasVoted(userId))
+                    try
                     {
-                        return ResponseStatus.DefaultSuccess;
+                        if (await DblApi.DBLApi.HasVoted(userId))
+                        {
+                            return ResponseStatus.DefaultSuccess;
+                        }
+                    }
+                    catch
+                    {
+                        //
                     }
                 }
 

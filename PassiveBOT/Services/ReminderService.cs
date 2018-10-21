@@ -63,25 +63,41 @@ namespace PassiveBOT.Services
                     var guild = Client.GetGuild(model.GuildId);
                     var channel = guild?.GetTextChannel(model.ChannelId);
                     var user = Client.GetUser(model.UserId);
-                    if (channel != null && user != null)
+                    if (user != null)
                     {
                         var embed = new EmbedBuilder
-                                            {
-                                                Description = $"{model.Message}",
-                                                Footer = new EmbedFooterBuilder
-                                                             {
-                                                                 Text = $"Created: {model.CreatedOn.DateTime.ToShortDateString()}",
-                                                                 IconUrl = user.GetAvatarUrl()
-                                                             },
-                                                Color = Color.Blue,
-                                                Title = "Reminder"
-                                            };
+                                        {
+                                            Description = $"{model.Message}",
+                                            Footer =
+                                                new EmbedFooterBuilder
+                                                    {
+                                                        Text =
+                                                            $"Created: {model.CreatedOn.DateTime.ToShortDateString()}",
+                                                        IconUrl = user.GetAvatarUrl()
+                                                    },
+                                            Color = Color.Blue,
+                                            Title = "Reminder"
+                                        };
 
-                        try
+                        if (channel != null)
                         {
-                            await channel.SendMessageAsync($"{user.Mention}", false, embed.Build());
+                            try
+                            {
+                                await channel.SendMessageAsync($"{user.Mention}", false, embed.Build());
+                            }
+                            catch
+                            {
+                                try
+                                {
+                                    await user.SendMessageAsync($"{user.Mention}", false, embed.Build());
+                                }
+                                catch
+                                {
+                                    //
+                                }
+                            }
                         }
-                        catch
+                        else
                         {
                             try
                             {

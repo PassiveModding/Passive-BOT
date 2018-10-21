@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
 
@@ -13,6 +14,8 @@
     using DiscordBotsList.Api.Adapter.Discord.Net;
 
     using Microsoft.Extensions.DependencyInjection;
+
+    using Newtonsoft.Json;
 
     using PassiveBOT.Context;
     using PassiveBOT.Extensions;
@@ -68,7 +71,21 @@
                                 IgnoreExtraArgs = false,
                                 DefaultRunMode = RunMode.Async
                             }))
-                .AddSingleton<HttpClient>()
+                .AddSingleton(x =>
+                    {
+                        var Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
+                        if (string.IsNullOrEmpty(Settings.ProxyUrl))
+                        {
+                            return new HttpClientHandler();
+                        }
+
+                        return new HttpClientHandler
+                                   {
+                                       Proxy = new WebProxy(Settings.ProxyUrl),
+                                       UseProxy = true
+                                   };
+                    })
+                .AddSingleton(x => new HttpClient(x.GetRequiredService<HttpClientHandler>()))
                 .AddSingleton<BotHandler>()
                 .AddSingleton<EventHandler>()
                 .AddSingleton<Events>()

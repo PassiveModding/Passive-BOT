@@ -49,6 +49,11 @@
         ///     Gets or sets The urls.
         /// </summary>
         public List<string> Urls { get; set; } = new List<string>();
+        
+        /// <summary>
+        ///     Gets or sets the proxy to be used for all http client requests
+        /// </summary>
+        public string ProxyUrl { get; set; } = null;
 
         /// <summary>
         ///     Gets or sets a value indicating whether the default bot prefix will be overridden
