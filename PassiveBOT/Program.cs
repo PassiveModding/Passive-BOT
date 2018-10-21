@@ -73,17 +73,16 @@
                             }))
                 .AddSingleton(x =>
                     {
-                        var Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
-                        if (string.IsNullOrEmpty(Settings.ProxyUrl))
+                        if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/DBConfig.json")))
                         {
-                            return new HttpClientHandler();
+                            var Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
+                            if (!string.IsNullOrEmpty(Settings.ProxyUrl))
+                            {
+                                return new HttpClientHandler { Proxy = new WebProxy(Settings.ProxyUrl), UseProxy = true };
+                            }
                         }
 
-                        return new HttpClientHandler
-                                   {
-                                       Proxy = new WebProxy(Settings.ProxyUrl),
-                                       UseProxy = true
-                                   };
+                        return new HttpClientHandler();
                     })
                 .AddSingleton(x => new HttpClient(x.GetRequiredService<HttpClientHandler>()))
                 .AddSingleton<BotHandler>()
