@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Modules
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -495,6 +496,89 @@
                 {
                     await SimpleEmbedAsync("User not found");
                 }
+            }
+
+            public enum TranslateSelection
+            {
+                Guild,
+                User
+            }
+
+            public enum TranslateRank
+            {
+                AllTime,
+                Daily
+            }
+
+
+            [RequireContext(ContextType.Guild)]
+            [Command("TranslateRankings")]
+            [Summary("Gets translation info ranked")]
+            public Task GetTranslateRankedAsync(TranslateSelection selection, TranslateRank sort)
+            {
+                var pages = new List<PaginatedMessage.Page>();
+                int userIndex = 0;
+                int pageIndex = 0;
+                var title = $"{selection}(s) Ranked by {sort} translations";
+                if (selection == TranslateSelection.User)
+                {
+                    var uSorta = sort == TranslateRank.AllTime ? Limits.Users.OrderByDescending(x => x.Value.TotalTranslations) : Limits.Users.OrderByDescending(x => x.Value.DailyTranslations);
+                    var uSortb = uSorta.ToList();
+
+                    foreach (var userGroup in uSortb.SplitList(20))
+                    {
+                        pageIndex++;
+                        var pageContent = new StringBuilder();
+                        foreach (var user in userGroup)
+                        {
+                            userIndex++;
+                            var userProfile = Context.Client.GetUser(user.Key);
+                            pageContent.AppendLine($"{userIndex}- {userProfile?.Username ?? $"[{user.Key}]"} `D:{user.Value.DailyTranslations} T:{user.Value.TotalTranslations} U:{user.Value.Upgrades.Any()}`");
+                        }
+
+                        pages.Add(new PaginatedMessage.Page
+                                      {
+                                          Title = $"{title} [{pageIndex}]",
+                                          Description = pageContent.ToString().FixLength(2047)
+                                      });
+                    }
+                }
+                else
+                {
+                    var gSorta = sort == TranslateRank.AllTime ? Limits.Guilds.OrderByDescending(x => x.Value.TotalTranslations) : Limits.Guilds.OrderByDescending(x => x.Value.DailyTranslations);
+                    var gSortb = gSorta.ToList();
+                    foreach (var guildGroup in gSortb.SplitList(20))
+                    {
+                        pageIndex++;
+                        var pageContent = new StringBuilder();
+                        foreach (var guild in guildGroup)
+                        {
+                            userIndex++;
+                            var gProfile = Context.Client.GetGuild(guild.Key);
+                            pageContent.AppendLine($"{userIndex} - {gProfile?.Name ?? $"[{guild.Key}]"} `D:{guild.Value.DailyTranslations} T:{guild.Value.TotalTranslations}`");
+                        }
+
+                        pages.Add(new PaginatedMessage.Page
+                                      {
+                                          Title = $"{title} [{pageIndex}]",
+                                          Description = pageContent.ToString().FixLength(2047)
+                                      });
+                    }
+                }
+
+                var response = new PaginatedMessage
+                                   {
+                                       Pages = pages,
+                                       Color = Color.DarkOrange
+                                   };
+
+                return PagedReplyAsync(response, new ReactionList
+                                                     {
+                                                         First = true,
+                                                         Last = true,
+                                                         Forward = true,
+                                                         Backward = true
+                                                     });
             }
         }
 
