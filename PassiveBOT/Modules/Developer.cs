@@ -326,6 +326,18 @@
                 $"Store URL is now: {url}");
         }
         
+        [Command("SetDBLVoteUrl")]
+        [Summary("Set the discord bots list vote url")]
+        public Task SetDBLVoteUrlAsync(string url = null)
+        {
+            // Here we can access the service provider via our custom context.
+            var config = Context.Provider.GetRequiredService<ConfigModel>();
+            config.DiscordBotListVoteUrl = url;
+            Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
+            return SimpleEmbedAsync(
+                $"Vote URL is now: {url}");
+        }
+        
         [Command("SetDBLToken")]
         [Summary("Set the discordBotsList api token")]
         public async Task SetDBLTokenAsync(string token = null)
@@ -372,6 +384,28 @@
             config.LogCommandUsages = !config.LogCommandUsages;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             return SimpleEmbedAsync($"Log Command Usages: {config.LogCommandUsages}");
+        }
+        
+        [Command("SetMaxUserTranslations")]
+        [Summary("Set the maximum user translations per day")]
+        public Task SetMaxUserTranslationsAsync(int newCount)
+        {
+            var config = Context.Provider.GetRequiredService<ConfigModel>();
+            config.MaxUserDailyTranslations = newCount;
+            Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
+            return SimpleEmbedAsync($"New User Max: {config.MaxUserDailyTranslations}\n" + 
+                                    "[Requires Reboot]");
+        }
+
+        [Command("SetMaxGuildTranslations")]
+        [Summary("Set the maximum guild translations per day")]
+        public Task SetMaxGuildTranslationsAsync(int newCount)
+        {
+            var config = Context.Provider.GetRequiredService<ConfigModel>();
+            config.MaxGuildDailyTranslations = newCount;
+            Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
+            return SimpleEmbedAsync($"New Guild Max: {config.MaxGuildDailyTranslations}\n" + 
+                                    "[Requires Reboot]");
         }
 
         /// <summary>

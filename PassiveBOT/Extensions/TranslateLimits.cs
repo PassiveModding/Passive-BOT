@@ -24,32 +24,45 @@
         /// <summary>
         ///     Gets or sets the last fire time.
         /// </summary>
-        public static DateTime LastFireTime { get; set; } = DateTime.MinValue;
+        public DateTime LastFireTime { get; set; } = DateTime.MinValue;
+
+        private int UserDailyLimit { get; }
+
+        private int GuildDailyLimit { get; }
 
         private bool initialized = false;
 
         private DBLApiService DblApi;
 
-        public TranslateLimits(IDocumentStore store, DBLApiService dblApi)
+        public TranslateLimits(IDocumentStore store, DBLApiService dblApi, int userDailyLimit = 100, int guildDailyLimit = 2000)
         {
+            UserDailyLimit = userDailyLimit;
+            GuildDailyLimit = guildDailyLimit;
             DblApi = dblApi;
             Store = store;
             timer = new Timer(
                 async _ =>
                     {
-                        try
+                        if (initialized)
                         {
-                            await ClearDailyAsync();
+                            if (DateTime.UtcNow > LastFireTime + TimeSpan.FromHours(23))
+                            {
+                                try
+                                {
+                                    await ClearDailyAsync();
+                                }
+                                catch (Exception e)
+                                {
+                                    LogHandler.LogMessage("Reset Error:\n" + $"{e}", LogSeverity.Error);
+                                }
+
+                                LastFireTime = DateTime.UtcNow;
+                            }
                         }
-                        catch (Exception e)
-                        {
-                            LogHandler.LogMessage("Reset Error:\n" + $"{e}", LogSeverity.Error);
-                        }
-                        LastFireTime = DateTime.UtcNow;
                     },
                 null,
                 TimeSpan.Zero,
-                TimeSpan.FromHours(24));
+                TimeSpan.FromHours(1));
         }
 
         public void Initialize()
@@ -63,6 +76,7 @@
                     Users = doc.Users;
                     Guilds = doc.Guilds;
                     Keys = doc.Keys;
+                    LastFireTime = doc.LastFireTime;
                 }
             }
 
@@ -214,7 +228,7 @@
         {
             if (Users.TryGetValue(userId, out var User))
             {
-                if (User.DailyTranslations > 100)
+                if (User.DailyTranslations > UserDailyLimit)
                 {
                     if (User.Upgrades.Any(x => x.Expiry >= DateTime.UtcNow))
                     {
@@ -241,7 +255,7 @@
         {
             if (Guilds.TryGetValue(guildId, out var guild))
             {
-                if (guild.DailyTranslations > 2000)
+                if (guild.DailyTranslations > GuildDailyLimit)
                 {
                     return Task.FromResult(ResponseStatus.GuildLimitExceeded);
                 }

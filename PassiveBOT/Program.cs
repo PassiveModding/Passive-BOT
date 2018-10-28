@@ -114,7 +114,11 @@
                 .AddSingleton<ChannelHelper>()
                 .AddSingleton<PartnerHelper>()
                 .AddSingleton<Interactive>()
-                .AddSingleton<TranslateLimits>()
+                .AddSingleton(x =>
+                    {
+                        var configModel = x.GetRequiredService<ConfigModel>();
+                        return new TranslateLimits(x.GetRequiredService<IDocumentStore>(), x.GetRequiredService<DBLApiService>(), configModel.MaxUserDailyTranslations, configModel.MaxGuildDailyTranslations);
+                    })
                 .AddSingleton<LevelHelper>()
                 .AddSingleton<TranslationService>()
                 .AddSingleton<TimerService>()

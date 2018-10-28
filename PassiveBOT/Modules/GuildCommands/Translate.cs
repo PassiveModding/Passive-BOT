@@ -52,7 +52,7 @@ namespace PassiveBOT.Modules.GuildCommands
             var updateStatus = await Limits.UpdateAsync(Context.Guild?.Id ?? Context.User.Id, Context.User.Id);
             if (updateStatus == TranslateLimits.ResponseStatus.GuildLimitExceeded || updateStatus == TranslateLimits.ResponseStatus.UserLimitExceeded)
             {
-                await SimpleEmbedAsync($"**{updateStatus}** You have exceeded your translation limit for the day, for users this is 100 translations and servers this is 2000 translations\n" + 
+                await SimpleEmbedAsync($"**{updateStatus}** You have exceeded your translation limit for the day, for users this is {Config.MaxUserDailyTranslations} translations and servers this is {Config.MaxGuildDailyTranslations} translations\n" + 
                                        "To bypass this limit please upgrade to premium translations.\n" + 
                                        $"{Config.GetTranslateUrl()}");
                 return;

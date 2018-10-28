@@ -568,7 +568,7 @@
                                 await reaction.Channel.SendMessageAsync("", false, new EmbedBuilder
                                                                                        {
                                                                                            Description = 
-                                                                                               $"**{updateStatus}** You have exceeded your translation limit for the day, for users this is 100 translations and servers this is 2000 translations\n" + 
+                                                                                               $"**{updateStatus}** You have exceeded your translation limit for the day, for users this is {Config.MaxUserDailyTranslations} translations and servers this is {Config.MaxGuildDailyTranslations} translations\n" + 
                                                                                                "To bypass this limit please upgrade to premium translations.\n" + 
                                                                                                $"{Config.GetTranslateUrl()}",
                                                                                            Color = Color.DarkRed
