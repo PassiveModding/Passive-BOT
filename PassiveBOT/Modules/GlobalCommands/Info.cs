@@ -9,6 +9,7 @@
 
     using Discord;
     using Discord.Addons.Interactive;
+    using Discord.Addons.Preconditions;
     using Discord.Commands;
 
     using Microsoft.Extensions.DependencyInjection;
@@ -98,6 +99,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
+        [RateLimit(1, 1, Measure.Minutes, RateLimitFlags.ApplyPerGuild)]
         [Command("Info")]
         [Summary("Bot Info and Stats")]
         public async Task InformationAsync()
@@ -167,6 +169,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
+        [RateLimit(1, 1, Measure.Minutes, RateLimitFlags.ApplyPerGuild)]
         [Command("Stats")]
         [Summary("Bot Statistics")]
         public Task StatsAsync()

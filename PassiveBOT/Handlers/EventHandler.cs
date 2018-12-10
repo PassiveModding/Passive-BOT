@@ -394,7 +394,7 @@
 
             var argPos = 0;
             var isPrefixed = true;
-            
+
             if (prefixOverride)
             {
                 var config = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));

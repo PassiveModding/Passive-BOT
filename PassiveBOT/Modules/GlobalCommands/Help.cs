@@ -8,6 +8,7 @@
 
     using Discord;
     using Discord.Addons.Interactive;
+    using Discord.Addons.Preconditions;
     using Discord.Addons.PrefixService;
     using Discord.Commands;
 
@@ -56,6 +57,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
+        [RateLimit(1, 10, Measure.Seconds)]
         [Command("FullHelp")]
         [Summary("Lists all commands")]
         public Task FullHelpAsync([Remainder] string checkForMatch = null)
@@ -100,6 +102,7 @@
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
+        [RateLimit(1, 10, Measure.Seconds)]
         [Command("Help")]
         [Summary("Lists all accessible commands")]
         [Remarks("Use FullHelp for all commands")]
