@@ -214,7 +214,7 @@
                     continue;
                 }
 
-                invite = inv.Url;
+                invite = $"{inv.Url} Grabbed from channel: {inv.ChannelName}";;
             }
 
             if (invite == null)
@@ -224,7 +224,7 @@
                     try
                     {
                         var inv = await channel.CreateInviteAsync();
-                        invite = inv.Url;
+                        invite = $"{inv.Url} Generated for channel: {channel.Name}";
                         break;
                     }
                     catch
