@@ -26,6 +26,8 @@
     using PassiveBOT.Models;
     using PassiveBOT.Services;
 
+    using Raven.Client.Documents;
+
     [Group("Dev")]
     [Summary("Bot Developer ONLY Commands")]
     [RequireContext(ContextType.Guild)]
@@ -63,15 +65,18 @@
         /// <param name="limits">
         /// The limits.
         /// </param>
-        public Developer(TimerService service, PartnerService partnerService, PrefixService prefix, HttpClient httpClient, TranslateLimits limits, DBLApiService dblApi)
+        public Developer(TimerService service, PartnerService partnerService, IDocumentStore store, PrefixService prefix, HttpClient httpClient, TranslateLimits limits, DBLApiService dblApi)
         {
             timerService = service;
             prefixService = prefix;
             PartnerService = partnerService;
+            docStore = store;
             client = httpClient;
             Limits = limits;
             DblApi = dblApi;
         }
+
+        private IDocumentStore docStore { get; set; }
 
         private PartnerService PartnerService { get; }
 
@@ -432,23 +437,37 @@
         /// </returns>
         [Command("UnbanAllPartners", RunMode = RunMode.Async)]
         [Summary("Unbans all banned partner servers")]
-        public Task UnbanAllAsync()
+        public async Task UnbanAllAsync()
         {
-            SimpleEmbedAsync("Unbanning servers");
+            var msg = await SimpleEmbedAsync("Unbanning servers");
 
-            foreach (var guild in Context.Client.Guilds)
+            using (var session = docStore.OpenSession())
             {
-                var config = PartnerService.GetPartnerInfo(guild.Id);
-                if (config.Settings.Banned)
+                try
                 {
-                    config.Settings.Banned = false;
-                    config.Settings.Enabled = true;
-                }
+                    var pInfos = session.Query<PartnerService.PartnerInfo>();
+                    int i = 0;
+                    foreach (var guild in pInfos)
+                    {
+                        i++;
+                        if (guild.Settings.Banned)
+                        {
+                            guild.Settings.Banned = false;
+                            guild.Settings.Enabled = true;
+                        }
 
-                config.Save();
+                        session.Store(guild);
+                    }
+
+                    session.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
 
-            return SimpleEmbedAsync("Success, servers have been unbanned");
+            await SimpleEmbedAsync("Success, servers have been unbanned");
         }
 
         [Group("Inspections")]
