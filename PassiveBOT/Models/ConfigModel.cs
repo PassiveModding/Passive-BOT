@@ -29,17 +29,7 @@
         ///     Gets or sets the store URL for translation Upgrades
         /// </summary>
         public string TranslateStoreUrl { get; set; } = null;
-
-        /// <summary>
-        /// Gets or sets the maximum free translations per user per day
-        /// </summary>
-        public int MaxUserDailyTranslations { get; set; } = 100;
-
-        /// <summary>
-        /// Gets or sets the maximum free translations per guild per day
-        /// </summary>
-        public int MaxGuildDailyTranslations { get; set; } = 2000;
-
+        
         /// <summary>
         ///     Returns the translation store message
         /// </summary>
@@ -51,8 +41,7 @@
                 return null;
             }
 
-            return $"You may upgrade your translation limits by purchasing a token from {TranslateStoreUrl} and using the command `{Prefix}translate redeem <token>`\n" + 
-                   $"{(DiscordBotsListApi == null || DiscordBotListVoteUrl == null ? null : $"**NOTE:** You can also upgrade your limits for the day by voting for the bot on DiscordBots {DiscordBotListVoteUrl}")}";
+            return $"You may upgrade your translation limits by purchasing a token from {TranslateStoreUrl} and using the command `{Prefix}translate redeem <token>`";
         }
 
         public string DiscordBotListVoteUrl { get; set; } = null;

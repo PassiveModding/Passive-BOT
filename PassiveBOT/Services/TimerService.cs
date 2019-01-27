@@ -1,6 +1,7 @@
 ﻿namespace PassiveBOT.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -52,7 +53,8 @@
                     {
                         try
                         {
-                            await PartnerAsync();
+                            var t = Task.Run(PartnerAsync);
+                            
                         }
                         catch (Exception e)
                         {
@@ -103,14 +105,77 @@
             timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
         }
 
+        public async Task PartnerAsync()
+        {
+            try
+            {
+                Console.WriteLine("Running partner method.");
+                var rnd = Provider.GetRequiredService<Random>();
+                var partners = ShardedClient.Guilds.Select(x => (x, PartnerService.GetPartnerInfo(x.Id))).Where(x => x.Item2 != null && x.Item2.Settings.Enabled && x.Item2.Settings.ChannelId != 0 && !x.Item2.Settings.Banned).Select(x => (x.Item1, x.Item2, x.Item1.GetTextChannel(x.Item2?.Settings?.ChannelId ?? 0))).Where(x => x.Item3 != null).ToList();
+                var partnersRandomised = partners.OrderByDescending(x => rnd.Next()).ToList();
+                Console.WriteLine($"{partners.Count} partners found...");
+                var sent = new List<ulong>();
+                foreach (var partner in partners)
+                {
+                    try
+                    {
+                        if (partner.Item1 == null || partner.Item2 == null)
+                        {
+                            continue;
+                        }
+
+                        Console.WriteLine($"Acquiring partner for {partner.Item1.Name}");
+                        var receiver = partnersRandomised.FirstOrDefault(x => !sent.Contains(x.Item2.GuildId) && x.Item1.Id != partner.Item1.Id);
+                        if (receiver.Item1 == null || receiver.Item2 == null)
+                        {
+                            continue;
+                        }
+
+                        sent.Add(receiver.Item2.GuildId);
+
+                        Console.WriteLine("Retrieving receiver channel");
+                        var recChannel = receiver.Item3;
+                        var partnerMessage = partnerHelper.GenerateMessage(partner.Item2, partner.Item1).Build();
+
+                        if (partnerMessage == null || recChannel == null)
+                        {
+                            continue;
+                        }
+
+                        try
+                        {
+                            await recChannel.SendMessageAsync("", false, partnerMessage);
+                            Console.WriteLine($"Sent partner message from: {partner.Item1.Name} [{partner.Item1.Id}] to {receiver.Item1.Name} {receiver.Item1.Id}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.ToString());
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+        }
+
         /// <summary>
         ///     The partner message event
         /// </summary>
         /// <returns>
         ///     The <see cref="Task" />.
         /// </returns>
+        /*
         public Task PartnerAsync()
         {
+
             var rnd = Provider.GetRequiredService<Random>();
             var senderIds = ShardedClient.Guilds.Select(x => x.Id).Where(
                 x =>
@@ -173,8 +238,9 @@
             GC.WaitForPendingFinalizers();
 
             return Task.CompletedTask;
-        }
+        }*/
 
+        /*
         public async Task<bool> VerifyPartnerAsync(PartnerService.PartnerInfo partnerInfo = null)
         {
             Console.WriteLine($"Verifying partner {partnerInfo?.GuildId}");
@@ -233,7 +299,7 @@
                 return false;
             }
 
-        }
+        }*/
 
         /// <summary>
         ///     Restarts the timer
@@ -261,6 +327,7 @@
         /// <param name="receiverConfig">
         ///     The receiver config.
         /// </param>
+        /*
         public async void SendPartnerMessage(PartnerService.PartnerInfo messageGuildModel, PartnerService.PartnerInfo receiverConfig)
         {
             var messageGuild = ShardedClient.GetGuild(messageGuildModel.GuildId);
@@ -286,7 +353,7 @@
 
                 await partnerHelper.PartnerLogAsync(ShardedClient, receiverConfig, new EmbedFieldBuilder { Name = "Partner Server Auto Banned", Value = "Unable to send message to channel\n" + $"S:{receiverChannel.Guild.Name} [{receiverChannel.Guild.Id}] : C:{receiverChannel.Name}" });
             }
-        }
+        }*/
 
         /// <summary>
         ///     Stops the timer

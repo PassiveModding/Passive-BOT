@@ -2,6 +2,7 @@
 
 namespace PassiveBOT.Modules.GuildCommands
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -17,18 +18,19 @@ namespace PassiveBOT.Modules.GuildCommands
     ///     The translate commands
     /// </summary>
     [Group("Translate")]
+    [RequireContext(ContextType.Guild)]
     [Summary("Language translation commands and information")]
     public class Translate : Base
     {
-        private readonly TranslateLimits Limits;
+        private readonly TranslateLimitsNew Limits;
 
-        private readonly ConfigModel Config;
-
-        public Translate(TranslateLimits limits, ConfigModel config)
+        public Translate(TranslateLimitsNew limits, TranslateMethodsNew methods)
         {
             Limits = limits;
-            Config = config;
+            Methods = methods;
         }
+
+        public TranslateMethodsNew Methods { get; set; }
 
         /// <summary>
         ///     The translate cmd.
@@ -48,25 +50,19 @@ namespace PassiveBOT.Modules.GuildCommands
         [Summary("Translate from one language to another")]
         public async Task TranslateCmdAsync(LanguageMap.LanguageCode languageCode, [Remainder] string message)
         {
-
-            var updateStatus = await Limits.UpdateAsync(Context.Guild?.Id ?? Context.User.Id, Context.User.Id);
-            if (updateStatus == TranslateLimits.ResponseStatus.GuildLimitExceeded || updateStatus == TranslateLimits.ResponseStatus.UserLimitExceeded)
+            var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
+            var original = message.FixLength();
+            var file = await Methods.TranslateTextAsync(message, Context.Channel as IGuildChannel, languageCode);
+            if (file.AuthenticationResponse == TranslateLimitsNew.ResponseStatus.GuildSucceded)
             {
-                await SimpleEmbedAsync($"**{updateStatus}** You have exceeded your translation limit for the day, for users this is {Config.MaxUserDailyTranslations} translations and servers this is {Config.MaxGuildDailyTranslations} translations\n" + 
-                                       "To bypass this limit please upgrade to premium translations.\n" + 
-                                       $"{Config.GetTranslateUrl()}");
+                embed.AddField($"Translated [{file.Response.TargetLanguage}]", $"{file.Response.TranslatedText.FixLength()}");
+                embed.AddField($"Original [{file.Response.DetectedSourceLanguage}]", $"{original.FixLength()}");
+
+                await ReplyAsync(string.Empty, false, embed.Build());
                 return;
             }
 
-            var embed = new EmbedBuilder { Title = "Translate", Color = Color.Blue };
-            var original = message.FixLength();
-            var language = TranslateMethods.LanguageCodeToString(languageCode);
-            var file = await TranslateMethods.TranslateMessageAsync(language, message, Context.Provider);
-            var response = TranslateMethods.HandleResponse(file).FixLength();
-            embed.AddField($"Translated [{language}]", $"{response}");
-            embed.AddField($"Original [{file[2]}]", $"{original}");
-
-            await ReplyAsync(string.Empty, false, embed.Build());
+            await ReplyAndDeleteAsync(file.ResponseMessage, TimeSpan.FromSeconds(20));
         }
 
         [Priority(0)]
@@ -74,11 +70,18 @@ namespace PassiveBOT.Modules.GuildCommands
         [Summary("Redeem a translation upgrade for your discord account")]
         public async Task RedeemAsync([Remainder] string key)
         {
-            var result = await Limits.RedeemKey(Context.User.Id, key);
+            var result = await Limits.RedeemKeyAsync(Context.Guild.Id, key);
 
             if (result.Success)
             {
-                await SimpleEmbedAsync($"Success you have been upgraded to unlimited, this expires on: **{result.ValidUntil.ToLongDateString()}{result.ValidUntil.ToLongTimeString()}**");
+                Limits.Guilds.TryGetValue(Context.Guild.Id, out TranslateLimitsNew.Guild guild);
+                string appendString = null;
+                if (guild != null)
+                {
+                    appendString = $"Remaining Characters: {guild.RemainingCharacters()}";
+                }
+
+                await SimpleEmbedAsync($"Success you have been upgraded to unlimited, this is valid for: **{result.ValidFor} characters**\n{appendString}");
                 Limits.Save();
             }
             else
@@ -128,21 +131,19 @@ namespace PassiveBOT.Modules.GuildCommands
             await ReplyAsync("DM Sent.");
         }
 
-        [Priority(2)]
-        [Command("Stats", RunMode = RunMode.Async)]
-        [Summary("Reveal user translation daily stats")]
-        public async Task TranslateStatsAsync()
+        [Priority(3)]
+        [Command("Info")]
+        [Summary("Translate Stats for the current guild")]
+        public async Task LimitsAsync()
         {
-            if (Limits.Users.TryGetValue(Context.User.Id, out var user))
+            Limits.Guilds.TryGetValue(Context.Guild.Id, out TranslateLimitsNew.Guild guild);
+            if (guild != null)
             {
-                await SimpleEmbedAsync($"Daily Translations: {user.DailyTranslations}\n" + 
-                                       $"Total Translations: {user.TotalTranslations}\n" + 
-                                       $"Upgrades: \n{string.Join("\n", user.Upgrades.Select(x => $"{x.Key} || {x.Expiry.ToShortTimeString()} {x.Expiry.ToShortDateString()}"))}");
+                await ReplyAsync($"Remaining Characters: {guild.RemainingCharacters()}\n" + $"Total Characters Translated: {guild.TotalCharacters}\n" + $"Translate Limit: {guild.MaxCharacters()}");
+                return;
             }
-            else
-            {
-                await SimpleEmbedAsync("Please use the translate command to initialise your user stats");
-            }
+
+            await ReplyAsync("There is currently no information about this guild stored in the translation service.");
         }
     }
 }

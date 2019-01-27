@@ -17,7 +17,7 @@
     /// <summary>
     ///     The translate methods.
     /// </summary>
-    public class TranslateMethods
+    public class TranslateMethodsOld
     {
         /// <summary>
         ///     The converts a google translate response into a single output string

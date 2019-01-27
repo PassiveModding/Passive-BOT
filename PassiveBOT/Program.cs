@@ -71,6 +71,19 @@
                                 IgnoreExtraArgs = false,
                                 DefaultRunMode = RunMode.Async
                             }))
+                .AddSingleton(
+                    x =>
+                        {
+                            if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/DBConfig.json")))
+                            {
+                                var Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
+                                return Settings;
+                            }
+                            else
+                            {
+                                return new DatabaseObject();
+                            }
+                        })
                 .AddSingleton(x =>
                     {
                         if (File.Exists(Path.Combine(AppContext.BaseDirectory, "setup/DBConfig.json")))
@@ -114,11 +127,14 @@
                 .AddSingleton<ChannelHelper>()
                 .AddSingleton<PartnerHelper>()
                 .AddSingleton<Interactive>()
-                .AddSingleton(x =>
-                    {
-                        var configModel = x.GetRequiredService<ConfigModel>();
-                        return new TranslateLimits(x.GetRequiredService<IDocumentStore>(), x.GetRequiredService<DBLApiService>(), configModel.MaxUserDailyTranslations, configModel.MaxGuildDailyTranslations);
-                    })
+                .AddSingleton(
+                    x =>
+                        {
+                            var limits = new TranslateLimitsNew(x.GetRequiredService<IDocumentStore>());
+                            limits.Initialize();
+                            return limits;
+                        })
+                .AddSingleton(x => new TranslateMethodsNew(x.GetRequiredService<DatabaseObject>(), x.GetRequiredService<TranslateLimitsNew>(), x.GetRequiredService<ConfigModel>()))
                 .AddSingleton<LevelHelper>()
                 .AddSingleton<TranslationService>()
                 .AddSingleton<TimerService>()
@@ -135,7 +151,6 @@
             await provider.GetRequiredService<BotHandler>().InitializeAsync();
             LogHandler.LogMessage("Initializing EventHandler", LogSeverity.Verbose);
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
-            provider.GetRequiredService<TimerService>().Restart();
             provider.GetRequiredService<DBLApiService>().Initialize();
 
 

@@ -63,5 +63,7 @@
         public LogSeverity LogSeverity { get; set; } = LogSeverity.Info;
 
         public bool LogToDatabase { get; set; } = true;
+        
+        public string TranslateAPIKey { get; set; } = null;
     }
 }

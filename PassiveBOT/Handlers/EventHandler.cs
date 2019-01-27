@@ -42,7 +42,7 @@
         /// </summary>
         private readonly ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>> translated = new ConcurrentDictionary<ulong, List<LanguageMap.LanguageCode>>();
 
-        private readonly TranslateLimits Limits;
+        private readonly TranslateLimitsNew Limits;
 
         /// <summary>
         /// true = check and update all missing servers on start.
@@ -81,7 +81,7 @@
         /// <param name="prefixService">
         /// The prefix Service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, TranslateLimits limits, ReminderService reminders, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
+        public EventHandler(DiscordShardedClient client, TranslateLimitsNew limits, ReminderService reminders, TranslateMethodsNew translationMethods, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
@@ -95,9 +95,12 @@
             _Translate = translationService;
             Limits = limits;
             Reminders = reminders;
+            TranslationMethods = translationMethods;
 
             CancellationToken = new CancellationTokenSource();
         }
+
+        public TranslateMethodsNew TranslationMethods { get; set; }
 
         private TranslationService _Translate { get; }
 
@@ -176,6 +179,8 @@
                     {
                         LogHandler.LogMessage($"Bot is in Prefix Override Mode! Current Prefix is: {DatabaseHandler.Settings.PrefixOverride}", LogSeverity.Warning);
                     }
+                    
+                    Provider.GetRequiredService<TimerService>().Restart();
 
                     _ = Task.Run(
                         () =>
@@ -506,14 +511,14 @@
         {
             LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
 
-            IUserMessage message = await channel.GetMessageAsync(reaction.MessageId) as IUserMessage;
+            IUserMessage message = messageCacheable.Value ?? await channel.GetMessageAsync(reaction.MessageId) as IUserMessage;
 
             if (message == null)
             {
                 return;
             }
             
-            if (reaction.User.Value?.IsBot == true || string.IsNullOrWhiteSpace(message.Content))
+            if (reaction.User.Value?.IsBot == true || (string.IsNullOrWhiteSpace(message.Content) && !message.Embeds.Any()))
             {
                 return;
             }
@@ -523,10 +528,8 @@
                 var translateAction = Task.Run(
                     async () =>
                         {
-                        
                             var guildId = (channel as SocketGuildChannel).Guild.Id;
                             var translationSetup = _Translate.GetSetup(guildId);
-
                             if (translationSetup == null)
                             {
                                 translationSetup = Provider.GetRequiredService<DatabaseHandler>().Execute<GuildModel>(DatabaseHandler.Operation.LOAD, null, guildId.ToString())?.Settings.Translate;
@@ -537,7 +540,6 @@
 
                                 await _Translate.UpdateSetupAsync(guildId, translationSetup);
                             }
-
                             if (!translationSetup.EasyTranslate)
                             {
                                 return;
@@ -552,37 +554,22 @@
                                 languageType = LanguageMap.DefaultMap.FirstOrDefault(x => x.EmoteMatches.Any(val => val == reaction.Emote.Name));
                                 if (languageType == null)
                                 {
+                                    LogHandler.LogMessage("Ignored EasyTranslate Reaction, No Emote Configured", LogSeverity.Verbose);
                                     return;
                                 }
                             }
-
                             if (translated.Any(x => x.Key == reaction.MessageId && x.Value.Contains(languageType.Language)))
                             {
                                 LogHandler.LogMessage("Ignored EasyTranslate Reaction", LogSeverity.Verbose);
                                 return;
                             }
-
-                            var updateStatus = await Limits.UpdateAsync(guildId, reaction.User.Value.Id);
-                            if (updateStatus == TranslateLimits.ResponseStatus.GuildLimitExceeded || updateStatus == TranslateLimits.ResponseStatus.UserLimitExceeded)
-                            {
-                                await reaction.Channel.SendMessageAsync("", false, new EmbedBuilder
-                                                                                       {
-                                                                                           Description = 
-                                                                                               $"**{updateStatus}** You have exceeded your translation limit for the day, for users this is {Config.MaxUserDailyTranslations} translations and servers this is {Config.MaxGuildDailyTranslations} translations\n" + 
-                                                                                               "To bypass this limit please upgrade to premium translations.\n" + 
-                                                                                               $"{Config.GetTranslateUrl()}",
-                                                                                           Color = Color.DarkRed
-                                                                                       }.Build());
-                                return;
-                            }
-
-                            var embed = await TranslateMethods.TranslateEmbedAsync(languageType.Language, Provider, message, reaction);
+                            var embed = await TranslationMethods.TranslateFullMessageAsync(languageType.Language, message, channel as IGuildChannel, reaction);
 
                             if (translationSetup.DMTranslations)
                             {
                                 try
                                 {
-                                    await reaction.User.Value.SendMessageAsync(string.Empty, false, embed.Build());
+                                    await reaction.User.Value.SendMessageAsync(embed.Item1 ?? "", false, embed.Item2);
                                 }
                                 catch
                                 {
@@ -591,7 +578,15 @@
                             }
                             else
                             {
-                                await channel.SendMessageAsync(string.Empty, false, embed.Build());
+                                try
+                                {
+                                    await channel.SendMessageAsync(embed.Item1 ?? "", false, embed.Item2);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.ToString());
+                                }
+
                                 var match = translated.FirstOrDefault(x => x.Key == reaction.MessageId);
                                 if (match.Value == null)
                                 {

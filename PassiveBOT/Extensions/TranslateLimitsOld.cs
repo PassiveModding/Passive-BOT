@@ -14,7 +14,7 @@
 
     using Raven.Client.Documents;
 
-    public class TranslateLimits
+    public class TranslateLimitsOld
     {
         /// <summary>
         ///     The _timer.
@@ -34,7 +34,7 @@
 
         private DBLApiService DblApi;
 
-        public TranslateLimits(IDocumentStore store, DBLApiService dblApi, int userDailyLimit = 100, int guildDailyLimit = 2000)
+        public TranslateLimitsOld(IDocumentStore store, DBLApiService dblApi, int userDailyLimit = 100, int guildDailyLimit = 2000)
         {
             UserDailyLimit = userDailyLimit;
             GuildDailyLimit = guildDailyLimit;
@@ -69,7 +69,7 @@
         {
             using (var session = Store.OpenSession())
             {
-                var doc = session.Load<TranslateLimits>("TranslateLimits");
+                var doc = session.Load<TranslateLimitsOld>("TranslateLimits");
 
                 if (doc != null)
                 {
