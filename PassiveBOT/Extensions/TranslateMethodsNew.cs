@@ -166,14 +166,14 @@
             throw new Exception("Guild error");
         }
 
-        public async Task<(string, Embed)> TranslateFullMessageAsync(LanguageMap.LanguageCode language, IUserMessage message, IGuildChannel channel, SocketReaction reaction = null)
+        public async Task<(string, Embed, bool)> TranslateFullMessageAsync(LanguageMap.LanguageCode language, IUserMessage message, IGuildChannel channel, SocketReaction reaction = null)
         {
             var newMessage = await TranslateTextAsync(message.Content ?? "", channel, language);
 
             if (newMessage.AuthenticationResponse != TranslateLimitsNew.ResponseStatus.GuildSucceded)
             {
                 Console.WriteLine("Failed");
-                return (newMessage.ResponseMessage, null);
+                return (newMessage.ResponseMessage, new EmbedBuilder{ Description = newMessage.ResponseMessage }.Build(), false);
             }
 
 
@@ -225,22 +225,25 @@
                                 }
                                 
                                 Console.WriteLine("Embed method");
-                                return (newMessage.Response.TranslatedText.FixLength(), newBuilder.Build());
+                                return (newMessage.Response.TranslatedText.FixLength(), newBuilder.Build(), true);
                             }
 
-                            return (newMessage.Response.TranslatedText.FixLength(2048), new EmbedBuilder { Description = $"Unable to translate entire embed due to exceeding translation quota, {Model.GetTranslateUrl()}" }.Build());
+                            return (newMessage.Response.TranslatedText.FixLength(2048), new EmbedBuilder { Description = $"Unable to translate entire embed due to exceeding translation quota, {Model.GetTranslateUrl()}" }.Build(), false);
                         }
+
+                        return (newMessage.Response.TranslatedText.FixLength(2048), new EmbedBuilder { Description = $"Please upgrade to premium for new translations, {Model.GetTranslateUrl()}" }.Build(), false);
+
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine("Exception");
-                        return (e.ToString().FixLength(), null);
+                        return (e.ToString().FixLength(), null, false);
                     }
                 }
             }
             
             Console.WriteLine("End of method");
-            return (newMessage.Response.TranslatedText.FixLength(), null);
+            return (newMessage.Response.TranslatedText.FixLength(), null, true);
         }
     }
 }

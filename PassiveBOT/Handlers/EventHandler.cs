@@ -598,7 +598,10 @@
                                 }
                             }
 
-                            LogHandler.LogMessage(guildId, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
+                            if (embed.Item3)
+                            {
+                                LogHandler.LogMessage(guildId, reaction.Channel.Name, reaction.UserId, $"Translated Message to {languageType.Language}: {message.Content}");
+                            }
                         });
             }
             catch (Exception e)
