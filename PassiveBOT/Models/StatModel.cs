@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using PassiveBOT.Handlers;
+    using PassiveBOT.Services;
 
     /// <summary>
     ///     A model that holds bot usage statistics and other info
@@ -30,7 +31,7 @@
         ///     The saves the config
         /// </summary>
         /// <returns>
-        ///     The <see cref="HomeModel" />.
+        ///     The <see cref="HomeService.HomeModel" />.
         /// </returns>
         public static StatModel Load()
         {
