@@ -67,6 +67,7 @@ namespace PassiveBOT.Modules.GuildCommands
 
         [Priority(0)]
         [Command("Redeem")]
+        [RequireUserPermission(GuildPermission.Administrator)]
         [Summary("Redeem a translation upgrade for your discord account")]
         public async Task RedeemAsync([Remainder] string key)
         {
