@@ -10,10 +10,13 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
     using System.Threading.Tasks;
 
     using Discord;
+    using Discord.Addons.Interactive;
+    using Discord.Addons.Preconditions;
     using Discord.Commands;
     using Discord.WebSocket;
 
     using PassiveBOT.Context;
+    using PassiveBOT.Extensions;
     using PassiveBOT.Models;
 
     public class BirthdaySetup : Base
@@ -90,6 +93,62 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
             return SimpleEmbedAsync("You must run the enable birthdays command before setting a birthday role");
         }
 
+        [Command("BirthdayList")]
+        [RequireContext(ContextType.Guild)]
+        [RateLimit(1, 15, Measure.Seconds)]
+        public async Task GetBirthdayList()
+        {
+            try
+            {
+                var guildMatch = Service.Model.EnabledGuilds.FirstOrDefault(x => x.GuildId == Context.Guild.Id);
+                if (guildMatch != null)
+                {
+                    var userMatches = Context.Guild.Users.Select(x => (x, Service.Model.Persons.FirstOrDefault(p => p.UserId == x.Id))).Where(x => x.Item2 != null).ToList();
+                    if (userMatches.Any())
+                    {
+                        var firstUsers = userMatches.Where(x => x.Item2.IsToday()).ToList();
+                        var userMatchesWithoutFirst = userMatches.Where(x => !x.Item2.IsToday()).OrderBy(x => x.Item2.RemainingDays()).ToList();
+
+                        var pages = new List<PaginatedMessage.Page>();
+                        var today = DateTime.Today;
+                        if (firstUsers.Any())
+                        {
+                            pages.Add(new PaginatedMessage.Page { Title = $"Today's Birthdays {today.Day} {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(today.Month)}", Description = string.Join("\n", firstUsers.Select(x => x.Item2.ShowYear ? $"{x.Item1.Mention} || Age: {x.Item2.Age()}" : $"{x.Item1.Mention}")) });
+                        }
+
+                        foreach (var userGroup in userMatchesWithoutFirst.SplitList(10))
+                        {
+                            pages.Add(new PaginatedMessage.Page { Title = "Birthdays", Description = string.Join("\n", userGroup.Select(x => $"{DateAsDayAndMonth(x.Item2.Birthday)}: {x.Item1.Mention}" + (x.Item2.ShowYear ? $"({x.Item2.Age()})" : ""))) });
+                        }
+                        
+                        var pager = new PaginatedMessage
+                                        {
+                                            Pages = pages,
+                                            Color = Color.Blue
+                                        };
+
+                        await PagedReplyAsync(pager, new ReactionList { Forward = true, Backward = true, First = true, Last = true, Trash = true });
+                        return;
+                    }
+
+                    await SimpleEmbedAsync("There are no users in this server with configured birthdays");
+                    return;
+                }
+
+                await SimpleEmbedAsync("This server has not enabled birthdays");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                await SimpleEmbedAsync("Error");
+            }
+        }
+
+        public string DateAsDayAndMonth(DateTime dTime)
+        {
+            return $"{CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(dTime.Month)} {dTime.Day}";
+        }
+
         [Command("RemoveBirthday")]
         public Task RemoveBirthday(SocketGuildUser user)
         {
@@ -105,22 +164,51 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
             return SimpleEmbedAsync("User has never set a birthday and therefore cannot have theirs removed.");
         }
 
+        private string[] dayTypes = { "d", "dd" };
+
+        private string[] monthTypes = { "MMM", "MMMM" };
+
+        private string[] delimiters = { " ", "-", "/" };
+
+        public string[] getTimeFormats(bool useYear)
+        {
+            var responses = new List<string>();
+            foreach (var dayType in dayTypes)
+            {
+                var baseFormat = dayType;
+                foreach (var monthType in monthTypes)
+                {
+                    var secondaryFormat = $"{baseFormat} {monthType}";
+                    if (useYear)
+                    {
+                        secondaryFormat += $" yyyy";
+                    }
+
+                    foreach (var delimiter in delimiters)
+                    {
+                        var delimited = secondaryFormat.Replace(" ", delimiter);
+                        responses.Add(delimited);
+                    }
+                }
+            }
+
+            return responses.ToArray();
+        }
+
         [Command("SetBirthday")]
         public Task SetRole([Remainder]string dateTime = null)
         {
             if (Service.Model.Persons.Any(x => x.UserId == Context.User.Id))
             {
-                return SimpleEmbedAsync("Sorry, your birthday has already been set. Please contact an administrator to change it,");
+                return SimpleEmbedAsync("Sorry, your birthday has already been set. Please contact an administrator to change it.");
             }
-
-            var yearTimeFormats = new[] { "dd MMM yyyy", "MMM dd yyyy", "dd/MMM/yyyy", "MMM/dd/yyyy", "dd-MMM-yyyy", "MMM-dd-yyyy" };
-            //var noYearTimeFormats = new[] { "dd MMM", "MMM dd", "dd/MMM", "MMM/dd", "dd-MMM", "MMM-dd" };
-            DateTime? parsedTime = null;
-            if (DateTime.TryParseExact(dateTime, yearTimeFormats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime resultWithYear))
+            
+            DateTime? parsedTime;
+            if (DateTime.TryParseExact(dateTime, getTimeFormats(true), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime resultWithYear))
             {
                 parsedTime = resultWithYear;
             } 
-            else if (DateTime.TryParseExact(dateTime, "dd MMM", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime resultWithoutYear))
+            else if (DateTime.TryParseExact(dateTime, getTimeFormats(false), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime resultWithoutYear))
             {
                 parsedTime = new DateTime(0001, resultWithoutYear.Month, resultWithoutYear.Day);
             }
@@ -129,17 +217,10 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
                 return SimpleEmbedAsync("Unable to retrieve a valid date format. Please use the following example: `01 Jan 2000` or `05 Feb`");
             }
 
-            if (parsedTime.Value.Year == 0001)
-            {
-                Service.Model.AddBirthday(Context.User.Id, parsedTime.Value, false);
-            }
-            else
-            {
-                Service.Model.AddBirthday(Context.User.Id, parsedTime.Value, true);
-            }
+            Service.Model.AddBirthday(Context.User.Id, parsedTime.Value, parsedTime.Value.Year != 0001);
 
             Service.Save();
-            return SimpleEmbedAsync($"Birthday set to {parsedTime.Value.Day} {CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(parsedTime.Value.Month)} {(parsedTime.Value.Year == 0001 ? "" : parsedTime.Value.Year.ToString())}");
+            return SimpleEmbedAsync($"Birthday set to {parsedTime.Value.Day} {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(parsedTime.Value.Month)} {(parsedTime.Value.Year == 0001 ? "" : parsedTime.Value.Year.ToString())}");
         }
     }
 }
