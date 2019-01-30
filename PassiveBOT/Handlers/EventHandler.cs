@@ -509,6 +509,10 @@
         /// </returns>
         internal async Task ReactionAddedAsync(Cacheable<IUserMessage, ulong> messageCacheable, ISocketMessageChannel channel, SocketReaction reaction)
         {
+            if (prefixOverride)
+            {
+                return;
+            }
             LogHandler.LogMessage("Reaction Detected", LogSeverity.Verbose);
 
             IUserMessage message = messageCacheable.Value ?? await channel.GetMessageAsync(reaction.MessageId) as IUserMessage;

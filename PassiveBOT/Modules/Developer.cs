@@ -288,6 +288,13 @@
             return timerService.PartnerAsync();
         }
 
+        [Command("Birthday_Trigger", RunMode = RunMode.Async)]
+        [Summary("Trigger the partner service")]
+        public Task Birthday_TriggerAsync()
+        {
+            return timerService.BirthdayAsync();
+        }
+
         [Command("SetDefaultPrefix")]
         public Task SetDefaultAsync(string prefix)
         {

@@ -13,6 +13,7 @@
 
     using PassiveBOT.Extensions.PassiveBOT;
     using PassiveBOT.Handlers;
+    using PassiveBOT.Models;
 
     /// <summary>
     ///     The timer service.
@@ -41,12 +42,13 @@
         /// <param name="provider">
         /// The provider.
         /// </param>
-        public TimerService(DiscordShardedClient client, PartnerService partnerService, PartnerHelper pHelper, IServiceProvider provider)
+        public TimerService(DiscordShardedClient client, PartnerService partnerService, PartnerHelper pHelper, BirthdayService bService, IServiceProvider provider)
         {
             partnerHelper = pHelper;
             PartnerService = partnerService;
             Provider = provider;
             ShardedClient = client;
+            BirthdayService = bService;
 
             timer = new Timer(
                 async _ =>
@@ -54,7 +56,8 @@
                         try
                         {
                             var t = Task.Run(PartnerAsync);
-                            
+                            var b = Task.Run(BirthdayAsync);
+
                         }
                         catch (Exception e)
                         {
@@ -91,6 +94,8 @@
         /// </summary>
         public DiscordShardedClient ShardedClient { get; set; }
 
+        private BirthdayService BirthdayService { get; set; }
+
         private PartnerService PartnerService { get; }
 
         /// <summary>
@@ -103,6 +108,91 @@
         {
             FirePeriod = newPeriod;
             timer.Change(TimeSpan.FromMinutes(0), TimeSpan.FromMinutes(FirePeriod));
+        }
+
+        public async Task BirthdayAsync()
+        {
+            try
+            {
+                var notifiableList = await BirthdayService.GetNotifiableList();
+                foreach (var guildSetup in notifiableList)
+                {
+                    var guild = ShardedClient.GetGuild(guildSetup.Item1.GuildId);
+                    var channel = guild?.GetTextChannel(guildSetup.Item1.BirthdayChannelId);
+                    if (channel == null)
+                    {
+                        continue;
+                    }
+
+                    bool? manageRoles = guild.GetUser(ShardedClient.CurrentUser.Id)?.GuildPermissions.ManageRoles;
+
+                    SocketRole birthdayRole = null;
+                    if (guildSetup.Item1.BirthdayRole != 0)
+                    {
+                        birthdayRole = guild.GetRole(guildSetup.Item1.BirthdayRole);
+                    }
+
+                    if (birthdayRole == null)
+                    {
+                        continue;
+                    }
+
+                    var userList = new List<string>();
+                    foreach (var person in guildSetup.Item2)
+                    {
+                        string mentionContent = "";
+                        int age = person.Age();
+                        var user = guild.GetUser(person.UserId);
+                        if (user.Roles.Contains(birthdayRole))
+                        {
+                            continue;
+                        }
+
+                        mentionContent = age > 0 ? $"{user.Mention} | Age: {age}" : user.Mention;
+
+                        userList.Add(mentionContent);
+
+                        if (manageRoles == true)
+                        {
+                            try
+                            {
+                                await user.AddRoleAsync(birthdayRole);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.ToString());
+                            }
+                        }
+                    }
+
+                    if (userList.Any(x => !string.IsNullOrEmpty(x)))
+                    {
+                        await channel.SendMessageAsync("Today's Current birthdays are: \n" + string.Join("\n", userList.Where(x => !string.IsNullOrEmpty(x))));
+                    }
+
+                    if (manageRoles == true)
+                    {
+                        foreach (var member in birthdayRole.Members)
+                        {
+                            if (guildSetup.Item2.All(x => x.UserId != member.Id))
+                            {
+                                try
+                                {
+                                    await member.RemoveRoleAsync(birthdayRole);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.ToString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         public async Task PartnerAsync()

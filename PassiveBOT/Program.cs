@@ -137,6 +137,13 @@
                 .AddSingleton(x => new TranslateMethodsNew(x.GetRequiredService<DatabaseObject>(), x.GetRequiredService<TranslateLimitsNew>(), x.GetRequiredService<ConfigModel>()))
                 .AddSingleton<LevelHelper>()
                 .AddSingleton<TranslationService>()
+                .AddSingleton(
+                    x =>
+                        {
+                            var birthdayService = new BirthdayService(x.GetRequiredService<DiscordShardedClient>(), x.GetRequiredService<IDocumentStore>());
+                            birthdayService.Initialize();
+                            return birthdayService;
+                        })
                 .AddSingleton<TimerService>()
                 .AddSingleton<DBLApiService>()
                 .AddSingleton<ReminderService>();
