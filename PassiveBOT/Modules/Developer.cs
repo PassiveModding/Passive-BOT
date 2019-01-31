@@ -65,7 +65,7 @@
         /// <param name="limits">
         /// The limits.
         /// </param>
-        public Developer(TimerService service, PartnerService partnerService, IDocumentStore store, PrefixService prefix, HttpClient httpClient, TranslateLimitsNew limits, DBLApiService dblApi)
+        public Developer(TimerService service, PartnerService partnerService, PartnerHelper pHelper, IDocumentStore store, PrefixService prefix, HttpClient httpClient, TranslateLimitsNew limits, DBLApiService dblApi)
         {
             timerService = service;
             prefixService = prefix;
@@ -73,12 +73,15 @@
             docStore = store;
             client = httpClient;
             Limits = limits;
+            PartnerHelper = pHelper;
             DblApi = dblApi;
         }
 
         private IDocumentStore docStore { get; set; }
 
         private PartnerService PartnerService { get; }
+
+        private PartnerHelper PartnerHelper { get; }
 
         [Command("CreateKeys")]
         public async Task CreateKeysAsync(int keyCount, int characters)
@@ -337,6 +340,35 @@
             return SimpleEmbedAsync(
                 $"Store URL is now: {url}");
         }
+
+        [Command("TranslationCharacterSupply")]
+        [Summary("Displays how many total characters have been translated and how many is the limit")]
+        public Task TranslationCharacterSupplyAsync()
+        {
+            var totalTranslated = Limits.Guilds.Sum(x => x.Value.TotalCharacters);
+            var totalLimit = Limits.Guilds.Sum(x => x.Value.MaxCharacters());
+
+            return SimpleEmbedAsync($"Total Translated: {totalTranslated}\n" + 
+                                    $"Total Limit: {totalLimit}\n");
+        }
+
+        [Command("TranslateRankings")]
+        [Summary("Displays guild translation information")]
+        public Task TranslateRankingsAsync()
+        {
+            var pages = new List<PaginatedMessage.Page>();
+
+            foreach (var group in Limits.Guilds.OrderByDescending(x => x.Value.TotalCharacters).ToList().SplitList(25))
+            {
+                pages.Add(new PaginatedMessage.Page
+                              {
+                                  Title = "Translate Rankings",
+                                  Description = $"{string.Join("\n", group.Select(x => $"{Context.Client.GetGuild(x.Key)?.Name ?? x.Key.ToString()} => T: {x.Value.TotalCharacters} L: {x.Value.MaxCharacters()}"))}"
+                              });
+            }
+
+            return PagedReplyAsync(new PaginatedMessage { Pages = pages }, new ReactionList { Forward = true, Backward = true, First = true, Last = true });
+        }
         
         [Command("SetDBLVoteUrl")]
         [Summary("Set the discord bots list vote url")]
@@ -412,6 +444,21 @@
             config.LogUserMessages = !config.LogUserMessages;
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             return SimpleEmbedAsync($"Log user Messages: {config.LogUserMessages}");
+        }
+
+        [Command("BanPartner")]
+        public Task BanPartnerAsync(ulong guildId)
+        {
+            PartnerService.PartnerInfo match = PartnerService.GetPartnerInfo(guildId, true);
+            if (match == null)
+            {
+                return SimpleEmbedAsync("Partner not found");
+            }
+
+            match.Settings.Banned = true;
+            match.Settings.Enabled = false;
+            PartnerService.OverWrite(match);
+            return SimpleEmbedAsync("Partner has been banned");
         }
 
         /// <summary>
