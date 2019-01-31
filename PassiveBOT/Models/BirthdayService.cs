@@ -169,11 +169,20 @@ namespace PassiveBOT.Models
 
                 public int RemainingDays()
                 {
-                    DateTime nextBirthday = Birthday.AddYears(Age() + 1);
+                    DateTime today = DateTime.Today;
+                    DateTime nextBirthday;
+                    if (today.DayOfYear > Birthday.DayOfYear)
+                    {
+                        nextBirthday = new DateTime(today.Year + 1, Birthday.Month, Birthday.Day);
+                    }
+                    else
+                    {
+                        nextBirthday = new DateTime(today.Year, Birthday.Month, Birthday.Day);
+                    }
 
-                    TimeSpan difference = nextBirthday - DateTime.Today;
+                    int remaining_days = nextBirthday.DayOfYear - today.DayOfYear;
 
-                    return Convert.ToInt32(difference.TotalDays);
+                    return remaining_days;
                 }
 
                 public bool IsToday()

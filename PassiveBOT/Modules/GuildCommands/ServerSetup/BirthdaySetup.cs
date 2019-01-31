@@ -29,6 +29,7 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
         public BirthdayService Service { get; set; }
 
         [Command("EnableBirthdays")]
+        [Summary("Enables birthday announcements in the current server")]
         [RequireContext(ContextType.Guild)]
         [RequireUserPermission(GuildPermission.Administrator)]
         [RequireBotPermission(GuildPermission.ManageRoles)]
@@ -55,6 +56,7 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
         }
 
         [Command("DisableBirthdays")]
+        [Summary("Disables birthday announcements for the current server")]
         [RequireContext(ContextType.Guild)]
         [RequireUserPermission(GuildPermission.Administrator)]
         public Task DisableGuild()
@@ -71,6 +73,7 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
         }
 
         [Command("SetBirthdayRole")]
+        [Summary("Changes the birthday role set to automatically be given to users")]
         [RequireContext(ContextType.Guild)]
         [RequireUserPermission(GuildPermission.Administrator)]
         public Task SetRole(IRole role = null)
@@ -94,6 +97,7 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
         }
 
         [Command("BirthdayList")]
+        [Summary("Displays the birthdays of all users in the server")]
         [RequireContext(ContextType.Guild)]
         [RateLimit(1, 15, Measure.Seconds)]
         public async Task GetBirthdayList()
@@ -103,11 +107,11 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
                 var guildMatch = Service.Model.EnabledGuilds.FirstOrDefault(x => x.GuildId == Context.Guild.Id);
                 if (guildMatch != null)
                 {
-                    var userMatches = Context.Guild.Users.Select(x => (x, Service.Model.Persons.FirstOrDefault(p => p.UserId == x.Id))).Where(x => x.Item2 != null).ToList();
+                    var userMatches = Service.Model.Persons.Select(x => (Context.Guild.GetUser(x.UserId), x)).Where(x => x.Item1 != null).ToList();
                     if (userMatches.Any())
                     {
                         var firstUsers = userMatches.Where(x => x.Item2.IsToday()).ToList();
-                        var userMatchesWithoutFirst = userMatches.Where(x => !x.Item2.IsToday()).OrderBy(x => x.Item2.RemainingDays()).ToList();
+                        var userMatchesWithoutFirst = userMatches.Where(x => !x.Item2.IsToday()).OrderBy(x => x.Item2.Birthday.DayOfYear).ToList();
 
                         var pages = new List<PaginatedMessage.Page>();
                         var today = DateTime.Today;
@@ -150,6 +154,9 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
         }
 
         [Command("RemoveBirthday")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [RequireContext(ContextType.Guild)]
+        [Summary("Removes the current birthday from the given user")]
         public Task RemoveBirthday(SocketGuildUser user)
         {
             var person = Service.Model.Persons.FirstOrDefault(x => x.UserId == user.Id);
@@ -196,6 +203,8 @@ namespace PassiveBOT.Modules.GuildCommands.ServerSetup
         }
 
         [Command("SetBirthday")]
+        [Alias("Birthday")]
+        [Summary("Set your birthday.")]
         public Task SetRole([Remainder]string dateTime = null)
         {
             if (Service.Model.Persons.Any(x => x.UserId == Context.User.Id))
