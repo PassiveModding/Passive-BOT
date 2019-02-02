@@ -79,10 +79,8 @@
                                 var Settings = JsonConvert.DeserializeObject<DatabaseObject>(File.ReadAllText("setup/DBConfig.json"));
                                 return Settings;
                             }
-                            else
-                            {
-                                return new DatabaseObject();
-                            }
+
+                            return new DatabaseObject();
                         })
                 .AddSingleton(x =>
                     {
@@ -143,6 +141,13 @@
                             var birthdayService = new BirthdayService(x.GetRequiredService<DiscordShardedClient>(), x.GetRequiredService<IDocumentStore>());
                             birthdayService.Initialize();
                             return birthdayService;
+                        })
+                .AddSingleton(
+                    x =>
+                        {
+                            var gameService = new GameService(x.GetRequiredService<IDocumentStore>(), x.GetRequiredService<DatabaseObject>());
+                            gameService.Initialize();
+                            return gameService;
                         })
                 .AddSingleton<TimerService>()
                 .AddSingleton<DBLApiService>()

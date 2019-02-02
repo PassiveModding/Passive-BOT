@@ -42,7 +42,7 @@
         /// <param name="provider">
         /// The provider.
         /// </param>
-        public TimerService(DiscordShardedClient client, PartnerService partnerService, PartnerHelper pHelper, BirthdayService bService, IServiceProvider provider)
+        public TimerService(DiscordShardedClient client, PartnerService partnerService, PartnerHelper pHelper, BirthdayService bService, DatabaseObject config, IServiceProvider provider)
         {
             partnerHelper = pHelper;
             PartnerService = partnerService;
@@ -55,9 +55,15 @@
                     {
                         try
                         {
-                            var t = Task.Run(PartnerAsync);
-                            var b = Task.Run(BirthdayAsync);
+                            if (config.RunPartner)
+                            {
+                                var t = Task.Run(PartnerAsync);
+                            }
 
+                            if (config.RunBirthday)
+                            {
+                                var b = Task.Run(BirthdayAsync);
+                            }
                         }
                         catch (Exception e)
                         {

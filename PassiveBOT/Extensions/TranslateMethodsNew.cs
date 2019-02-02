@@ -27,7 +27,7 @@
         public TranslateMethodsNew(DatabaseObject config, TranslateLimitsNew limits, ConfigModel model)
         {
             Config = config;
-            if (config.TranslateAPIKey != null)
+            if (config.TranslateAPIKey != null && config.RunTranslate)
             {
                 Client = TranslationClient.CreateFromApiKey(Config.TranslateAPIKey);
             }

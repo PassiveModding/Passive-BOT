@@ -65,5 +65,13 @@
         public bool LogToDatabase { get; set; } = true;
         
         public string TranslateAPIKey { get; set; } = null;
+
+        public bool RunPartner { get; set; } = true;
+
+        public bool RunBirthday { get; set; } = true;
+
+        public bool RunGame { get; set; } = true;
+
+        public bool RunTranslate { get; set; } = true;
     }
 }
