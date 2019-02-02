@@ -81,7 +81,7 @@
         /// <param name="prefixService">
         /// The prefix Service.
         /// </param>
-        public EventHandler(DiscordShardedClient client, TranslateLimitsNew limits, ReminderService reminders, TranslateMethodsNew translationMethods, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
+        public EventHandler(DiscordShardedClient client, TranslateLimitsNew limits, ReminderService reminders, DBLApiService dblService, TranslateMethodsNew translationMethods, TranslationService translationService, HomeService homeService, ConfigModel config, IServiceProvider service, LevelHelper levels, ChannelHelper channelHelper, CommandService commandService, PrefixService prefixService)
         {
             Client = client;
             Config = config;
@@ -96,9 +96,12 @@
             Limits = limits;
             Reminders = reminders;
             TranslationMethods = translationMethods;
+            DBLApi = dblService;
 
             CancellationToken = new CancellationTokenSource();
         }
+
+        public DBLApiService DBLApi { get; set; }
 
         public TranslateMethodsNew TranslationMethods { get; set; }
 
@@ -179,7 +182,17 @@
                     {
                         LogHandler.LogMessage($"Bot is in Prefix Override Mode! Current Prefix is: {DatabaseHandler.Settings.PrefixOverride}", LogSeverity.Warning);
                     }
-                    
+
+
+                    if (await DBLApi.InitializeAsync())
+                    {
+                        LogHandler.LogMessage("Discord Bots List API Initialized.");
+                    }
+                    else
+                    {
+                        LogHandler.LogMessage("Discord Bots List API Not Initialized.", LogSeverity.Warning);
+                    }
+
                     Provider.GetRequiredService<TimerService>().Restart();
 
                     _ = Task.Run(

@@ -4,6 +4,8 @@ using System.Text;
 
 namespace PassiveBOT.Services
 {
+    using System.Threading.Tasks;
+
     using Discord.WebSocket;
 
     using DiscordBotsList.Api.Adapter.Discord.Net;
@@ -12,9 +14,9 @@ namespace PassiveBOT.Services
 
     public class DBLApiService
     {
-        private readonly DiscordShardedClient Client;
+        private DiscordShardedClient Client { get; }
 
-        private readonly ConfigModel Config;
+        private ConfigModel Config { get; }
 
         public DBLApiService(DiscordShardedClient client, ConfigModel config)
         {
@@ -22,25 +24,27 @@ namespace PassiveBOT.Services
             Config = config;
         }
 
-        public bool Initialized { get; set; } = false;
+        public bool Initialized { get; set; }
 
         public ShardedDiscordNetDblApi DBLApi { get; set; }
 
-        public void Initialize()
+        public async Task<bool> InitializeAsync()
         {
-            if (Config.DiscordBotsListApi != null)
+            if (Config.DiscordBotsListApi != null && Client != null && Client.CurrentUser != null)
             {
                 try
                 {
                     DBLApi = new ShardedDiscordNetDblApi(Client, Config.DiscordBotsListApi);
-                    DBLApi.CreateListener();
+                    DBLApi?.CreateListener();
                     Initialized = true;
                 }
-                catch
+                catch (Exception e)
                 {
-                    //
+                    Console.WriteLine(e.ToString());
                 }
             }
+
+            return Initialized;
         }
     }
 }

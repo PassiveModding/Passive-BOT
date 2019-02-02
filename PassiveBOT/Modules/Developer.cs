@@ -392,7 +392,22 @@
             Context.Provider.GetRequiredService<DatabaseHandler>().Execute<ConfigModel>(DatabaseHandler.Operation.SAVE, config, "Config");
             await Context.Message.DeleteAsync();
             await SimpleEmbedAsync("Token is set!");
-            DblApi.Initialize();
+            await DblApi.InitializeAsync();
+        }
+
+        [Command("UpdateDBLGuildCount")]
+        [Summary("Manually updates the discord bots list guild counter")]
+        [RequireContext(ContextType.Guild)]
+        public async Task DBLGuildCountAsync()
+        {
+            if (DblApi.Initialized)
+            {
+                await DblApi.DBLApi.UpdateStats(Context.Client.GetShardIdFor(Context.Guild), Context.Client.Shards.Count, Context.Client.Shards.Select(x => x.Guilds.Count).ToArray());
+                await ReplyAsync("Complete");
+                return;
+            }
+
+            await ReplyAsync("DBLApi is not initialized");
         }
 
         /// <summary>

@@ -163,7 +163,6 @@
             await provider.GetRequiredService<BotHandler>().InitializeAsync();
             LogHandler.LogMessage("Initializing EventHandler", LogSeverity.Verbose);
             await provider.GetRequiredService<EventHandler>().InitializeAsync();
-            provider.GetRequiredService<DBLApiService>().Initialize();
 
 
             // Indefinitely delay the method from finishing so that the program stays running until stopped.
