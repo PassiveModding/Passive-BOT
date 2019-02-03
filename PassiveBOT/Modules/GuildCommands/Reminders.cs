@@ -16,9 +16,9 @@ namespace PassiveBOT.Modules.GuildCommands
 
     public class Reminders : Base
     {
-        private readonly ReminderService Remind;
+        private readonly WaitService Remind;
 
-        public Reminders(ReminderService remind)
+        public Reminders(WaitService remind)
         {
             Remind = remind;
         }
@@ -35,7 +35,7 @@ namespace PassiveBOT.Modules.GuildCommands
 
             return SimpleEmbedAsync("You will be reminded about: \n" + 
                                     $"{response.Message}\n" + 
-                                    $"At: **{response.ExpiresOn.DateTime.ToShortTimeString()} {response.ExpiresOn.DateTime.ToShortDateString()}**\n" + 
+                                    $"At: **{response.ExpiresOn.ToShortTimeString()} {response.ExpiresOn.ToShortDateString()}**\n" + 
                                     $"ID: {response.Id}");
         }
         
@@ -49,7 +49,7 @@ namespace PassiveBOT.Modules.GuildCommands
                 var reminderStrings = reminders.Select(
                     x =>
                         {
-                            var timeString = $"@{x.ExpiresOn.DateTime.ToShortTimeString()} {x.ExpiresOn.DateTime.ToShortDateString()}";
+                            var timeString = $"@{x.ExpiresOn.ToShortTimeString()} {x.ExpiresOn.ToShortDateString()}";
                             var message = x.Message;
                             var guild = Context.Client.GetGuild(x.GuildId);
                             var channel = guild?.GetTextChannel(x.ChannelId);

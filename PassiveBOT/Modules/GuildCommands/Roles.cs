@@ -7,8 +7,10 @@
     using Discord;
     using Discord.Addons.PrefixService;
     using Discord.Commands;
+    using Discord.WebSocket;
 
     using PassiveBOT.Context;
+    using PassiveBOT.Services;
 
     /// <summary>
     ///     The roles module
@@ -18,11 +20,13 @@
     [Summary("Join/Leave Roles")]
     public class Roles : Base
     {
-        public Roles(PrefixService prefixService)
+        public Roles(PrefixService prefixService, WaitService wait)
         {
             PrefixService = prefixService;
+            WaitService = wait;
         }
 
+        private WaitService WaitService { get; }
         private PrefixService PrefixService { get; }
 
         /// <summary>
@@ -65,6 +69,31 @@
             else
             {
                 throw new Exception("This role is not a sub role");
+            }
+        }
+
+        [Command("TempRole")]
+        [RequireBotPermission(GuildPermission.ManageRoles)]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        [Summary("Give a user a role for the given amount of time.")]
+        public async Task SetSubAsync(IRole role, SocketGuildUser user, TimeSpan time)
+        {
+            try
+            {
+                if (role.Position >= Context.Guild.GetUser(Context.Client.CurrentUser.Id).Hierarchy)
+                {
+                    await SimpleEmbedAsync("Role level is higher than the bot and cannot be applied to another user.");
+                    return;
+                }
+
+                await user.AddRoleAsync(role);
+                var roleModel = WaitService.AddTempRole(Context.Guild.Id, user.Id, role.Id, time);
+                await SimpleEmbedAsync($"{user.Mention} will have the role {role.Mention} until: {roleModel.ExpiresOn.ToShortDateString()} {roleModel.ExpiresOn.ToShortTimeString()}");
+            }
+            catch (Exception e)
+            {
+                await SimpleEmbedAsync("There was an error adding the role to the user");
+                Console.WriteLine(e.ToString());
             }
         }
     }

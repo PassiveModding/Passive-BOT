@@ -151,7 +151,7 @@
                         })
                 .AddSingleton<TimerService>()
                 .AddSingleton<DBLApiService>()
-                .AddSingleton<ReminderService>();
+                .AddSingleton<WaitService>();
 
             var provider = services.BuildServiceProvider();
             
