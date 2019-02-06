@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace PassiveBOT.Modules.Gaming
 {
     using System.Linq;
+    using System.Net.Http;
     using System.Threading.Tasks;
 
     using Discord;
@@ -17,12 +18,15 @@ namespace PassiveBOT.Modules.Gaming
     [RequireContext(ContextType.Guild)]
     public partial class Games : Base
     {
-        public Games(GameService gameService)
+        public Games(GameService gameService, HttpClient client)
         {
             GameService = gameService;
+            Client = client;
         }
 
         public GameService GameService { get; set; }
+
+        public HttpClient Client { get; set; }
 
         private readonly List<string> itemList = new List<string>
         {

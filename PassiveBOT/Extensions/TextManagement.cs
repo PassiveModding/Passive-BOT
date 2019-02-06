@@ -1,7 +1,9 @@
 ﻿namespace PassiveBOT.Extensions
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
 
     using Discord;
 
@@ -48,6 +50,21 @@
             }
 
             return splitList;
+        }
+
+        public static string DecodeBase64(this string original)
+        {
+            try
+            {
+                byte[] data = Convert.FromBase64String(original);
+                string decodedString = Encoding.UTF8.GetString(data);
+                return decodedString;
+            }
+            catch (Exception e)
+            {
+                return original;
+            }
+            
         }
     }
 }
