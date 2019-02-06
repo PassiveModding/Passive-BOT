@@ -241,7 +241,10 @@
                         try
                         {
                             await recChannel.SendMessageAsync("", false, partnerMessage);
-                            Console.WriteLine($"Sent partner message from: {partner.Item1.Name} [{partner.Item1.Id}] to {receiver.Item1.Name} {receiver.Item1.Id}");
+                            partner.Item2.Stats.ServersReached++;
+                            partner.Item2.Stats.UsersReached += receiver.Item1.MemberCount;
+                            partner.Item2.Save();
+                            Console.WriteLine($"Sent partner message from: {partner.Item1.Name} [{partner.Item1.Id}] to {receiver.Item1.Name} [{receiver.Item1.Id}]");
                         }
                         catch (Exception e)
                         {
