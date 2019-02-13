@@ -92,7 +92,7 @@
             var response = HandleResponse(file).FixLength();
             embed.AddField($"Translated [{language}{(reaction?.Emote == null ? string.Empty : $"{reaction.Emote}")}]", $"{response}");
             embed.AddField($"Original [{file[2]}]", $"{original}");
-            embed.Footer = new EmbedFooterBuilder { Text = $"Original Author: {message.Author}{(reaction == null ? string.Empty : $" || Reactor: {reaction.User.Value}")}", IconUrl = reaction.User.Value.GetAvatarUrl() };
+            embed.Footer = new EmbedFooterBuilder { Text = $"Original Author: {message.Author}{(reaction == null ? string.Empty : $" | Reactor: {reaction.User.Value}")}", IconUrl = reaction.User.Value.GetAvatarUrl() };
             return embed;
         }
 

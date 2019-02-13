@@ -157,7 +157,7 @@
         {
             var model = StatModel.Load();
             var ordered = model.CommandStats.OrderByDescending(x => x.CommandUses).ToList();
-            var pages = ordered.SplitList(20).Select(x => new PaginatedMessage.Page { Description = string.Join("\n", x.Select(cmd => $"`{cmd.CommandName}` - Uses: {cmd.CommandUses} || Errors: {cmd.ErrorCount} || Users: {cmd.CommandUsers.Count} || Guilds: {cmd.CommandGuilds.Count}")) }).ToList();
+            var pages = ordered.SplitList(20).Select(x => new PaginatedMessage.Page { Description = string.Join("\n", x.Select(cmd => $"`{cmd.CommandName}` - Uses: {cmd.CommandUses} | Errors: {cmd.ErrorCount} | Users: {cmd.CommandUsers.Count} | Guilds: {cmd.CommandGuilds.Count}")) }).ToList();
             var pager = new PaginatedMessage { Title = "Command Usage", Pages = pages };
             return PagedReplyAsync(pager, new ReactionList { Backward = true, First = true, Forward = true, Info = true, Last = true, Trash = true });
         }
@@ -565,7 +565,7 @@
                     await SimpleEmbedAsync($"Max: {tGuild.MaxCharacters()}" + 
                                            $"Total: {tGuild.TotalCharacters}\n" + 
                                            $"Guild ID: {tGuild.GuildId}\n" + 
-                                           $"Upgrades: \n{string.Join("\n", tGuild.Upgrades.Select(x => $"{x.Key} || {x.ValidFor}"))}");
+                                           $"Upgrades: \n{string.Join("\n", tGuild.Upgrades.Select(x => $"{x.Key} | {x.ValidFor}"))}");
                 }
                 else
                 {

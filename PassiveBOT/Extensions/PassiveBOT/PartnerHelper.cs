@@ -74,7 +74,7 @@
 
                 embed.AddField("Invite", $"{guildObj.Message.Invite ?? "N/A"}");
                 embed.ThumbnailUrl = guildObj.Message.UseThumb ? guild.IconUrl : null;
-                embed.Footer = new EmbedFooterBuilder { Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} || " : string.Empty)}Get PassiveBOT: {_HomeService.CurrentHomeModel.HomeInvite}", IconUrl = guild.IconUrl };
+                embed.Footer = new EmbedFooterBuilder { Text = $"{(guildObj.Message.UserCount ? $"Users: {guild.MemberCount} | " : string.Empty)}Get PassiveBOT: {_HomeService.CurrentHomeModel.HomeInvite}", IconUrl = guild.IconUrl };
                 return embed;
             }
             catch (Exception e)

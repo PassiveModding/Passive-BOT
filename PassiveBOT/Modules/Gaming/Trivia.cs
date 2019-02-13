@@ -103,7 +103,7 @@ namespace PassiveBOT.Modules.Gaming
 
                 builder.Footer = new EmbedFooterBuilder
                                      {
-                                         Text = $"Progress: {currentQuestionIndex}/{trivia.results.Count} || Correct: {totalCorrect}/{currentQuestionIndex}"
+                                         Text = $"Progress: {currentQuestionIndex}/{trivia.results.Count} | Correct: {totalCorrect}/{currentQuestionIndex}"
                                      };
 
                 var callBackData = new ReactionCallbackData("", builder.Build(), true, true, TimeSpan.FromMinutes(5));

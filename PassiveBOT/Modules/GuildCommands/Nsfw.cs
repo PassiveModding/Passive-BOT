@@ -100,7 +100,7 @@ namespace PassiveBOT.Modules.GuildCommands
                 var imageObject = RedditHelper.IsImage(image.Url.ToString());
                 if (imageObject.IsImage && !imageObject.Url.Contains("gfy"))
                 {
-                    pages.Add(new PaginatedMessage.Page { ImageUrl = imageObject.Url, Description = $"{imageObject.Extension} || [Link](https://reddit.com{image.Permalink})", Title = image.Title });
+                    pages.Add(new PaginatedMessage.Page { ImageUrl = imageObject.Url, Description = $"{imageObject.Extension} | [Link](https://reddit.com{image.Permalink})", Title = image.Title });
                 }
             }
 

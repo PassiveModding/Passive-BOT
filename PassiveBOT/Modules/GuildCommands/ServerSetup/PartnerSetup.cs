@@ -164,22 +164,26 @@
         {
             if (message.Length > 1000)
             {
-                throw new Exception($"Partner Message must be shorter than 1000 characters. Given: {message.Length}");
+                await SimpleEmbedAsync($"Partner Message must be shorter than 1000 characters. Given: {message.Length}");
+                return;
             }
 
             if (Context.Message.MentionedRoles.Any() || Context.Message.MentionedUsers.Any() || Context.Message.MentionedChannels.Any() || Context.Message.Content.Contains("@everyone") || Context.Message.Content.Contains("@here"))
             {
-                throw new Exception("Partner Message cannot contain role or user mentions as they cannot be referenced from external guilds");
+                await SimpleEmbedAsync("Partner Message cannot contain role or user mentions as they cannot be referenced from external guilds");
+                return;
             }
 
             if (Profanity.ContainsProfanity(message))
             {
-                throw new Exception("Partner Message cannot contain profanity");
+                await SimpleEmbedAsync("Partner Message cannot contain profanity");
+                return;
             }
             
             if (message.ToLower().Contains("discord.gg") || message.ToLower().Contains("discordapp.com") || message.ToLower().Contains("discord.me") || Regex.Match(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").Success)
             {
-                throw new Exception("No need to include an invite to the bot in your message. PassiveBOT will auto-generate one");
+                await SimpleEmbedAsync("No need to include an invite to the bot in your message. PassiveBOT will automatically generate one");
+                return;
 
                 /*
                 var invites = Regex.Matches(message, @"(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?(d+i+s+c+o+r+d+|a+p+p)+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$").OfType<Match>().ToList();

@@ -158,7 +158,7 @@
                         var ownerName = own?.Username ?? tag.Creator;
 
                         embed.AddField(tag.Name, tag.Content);
-                        embed.WithFooter(x => { x.Text = $"Tag Owner: {ownerName} || Uses: {tag.Uses} || Command Invoker: {Context.User.Username}"; });
+                        embed.WithFooter(x => { x.Text = $"Tag Owner: {ownerName} | Uses: {tag.Uses} | Command Invoker: {Context.User.Username}"; });
 
                         tag.Uses++;
                         t.Save();

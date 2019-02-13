@@ -41,7 +41,7 @@
                 return null;
             }
 
-            return $"You may upgrade your translation limits by purchasing a token from {TranslateStoreUrl} and using the command `{Prefix}translate redeem <token>`";
+            return $"You may upgrade your translation limits by purchasing a token from {TranslateStoreUrl} and using the command `{Prefix}translate redeem <token>` eg. `{Prefix}translate redeem 1234-5678-1234-5678`";
         }
 
         public string DiscordBotListVoteUrl { get; set; } = null;

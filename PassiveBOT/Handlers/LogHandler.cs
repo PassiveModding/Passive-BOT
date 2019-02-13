@@ -92,7 +92,7 @@
         /// </param>
         public static void LogMessage(ulong guildId, string channelName, ulong userId, string message, string error = null, LogSeverity logSeverity = LogSeverity.Info)
         {
-            var custom = $"G: {guildId.ToString().Left(20)} || C: {channelName.Left(20)} || U: {userId.ToString().Left(20)} || M: {message.Left(100)}";
+            var custom = $"G: {guildId.ToString().Left(20)} | C: {channelName.Left(20)} | U: {userId.ToString().Left(20)} | M: {message.Left(100)}";
             if (error != null)
             {
                 custom += $"\nE: {error}";
@@ -116,7 +116,7 @@
         public static void LogMessage(Context context, string error = null, LogSeverity logSeverity = LogSeverity.Info)
         {
             // var custom = $"G: {context.Guild.Name.Left(20)} || C: {context.Channel.Name.Left(20)} || U: {context.User.Username.Left(20)} || M: {context.Message.Content.Left(100)}";
-            var custom = $"G: {context.Guild.Id.ToString().Left(20)} || C: {context.Channel.Name.Left(20)} || U: {context.User.Id.ToString().Left(20)} || M: {context.Message.Content.Left(100)}";
+            var custom = $"G: {context.Guild.Id.ToString().Left(20)} | C: {context.Channel.Name.Left(20)} | U: {context.User.Id.ToString().Left(20)} | M: {context.Message.Content.Left(100)}";
 
             if (error != null)
             {

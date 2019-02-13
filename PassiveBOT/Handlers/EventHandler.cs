@@ -444,7 +444,7 @@
                 var messageTask = Task.Run(
                     async () =>
                         {
-                            LogHandler.LogMessage($"G: {(Message.Channel as IGuildChannel)?.Guild?.Id} || C: {Message.Channel?.Id} || U: {Message.Author?.Id.ToString()} || M: {Message?.Content.Left(100)}", LogSeverity.Verbose);
+                            LogHandler.LogMessage($"G: {(Message.Channel as IGuildChannel)?.Guild?.Id} | C: {Message.Channel?.Id} | U: {Message.Author?.Id.ToString()} | M: {Message?.Content.Left(100)}", LogSeverity.Verbose);
                             await _LevelHelper.DoLevelsAsync(Message);
                             await _ChannelHelper.DoAutoMessageAsync(Message);
                         });

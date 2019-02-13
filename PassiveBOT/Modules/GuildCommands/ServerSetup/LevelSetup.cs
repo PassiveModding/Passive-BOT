@@ -104,7 +104,19 @@
         public Task LevelSetupTaskAsync()
         {
             var leveling = Service.GetLevelSetup(Context.Guild.Id, true);
-            return SimpleEmbedAsync($"Enabled: {leveling.Settings.Enabled}\n" + $"Incremental Rewards: {leveling.Settings.IncrementLevelRewards}\n" + "**Messaging**\n" + $"Reply In Channel: {leveling.Settings.ReplyLevelUps}\n" + $"DM Level Ups: {leveling.Settings.DMLevelUps}\n" + $"Using Log Channel: {(leveling.Settings.UseLogChannel ? $"{Context.Guild.GetChannel(leveling.Settings.LogChannelID)?.Name}" : "false")}\n" + "**Users**\n" + $"Level User Count: {leveling.Users.Count}\n" + $"Total Levels: {leveling.Users.Sum(x => x.Value.Level)}\n" + $"Total XP: {leveling.Users.Sum(x => x.Value.XP)}\n" + $"Highest Level & XP: {leveling.Users.Max(x => x.Value.Level)} || {leveling.Users.Max(x => x.Value.XP)}\n" + "**Reward Roles**\n" + $"{string.Join("\n", leveling.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}"))}");
+            return SimpleEmbedAsync($"Enabled: {leveling.Settings.Enabled}\n" + 
+                                    $"Incremental Rewards: {leveling.Settings.IncrementLevelRewards}\n" + 
+                                    "**Messaging**\n" + 
+                                    $"Reply In Channel: {leveling.Settings.ReplyLevelUps}\n" + 
+                                    $"DM Level Ups: {leveling.Settings.DMLevelUps}\n" +
+                                    $"Using Log Channel: {(leveling.Settings.UseLogChannel ? $"{Context.Guild.GetChannel(leveling.Settings.LogChannelID)?.Name}" : "false")}\n" +
+                                    "**Users**\n" + 
+                                    $"Level User Count: {leveling.Users.Count}\n" + 
+                                    $"Total Levels: {leveling.Users.Sum(x => x.Value.Level)}\n" + 
+                                    $"Total XP: {leveling.Users.Sum(x => x.Value.XP)}\n" + 
+                                    $"Highest Level & XP: {leveling.Users.Max(x => x.Value.Level)} | {leveling.Users.Max(x => x.Value.XP)}\n" + 
+                                    "**Reward Roles**\n" + 
+                                    $"{string.Join("\n", leveling.RewardRoles.OrderByDescending(x => x.Requirement).Where(x => Context.Guild.GetRole(x.RoleID) != null).Select(x => $"{x.Requirement} - {Context.Guild.GetRole(x.RoleID).Mention}"))}");
         }
 
         /// <summary>
